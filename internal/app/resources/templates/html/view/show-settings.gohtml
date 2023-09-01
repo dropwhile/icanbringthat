@@ -1,0 +1,669 @@
+{{ define "main" }}
+<!-- Account Details -->
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  Account
+</h4>
+<div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  {{if not .user.Verified }}
+  <form method="post" action="/verify">
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Verfication Status</span>
+      <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+        <input
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple text-red-600 dark:text-red-400 dark:focus:shadow-outline-gray form-input"
+          style="padding-left: 6rem;"
+          type="text"
+          value="Account is not yet verified."
+          disabled>
+        <div
+          class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none text-red-600 dark:text-red-400">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-5 h-5"
+            aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <button
+          class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          Verify &nbsp;
+        </button>
+      </div>
+      <span class="text-xs text-gray-600 dark:text-gray-400">
+        Note: Event notification emails will not be sent until account is verified.
+      </span>
+    </label>
+    {{ .csrfField }}
+  </form>
+  {{else}}
+  <label class="block mb-4 text-sm">
+    <span class="text-gray-700 dark:text-gray-400">Verfication Status</span>
+    <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+      <input
+        class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple text-green-600 dark:text-green-400 dark:focus:shadow-outline-gray form-input"
+        style="padding-left: 6rem;"
+        type="text"
+        value="Account is verified."
+        disabled>
+      <div
+        class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none text-green-600 dark:text-green-400">
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="w-5 h-5"
+          aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+            clip-rule="evenodd" />
+        </svg>
+      </div>
+      <button
+        class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md focus:outline-none opacity-50 cursor-not-allowed">
+        Verified
+      </button>
+    </div>
+  </label>
+  {{end}}
+
+  <form method="post" action="/settings">
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Email</span>
+      <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+        <input
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          style="padding-left: 6rem;"
+          placeholder="user@example.com"
+          type="email"
+          name="email"
+          value="{{.user.Email}}"
+          required
+          autocomplete="email">
+        <div class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none">
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+            </path>
+          </svg>
+        </div>
+        <button
+          class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          Update
+        </button>
+      </div>
+      {{if .user.Verified }}
+      <span class="text-xs text-gray-600 dark:text-gray-400">
+        Note: If you change email, the account will need to be re-verified.
+      </span>
+      {{end}}
+    </label>
+    {{ .csrfField }}
+  </form>
+
+  <form method="post" action="/settings">
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Name</span>
+      <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+        <input
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          style="padding-left: 6rem;"
+          placeholder="Name"
+          value="{{.user.Name}}"
+          type="text"
+          name="name"
+          required
+          data-1p-ignore>
+        <button
+          class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          Update
+        </button>
+      </div>
+    </label>
+    {{ .csrfField }}
+  </form>
+</div>
+
+<!-- account settings -->
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  Notifications
+</h4>
+{{block "notification_settings" .}}
+<div id="notification_settings" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  <div class="mb-1 flex justify-between items-center align-middle">
+    <div class="font-semibold text-gray-600 dark:text-gray-300">
+      Send Email Reminders
+    </div>
+    {{ $enable_reminders := .user.Settings.EnableReminders }}
+    <div
+      class="tooltip"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-boost="false"
+      hx-disinherit="*">
+      {{if $enable_reminders }}
+      <span class="tooltiptext">Disable reminders</span>
+      {{else}}
+      <span class="tooltiptext">Enable reminders</span>
+      {{end}}
+      <form>
+        <input
+          class="apple-switch align-middle"
+          type="checkbox"
+          name="enable_reminders"
+          hx-post="/settings/reminders"
+          hx-select="#notification_settings"
+          hx-target="#notification_settings"
+          hx-swap="outerHTML"
+          hx-select-oob="#flashes_modal"
+          hx-include="[name='enable_reminders']"
+          hx-params="enable_reminders"
+          {{if $enable_reminders}}
+          checked
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  call Swal.fire({
+                    icon: 'info',
+                    title: 'Confirm',
+                    text: 'Disable reminders?',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed
+                    issueRequest()
+                  else
+                    set my.checked to true
+                  end
+                end"
+          {{else}}
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if not {{.user.Verified}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Account must be verified before enabling reminder emails')
+                    set my.checked to false
+                  else
+                    issueRequest()
+                  end
+                end"
+          {{end}} />
+        <input type="hidden" name="enable_reminders" value="off" />
+      </form>
+    </div>
+  </div>
+  <form method="post" action="/settings/reminders">
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Event Reminder Threshold (Hours)</span>
+      <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+        <input
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          style="padding-left: 6rem;"
+          type="number"
+          min="2"
+          max="168"
+          name="notification_threshold"
+          value="{{.user.Settings.ReminderThresholdHours}}"
+          required>
+        <button
+          class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          Update
+        </button>
+      </div>
+      <span class="text-xs text-gray-600 dark:text-gray-400">
+        How many hours before an Event (one of your own, or one with an item you have earmarked) to send a reminder
+        email to you.
+        Default is 24 hours. Minimum is 2. Maximum is 168 (7 days).
+      </span>
+    </label>
+    {{ .csrfField }}
+  </form>
+</div>
+{{end}}
+
+<!-- authentication settings -->
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  Authentication
+</h4>
+{{block "authblock" .}}
+<div id="authblock" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  <!-- Password -->
+  <div class="mb-1 flex justify-between items-center align-middle">
+    <div class="font-semibold text-gray-600 dark:text-gray-300">
+      Password Auth
+    </div>
+    <div
+      class="tooltip"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-boost="false"
+      hx-disinherit="*">
+      {{if .user.PWAuth}}
+      <span class="tooltiptext">Disable password auth</span>
+      {{else}}
+      <span class="tooltiptext">Enable password auth</span>
+      {{end}}
+      <form>
+        <input
+          class="apple-switch align-middle"
+          type="checkbox"
+          name="auth_passauth"
+          hx-post="/settings/auth"
+          hx-select="#authblock"
+          hx-target="#authblock"
+          hx-swap="outerHTML"
+          hx-select-oob="#flashes_modal"
+          hx-include="[name='auth_passauth']"
+          hx-params="auth_passauth"
+          {{if .user.PWAuth}}
+          checked
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if {{if or (eq (len .credentials) 0) (not .user.WebAuthn)}}true{{else}}false{{end}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Must have a passkey registered and enabled before disabling password auth')
+                    set my.checked to true
+                  else
+                    call Swal.fire({
+                      icon: 'info',
+                      title: 'Confirm',
+                      text:'Disabling password authentication means only passkey auth will be used',
+                      showCancelButton: true
+                    })
+                    if result.isConfirmed
+                      issueRequest()
+                    else
+                      set my.checked to true
+                    end
+                  end
+                end"
+          {{else}}
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  call Swal.fire({
+                    icon: 'question',
+                    title: 'Confirm',
+                    text:'Are you sure you want to enable password authentication?',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed issueRequest()
+                end"
+          {{end}} />
+        <input type="hidden" name="auth_passauth" value="off" />
+      </form>
+    </div>
+  </div>
+  {{if .user.PWAuth}}
+  <form method="post" action="/settings">
+    <!-- Invalid input -->
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Current Password</span>
+      <input
+        id="old_password"
+        class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+        placeholder="***************"
+        type="password"
+        name="old_password"
+        required
+        autocomplete="current-password">
+    </label>
+
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">New Password</span>
+      <input
+        id="password"
+        class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+        placeholder="***************"
+        type="password"
+        name="password"
+        required
+        autocomplete="new-password">
+    </label>
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">
+        Confirm New Password
+      </span>
+      <input
+        id="confirm_password"
+        class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+        placeholder="***************"
+        type="password"
+        name="confirm_password"
+        required
+        autocomplete="new-password">
+    </label>
+    {{ .csrfField }}
+    <div class="block" style="text-align:left">
+      <button
+        class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+        Update
+      </button>
+    </div>
+  </form>
+  <script>
+    var password = document.getElementById("password")
+    var confirm_password = document.getElementById("confirm_password");
+
+    function validatePassword() {
+      if (password.value != confirm_password.value) {
+        confirm_password.setCustomValidity("Passwords Don't Match");
+      } else {
+        confirm_password.setCustomValidity('');
+      }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+  </script>
+  {{end}}
+
+  <hr class="mt-4 mb-4">
+
+  <!-- Password -->
+  <div class="mb-2 flex justify-between items-center align-middle">
+    <div class="flex items-center align-middle font-semibold text-gray-600 dark:text-gray-300">
+      Passkey Auth
+    </div>
+    <div
+      class="tooltip flex items-center align-middle"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-boost="false"
+      hx-disinherit="*">
+      {{if .user.WebAuthn}}
+      <span class="tooltiptext">Disable passkey auth</span>
+      {{else}}
+      <span class="tooltiptext">Enable passkey auth</span>
+      {{end}}
+      <form>
+        <input
+          class="apple-switch align-middle"
+          type="checkbox"
+          name="auth_passkeys"
+          hx-post="/settings/auth"
+          hx-select="#authblock"
+          hx-target="#authblock"
+          hx-swap="outerHTML"
+          hx-select-oob="#flashes_modal"
+          hx-include="[name='auth_passkeys']"
+          hx-params="auth_passkeys"
+          {{if .user.WebAuthn}}
+          checked
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if {{if (not .user.PWAuth)}}true{{else}}false{{end}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Cannot disable passkey auth without enabling password auth')
+                    set my.checked to true
+                  else
+                    call Swal.fire({
+                      icon: 'question',
+                      title: 'Confirm',
+                      text:'Are you sure you want to disable passkeys?',
+                      showCancelButton: true
+                    })
+                    if result.isConfirmed
+                      issueRequest()
+                    else
+                      set my.checked to true
+                    end
+                  end
+                end"
+          {{else}}
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if {{if (eq (len .credentials) 0)}}true{{else}}false{{end}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Must have at least one passkey registered before enabling passkey auth')
+                    set my.checked to false
+                  else
+                    call Swal.fire({
+                      icon: 'question',
+                      title: 'Confirm',
+                      text: 'Enable passkey auth?',
+                      showCancelButton: true
+                    })
+                    if result.isConfirmed
+                      issueRequest()
+                    else
+                      set my.checked to false
+                    end
+                  end
+                end"
+          {{end}} />
+        <input type="hidden" name="auth_passkeys" value="off" />
+      </form>
+    </div>
+  </div>
+  <div
+    id="passkeyauth"
+    class="w-full overflow-hidden rounded-lg shadow-xs">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap table-auto">
+        <thead>
+          <tr
+            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+            <th class="px-4 py-3">Key Name</th>
+            <th class="px-4 py-3 text-center" style="width:7rem">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+          {{ $credCount := len .credentials }}
+          {{range .credentials}}
+          <tr
+            class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <td class="px-4 py-3">
+              <div class="flex items-center text-sm">
+                <p class="font-semibold">{{.KeyName}}</p>
+              </div>
+            </td>
+            <td class="px-4 text-sm text-center" style="width:7rem">
+              {{if and (eq $credCount 1) ($.user.WebAuthn) }}
+              <div class="tooltip">
+                <div
+                  class="flex items-center justify-between px-2 py-2 text-sm font-medium text-gray-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                  style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                  aria-hidden="true">
+                  <span class="tooltiptext">Can't remove final passkey with passkey auth enabled</span>
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                </div>
+              </div>
+              {{else}}
+              <div
+                class="tooltip"
+                hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+                hx-boost="false">
+                <button
+                  class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                  style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                  aria-label="Remove this key"
+                  hx-delete="/webauthn/key/{{.RefID}}"
+                  hx-confirm="Are you sure?"
+                  hx-trigger="click throttle:1s"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:1s">
+                  <span class="tooltiptext">Remove this key</span>
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-5 h-5">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+              </div>
+              {{end}}
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="block mt-4" style="text-align:left">
+    <button
+      id="passkey-add"
+      data-csrf="{{ $.csrfToken }}"
+      class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+      _="on click call registerPasskey(my.dataset.csrf)">
+      Add Passkey
+    </button>
+  </div>
+</div>
+{{end}}
+
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  Api Access
+</h4>
+{{block "apikey_settings" .}}
+<div id="apikey_settings" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  <div class="mb-1 flex justify-between items-center align-middle">
+    <div class="font-semibold text-gray-600 dark:text-gray-300">
+      Api Access
+    </div>
+    {{ $enable_api_access := .user.ApiAccess }}
+    <div
+      class="tooltip"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-boost="false"
+      hx-disinherit="*">
+      {{if $enable_api_access }}
+      <span class="tooltiptext">Disable Api Access</span>
+      {{else}}
+      <span class="tooltiptext">Enable Api Access</span>
+      {{end}}
+      <form>
+        <input
+          class="apple-switch align-middle"
+          type="checkbox"
+          name="api_access"
+          hx-post="/settings/auth/api"
+          hx-select="#apikey_settings"
+          hx-target="#apikey_settings"
+          hx-swap="outerHTML"
+          hx-select-oob="#flashes_modal"
+          hx-include="[name='api_access']"
+          hx-params="api_access"
+          {{if $enable_api_access}}
+          checked
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  call Swal.fire({
+                    icon: 'info',
+                    title: 'Confirm',
+                    text: 'Disable Api access?',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed
+                    issueRequest()
+                  else
+                    set my.checked to true
+                  end
+                end"
+          {{else}}
+          _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if not {{.user.Verified}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Account must be verified before enabling Api access')
+                    set my.checked to false
+                  else
+                    issueRequest()
+                  end
+                end"
+          {{end}} />
+        <input type="hidden" name="api_access" value="off" />
+      </form>
+    </div>
+  </div>
+  <form method="post" action="/settings/auth/api">
+    <label class="block mb-4 text-sm">
+      <span class="text-gray-700 dark:text-gray-400">Api Key</span>
+      <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+        <input
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          style="padding-left: 6rem;"
+          type="text"
+          maxlength="54"
+          name="api_key"
+          value="{{if .apikey}}{{.apikey.Token}}{{end}}"
+          onfocus="this.setSelectionRange(0, this.value.length)"
+          readonly>
+        <input type="hidden" name="rotate_apikey" value="true" />
+        <button
+          class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          Rotate
+        </button>
+      </div>
+      <span class="text-xs text-gray-600 dark:text-gray-400">
+        Note: If the key is rotated, any existing api clients will need to be updated.
+      </span>
+    </label>
+    {{ .csrfField }}
+  </form>
+</div>
+{{end}}
+
+<!-- Account deletion -->
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  Account Deletion
+</h4>
+<div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl text-sm">
+  <div class="text-gray-700 dark:text-gray-400">
+    Account deletion is not a reversible operation. <br>
+    All associated Events and Earmarks
+    will be removed, as well as the Account itself.
+  </div>
+  <br>
+  <button
+    class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+    hx-boost="true"
+    hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+    hx-delete="/settings"
+    _="on htmx:confirm(issueRequest)
+        halt the event
+        call Swal.fire({
+          title: 'Are you sure?',
+          text: 'You won\'t be able to revert this!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'})
+        if result.isConfirmed issueRequest()">
+    Delete My Account
+  </button>
+</div>
+{{end}}
+{{ template "dashboard_layout" .}}

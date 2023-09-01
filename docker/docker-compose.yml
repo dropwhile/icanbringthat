@@ -1,0 +1,73 @@
+services:
+  db:
+    image: "postgres"
+    restart: always
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./database/init/load-extensions.sql:/docker-entrypoint-initdb.d/load-extensions.sql
+    command: postgres -c jit=off
+
+  redis:
+    restart: always
+    image: valkey/valkey:7-alpine
+    volumes:
+      - ./redis-data:/data
+    command: valkey-server --save 60 1 --loglevel warning --requirepass "${REDISPASS}"
+
+  app:
+    image: "icanbringthat:latest"
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      #TPL_DIR: "embed"
+      #STATIC_DIR: "embed"
+      LOG_LEVEL: "debug"
+      LOG_FORMAT: "plain"
+      PRODUCTION: "true"
+      DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      REDIS_DSN: "redis://:${REDISPASS}@redis:6379"
+      HMAC_KEY: ${HMAC_KEY}
+      SMTP_HOSTNAME: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      GOOSE_MIGRATION_DIR: database/migrations
+
+  worker:
+    image: "icanbringthat:latest"
+    restart: always
+    depends_on:
+      - db
+    environment:
+      #TPL_DIR: "embed"
+      #STATIC_DIR: "embed"
+      LOG_LEVEL: "debug"
+      LOG_FORMAT: "plain"
+      PRODUCTION: "true"
+      DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      HMAC_KEY: "ignore"
+      JOBS: "all"
+      SMTP_HOSTNAME: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      GOOSE_MIGRATION_DIR: database/migrations
+    command: /app/worker run
+

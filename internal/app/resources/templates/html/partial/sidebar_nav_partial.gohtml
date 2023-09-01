@@ -1,0 +1,169 @@
+{{define "sidebar_nav_partial"}}
+<div class="py-4 text-gray-500 dark:text-gray-400">
+  <span class="ml-6 text-purple-600 dark:text-gray-100" style="float:left;">
+    <a href="https://icanbringthat.com/">
+      <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        class="w-6 h-6">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+      </svg>
+    </a>
+  </span>
+  <a
+    class="ml-2 text-lg font-bold text-gray-800 dark:text-gray-200"
+    href="/dashboard">
+    ICanBringThat
+  </a>
+  <ul class="mt-6">
+    <li class="relative px-6 py-3">
+      {{if eq (index . "nav") "dashboard"}}
+      <span
+        class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
+        aria-hidden="true"></span>
+      {{end}}
+      <a
+        class="{{if eq (index . " nav") "dashboard" }}text-gray-800 dark:text-gray-100{{end}} inline-flex items-center
+        w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+        href="/">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+          </path>
+        </svg>
+        <span class="ml-4">Dashboard</span>
+      </a>
+    </li>
+  </ul>
+  <ul>
+    <li class="relative px-6 py-3">
+      {{if eq (index . "nav") "events"}}
+      <span
+        class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
+        aria-hidden="true"></span>
+      {{end}}
+      <a
+        class="{{if eq (index . " nav") "events" }}text-gray-800 dark:text-gray-100{{end}} inline-flex items-center
+        w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+        href="/events">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+          </path>
+        </svg>
+        <span class="ml-4">My Events</span>
+      </a>
+    </li>
+    <li class="relative px-6 py-3">
+      {{if eq (index . "nav") "earmarks"}}
+      <span
+        class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
+        aria-hidden="true"></span>
+      {{end}}
+      <a
+        class="{{if eq (index . " nav") "earmarks" }}text-gray-800 dark:text-gray-100{{end}} inline-flex items-center
+        w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+        href="/earmarks">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+          </path>
+        </svg>
+        <span class="ml-4">My Earmarks</span>
+      </a>
+    </li>
+    <li class="relative px-6 py-3">
+      {{if eq (index . "nav") "favorites"}}
+      <span
+        class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
+        aria-hidden="true"></span>
+      {{end}}
+      <a
+        class="{{if eq (index . " nav") "favorites" }}text-gray-800 dark:text-gray-100{{end}} inline-flex items-center
+        w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+        href="/favorites">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+          </path>
+        </svg>
+        <span class="ml-4">My Favorites</span>
+      </a>
+    </li>
+  </ul>
+  <div class="px-6 my-6">
+    {{if .user.Verified }}
+    <button
+      class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+      hx-get="/events/add"
+      hx-target="#modalbody"
+      hx-select="#form"
+      hx-trigger="click">
+      Create Event
+      <span class="ml-2" aria-hidden="true">+</span>
+    </button>
+    {{else}}
+    <button
+      class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+      hx-post="/verify"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      _="on htmx:confirm(issueRequest)
+          halt the event
+          call Swal.fire({
+            title: 'Account not yet verified',
+            html: 'Your account must be verified before the<br>' +
+                  'creation of new events is allowed.' +
+                  '<br><br>' +
+                  'Would you like to send the account<br>' +
+                  'verification email now?' 
+            ,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Send Verification Email'})
+          if result.isConfirmed issueRequest()">
+      Create Event
+      <span class="ml-2" aria-hidden="true">+</span>
+    </button>
+    {{end}}
+  </div>
+</div>
+{{end}}

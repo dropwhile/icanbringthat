@@ -1,0 +1,76 @@
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+  
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: max-content;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 6px;
+    position: absolute;
+    z-index: 1;
+    top: 0%;
+    right: 110%;
+    opacity: 0;
+    transition: opacity 0.3s linear 1s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent #555;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+.tooltip > button:focus { outline: none; }
+
+.tooltipright  {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltipright .tooltiptextright {
+    visibility: hidden;
+    width: max-content;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 6px;
+    position: absolute;
+    z-index: 1;
+    top: -5%;
+    left: 110%;
+    opacity: 0;
+    transition: opacity 0.3s linear 1s;
+}
+
+.tooltipright .tooltiptextright::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #555 transparent transparent;
+}
+
+.tooltipright:hover .tooltiptextright {
+    visibility: visible;
+    opacity: 1;
+}
+.tooltipright > a:focus { outline: none; }

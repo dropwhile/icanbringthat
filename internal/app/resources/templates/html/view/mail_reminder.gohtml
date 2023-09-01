@@ -1,0 +1,30 @@
+<!DOCTYPE PUBLIC “-//W3C//DTD XHTML 1.0 Transitional//EN” “https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd”>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>{{.Subject}}</title>
+</head>
+
+<body>
+  <p>This email is a reminder about {{if .owner}}one of your upcoming events{{else}}an upcoming event{{end}}.</p>
+  <p>
+    Name: {{.eventName}}<br>
+    Description: {{.eventDescription}}<br>
+    When: {{.eventWhen}}<br>
+    Link: <a href="{{.eventURL}}">{{.eventURL}}</a><br>
+  </p>
+  <br>
+  {{if .items -}}
+  You have earmarked the following items for this event:<br>
+  {{- end -}}
+  {{- range .items}}
+  <ul>
+    <li>{{.Description}}</li>
+  </ul>
+  {{- end}}
+  </p>
+</body>
+
+</html>

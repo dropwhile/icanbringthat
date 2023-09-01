@@ -1,0 +1,90 @@
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.sortable-ghost {
+    opacity: .5;
+    background: #C8EBFB;
+}
+.sort-handle {
+	cursor: move;
+	cursor: -webkit-grabbing;
+}
+
+input.apple-switch {
+  position: relative;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  width: 50px;
+  height: 30px;
+  background-color: #fff;
+  border: 1px solid #D9DADC;
+  border-radius: 50px;
+  box-shadow: inset -20px 0 0 0 #fff;
+}
+
+input.apple-switch:after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  background: transparent;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.2);
+}
+
+input.apple-switch:checked {
+  box-shadow: inset 20px 0 0 0 #4ed164;
+  border-color: #4ed164;
+}
+
+input.apple-switch:checked:after {
+  left: 20px;
+  box-shadow: -2px 4px 3px rgba(0,0,0,0.05);
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.my-2	{
+  margin-top: 0.5rem; 
+  margin-bottom: 0.5rem; 
+}
+
+.mx-2	{
+  margin-left: 0.5rem; 
+  margin-right: 0.5rem;
+}
+
+.mkdn a {
+    color: #7e3af2;
+}
+
+.mkdn a:hover {
+  text-decoration: underline
+}
+
+.mkdn ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-left: 1em;
+}
+
+.mkdn ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 1em;
+}
+
+.theme-dark .mkdn a {
+  color: #ac94fa;
+}

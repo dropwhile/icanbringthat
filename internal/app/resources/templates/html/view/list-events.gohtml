@@ -1,0 +1,162 @@
+{{ define "main" }}
+<!-- Cards -->
+{{block "event_cards" .}}
+<div
+  class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
+  id="eventCards"
+  hx-get="/events"
+  hx-swap="outerHTML"
+  hx-trigger="count-updated from:body">
+  <!-- Card -->
+  <a href="/events">
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          My Events
+        </p>
+        <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {{ .eventCount.Current }}
+        </p>
+      </div>
+    </div>
+  </a>
+  <!-- Card -->
+  <a href="/events?archive=1">
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          Archived Events
+        </p>
+        <p
+          class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {{ .eventCount.Archived }}
+        </p>
+      </div>
+    </div>
+  </a>
+</div>
+{{end}}
+
+<!-- New Table -->
+<div class="w-full overflow-hidden rounded-lg shadow-xs">
+  <div class="w-full overflow-x-auto">
+    <table class="w-full whitespace-no-wrap table-auto">
+      <thead>
+        <tr
+          class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+          <th class="px-4 py-3">Name</th>
+          <th class="px-4 py-3 text-center" style="width:11rem">Item Count</th>
+          <th class="px-4 py-3 text-center" style="width:11rem">Event Date</th>
+          <th class="px-4 py-3 text-center" style="width:9rem">Actions</th>
+        </tr>
+      </thead>
+      <tbody
+        class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
+        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'>
+        {{ range .events }}
+        <tr
+          class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
+          <td class="px-4 py-3">
+            <div class="flex items-center text-sm">
+              <div>
+                <a href="/events/{{.RefID }}">
+                  <p class="font-semibold">{{.Name | trunc 60}}</p>
+                </a>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm text-center" style="width:11rem">
+            {{with (index $.eventItemCounts .ID) }}{{.}}{{else}}0{{end}}
+          </td>
+          <td
+            class="px-4 py-3 text-sm text-center" style="width:11rem"
+            x-data="{date: new Date($el.innerText)}"
+            x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')">
+            {{.StartTime | formatTS}}
+          </td>
+          <td class="px-4 text-sm text-center" style="width:9rem">
+            <div class="tooltip">
+              <button
+                class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                aria-label="Copy Link"
+                onclick="myFunction(this)"
+                onmouseout="outFunc(this)">
+                <span class="tooltiptext">Copy Link to clipboard</span>
+                <span hidden class="eventlink">/events/{{.RefID}}</span>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+              </button>
+            </div>
+            <div class="tooltip" hx-boost="false">
+              <button
+                class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                aria-label="Remove"
+                hx-confirm="Are you sure?"
+                hx-delete="/events/{{.RefID}}"
+                hx-trigger="click throttle:1s"
+                hx-target="closest tr"
+                hx-swap="outerHTML swap:1s">
+                <span class="tooltiptext text-center">Delete Event</span>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+  {{ template "paginator_partial" .pgInput}}
+</div>
+<div style="padding-bottom: 1.25rem"></div>
+{{end}}
+{{ template "dashboard_layout" .}}

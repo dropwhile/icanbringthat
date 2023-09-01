@@ -1,0 +1,82 @@
+POST https://{{host}}/api/icbt.rpc.Rpc/UpdateEvent
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "ref_id": "06627dxzxqm055b4mnw20nmnkg",
+    "when": {
+        "ts":"2023-12-01T10:00:00Z",
+        "tz":"US/Pacific"
+    }
+}
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/CreateEvent
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "name": "api test 1",
+    "description": "tst tst",
+    "when": {
+        "ts": "2023-12-10T20:51:12-08:00",
+        "tz": "US/Pacific"
+    }
+}
+
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/GetEventDetails
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "ref_id": "0662e7fjys004g4t3jfmfd0eyw"
+}
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/AddEventItem
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "event_ref_id": "0662e7fjys004g4t3jfmfd0eyw",
+    "description": "some api item"
+}
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/CreateEarmark
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "event_item_ref_id": "0662e7ge8a207afq5qsxw7pj8c",
+    "note": "some note"
+}
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/ListEarmarks
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{}
+
+###
+
+POST https://{{host}}/api/icbt.rpc.Rpc/GetEarmarkDetails
+Authorization: Bearer {{authtoken}}
+content-type: application/json
+
+{
+    "ref_id": "0662e7ha4cr08jpaf483jcdvwr"
+}
+
+###
+
+
+

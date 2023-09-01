@@ -1,0 +1,9 @@
+/.envrc
+/.vscode
+/.modd.conf
+/.ignore
+/.tools/
+/build
+/diagrams
+server.crt
+server.key
