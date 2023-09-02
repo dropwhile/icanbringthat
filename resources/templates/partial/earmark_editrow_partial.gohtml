@@ -1,0 +1,45 @@
+<tr hx-trigger='cancel' class='editing' hx-get="/contact/${contact.id}">
+    <td><input name='name' value='${contact.name}'></td>
+    <td><input name='email' value='${contact.email}'></td>
+    <!-- earmarked item -->
+    <!-- date earmarked -->
+    <td
+      class="px-4 py-3 text-sm" style="width:11rem"
+      x-data="{date: new Date($el.innerText)}"
+      x-text="date.toLocaleString('sv-en')"
+    >
+      {{.Created | formatTS}}
+    </td>
+    <!-- event name -->
+    <td class="px-4 py-3">
+      <div class="flex items-center text-sm">
+        <div>
+          <a href="/events/{{.RefId }}">
+            <p class="font-semibold">{{.EventItem.Event.Name}}</p>
+          </a>
+        </div>
+      </div>
+    </td>
+    <!-- event date -->
+    <td
+      class="px-4 py-3 text-sm" style="width:11rem"
+      x-data="{date: new Date($el.innerText)}"
+      x-text="date.toLocaleString('sv-en')"
+    >
+      {{.EventItem.Event.StartTime | formatTS}}
+    </td>
+    <!-- actions -->
+    <td class="px-3 text-sm text-center" style="width:9rem">
+    </td>
+
+
+
+    <td>
+        <button class="btn btn-danger" hx-get="/contact/${contact.id}">
+        Cancel
+        </button>
+        <button class="btn btn-danger" hx-put="/contact/${contact.id}" hx-include="closest tr">
+        Save
+        </button>
+    </td>
+</tr>

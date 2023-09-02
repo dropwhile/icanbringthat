@@ -1,0 +1,192 @@
+{{ define "main" }}
+  <!-- Account Details -->
+  <h4
+    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+  >
+    Account
+  </h4>
+  <div
+    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl"
+  >
+    <form method="post" action="/settings">
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Email</span>
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400"
+        >
+          <input
+            class="block w-full pl-10 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            placeholder="user@example.com"
+            type="email"
+            name="email"
+            value="{{.user.Email}}"
+            autocomplete="off"
+            required
+          >
+          <div
+            class="absolute inset-y-0 flex items-center ml-3 pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5"
+              aria-hidden="true"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              ></path>
+            </svg>
+          </div>
+          <button
+            class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+          >
+            Update
+          </button>
+        </div>
+      </label>
+      {{ .csrfField }}
+    </form>
+
+    <form method="post" action="/settings">
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Name</span>
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400"
+        >
+          <input
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            placeholder="Name"
+            value="{{.user.Name}}"
+            type="text"
+            name="name"
+            required
+          >
+          <button
+            class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+          >
+            Update
+          </button>
+        </div>
+      </label>
+      {{ .csrfField }}
+    </form>
+  </div>
+
+  <!-- Password -->
+  <h4
+    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+  >
+    Password
+  </h4>
+  <div
+    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl"
+  >
+    <form method="post" action="/settings">
+      <!-- Invalid input -->
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Current Password</span>
+        <input
+          id="old_password"
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          placeholder="***************"
+          type="password"
+          name="old_password"
+          required
+        >
+      </label>
+
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">New Password</span>
+        <input
+          id="password"
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          placeholder="***************"
+          type="password"
+          name="password"
+          required
+        >
+      </label>
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">
+          Confirm New Password
+        </span>
+        <input
+          id="confirm_password"
+          class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+          placeholder="***************"
+          type="password"
+          name="confirm_password"
+          required
+        >
+      </label>
+      {{ .csrfField }}
+      <div class="block" style="text-align:right">
+
+      <button
+        class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+      >
+        Update 
+      </button>
+      </div>
+    </form>
+    <script>
+      var password = document.getElementById("password")
+      var confirm_password = document.getElementById("confirm_password");
+
+      function validatePassword(){
+        if(password.value != confirm_password.value) {
+          confirm_password.setCustomValidity("Passwords Don't Match");
+        } else {
+          confirm_password.setCustomValidity('');
+        }
+      }
+
+      password.onchange = validatePassword;
+      confirm_password.onkeyup = validatePassword;
+    </script>
+  </div>
+
+  <!-- Account deletion -->
+  <h4
+    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+  >
+    Account Deletion
+  </h4>
+  <div
+    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl text-sm"
+  >
+    <div class="text-gray-700 dark:text-gray-400">
+      Account deletion is not a reversible operation. <br>
+      All associated Events and Earmarks
+      will be removed, as well as the Account itself.
+    </div>
+    <br>
+    <button
+      class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"      
+      hx-confirm="Are you sure? This is not a reversable operation."
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-delete="/settings"
+        _="on htmx:confirm(issueRequest)
+        halt the event
+        call Swal.fire({
+          title: 'Are you sure?',
+          text: 'You won\'t be able to revert this!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'})
+        if result.isConfirmed issueRequest()"
+    >
+      Delete My Account
+    </button>
+  </div>
+  {{with .flashes}}
+    {{template "flashes_modal" .}}
+  {{end}}
+{{end}}
+{{ template "dashboard_layout" .}}

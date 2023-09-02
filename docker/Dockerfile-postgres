@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1.6
+
+FROM postgres
+
+RUN <<EOF
+mkdir /extension-data
+cd /extension-data
+apt update; apt -y install curl
+curl -LO "https://github.com/fboulnois/pg_uuidv7/releases/download/v1.2.0/{pg_uuidv7.tar.gz,SHA256SUMS}"
+tar xf pg_uuidv7.tar.gz
+sha256sum -c SHA256SUMS
+cp pg_uuidv7.so "$(pg_config --pkglibdir)"
+cp pg_uuidv7--1.2.sql pg_uuidv7.control "$(pg_config --sharedir)/extension"
+pg_conftool set shared_preload_libraries "pg_uuidv7"
+rm -rf /var/lib/apt/lists/*
+EOF

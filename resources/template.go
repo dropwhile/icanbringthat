@@ -2,19 +2,180 @@ package resources
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"reflect"
+	"strconv"
+	"time"
+
+	"github.com/cactus/mlog"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
 	//go:embed templates
 	templateEmbedFS embed.FS
-	templateFS      fs.FS
-	templates       *template.Template
 )
 
-func MustParseTemplates(templatesDir string) *template.Template {
+type Page struct {
+	display   string
+	IsCurrent bool
+}
+
+func (p *Page) String() string {
+	return p.display
+}
+
+type Paginator struct {
+	Pages     [][]int
+	ShowNear  int
+	ShowStart int
+	ShowEnd   int
+}
+
+func NewPaginator(showNear, showStart, showEnd int) *Paginator {
+	return &Paginator{
+		Pages:     make([][]int, 0),
+		ShowNear:  showNear,
+		ShowStart: showStart,
+		ShowEnd:   showEnd,
+	}
+}
+
+func (p *Paginator) AddPage(start, end int) *Paginator {
+	p.Pages = append(p.Pages, []int{start, end})
+	return p
+}
+
+func (p *Paginator) AddPages(size, step int) *Paginator {
+	for i := 0; i < size; i++ {
+		if i%step == 0 {
+			p.AddPage(i+1, i+step)
+		}
+	}
+	return p
+}
+
+func (p *Paginator) Paginate(current int) []*Page {
+	out := make([]*Page, 0)
+	max := len(p.Pages)
+	prevWasDot := false
+	for i := 0; i < max; i++ {
+		pg := &Page{display: "..."}
+		if i == current-1 {
+			pg.IsCurrent = true
+		}
+		if i < p.ShowStart || i > (max-1)-p.ShowEnd || (i > ((current-2)-p.ShowNear) && i < current+p.ShowNear) {
+			pg.display = fmt.Sprintf("%d", i+1)
+			out = append(out, pg)
+			prevWasDot = false
+			continue
+		}
+
+		if prevWasDot {
+			continue
+		}
+
+		out = append(out, pg)
+		prevWasDot = true
+	}
+	return out
+}
+
+var templateFuncMap = template.FuncMap{
+	"titlecase": cases.Title(language.English).String,
+	"lowercase": func(s fmt.Stringer) string {
+		return cases.Lower(language.English).String(s.String())
+	},
+	"formatTS": func(t time.Time) string {
+		return t.UTC().Format(time.RFC3339)
+	},
+	"formatDateTime": func(t time.Time) string {
+		return t.Format("2006-01-02 15:04 MST")
+	},
+	"paginate": func(size, step, current uint) []*Page {
+		return NewPaginator(3, 3, 3).AddPages(int(size), int(step)).Paginate(int(current))
+	},
+	"mod": func(i, j int) int {
+		return i % j
+	},
+	"set": func(ac reflect.Value, k reflect.Value, v reflect.Value) error {
+		switch ac.Kind() {
+		case reflect.Map:
+			if k.Type() == ac.Type().Key() {
+				ac.SetMapIndex(k, v)
+				return nil
+			}
+		}
+		return fmt.Errorf("calling set with unsupported type %q (%T) -> %q (%T)", ac.Kind(), ac, k.Kind(), k)
+	},
+	// isset is a helper func from hugo
+	"isset": func(ac reflect.Value, kv reflect.Value) (bool, error) {
+		switch ac.Kind() {
+		case reflect.Array, reflect.Slice:
+			k := 0
+			switch kv.Kind() {
+			case reflect.Int | reflect.Int8 | reflect.Int16 | reflect.Int32 | reflect.Int64:
+				k = int(kv.Int())
+			case reflect.Uint | reflect.Uint8 | reflect.Uint16 | reflect.Uint32 | reflect.Uint64:
+				k = int(kv.Uint())
+			case reflect.String:
+				v, err := strconv.ParseInt(kv.String(), 0, 0)
+				if err != nil {
+					return false, fmt.Errorf("unable to cast %#v of type %T to int64", kv, kv)
+				}
+				k = int(v)
+			default:
+				return false, fmt.Errorf("unable to cast %#v of type %T to int", kv, kv)
+			}
+			if ac.Len() > k {
+				return true, nil
+			}
+		case reflect.Map:
+			if kv.Type() == ac.Type().Key() {
+				return ac.MapIndex(kv).IsValid(), nil
+			}
+		default:
+			mlog.Infof("calling IsSet with unsupported type %q (%T) will always return false", ac.Kind(), ac)
+		}
+
+		return false, nil
+	},
+	"eqorempty": func(arg0 reflect.Value, arg1 reflect.Value) (bool, error) {
+		k1 := arg0.Kind()
+		k2 := arg1.Kind()
+		if k1 != k2 {
+			return false, fmt.Errorf("non-comparable types %s: %v, %s: %v", arg0, arg0.Type(), arg1.Type(), arg1)
+		}
+
+		truth := false
+		switch arg0.Kind() {
+		case reflect.String:
+			truth = arg0.String() == "" || arg0.String() == arg1.String()
+		case reflect.Invalid:
+			truth = true
+		}
+		return truth, nil
+	},
+}
+
+type TemplateMap map[string]*template.Template
+
+func (tm *TemplateMap) Get(name string) (*template.Template, error) {
+	if v, ok := (*tm)[name]; ok {
+		return v, nil
+	}
+	return nil, fmt.Errorf("template not found for name %s", name)
+}
+
+func MustParseTemplates(templatesDir string) TemplateMap {
+	templates := make(TemplateMap, 0)
+
+	var templateFS fs.FS
 	if templatesDir == "embed" {
 		var err error
 		templateFS, err = fs.Sub(templateEmbedFS, "templates")
@@ -25,15 +186,37 @@ func MustParseTemplates(templatesDir string) *template.Template {
 		templateFS = os.DirFS(templatesDir)
 	}
 
-	var err error
-	templates, err = template.ParseFS(
+	nonViewTemplates, err := template.New("").Funcs(templateFuncMap).ParseFS(
 		templateFS,
 		"layout/*.gohtml",
-		"view/*.gohtml",
 		"partial/*.gohtml",
 	)
 	if err != nil {
 		panic(err)
 	}
+
+	viewSub, err := fs.Sub(templateFS, "view")
+	if err != nil {
+		panic(err)
+	}
+
+	fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
+		if filepath.Ext(p) == ".gohtml" {
+			name := filepath.Base(p)
+			c, err := nonViewTemplates.Clone()
+			if err != nil {
+				panic(err)
+			}
+			t, err := c.New(name).Funcs(templateFuncMap).ParseFS(
+				templateFS, fmt.Sprintf("view/%s", name),
+			)
+			if err != nil {
+				panic(err)
+			}
+			templates[name] = t
+		}
+		return nil
+	})
+
 	return templates
 }

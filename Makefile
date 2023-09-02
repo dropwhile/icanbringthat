@@ -9,18 +9,18 @@ APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 GITHASH           := $(shell git rev-parse --short HEAD)
 GOPATH            := $(shell go env GOPATH)
 VERSION_VAR       := main.ServerVersion
-DB_DSN            := "postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable"
+DB_DSN            := $(or ${DB_DSN},"postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable")
 
 # flags and build configuration
 GOBUILD_OPTIONS   := -trimpath
-GOTEST_FLAGS      := -cpu=1,2
+GOTEST_FLAGS      :=
 GOTEST_BENCHFLAGS :=
 GOBUILD_DEPFLAGS  := -tags netgo,production
 GOBUILD_LDFLAGS   ?= -s -w
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
-CC_BUILD_TARGETS   = server
+CC_BUILD_TARGETS   = server refgen
 CC_BUILD_ARCHES    = darwin/amd64 darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/amd64
 CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
@@ -66,10 +66,15 @@ ${GOPATH}/bin/gosec:
 ${GOPATH}/bin/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
+${GOPATH}/bin/stringer:
+	go install golang.org/x/tools/cmd/stringer@latest
+
 .PHONY: build 
 build: setup
+	@echo ">> Generating..."
+	@go generate ./...
+	@echo ">> Building..."
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
-	@echo "Building..."
 	@(for x in ${CC_BUILD_TARGETS}; do \
 		echo "...$${x}..."; \
 		go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/$${x}" ./cmd/$${x}; \
@@ -78,22 +83,22 @@ build: setup
 
 .PHONY: test 
 test: setup
-	@echo "Running tests..."
+	@echo ">> Running tests..."
 	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
 
 .PHONY: bench
 bench: setup
-	@echo "Running benchmarks..."
+	@echo ">> Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
 .PHONY: cover
 cover: setup
-	@echo "Running tests with coverage..."
+	@echo ">> Running tests with coverage..."
 	@go test -vet=off -cover ${GOTEST_FLAGS} ./...
 
 .PHONY: check
 check: setup setup-check
-	@echo "Running checks and validators..."
+	@echo ">> Running checks and validators..."
 	@echo "... staticcheck ..."
 	@${GOPATH}/bin/staticcheck ./...
 	@echo "... go-vet ..."
@@ -105,7 +110,7 @@ check: setup setup-check
 
 .PHONY: update-go-deps
 update-go-deps:
-	@echo ">> updating Go dependencies"
+	@echo ">> updating Go dependencies..."
 	@for m in $$(go list -mod=readonly -m -f '{{ if and (not .Indirect) (not .Main)}}{{.Path}}{{end}}' all); do \
 		go get $$m; \
 	done
@@ -113,15 +118,60 @@ update-go-deps:
 
 .PHONY: migrate
 migrate:
-	@echo ">> running migrations"
-	@env "${DB_DSN}" ./tools/migrate.sh up
+	@echo ">> running migrations..."
+	@env DB_DSN="$${DB_DSN}" ./tools/migrate up
 
+.PHONY: dev-db-create
+dev-db-create:
+	@echo ">> starting dev postgres..."
+#	@docker build -t my-postgres -f docker/Dockerfile-postgres .
+	@docker volume rm -f icbt-db-init
+	@docker volume create icbt-db-init
+	@docker create -v icbt-db-init:/data --name icbt-db-helper busybox true
+	@for f in  ./docker/db-init-scripts/*; do docker cp -q "$${f}" icbt-db-helper:/data; done
+	@docker rm -f icbt-db-helper
+	@docker run \
+		--name icbt-database \
+		-e POSTGRES_PASSWORD=password \
+		-e POSTGRES_DB=icbt \
+		-p 5432:5432 \
+		-v "icbt-db-init:/docker-entrypoint-initdb.d/" \
+		-d postgres
+#		-d my-postgres
+
+.PHONY: dev-db-start
+dev-db-start:
+	@echo ">> starting dev postgres..."
+	@docker start icbt-db-init
+
+dev-db-stop:
+	@echo ">> stopping dev postgres..."
+	docker stop icbt-database
+
+dev-db-purge:
+	@echo ">> purging dev postgres..."
+	@docker rm -fv icbt-database
+	@docker volume rm -f icbt-db-init
+
+.PHONY: docker-build
 docker-build:
-	DOCKER_BUILDKIT=1 docker build \
+	@echo ">> Building docker image..."
+	@DOCKER_BUILDKIT=1 docker build \
 		--build-arg GITHASH=${(GITHASH} \
 		--build-arg APP_VER=${APP_VER} \
 		-t icbt \
+		-f docker/Dockerfile \
 		.
+
+.PHONY: run
+run: build
+	@echo ">> starting dev server..."
+	@./build/bin/server
+
+.PHONY: devrun
+devrun: 
+	@echo ">> Monitoring for change, runnging tests, and restarting..."
+	@modd -f .modd.conf
 
 .PHONY: all
 all: build
