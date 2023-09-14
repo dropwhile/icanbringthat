@@ -86,22 +86,84 @@ func (p *Paginator) Paginate(current int) []*Page {
 	return out
 }
 
+type PaginationResult struct {
+	Start   int
+	Stop    int
+	Size    int
+	HasPrev bool
+	HasNext bool
+	Pages   []*Page
+}
+
+type PgInput struct {
+	Max     int
+	Step    int
+	Current int
+	// baseurl to work around some funky issues with browser pushstate
+	BaseUrl string
+}
+
+func NewPgInput(max, step, current int, baseUrl string) *PgInput {
+	return &PgInput{max, step, current, baseUrl}
+}
+
+func CalculateMaxPageNum(size, step int) int {
+	maxPage := size / step
+	if size%step != 0 {
+		maxPage++
+	}
+	return maxPage
+}
+
 var templateFuncMap = template.FuncMap{
 	"titlecase": cases.Title(language.English).String,
 	"lowercase": func(s fmt.Stringer) string {
 		return cases.Lower(language.English).String(s.String())
 	},
 	"formatTS": func(t time.Time) string {
-		return t.UTC().Format(time.RFC3339)
+		return t.UTC().Format("2006-01-02T15:04Z07:00")
+	},
+	"formatTSLocal": func(t time.Time, zone string) string {
+		loc, _ := time.LoadLocation(zone)
+		return t.In(loc).Format("2006-01-02T15:04")
 	},
 	"formatDateTime": func(t time.Time) string {
 		return t.Format("2006-01-02 15:04 MST")
 	},
-	"paginate": func(size, step, current int) []*Page {
-		return NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current)
+	"paginate": func(pg *PgInput) *PaginationResult {
+		size, step, current := pg.Max, pg.Step, pg.Current
+		maxPage := CalculateMaxPageNum(size, step)
+		if current < 1 {
+			current = 1
+		}
+		if current > maxPage {
+			current = maxPage
+		}
+		start := (step * (current - 1)) + 1
+		stop := start + step - 1
+		if current == maxPage && size%step != 0 {
+			stop = ((current - 1) * step) + (size % step)
+		}
+		s := &PaginationResult{
+			start, stop, size, current > 1, current < maxPage,
+			NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current),
+		}
+		return s
 	},
 	"mod": func(i, j int) int {
 		return i % j
+	},
+	"add": func(i, j int) int {
+		return i + j
+	},
+	"mult": func(i, j int) int {
+		return i * j
+	},
+	"min": func(i, j int) int {
+		return min(i, j)
+	},
+	"subt": func(i, j int) int {
+		return i - j
 	},
 	"set": func(ac reflect.Value, k reflect.Value, v reflect.Value) error {
 		switch ac.Kind() {

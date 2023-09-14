@@ -112,14 +112,14 @@
             <td
               class="px-4 py-3 text-sm text-center" style="width:14rem"
               x-data="{date: new Date($el.innerText)}"
-              x-text="date.toLocaleString('sv-en')"
+              x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'})"
             >
               {{.StartTime | formatTS}}
             </td>
             <td
               class="px-4 py-3 text-sm text-center" style="width:14rem"
               x-data="{date: new Date($el.innerText)}"
-              x-text="date.toLocaleString('sv-en')"
+              x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
             >
               {{.Created | formatTS}}
             </td>

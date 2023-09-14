@@ -8,6 +8,7 @@ import (
 	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 )
@@ -30,7 +31,6 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pageNum := 1
-	maxPageNum := ((earmarkCount / 10) + 1)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
@@ -39,14 +39,6 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(pageNum)
 			}
 		}
-	}
-	pagePrev := 1
-	if pageNum > 1 {
-		pagePrev = pagePrev - 1
-	}
-	pageNext := maxPageNum
-	if pageNum < maxPageNum {
-		pageNext = pageNum + 1
 	}
 
 	offset := pageNum - 1
@@ -77,9 +69,7 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		"user":           user,
 		"earmarks":       earmarks,
 		"earmarkCount":   earmarkCount,
-		"pageNum":        pageNum,
-		"pagePrev":       pagePrev,
-		"pageNext":       pageNext,
+		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",
 		csrf.TemplateTag: csrf.TemplateField(r),
@@ -105,7 +95,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "refId"))
+	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
 	if err != nil {
 		http.Error(w, "bad earmark ref-id", http.StatusBadRequest)
 		return
@@ -130,5 +120,8 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if Hx(r).CurrentUrl().HasPathPrefix("/events/") {
+		w.Header().Add("HX-Refresh", "true")
+	}
 	w.WriteHeader(http.StatusOK)
 }

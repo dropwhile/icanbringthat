@@ -7,8 +7,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"time"
-
-	"github.com/gofrs/uuid/v5"
 )
 
 var (
@@ -20,22 +18,21 @@ var (
 	Nil = RefId{}
 )
 
-const size = 18
-const tagIndex = 0
-const uuidOffset = 2
+const size = 16
+const timeStart = 0
+const tagIndex = 7
+const randStart = 8
 
-type RefId struct {
-	UUID uuid.UUID
-	tag  byte `db:"-"`
-}
+type RefId [size]byte
 
 func New() (RefId, error) {
 	var refId RefId
-	id, err := uuid.NewV7()
+	//id, err := uuid.NewV7()
+	b, err := generate()
 	if err != nil {
 		return refId, err
 	}
-	refId.UUID = id
+	copy(refId[:], b[:])
 	return refId, nil
 }
 
@@ -68,7 +65,7 @@ func Parse(s string) (RefId, error) {
 	if err != nil {
 		return refId, err
 	}
-	return refId, err
+	return refId, nil
 }
 
 func MustParse(s string) RefId {
@@ -86,7 +83,7 @@ func ParseTagged(tag byte, s string) (RefId, error) {
 	}
 
 	if !refId.HasTag(tag) {
-		return refId, fmt.Errorf("RefId tag mismatch: %d != %d", refId.tag, tag)
+		return refId, fmt.Errorf("RefId tag mismatch: %d != %d", refId[tagIndex], tag)
 	}
 	return refId, nil
 }
@@ -108,13 +105,8 @@ func FromBytes(input []byte) (RefId, error) {
 	return refId, nil
 }
 
-func FromString(input string) (RefId, error) {
-	var refId RefId
-	err := refId.UnmarshalText([]byte(input))
-	if err != nil {
-		return refId, err
-	}
-	return refId, nil
+func FromString(s string) (RefId, error) {
+	return Parse(s)
 }
 
 func FromBase64String(input string) (RefId, error) {
@@ -126,11 +118,7 @@ func FromBase64String(input string) (RefId, error) {
 	if len(bx) != size {
 		return refId, fmt.Errorf("wrong unmarshal size")
 	}
-	refId.UUID, err = uuid.FromBytes(bx[uuidOffset:])
-	if err != nil {
-		return refId, err
-	}
-	refId.tag = bx[tagIndex]
+	copy(refId[:], bx[:])
 	return refId, nil
 }
 
@@ -143,30 +131,30 @@ func FromHexString(input string) (RefId, error) {
 	if len(bx) != size {
 		return refId, fmt.Errorf("wrong unmarshal size")
 	}
-	refId.UUID, err = uuid.FromBytes(bx[uuidOffset:])
-	if err != nil {
-		return refId, err
-	}
-	refId.tag = bx[tagIndex]
+	copy(refId[:], bx[:])
 	return refId, nil
 }
 
 func (refId *RefId) SetTag(tag byte) *RefId {
-	refId.tag = tag
+	refId[tagIndex] = tag
 	return refId
 }
 
 func (refId *RefId) ClearTag() *RefId {
-	refId.tag = 0
+	refId[tagIndex] = 0
 	return refId
 }
 
 func (refId RefId) IsTagged() bool {
-	return refId.tag != 0
+	return refId[tagIndex] != 0
 }
 
 func (refId RefId) HasTag(tag byte) bool {
-	return (refId.IsTagged() && refId.tag == tag)
+	return (refId.IsTagged() && refId[tagIndex] == tag)
+}
+
+func (refId RefId) Tag() byte {
+	return refId[tagIndex]
 }
 
 func (refId RefId) IsNil() bool {
@@ -182,19 +170,24 @@ func (refId RefId) MarshalText() ([]byte, error) {
 }
 
 func (refId RefId) Time() time.Time {
-	u := refId.UUID[:]
-
+	u := refId[timeStart:]
 	t := 0 |
-		(int64(u[0]) << 40) |
-		(int64(u[1]) << 32) |
-		(int64(u[2]) << 24) |
-		(int64(u[3]) << 16) |
-		(int64(u[4]) << 8) |
-		int64(u[5])
-	return time.UnixMilli(t)
+		(int64(u[0]) << 48) |
+		(int64(u[1]) << 40) |
+		(int64(u[2]) << 32) |
+		(int64(u[3]) << 24) |
+		(int64(u[4]) << 16) |
+		(int64(u[5]) << 8) |
+		int64(u[6])
+	return time.UnixMicro(t).UTC()
 }
 
 func (refId *RefId) UnmarshalText(b []byte) error {
+	decLen := WordSafeEncoding.DecodedLen(len(b))
+	if decLen != size {
+		return fmt.Errorf("refid: RefId must be exactly %d bytes long, got %d bytes", size, decLen)
+	}
+
 	// lowercase, then replace ambigious chars
 	b = bytes.ToLower(b)
 	for i := range b {
@@ -213,18 +206,13 @@ func (refId *RefId) UnmarshalText(b []byte) error {
 	if n != size {
 		return fmt.Errorf("wrong unmarshal size")
 	}
-	refId.UUID, err = uuid.FromBytes(bx[uuidOffset:])
-	if err != nil {
-		return err
-	}
-	refId.tag = bx[tagIndex]
+	copy(refId[:], bx[:])
 	return nil
 }
 
 func (refId RefId) Bytes() []byte {
 	b := make([]byte, size)
-	b[tagIndex] = refId.tag
-	copy(b[uuidOffset:], refId.UUID[:])
+	copy(b[:], refId[:])
 	return b
 }
 
@@ -236,33 +224,28 @@ func (refId RefId) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
 // It will return an error if the slice isn't 16 bytes long.
 func (refId *RefId) UnmarshalBinary(data []byte) error {
-	if len(data) != size {
-		return fmt.Errorf("refid: RefId must be exactly 16 bytes long, got %d bytes", len(data))
+	dlen := len(data)
+	if dlen != size {
+		return fmt.Errorf("refid: RefId must be exactly %d bytes long, got %d bytes", size, dlen)
 	}
-	copy(refId.UUID[:], data[uuidOffset:])
-	refId.tag = data[tagIndex]
+	copy(refId[:], data[:])
 	return nil
 }
 
 func (refId RefId) String() string {
-	data := make([]byte, size)
-	data[0] = refId.tag
-	copy(data[uuidOffset:], refId.UUID[:])
-	return WordSafeEncoding.EncodeToString(data)
+	return WordSafeEncoding.EncodeToString(refId[:])
+}
+
+func (refId RefId) ToString() string {
+	return refId.String()
 }
 
 func (refId RefId) ToBase64String() string {
-	data := make([]byte, size)
-	data[0] = refId.tag
-	copy(data[uuidOffset:], refId.UUID[:])
-	return base64.RawURLEncoding.EncodeToString(data)
+	return base64.RawURLEncoding.EncodeToString(refId[:])
 }
 
 func (refId RefId) ToHexString() string {
-	data := make([]byte, size)
-	data[0] = refId.tag
-	copy(data[uuidOffset:], refId.UUID[:])
-	return hex.EncodeToString(data)
+	return hex.EncodeToString(refId[:])
 }
 
 func (refId RefId) Format(f fmt.State, c rune) {

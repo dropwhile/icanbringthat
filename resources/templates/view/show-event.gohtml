@@ -1,0 +1,303 @@
+{{ define "main" }}
+  <!-- new event form -->
+  <h4
+    class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+    >
+    <div>
+      <span>{{.event.Name | titlecase}}</span>
+      {{if eq $.event.UserId $.user.Id}}
+      <span class="px-2" style="float:right;">
+        <div class="tooltipright">
+          <a href="/events/{{.event.RefId}}/edit"
+            class="text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+            aria-label="Edit">
+            <span class="tooltiptextright text-center">Edit event</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+              style="display: block; margin:auto;"
+              >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+              />
+            </svg>
+          </a>
+        </div>
+      </span>
+      {{end}}
+    </div>
+    <div
+      class="w-32 mr-1"
+      style="float:right;"
+      x-data="{date: new Date($el.innerText)}"
+      x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {timeStyle: 'short', hour12: true})"
+      >
+        {{.event.StartTime | formatTS}}
+    </div>
+  </h4>
+  <div
+  class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800"
+  >
+    <div class="text-gray-700 dark:text-gray-400">
+        {{.event.Description}}
+    </div>
+  </div>
+
+  <!-- item table -->
+  <h4
+    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+  >
+    Items
+  </h4>
+  <div class="w-full overflow-hidden rounded-lg shadow-xs">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap table-auto">
+        <thead>
+          <tr
+            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
+          >
+            <th class="px-4 py-3">Description</th>
+            <th class="px-4 py-3">Earmarked By</th>
+            <th class="px-4 py-3">Earmark Note</th>
+            <th class="px-4 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody
+          class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
+          hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+        >
+        {{ range .event.Items }}
+          <tr
+            class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <td class="px-4 py-3">
+              <div class="flex items-center text-sm">
+                <div>
+                  <p class="font-semibold">{{.Description}}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="text-sm" >
+                {{if .Earmark }}
+                  {{if eq .Earmark.UserId $.user.Id}}
+                    you!
+                  {{else if .Earmark.User}}
+                    {{.Earmark.User.Name}}
+                  {{else}}
+                    User .Earmark.UserId
+                  {{end}}
+                {{end}}
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="text-sm" >
+                {{if .Earmark}}{{.Earmark.Note}}{{end}}
+              </div>
+            </td>
+            <td class="px-3 text-sm text-center" style="width:9rem">
+              {{if .Earmark }}
+                {{if and .Earmark (eq .Earmark.UserId $.user.Id)}}
+                  <!-- viewer owns earmark -->
+                  <div class="tooltip">
+                    <div
+                      x-data="{swap: false}"
+                      @mouseleave="swap = false"
+                    >
+                      <!-- delete self owned earmark -->
+                      <button
+                        class="flex items-center justify-between px-2 py-2 text-sm font-medium text-green-600 rounded-lg dark:text-green-400 focus:outline-none focus:shadow-outline-gray"
+                        style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                        aria-label="Unmark"
+                        hx-delete="/earmarks/{{.Earmark.RefId}}"
+                        hx-confirm="Are you sure?"
+                        hx-trigger="click throttle:1s"
+                        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+                      >
+                        <span class="tooltiptext text-center">I can't bring that anymore!</span>
+                        <svg
+                          x-show="!swap"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                          class="w-5 h-5"
+                          @mouseover="swap = true"
+                          style="display: block; margin:auto;"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                          />
+                        </svg>
+                        <svg
+                          x-show="swap"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          class="w-5 h-5"
+                        >
+                          <path
+                            d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM20.25 5.507v11.561L5.853 2.671c.15-.043.306-.075.467-.094a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93zM3.75 21V6.932l14.063 14.063L12 18.088l-7.165 3.583A.75.75 0 013.75 21z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                {{else if and .Earmark (ne .Earmark.UserId $.user.Id)}}
+                  <!-- someone else owns earmark -->
+                  <div class="tooltip" hx-boost="false">
+                    <div
+                      class="flex items-center justify-between px-2 py-2 text-sm font-medium text-green-600 rounded-lg dark:text-green-400 focus:outline-none focus:shadow-outline-gray"
+                      style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                    >
+                    <span class="tooltiptext text-center">Someone else is bringing that!</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                      class="w-5 h-5"
+                      style="display: block; margin:auto;"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    </div>
+                  </div>
+                {{end}}
+              {{else}}
+                <!-- no earmark yet -->
+                <div class="tooltip" hx-boost="false">
+                  <button
+                    class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                    style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                    aria-label="Earmark"
+                  >
+                    <span class="tooltiptext text-center">I can bring that!</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-5 h-5"
+                      style="display: block; margin:auto;"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              {{end}}
+              {{if eq $.event.UserId $.user.Id}}
+                <!-- change button -->
+                <!-- if earmarked by someone else, can't change it.. only delete it -->
+                {{if and .Earmark (ne .Earmark.UserId $.user.Id)}}
+                  <div class="tooltip" hx-boost="false">
+                    <!-- not editable event item -->
+                    <button
+                      class="flex items-center justify-between px-2 py-2 text-sm font-medium text-gray-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                      style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                      aria-hidden="true"
+                      disabled
+                    >
+                      <span class="tooltiptext text-center">Can't edit this once earmarked by others</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        class="w-5 h-5"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M6.72 5.66l11.62 11.62A8.25 8.25 0 006.72 5.66zm10.56 12.68L5.66 6.72a8.25 8.25 0 0011.62 11.62zM5.105 5.106c3.807-3.808 9.98-3.808 13.788 0 3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788z"
+                            />
+                      </svg>
+                    </button>
+                  </div>
+                {{else}}
+                    <!-- edit event item -->
+                  <div class="tooltip" hx-boost="false">
+                    <button
+                      class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                      style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                      aria-label="Edit"
+                    >
+                      <span class="tooltiptext text-center">Need to change it</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                {{end}}
+                <!-- delete button -->
+                <div class="tooltip" hx-boost="false">
+                  <button
+                    class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                    style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                    aria-label="Remove"
+                    hx-delete="/events/{{$.event.RefId}}/items/{{.RefId}}"
+                    hx-confirm="Are you sure?"
+                    hx-trigger="click throttle:1s"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML swap:1s"
+                  >
+                    <span class="tooltiptext text-center">Don't need it</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-5 h-5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              {{end}}
+            </td>
+          </tr>
+        {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="padding-bottom: 1.25rem"></div>
+  {{with .flashes}}
+    {{template "flashes_modal" .}}
+  {{end}}
+{{end}}
+{{ template "dashboard_layout" .}}

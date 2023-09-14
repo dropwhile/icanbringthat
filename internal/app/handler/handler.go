@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -20,6 +22,15 @@ type Handler struct {
 
 func (h *Handler) Template(name string) (*template.Template, error) {
 	return h.Tpl.Get(name)
+}
+
+func (h *Handler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
+	htmxCurrentUrl := r.Header.Get("HX-Current-URL")
+	if htmxCurrentUrl != "" {
+		u, err := url.Parse(htmxCurrentUrl)
+		return err == nil && strings.HasPrefix(u.Path, prefix)
+	}
+	return false
 }
 
 func (h *Handler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {

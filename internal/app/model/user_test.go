@@ -10,7 +10,7 @@ import (
 )
 
 var columns = []string{"id", "ref_id", "email", "name", "pwhash"}
-var tstUserRefId = refid.MustParse("040032mdz53myygwgqj86s5dfjmvc")
+var tstUserRefId = refid.MustParse("0r2nck7r2z7g35fefj2tv65thw")
 
 func TestUserSetPassword(t *testing.T) {
 	t.Parallel()

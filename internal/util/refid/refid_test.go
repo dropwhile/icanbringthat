@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"strconv"
 	"testing"
 	"time"
 
@@ -13,17 +12,9 @@ import (
 
 var (
 	refTagTest     = byte(1)
-	testValWoutTag = "000baxr70ja4ggc0jbgw5dzx7vb52"
-	testValWithTag = "040baxr70ja4ggc0jbgw5dzx7vb52"
+	testValWoutTag = "0r2nbq0wqhjg186167t0gcd1gw"
+	testValWithTag = "0r2nbq0wqhjg386167t0gcd1gw"
 )
-
-func UintToBinary(n uint64) string {
-	return strconv.FormatUint(n, 2)
-}
-
-func IntToBinary(n int64) string {
-	return strconv.FormatInt(n, 2)
-}
 
 func TestGetTime(t *testing.T) {
 	t.Parallel()
@@ -33,6 +24,10 @@ func TestGetTime(t *testing.T) {
 	refId := MustNew()
 	vz := refId.Time().UTC().Unix() / 10
 	assert.Equal(t, t0, vz)
+
+	refId2 := MustParse(testValWoutTag)
+	ts, _ := time.Parse(time.RFC3339, "2023-09-14T18:29:43.493733Z")
+	assert.Equal(t, ts.UTC(), refId2.Time().UTC())
 }
 
 func TestBase64RoundTrip(t *testing.T) {
@@ -41,6 +36,17 @@ func TestBase64RoundTrip(t *testing.T) {
 	refId := MustParse(testValWithTag)
 	b64 := refId.ToBase64String()
 	refId2, err := FromBase64String(b64)
+	assert.NilError(t, err)
+	assert.Equal(t, refId.String(), refId2.String())
+
+}
+
+func TestHexRoundTrip(t *testing.T) {
+	t.Parallel()
+
+	refId := MustParse(testValWithTag)
+	b64 := refId.ToHexString()
+	refId2, err := FromHexString(b64)
 	assert.NilError(t, err)
 	assert.Equal(t, refId.String(), refId2.String())
 }
@@ -77,6 +83,14 @@ func TestSetTag(t *testing.T) {
 	assert.Check(t, !refId.HasTag(refTagTest))
 	assert.Equal(t, refId.String(), testValWoutTag)
 	assert.Equal(t, (&refId).String(), testValWoutTag)
+
+	refId3 := MustParse(testValWoutTag)
+	refId3.SetTag(1)
+	assert.Equal(t, refId3.ToHexString(), "060555dc1cbc6501a0c131f40831a187")
+	refId3.ClearTag()
+	assert.Equal(t, refId3.ToHexString(), "060555dc1cbc6500a0c131f40831a187")
+	refId3.SetTag(2)
+	assert.Equal(t, refId3.ToHexString(), "060555dc1cbc6502a0c131f40831a187")
 }
 
 func TestAmbiguous(t *testing.T) {

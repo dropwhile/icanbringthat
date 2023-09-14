@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEarmarkRefId = refid.MustParse("0g0032mdytkwexqrmezkjf02qrz5w")
+var tstEarmarkRefId = refid.MustParse("0r2ncjgvqbr09f7c304v2a4rh4")
 
 func TestEarmarkInsert(t *testing.T) {
 	ctx := context.TODO()
@@ -23,7 +23,7 @@ func TestEarmarkInsert(t *testing.T) {
 	refId := tstEarmarkRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
+		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
 	mock.ExpectBegin()
@@ -43,7 +43,7 @@ func TestEarmarkInsert(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	})
@@ -79,7 +79,7 @@ func TestEarmarkSave(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -117,7 +117,7 @@ func TestEarmarkDelete(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -142,7 +142,7 @@ func TestEarmarkGetById(t *testing.T) {
 	refId := tstEarmarkRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
+		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
@@ -157,7 +157,7 @@ func TestEarmarkGetById(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	})
@@ -180,7 +180,7 @@ func TestEarmarkGetByRefId(t *testing.T) {
 	refId := tstEarmarkRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
+		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
@@ -195,7 +195,7 @@ func TestEarmarkGetByRefId(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	})
@@ -218,7 +218,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 	refId := tstEarmarkRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
+		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
@@ -239,7 +239,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 		RefId:        refId,
 		EventItemId:  1,
 		UserId:       1,
-		Notes:        "some note",
+		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
 	})

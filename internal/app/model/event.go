@@ -15,6 +15,7 @@ type Event struct {
 	Name         string
 	Description  string
 	StartTime    time.Time `db:"start_time"`
+	StartTimeTZ  string    `db:"start_time_tz"`
 	Created      time.Time
 	LastModified time.Time    `db:"last_modified"`
 	Items        []*EventItem `db:"-"`
@@ -24,8 +25,8 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 	if e.RefId.IsNil() {
 		e.RefId = EventRefIdT.MustNew()
 	}
-	q := `INSERT INTO event_ (user_id, ref_id, name, description, start_time) VALUES ($1, $2, $3, $4, $5) RETURNING *`
-	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefId, e.Name, e.Description, e.StartTime)
+	q := `INSERT INTO event_ (user_id, ref_id, name, description, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
+	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefId, e.Name, e.Description, e.StartTime, e.StartTimeTZ)
 	if err != nil {
 		return err
 	}
@@ -37,8 +38,8 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 }
 
 func (e *Event) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE event_ SET name = $1, description = $2, start_time = $3 WHERE id = $4`
-	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.StartTime, e.Id)
+	q := `UPDATE event_ SET name = $1, description = $2, start_time = $3, start_time_tz = $4 WHERE id = $5`
+	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.StartTime, e.StartTimeTZ, e.Id)
 }
 
 func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
@@ -46,12 +47,13 @@ func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
 	return ExecTx[Event](ctx, db, q, e.Id)
 }
 
-func NewEvent(ctx context.Context, db PgxHandle, userId int, name, description string, startTime time.Time) (*Event, error) {
+func NewEvent(ctx context.Context, db PgxHandle, userId int, name, description string, startTime time.Time, startTimeTZ string) (*Event, error) {
 	event := &Event{
 		Name:        name,
 		UserId:      userId,
 		Description: description,
 		StartTime:   startTime,
+		StartTimeTZ: startTimeTZ,
 	}
 	err := event.Insert(ctx, db)
 	if err != nil {

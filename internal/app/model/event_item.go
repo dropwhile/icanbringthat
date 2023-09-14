@@ -12,9 +12,10 @@ type EventItem struct {
 	RefId        refid.RefId `db:"ref_id"`
 	EventId      int         `db:"event_id"`
 	Description  string
-	Event        *Event `db:"-"`
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
+	Event        *Event    `db:"-"`
+	Earmark      *Earmark  `db:"-"`
 }
 
 func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {

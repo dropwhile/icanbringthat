@@ -13,18 +13,19 @@ type Earmark struct {
 	RefId        refid.RefId `db:"ref_id"`
 	EventItemId  int         `db:"event_item_id"`
 	UserId       int         `db:"user_id"`
-	Notes        string
+	Note         string
 	Created      time.Time
 	LastModified time.Time  `db:"last_modified"`
 	EventItem    *EventItem `db:"-"`
+	User         *User      `db:"-"`
 }
 
 func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
 	if em.RefId.IsNil() {
 		em.RefId = EarmarkRefIdT.MustNew()
 	}
-	q := `INSERT INTO earmark_ (event_item_id, user_id, notes) VALUES ($1, $2, $3) RETURNING *`
-	res, err := QueryOneTx[Earmark](ctx, db, q, em.EventItemId, em.UserId, em.Notes)
+	q := `INSERT INTO earmark_ (event_item_id, user_id, note) VALUES ($1, $2, $3) RETURNING *`
+	res, err := QueryOneTx[Earmark](ctx, db, q, em.EventItemId, em.UserId, em.Note)
 	if err != nil {
 		return err
 	}
@@ -36,8 +37,8 @@ func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
 }
 
 func (em *Earmark) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE earmark_ SET notes = $1 WHERE id = $2`
-	return ExecTx[Earmark](ctx, db, q, em.Notes, em.Id)
+	q := `UPDATE earmark_ SET note = $1 WHERE id = $2`
+	return ExecTx[Earmark](ctx, db, q, em.Note, em.Id)
 }
 
 func (em *Earmark) Delete(ctx context.Context, db PgxHandle) error {
@@ -53,11 +54,11 @@ func (em *Earmark) GetEventItem(ctx context.Context, db PgxHandle) (*EventItem, 
 	return eventItem, nil
 }
 
-func NewEarmark(ctx context.Context, db PgxHandle, eventItemId int, userId int, notes string) (*Earmark, error) {
+func NewEarmark(ctx context.Context, db PgxHandle, eventItemId int, userId int, note string) (*Earmark, error) {
 	earmark := &Earmark{
 		EventItemId: eventItemId,
 		UserId:      userId,
-		Notes:       notes,
+		Note:        note,
 	}
 	err := earmark.Insert(ctx, db)
 	if err != nil {
@@ -84,6 +85,18 @@ func GetEarmarkByEventItem(ctx context.Context, db PgxHandle, eventItem *EventIt
 func GetEarmarksByUser(ctx context.Context, db PgxHandle, user *User) ([]*Earmark, error) {
 	q := `SELECT * FROM earmark_ WHERE user_id = $1 ORDER BY created DESC`
 	return Query[Earmark](ctx, db, q, user.Id)
+}
+
+func GetEarmarksByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*Earmark, error) {
+	q := `
+		SELECT earmark_.*
+		FROM earmark_
+		JOIN event_item_ ON 
+			event_item_.id = earmark_.event_item_id
+		WHERE 
+			event_item_.event_id = $1
+	`
+	return Query[Earmark](ctx, db, q, event.Id)
 }
 
 func GetEarmarksWithEventsByUser(ctx context.Context, db PgxHandle, user *User) ([]*Earmark, error) {

@@ -1,11 +1,12 @@
 package app
 
 import (
+	"github.com/cactus/mlog"
 	ah "github.com/dropwhile/icbt/internal/app/handler"
 	mw "github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/resources"
+	res "github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
@@ -15,14 +16,14 @@ type API struct {
 	*chi.Mux
 	Db      *model.DB
 	SessMgr *session.SessionMgr
-	Tpl     resources.TemplateMap
+	Tpl     res.TemplateMap
 }
 
 func (api *API) Close() {
 	api.SessMgr.Close()
 }
 
-func NewAPI(db *model.DB, tpl resources.TemplateMap, csrfKey []byte, isProd bool) *API {
+func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API {
 	api := &API{
 		SessMgr: session.NewDBSessionManager(db.GetPool()),
 		Mux:     chi.NewRouter(),
@@ -36,13 +37,19 @@ func NewAPI(db *model.DB, tpl resources.TemplateMap, csrfKey []byte, isProd bool
 	r.Use(middleware.GetHead)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
+	if mlog.HasDebug() {
+		r.Use(mw.NewDebubRequestLogger())
+	}
 	r.Use(middleware.Recoverer)
 	r.Use(api.SessMgr.LoadAndSave)
 	r.Use(csrf.Protect(
 		csrfKey,
-		csrf.Secure(isProd),                // false in development only!
-		csrf.Path("/"),                     // setup path so csrf works _between_ pages (eg. htmx calls)
-		csrf.RequestHeader("X-CSRF-Token"), // Must be in CORS Allowed and Exposed Headers
+		// false in development only!
+		csrf.Secure(isProd),
+		// setup path so csrf works _between_ pages (eg. htmx calls)
+		csrf.Path("/"),
+		// Must be in CORS Allowed and Exposed Headers
+		csrf.RequestHeader("X-CSRF-Token"),
 	))
 	r.Use(mw.LoadAuth(db, api.SessMgr))
 
@@ -60,14 +67,17 @@ func NewAPI(db *model.DB, tpl resources.TemplateMap, csrfKey []byte, isProd bool
 		r.Post("/logout", ah.Logout)
 		// dashboard/events/earmarks/etc
 		r.Get("/dashboard", ah.ShowDashboard)
+		r.Get("/create-event", ah.ShowCreateEventForm)
+		r.Post("/create-event", ah.CreateEvent)
 		r.Get("/events", ah.ListEvents)
-		r.Get("/events/{refId:[0-9a-hjkmnp-tv-z]+}", ah.ShowEvent)
-		r.Delete("/events/{refId:[0-9a-hjkmnp-tv-z]+}", ah.DeleteEvent)
-		//r.Get("/create-event", ah.ShowCreateEvent)
-		//r.Post("/create-event", ah.CreateEvent)
+		r.Get("/events/{eRefId:[0-9a-z]+}", ah.ShowEvent)
+		r.Get("/events/{eRefId:[0-9a-z]+}/edit", ah.ShowEditEventForm)
+		r.Post("/events/{eRefId:[0-9a-z]+}", ah.UpdateEvent)
+		r.Delete("/events/{eRefId:[0-9a-z]+}", ah.DeleteEvent)
+		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.DeleteEventItem)
 		r.Get("/earmarks", ah.ListEarmarks)
-		r.Delete("/earmarks/{refId:[0-9a-hjkmnp-tv-]+}", ah.DeleteEarmark)
-		//r.Get("/profile/{userRefId:[a-zA-Z-]+}", ah.ShowProfile)
+		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", ah.DeleteEarmark)
+		//r.Get("/profile/{uRefId:[a-zA-Z-]+}", ah.ShowProfile)
 	})
 
 	// Public routes

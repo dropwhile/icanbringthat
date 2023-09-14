@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEventRefId = refid.MustParse("080032mdz2b9pwbbj2wemswmh95qr")
+var tstEventRefId = refid.MustParse("0r2nck3dd9n04r3h7894rw36rg")
 
 func TestEventInsert(t *testing.T) {
 	t.Parallel()
@@ -23,18 +23,18 @@ func TestEventInsert(t *testing.T) {
 	refId := tstEventRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
-		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
+		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "start_time_tz", "created", "last_modified"}).
+		AddRow(1, refId, 1, "some name", "some desc", ts, "Etc/UTC", ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
-		WithArgs(1, pgxmock.AnyArg(), "some name", "some desc", ts).
+		WithArgs(1, pgxmock.AnyArg(), "some name", "some desc", ts, "Etc/UTC").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
 
-	event, err := NewEvent(ctx, mock, 1, "some name", "some desc", ts)
+	event, err := NewEvent(ctx, mock, 1, "some name", "some desc", ts, "Etc/UTC")
 	assert.NilError(t, err)
 
 	assert.Check(t, event.RefId.HasTag(2))
@@ -45,6 +45,7 @@ func TestEventInsert(t *testing.T) {
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
+		StartTimeTZ:  "Etc/UTC",
 		Created:      ts,
 		LastModified: ts,
 	})
@@ -69,7 +70,7 @@ func TestEventSave(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_ (.+)*").
-		WithArgs("some name", "some desc", ts, 1).
+		WithArgs("some name", "some desc", ts, "Etc/UTC", 1).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -82,6 +83,7 @@ func TestEventSave(t *testing.T) {
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
+		StartTimeTZ:  "Etc/UTC",
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -205,7 +207,7 @@ func TestEventGetByRefId(t *testing.T) {
 		LastModified: ts,
 	})
 
-	assert.Equal(t, event.RefId.String(), "080032mdz2b9pwbbj2wemswmh95qr")
+	assert.DeepEqual(t, event.RefId.String(), tstEventRefId.String())
 
 	// we make sure that all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {

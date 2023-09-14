@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS earmark_ (
     created timestamp DEFAULT timezone('utc', now()),
     last_modified timestamp DEFAULT timezone('utc', now()),
     CONSTRAINT event_item_fk FOREIGN KEY(event_item_id) REFERENCES event_item_(id) ON DELETE CASCADE,
-    CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES user_(id) ON DELETE CASCADE
+    CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES user_(id) ON DELETE CASCADE,
+    UNIQUE(event_item_id)
 );
 CREATE UNIQUE INDEX earmark_ref_idx ON earmark_(ref_id);
 CREATE TRIGGER last_mod_earmark
