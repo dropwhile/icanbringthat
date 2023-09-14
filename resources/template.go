@@ -97,8 +97,8 @@ var templateFuncMap = template.FuncMap{
 	"formatDateTime": func(t time.Time) string {
 		return t.Format("2006-01-02 15:04 MST")
 	},
-	"paginate": func(size, step, current uint) []*Page {
-		return NewPaginator(3, 3, 3).AddPages(int(size), int(step)).Paginate(int(current))
+	"paginate": func(size, step, current int) []*Page {
+		return NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current)
 	},
 	"mod": func(i, j int) int {
 		return i % j

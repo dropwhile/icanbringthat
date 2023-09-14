@@ -94,7 +94,6 @@ func main() {
 	}
 	var dbpool *pgxpool.Pool
 	if logDebug {
-		dbpool.Close()
 		config, err := pgxpool.ParseConfig(dbDSN)
 		if err != nil {
 			mlog.Fatalf("failed to connect to database: %s", err)

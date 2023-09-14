@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/util/refid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
@@ -108,9 +107,6 @@ func GetEarmarksByUserPaginated(ctx context.Context, db PgxHandle, user *User, l
 
 func GetEarmarkCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
 	q := `SELECT count(*) FROM earmark_ WHERE user_id = $1`
-	if mlog.HasDebug() {
-		mlog.Debugx("SQL", mlog.A("query", q), mlog.A("args", user.Id))
-	}
 	var count int = 0
 	err := pgxscan.Get(ctx, db, &count, q, user.Id)
 	return count, err

@@ -46,26 +46,6 @@ func (sm *SessionMgr) PopMap(ctx context.Context, key string) map[string][]strin
 	return value
 }
 
-func (sm *SessionMgr) GetUint(ctx context.Context, key string) uint {
-	var value uint = 0
-	if v, ok := sm.Get(ctx, key).(uint); ok {
-		value = v
-	}
-	return value
-}
-
-func (sm *SessionMgr) PutUint(ctx context.Context, key string, value uint) {
-	sm.Put(ctx, key, value)
-}
-
-func (sm *SessionMgr) PopUint(ctx context.Context, key string) uint {
-	var value uint = 0
-	if v, ok := sm.Pop(ctx, key).(uint); ok {
-		value = v
-	}
-	return value
-}
-
 func NewDBSessionManager(pool *pgxpool.Pool) *SessionMgr {
 	manager := scs.New()
 	manager.Store = pgxstore.New(pool)
