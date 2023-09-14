@@ -99,28 +99,6 @@ func MustParseTagged(tag byte, s string) RefId {
 	return refId
 }
 
-func FromUUIDString(s string) (RefId, error) {
-	var refId RefId
-	uid, err := uuid.FromString(s)
-	if err != nil {
-		return refId, err
-	}
-	refId.UUID = uid
-	return refId, nil
-}
-
-func MustFromUUIDString(s string) RefId {
-	refId, err := FromUUIDString(s)
-	if err != nil {
-		panic(`RefId: ParseUUIDString` + s + `): ` + err.Error())
-	}
-	return refId
-}
-
-func FromUUID(id uuid.UUID) RefId {
-	return RefId{id, 0}
-}
-
 func FromBytes(input []byte) (RefId, error) {
 	var refId RefId
 	err := refId.UnmarshalBinary(input)
@@ -193,10 +171,6 @@ func (refId RefId) HasTag(tag byte) bool {
 
 func (refId RefId) IsNil() bool {
 	return refId == Nil
-}
-
-func (refId RefId) ToUUID() uuid.UUID {
-	return refId.UUID
 }
 
 func (refId RefId) Equal(other RefId) bool {

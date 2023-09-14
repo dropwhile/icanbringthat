@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofrs/uuid/v5"
 	"gotest.tools/v3/assert"
 )
 
@@ -16,21 +15,8 @@ var (
 	refTagTest     = byte(1)
 	testValWoutTag = "000baxr70ja4ggc0jbgw5dzx7vb52"
 	testValWithTag = "040baxr70ja4ggc0jbgw5dzx7vb52"
-	uuidStr        = "B5770704-9448-4180-92E1-C2B7FD3ED651"
 )
 
-func TestUUIDDecoding(t *testing.T) {
-	t.Parallel()
-
-	id := uuid.Must(uuid.FromString(uuidStr))
-	refId := FromUUID(id)
-	refId2 := MustFromUUIDString(uuidStr)
-	assert.Equal(t, refId.UUID.String(), refId2.ToUUID().String())
-	enc := refId.String()
-	out, err := Parse(enc)
-	assert.NilError(t, err)
-	assert.Equal(t, id.String(), out.ToUUID().String())
-}
 func UintToBinary(n uint64) string {
 	return strconv.FormatUint(n, 2)
 }
@@ -77,7 +63,7 @@ func TestRoundTrip(t *testing.T) {
 func TestSetTag(t *testing.T) {
 	t.Parallel()
 
-	refId := MustFromUUIDString(uuidStr)
+	refId := MustParse(testValWoutTag)
 	assert.Check(t, !refId.HasTag(refTagTest))
 	assert.Equal(t, refId.String(), testValWoutTag)
 	assert.Equal(t, (&refId).String(), testValWoutTag)
