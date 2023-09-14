@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/pashagolub/pgxmock/v2"
 	"gotest.tools/v3/assert"
 )
 
@@ -13,23 +13,28 @@ var tstEventItemRefId = refid.MustParse("0c0032mdyyanmzsgg4amq1at1aq2m")
 
 func TestEventItemInsert(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description", "created", "last_modified"}).
 		AddRow(1, refId, 1, "some desc", ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_item_ (.+)*").
-		WithArgs(sqlmock.AnyArg(), 1, "some desc").
+		WithArgs(pgxmock.AnyArg(), 1, "some desc").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
-	eventItem, err := NewEventItem(model, ctx, 1, "some desc")
+	eventItem, err := NewEventItem(ctx, mock, 1, "some desc")
 	assert.NilError(t, err)
 
 	assert.Check(t, eventItem.RefId.HasTag(3))
@@ -50,25 +55,30 @@ func TestEventItemInsert(t *testing.T) {
 
 func TestEventItemSave(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_item_ (.+)*").
 		WithArgs("some desc", 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	eventItem := &EventItem{
 		Id:          1,
 		RefId:       refId,
 		EventId:     1,
 		Description: "some desc",
 	}
-	err := eventItem.Save(model, ctx)
+	err = eventItem.Save(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -79,25 +89,30 @@ func TestEventItemSave(t *testing.T) {
 
 func TestEventItemDelete(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM event_item_ (.+)*").
 		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	eventItem := &EventItem{
 		Id:          1,
 		RefId:       refId,
 		EventId:     1,
 		Description: "some desc",
 	}
-	err := eventItem.Delete(model, ctx)
+	err = eventItem.Delete(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -108,11 +123,15 @@ func TestEventItemDelete(t *testing.T) {
 
 func TestEventItemGetById(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
 		AddRow(1, refId, 1, "some desc")
 
@@ -120,8 +139,7 @@ func TestEventItemGetById(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	eventItem, err := GetEventItemById(model, ctx, 1)
+	eventItem, err := GetEventItemById(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItem, &EventItem{
@@ -139,11 +157,15 @@ func TestEventItemGetById(t *testing.T) {
 
 func TestEventItemGetByRefId(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
 		AddRow(1, refId, 1, "some desc")
 
@@ -151,8 +173,7 @@ func TestEventItemGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	eventItem, err := GetEventItemByRefId(model, ctx, refId)
+	eventItem, err := GetEventItemByRefId(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItem, &EventItem{
@@ -170,12 +191,16 @@ func TestEventItemGetByRefId(t *testing.T) {
 
 func TestEventItemGetByEvent(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventItemRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
 		AddRow(1, refId, 1, "some desc")
 
@@ -183,7 +208,6 @@ func TestEventItemGetByEvent(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
 	event := &Event{
 		Id:           1,
 		RefId:        refId,
@@ -194,7 +218,7 @@ func TestEventItemGetByEvent(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	eventItems, err := GetEventItemsByEvent(model, ctx, event)
+	eventItems, err := GetEventItemsByEvent(ctx, mock, event)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItems, []*EventItem{{

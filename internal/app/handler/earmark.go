@@ -22,20 +22,20 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(h.Db, ctx, user)
+	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	pageNum := uint(1)
+	pageNum := 1
 	maxPageNum := ((earmarkCount / 10) + 1)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
-		if v, err := strconv.ParseUint(pageNumParam, 10, 0); err == nil {
+		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
 			if v > 1 {
-				pageNum = min(((earmarkCount / 10) + 1), uint(v))
+				pageNum = min(((earmarkCount / 10) + 1), int(v))
 				fmt.Println(pageNum)
 			}
 		}
@@ -50,20 +50,20 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	earmarks, err := model.GetEarmarksByUserPaginated(h.Db, ctx, user, 10, offset)
+	earmarks, err := model.GetEarmarksByUserPaginated(ctx, h.Db, user, 10, offset)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 	for i, em := range earmarks {
-		ei, err := em.GetEventItem(h.Db, ctx)
+		ei, err := em.GetEventItem(ctx, h.Db)
 		if err != nil {
 			mlog.Infox("db error", mlog.A("err", err))
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
-		e, err := ei.GetEvent(h.Db, ctx)
+		e, err := ei.GetEvent(ctx, h.Db)
 		if err != nil {
 			mlog.Infox("db error", mlog.A("err", err))
 			http.Error(w, "db error", http.StatusInternalServerError)
@@ -111,7 +111,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	earmark, err := model.GetEarmarkByRefId(h.Db, ctx, refId)
+	earmark, err := model.GetEarmarkByRefId(ctx, h.Db, refId)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -123,7 +123,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = earmark.Delete(h.Db, ctx)
+	err = earmark.Delete(ctx, h.Db)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)

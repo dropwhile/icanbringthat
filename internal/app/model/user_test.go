@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/pashagolub/pgxmock/v2"
 	"gotest.tools/v3/assert"
 )
 
@@ -14,11 +14,14 @@ var tstUserRefId = refid.MustParse("040032mdz53myygwgqj86s5dfjmvc")
 
 func TestUserSetPassword(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
-	ctx := context.TODO()
 	user := &User{
 		Id:     1,
 		RefId:  refId,
@@ -27,16 +30,18 @@ func TestUserSetPassword(t *testing.T) {
 		PWHash: []byte("000x000"),
 	}
 
-	err := user.SetPass(ctx, []byte("111x111"))
+	err = user.SetPass(ctx, []byte("111x111"))
 	assert.NilError(t, err)
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE user_ (.+)*").
 		WithArgs("user1@example.com", "j rando", user.PWHash, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("INSERT", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	err = user.Save(model, ctx)
+	err = user.Save(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -72,21 +77,26 @@ func TestUserCheckPassword(t *testing.T) {
 
 func TestUserInsert(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
-	rows := sqlmock.NewRows(columns).
+	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_ (.+)*").
-		WithArgs(sqlmock.AnyArg(), "user1@example.com", "j rando", sqlmock.AnyArg()).
+		WithArgs(pgxmock.AnyArg(), "user1@example.com", "j rando", pgxmock.AnyArg()).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
-	user, err := NewUser(model, ctx, "user1@example.com", "j rando", []byte("000x000"))
+	user, err := NewUser(ctx, mock, "user1@example.com", "j rando", []byte("000x000"))
 	assert.NilError(t, err)
 
 	assert.Check(t, user.RefId.HasTag(1))
@@ -109,17 +119,22 @@ func TestUserInsert(t *testing.T) {
 
 func TestUserSave(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE user_ (.+)*").
 		WithArgs("user1@example.com", "j rando", []byte("000x000"), 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	user := &User{
 		Id:     1,
 		RefId:  refId,
@@ -127,7 +142,7 @@ func TestUserSave(t *testing.T) {
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
 	}
-	err := user.Save(model, ctx)
+	err = user.Save(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -138,17 +153,22 @@ func TestUserSave(t *testing.T) {
 
 func TestUserDelete(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_ (.+)*").
 		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	user := &User{
 		Id:     1,
 		RefId:  refId,
@@ -156,7 +176,7 @@ func TestUserDelete(t *testing.T) {
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
 	}
-	err := user.Delete(model, ctx)
+	err = user.Delete(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -167,19 +187,22 @@ func TestUserDelete(t *testing.T) {
 
 func TestUserGetById(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
-	rows := sqlmock.NewRows(columns).
+	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
 	mock.ExpectQuery("^SELECT (.+) FROM user_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	user, err := GetUserById(model, ctx, 1)
+	user, err := GetUserById(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, user, &User{
@@ -198,19 +221,22 @@ func TestUserGetById(t *testing.T) {
 
 func TestUserGetByRefId(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
-	rows := sqlmock.NewRows(columns).
+	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
 	mock.ExpectQuery("^SELECT (.+) FROM user_ *").
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	user, err := GetUserByRefId(model, ctx, refId)
+	user, err := GetUserByRefId(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, user, &User{
@@ -229,19 +255,22 @@ func TestUserGetByRefId(t *testing.T) {
 
 func TestUserGetByEmail(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstUserRefId
-	rows := sqlmock.NewRows(columns).
+	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
 	mock.ExpectQuery("^SELECT (.+) FROM user_ *").
 		WithArgs("user1@example.com").
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	user, err := GetUserByEmail(model, ctx, "user1@example.com")
+	user, err := GetUserByEmail(ctx, mock, "user1@example.com")
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, user, &User{

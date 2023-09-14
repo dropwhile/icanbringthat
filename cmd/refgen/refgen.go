@@ -36,5 +36,7 @@ func main() {
 	} else {
 		refId = refid.MustNew()
 	}
-	fmt.Println(refId)
+
+	fmt.Println("hex: ", refId.ToHexString())
+	fmt.Println("native: ", refId)
 }

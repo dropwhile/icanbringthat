@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -22,20 +23,20 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(h.Db, ctx, user)
+	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	pageNum := uint(1)
+	pageNum := 1
 	maxPageNum := ((eventCount / 10) + 1)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
-		if v, err := strconv.ParseUint(pageNumParam, 10, 0); err == nil {
+		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
 			if v > 1 {
-				pageNum = min(maxPageNum, uint(v))
+				pageNum = min(maxPageNum, int(v))
 				fmt.Println(pageNum)
 			}
 		}
@@ -50,7 +51,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetEventsByUserPaginated(h.Db, ctx, user, 10, offset*10)
+	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, offset*10)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -58,7 +59,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range events {
-		items, err := model.GetEventItemsByEvent(h.Db, ctx, events[i])
+		items, err := model.GetEventItemsByEvent(ctx, h.Db, events[i])
 		if err != nil {
 			mlog.Infox("db error", mlog.A("err", err))
 			http.Error(w, "db error", http.StatusInternalServerError)
@@ -105,14 +106,20 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefId(h.Db, ctx, refId)
-	if err != nil {
+	event, err := model.GetEventByRefId(ctx, h.Db, refId)
+	switch {
+	case err == sql.ErrNoRows:
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		fmt.Println(err)
 		http.Error(w, "db error", http.StatusInternalServerError)
+		return
 	}
 
 	owner := user.Id == event.UserId
 
-	eventItems, err := model.GetEventItemsByEvent(h.Db, ctx, event)
+	eventItems, err := model.GetEventItemsByEvent(ctx, h.Db, event)
 	if err != nil {
 		http.Error(w, "db error", http.StatusInternalServerError)
 	}
@@ -148,7 +155,7 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefId(h.Db, ctx, refId)
+	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -161,7 +168,7 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = event.Delete(h.Db, ctx)
+	err = event.Delete(ctx, h.Db)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)

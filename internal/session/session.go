@@ -2,12 +2,12 @@ package session
 
 import (
 	"context"
-	"database/sql"
 	"encoding/gob"
 
-	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/pgxstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func init() {
@@ -19,7 +19,7 @@ type SessionMgr struct {
 }
 
 func (sm *SessionMgr) Close() {
-	if v, ok := sm.Store.(*postgresstore.PostgresStore); ok {
+	if v, ok := sm.Store.(*pgxstore.PostgresStore); ok {
 		v.StopCleanup()
 	}
 }
@@ -66,18 +66,14 @@ func (sm *SessionMgr) PopUint(ctx context.Context, key string) uint {
 	return value
 }
 
-func NewDBSessionManager(db *sql.DB) *SessionMgr {
+func NewDBSessionManager(pool *pgxpool.Pool) *SessionMgr {
 	manager := scs.New()
-	store := postgresstore.New(db)
-	manager.Store = store
-
+	manager.Store = pgxstore.New(pool)
 	return &SessionMgr{SessionManager: manager}
 }
 
 func NewMemorySessionManager() *SessionMgr {
 	manager := scs.New()
-	store := memstore.New()
-	manager.Store = store
-
+	manager.Store = memstore.New()
 	return &SessionMgr{SessionManager: manager}
 }

@@ -4,21 +4,25 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/pashagolub/pgxmock/v2"
 	"gotest.tools/v3/assert"
 )
 
 var tstEarmarkRefId = refid.MustParse("0g0032mdytkwexqrmezkjf02qrz5w")
 
 func TestEarmarkInsert(t *testing.T) {
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
@@ -27,9 +31,10 @@ func TestEarmarkInsert(t *testing.T) {
 		WithArgs(1, 1, "some note").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
-	earmark, err := NewEarmark(model, ctx, 1, 1, "some note")
+	earmark, err := NewEarmark(ctx, mock, 1, 1, "some note")
 	assert.NilError(t, err)
 	assert.Check(t, earmark.RefId.HasTag(4))
 
@@ -51,8 +56,12 @@ func TestEarmarkInsert(t *testing.T) {
 
 func TestEarmarkSave(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
@@ -60,10 +69,11 @@ func TestEarmarkSave(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE earmark_ (.+)*").
 		WithArgs("some note", 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	earmark := &Earmark{
 		Id:           1,
 		RefId:        refId,
@@ -73,7 +83,7 @@ func TestEarmarkSave(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	err := earmark.Save(model, ctx)
+	err = earmark.Save(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -84,8 +94,12 @@ func TestEarmarkSave(t *testing.T) {
 
 func TestEarmarkDelete(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
@@ -93,10 +107,11 @@ func TestEarmarkDelete(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM earmark_ (.+)*").
 		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	earmark := &Earmark{
 		Id:           1,
 		RefId:        refId,
@@ -106,7 +121,7 @@ func TestEarmarkDelete(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	err := earmark.Delete(model, ctx)
+	err = earmark.Delete(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -117,12 +132,16 @@ func TestEarmarkDelete(t *testing.T) {
 
 func TestEarmarkGetById(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
@@ -130,8 +149,7 @@ func TestEarmarkGetById(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	earmark, err := GetEarmarkById(model, ctx, 1)
+	earmark, err := GetEarmarkById(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
@@ -152,12 +170,16 @@ func TestEarmarkGetById(t *testing.T) {
 
 func TestEarmarkGetByRefId(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
@@ -165,8 +187,7 @@ func TestEarmarkGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	earmark, err := GetEarmarkByRefId(model, ctx, refId)
+	earmark, err := GetEarmarkByRefId(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
@@ -187,12 +208,16 @@ func TestEarmarkGetByRefId(t *testing.T) {
 
 func TestEarmarkGetEventItem(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEarmarkRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "notes", "created", "last_modified"}).
 		AddRow(1, refId, 1, 1, "some note", ts, ts)
 
@@ -200,14 +225,13 @@ func TestEarmarkGetEventItem(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
 	eventItem := &EventItem{
 		Id:          1,
 		RefId:       refId,
 		EventId:     1,
 		Description: "some desc",
 	}
-	earmark, err := GetEarmarkByEventItem(model, ctx, eventItem)
+	earmark, err := GetEarmarkByEventItem(ctx, mock, eventItem)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{

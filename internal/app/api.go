@@ -24,10 +24,10 @@ func (api *API) Close() {
 
 func NewAPI(db *model.DB, tpl resources.TemplateMap, csrfKey []byte, isProd bool) *API {
 	api := &API{
+		SessMgr: session.NewDBSessionManager(db.GetPool()),
 		Mux:     chi.NewRouter(),
 		Db:      db,
 		Tpl:     tpl,
-		SessMgr: session.NewDBSessionManager(db.DB.DB),
 	}
 
 	// Router/Middleware //

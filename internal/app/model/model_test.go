@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/cactus/mlog"
 )
 
@@ -17,18 +16,6 @@ func init() {
 	tstTs, _ = time.Parse(time.RFC3339, "2023-01-01T03:04:05Z")
 }
 
-func setupDBMock(t *testing.T) (*DB, sqlmock.Sqlmock) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	model, err := SetupFromDb(db)
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	return model, mock
-}
-
 var logBuffer = &bytes.Buffer{}
 
 func TestMain(m *testing.M) {
@@ -36,6 +23,8 @@ func TestMain(m *testing.M) {
 	flag.Parse()
 
 	debug := os.Getenv("DEBUG")
+	verbose := os.Getenv("TESTS_LOG_VERBOSE")
+
 	// now configure a standard logger
 	mlog.SetFlags(mlog.Lstd)
 
@@ -46,7 +35,9 @@ func TestMain(m *testing.M) {
 	}
 
 	// log to bytes buffer
-	mlog.DefaultLogger = mlog.New(logBuffer, mlog.Lstd)
+	if verbose != "" {
+		mlog.DefaultLogger = mlog.New(logBuffer, mlog.Lstd)
+	}
 	mlog.Debug("debug logging enabled")
 
 	os.Exit(m.Run())

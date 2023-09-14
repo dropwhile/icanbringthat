@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha1"
 	_ "database/sql"
 	"errors"
@@ -14,8 +15,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/resources"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -91,16 +92,33 @@ func main() {
 	if dbDSN == "" {
 		mlog.Fatal("database connection info not supplied")
 	}
-	db, err := sqlx.Connect("pgx", dbDSN)
-	if err != nil {
-		mlog.Fatalf("failed to connect to database: %s", err)
+	var dbpool *pgxpool.Pool
+	if logDebug {
+		dbpool.Close()
+		config, err := pgxpool.ParseConfig(dbDSN)
+		if err != nil {
+			mlog.Fatalf("failed to connect to database: %s", err)
+		}
+		config.ConnConfig.Tracer = &tracelog.TraceLog{
+			Logger: tracelog.LoggerFunc(func(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]interface{}) {
+				mlog.Debugm("DB: "+msg, data)
+			}),
+			LogLevel: tracelog.LogLevelTrace,
+		}
+		dbpool, err = pgxpool.NewWithConfig(context.Background(), config)
+		if err != nil {
+			mlog.Fatalf("failed to connect to database: %s", err)
+		}
+	} else {
+		var err error
+		dbpool, err = pgxpool.New(context.Background(), dbDSN)
+		if err != nil {
+			mlog.Fatalf("failed to connect to database: %s", err)
+		}
 	}
-	defer db.Close()
+	defer dbpool.Close()
 
-	model, err := model.SetupFromDb(db.DB)
-	if err != nil {
-		mlog.Fatal("error connecting to database")
-	}
+	model := model.SetupFromDb(dbpool)
 	defer model.Close()
 
 	// csrf Key
@@ -133,7 +151,7 @@ func main() {
 		WriteTimeout:      5 * time.Second,
 	}
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		mlog.Print("server closed")
 	} else if err != nil {

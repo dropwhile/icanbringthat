@@ -31,7 +31,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		selfView = true
 		profileUser = user
 	} else {
-		profileUser, err = model.GetUserByRefId(h.Db, ctx, profileUserRefId)
+		profileUser, err = model.GetUserByRefId(ctx, h.Db, profileUserRefId)
 		if err != nil {
 			http.Error(w, "user not found", http.StatusNotFound)
 			return

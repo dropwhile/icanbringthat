@@ -29,8 +29,8 @@ func LoadAuth(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			if sessMgr.Exists(r.Context(), "user-id") {
-				userId := sessMgr.Get(r.Context(), "user-id").(uint)
-				user, err := model.GetUserById(db, r.Context(), userId)
+				userId := sessMgr.Get(r.Context(), "user-id").(int)
+				user, err := model.GetUserById(r.Context(), db, userId)
 				if err != nil {
 					http.Error(w, "authorization failure", http.StatusInternalServerError)
 					return

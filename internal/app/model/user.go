@@ -10,11 +10,11 @@ import (
 )
 
 type User struct {
-	Id           uint
+	Id           int
 	RefId        refid.RefId `db:"ref_id"`
 	Email        string
 	Name         string `db:"name"`
-	PWHash       []byte
+	PWHash       []byte `db:"pwhash"`
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
 }
@@ -36,12 +36,12 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 	return ok, nil
 }
 
-func (user *User) Insert(db *DB, ctx context.Context) error {
+func (user *User) Insert(ctx context.Context, db PgxHandle) error {
 	if user.RefId.IsNil() {
 		user.RefId = UserRefIdT.MustNew()
 	}
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryRowTx[User](db, ctx, q, user.RefId, user.Email, user.Name, user.PWHash)
+	res, err := QueryOneTx[User](ctx, db, q, user.RefId, user.Email, user.Name, user.PWHash)
 	if err != nil {
 		return err
 	}
@@ -52,17 +52,17 @@ func (user *User) Insert(db *DB, ctx context.Context) error {
 	return nil
 }
 
-func (user *User) Save(db *DB, ctx context.Context) error {
+func (user *User) Save(ctx context.Context, db PgxHandle) error {
 	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3 WHERE id = $4`
-	return ExecTx[User](db, ctx, q, user.Email, user.Name, user.PWHash, user.Id)
+	return ExecTx[User](ctx, db, q, user.Email, user.Name, user.PWHash, user.Id)
 }
 
-func (user *User) Delete(db *DB, ctx context.Context) error {
+func (user *User) Delete(ctx context.Context, db PgxHandle) error {
 	q := `DELETE FROM user_ WHERE id = $1`
-	return ExecTx[User](db, ctx, q, user.Id)
+	return ExecTx[User](ctx, db, q, user.Id)
 }
 
-func NewUser(db *DB, ctx context.Context, email, name string, rawPass []byte) (*User, error) {
+func NewUser(ctx context.Context, db PgxHandle, email, name string, rawPass []byte) (*User, error) {
 	user := &User{
 		Email: email,
 		Name:  name,
@@ -71,24 +71,24 @@ func NewUser(db *DB, ctx context.Context, email, name string, rawPass []byte) (*
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}
-	err = user.Insert(db, ctx)
+	err = user.Insert(ctx, db)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func GetUserById(db *DB, ctx context.Context, id uint) (*User, error) {
+func GetUserById(ctx context.Context, db PgxHandle, id int) (*User, error) {
 	q := `SELECT * FROM user_ WHERE id = $1`
-	return QueryRow[User](db, ctx, q, id)
+	return QueryOne[User](ctx, db, q, id)
 }
 
-func GetUserByRefId(db *DB, ctx context.Context, refId refid.RefId) (*User, error) {
+func GetUserByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*User, error) {
 	q := `SELECT * FROM user_ WHERE ref_id = $1`
-	return QueryRow[User](db, ctx, q, refId)
+	return QueryOne[User](ctx, db, q, refId)
 }
 
-func GetUserByEmail(db *DB, ctx context.Context, email string) (*User, error) {
+func GetUserByEmail(ctx context.Context, db PgxHandle, email string) (*User, error) {
 	q := `SELECT * FROM user_ WHERE email = $1`
-	return QueryRow[User](db, ctx, q, email)
+	return QueryOne[User](ctx, db, q, email)
 }

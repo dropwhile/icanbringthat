@@ -12,7 +12,7 @@ var _ sql.Scanner = (*RefId)(nil)
 
 // Value implements the driver.Valuer interface.
 func (u RefId) Value() (driver.Value, error) {
-	return u.String(), nil
+	return u.Bytes(), nil
 }
 
 // Scan implements the sql.Scanner interface.
@@ -31,7 +31,8 @@ func (u *RefId) Scan(src interface{}) error {
 		return u.UnmarshalText(src)
 
 	case string:
-		uu, err := FromString(src)
+		//uu, err := FromString(src)
+		uu, err := FromHexString(src)
 		*u = uu
 		return err
 	}

@@ -25,8 +25,8 @@ const tagIndex = 0
 const uuidOffset = 2
 
 type RefId struct {
-	uuid.UUID
-	tag byte `db:"-"`
+	UUID uuid.UUID
+	tag  byte `db:"-"`
 }
 
 func New() (RefId, error) {
@@ -156,6 +156,23 @@ func FromBase64String(input string) (RefId, error) {
 	return refId, nil
 }
 
+func FromHexString(input string) (RefId, error) {
+	var refId RefId
+	bx, err := hex.DecodeString(input)
+	if err != nil {
+		return refId, err
+	}
+	if len(bx) != size {
+		return refId, fmt.Errorf("wrong unmarshal size")
+	}
+	refId.UUID, err = uuid.FromBytes(bx[uuidOffset:])
+	if err != nil {
+		return refId, err
+	}
+	refId.tag = bx[tagIndex]
+	return refId, nil
+}
+
 func (refId *RefId) SetTag(tag byte) *RefId {
 	refId.tag = tag
 	return refId
@@ -190,20 +207,16 @@ func (refId RefId) MarshalText() ([]byte, error) {
 	return []byte(refId.String()), nil
 }
 
-//const epochStart = 122192928000000000
-//const _100nsPerSecond = 10000000
-
 func (refId RefId) Time() time.Time {
 	u := refId.UUID[:]
 
-	//UUIDv7 features a 48 bit timestamp. First 32bit (4bytes) represents seconds since 1970, followed by 2 bytes for the ms granularity.
-	var t int64 = 0
-	t |= (int64(u[0]) << 40)
-	t |= (int64(u[1]) << 32)
-	t |= (int64(u[2]) << 24)
-	t |= (int64(u[3]) << 16)
-	t |= (int64(u[4]) << 8)
-	t |= int64(u[5])
+	t := 0 |
+		(int64(u[0]) << 40) |
+		(int64(u[1]) << 32) |
+		(int64(u[2]) << 24) |
+		(int64(u[3]) << 16) |
+		(int64(u[4]) << 8) |
+		int64(u[5])
 	return time.UnixMilli(t)
 }
 
@@ -238,7 +251,6 @@ func (refId RefId) Bytes() []byte {
 	b := make([]byte, size)
 	b[tagIndex] = refId.tag
 	copy(b[uuidOffset:], refId.UUID[:])
-	fmt.Println(len(b))
 	return b
 }
 
@@ -270,6 +282,13 @@ func (refId RefId) ToBase64String() string {
 	data[0] = refId.tag
 	copy(data[uuidOffset:], refId.UUID[:])
 	return base64.RawURLEncoding.EncodeToString(data)
+}
+
+func (refId RefId) ToHexString() string {
+	data := make([]byte, size)
+	data[0] = refId.tag
+	copy(data[uuidOffset:], refId.UUID[:])
+	return hex.EncodeToString(data)
 }
 
 func (refId RefId) Format(f fmt.State, c rune) {

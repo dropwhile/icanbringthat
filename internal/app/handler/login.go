@@ -54,7 +54,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	passwd := r.PostFormValue("password")
 
 	// find user...
-	user, err := model.GetUserByEmail(h.Db, ctx, email)
+	user, err := model.GetUserByEmail(ctx, h.Db, email)
 	if err != nil || user == nil {
 		h.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)

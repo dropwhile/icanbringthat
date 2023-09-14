@@ -19,21 +19,21 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := model.GetEventsByUserPaginated(h.Db, ctx, user, 10, 0)
+	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, 0)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(h.Db, ctx, user)
+	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(h.Db, ctx, user)
+	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
 	if err != nil {
 		mlog.Infox("db error", mlog.A("err", err))
 		http.Error(w, "db error", http.StatusInternalServerError)

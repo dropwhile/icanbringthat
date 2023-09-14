@@ -65,7 +65,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.NewUser(h.Db, ctx, email, name, []byte(passwd))
+	user, err := model.NewUser(ctx, h.Db, email, name, []byte(passwd))
 	if err != nil {
 		mlog.Infox("error adding user", mlog.A("err", err))
 		http.Error(w, "error adding user", http.StatusBadRequest)
@@ -177,7 +177,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = user.Save(h.Db, ctx)
+		err = user.Save(ctx, h.Db)
 		if err != nil {
 			http.Error(w, "error updating user", http.StatusInternalServerError)
 			return
@@ -229,7 +229,7 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = user.Delete(h.Db, ctx)
+	err = user.Delete(ctx, h.Db)
 	if err != nil {
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return

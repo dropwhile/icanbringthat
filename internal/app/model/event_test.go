@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/pashagolub/pgxmock/v2"
 	"gotest.tools/v3/assert"
 )
 
@@ -13,23 +13,28 @@ var tstEventRefId = refid.MustParse("080032mdz2b9pwbbj2wemswmh95qr")
 
 func TestEventInsert(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
 		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
-		WithArgs(1, sqlmock.AnyArg(), "some name", "some desc", ts).
+		WithArgs(1, pgxmock.AnyArg(), "some name", "some desc", ts).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
-	event, err := NewEvent(model, ctx, 1, "some name", "some desc", ts)
+	event, err := NewEvent(ctx, mock, 1, "some name", "some desc", ts)
 	assert.NilError(t, err)
 
 	assert.Check(t, event.RefId.HasTag(2))
@@ -52,8 +57,12 @@ func TestEventInsert(t *testing.T) {
 
 func TestEventSave(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
@@ -61,10 +70,11 @@ func TestEventSave(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_ (.+)*").
 		WithArgs("some name", "some desc", ts, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	event := &Event{
 		Id:           1,
 		RefId:        refId,
@@ -75,7 +85,7 @@ func TestEventSave(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	err := event.Save(model, ctx)
+	err = event.Save(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -86,8 +96,12 @@ func TestEventSave(t *testing.T) {
 
 func TestEventDelete(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
@@ -95,10 +109,11 @@ func TestEventDelete(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM event_ (.+)*").
 		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
-	ctx := context.TODO()
 	event := &Event{
 		Id:           1,
 		RefId:        refId,
@@ -109,7 +124,7 @@ func TestEventDelete(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	err := event.Delete(model, ctx)
+	err = event.Delete(ctx, mock)
 	assert.NilError(t, err)
 
 	// we make sure that all expectations were met
@@ -120,12 +135,16 @@ func TestEventDelete(t *testing.T) {
 
 func TestEventGetById(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
 		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
 
@@ -133,8 +152,7 @@ func TestEventGetById(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	event, err := GetEventById(model, ctx, 1)
+	event, err := GetEventById(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, event, &Event{
@@ -156,12 +174,16 @@ func TestEventGetById(t *testing.T) {
 
 func TestEventGetByRefId(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
 		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
 
@@ -169,8 +191,7 @@ func TestEventGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
-	event, err := GetEventByRefId(model, ctx, refId)
+	event, err := GetEventByRefId(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, event, &Event{
@@ -194,12 +215,16 @@ func TestEventGetByRefId(t *testing.T) {
 
 func TestEventsGetByUser(t *testing.T) {
 	t.Parallel()
-	model, mock := setupDBMock(t)
-	t.Cleanup(func() { model.Close() })
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefId
 	ts := tstTs
-	rows := sqlmock.NewRows(
+	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
 		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
 
@@ -207,7 +232,6 @@ func TestEventsGetByUser(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	ctx := context.TODO()
 	user := &User{
 		Id:     1,
 		RefId:  refId,
@@ -215,7 +239,7 @@ func TestEventsGetByUser(t *testing.T) {
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
 	}
-	events, err := GetEventsByUser(model, ctx, user)
+	events, err := GetEventsByUser(ctx, mock, user)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, events, []*Event{{
