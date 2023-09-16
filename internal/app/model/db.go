@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cactus/mlog"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/rs/zerolog/log"
 )
 
 type DB struct {
@@ -89,7 +89,7 @@ func QueryOneTx[T ModelType](ctx context.Context, db PgxHandle, query string, ar
 	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
 		err := pgxscan.Get(ctx, tx, &t, query, args...)
 		if err != nil {
-			mlog.Printx("DB Error", mlog.A("err", err))
+			log.Info().Err(err).Msg("DB Error")
 		}
 		return err
 	})
@@ -104,7 +104,7 @@ func QueryTx[T ModelType](ctx context.Context, db PgxHandle, query string, args 
 	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
 		err := pgxscan.Select(ctx, tx, &t, query, args...)
 		if err != nil {
-			mlog.Printx("DB Error", mlog.A("err", err))
+			log.Info().Err(err).Msg("DB Error")
 		}
 		return err
 	})
@@ -118,7 +118,7 @@ func ExecTx[T ModelType](ctx context.Context, db PgxHandle, query string, args .
 	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
 		commandTag, err := tx.Exec(ctx, query, args...)
 		if err != nil {
-			mlog.Printx("DB Error", mlog.A("err", err))
+			log.Info().Err(err).Msg("DB Error")
 			return err
 		}
 		if commandTag.RowsAffected() != 1 {

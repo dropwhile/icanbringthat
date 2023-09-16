@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
@@ -48,7 +48,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	offset := pageNum - 1
 	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, offset*10)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
@@ -56,7 +56,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	for i := range events {
 		items, err := model.GetEventItemsByEvent(ctx, h.Db, events[i])
 		if err != nil {
-			mlog.Infox("db error", mlog.A("err", err))
+			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
@@ -384,20 +384,23 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if user.Id != event.UserId {
-		mlog.Infof("user id mismatch %d != %d", user.Id, event.UserId)
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.UserId", event.UserId).
+			Msg("user id mismatch")
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	err = event.Delete(ctx, h.Db)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}

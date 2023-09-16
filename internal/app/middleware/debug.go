@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/go-chi/httplog"
 )
@@ -10,6 +11,7 @@ var defaultIgnoreHeaders = []string{
 	"accept",
 	"accept-encoding",
 	"accept-language",
+	"accept-ranges",
 	"connection",
 	"cookie",
 	"sec-ch-ua",
@@ -31,7 +33,8 @@ func NewDebubRequestLogger() func(next http.Handler) http.Handler {
 		httplog.NewLogger(
 			"httplog-example",
 			httplog.Options{
-				SkipHeaders: defaultIgnoreHeaders,
+				SkipHeaders:     defaultIgnoreHeaders,
+				TimeFieldFormat: time.RFC3339,
 			},
 		),
 	)

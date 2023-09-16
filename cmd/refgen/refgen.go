@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/util/refid"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type GenerateCommand struct {
@@ -20,8 +21,8 @@ type GenerateCommand struct {
 // Execute runs the encode command
 func (c *GenerateCommand) Execute(args []string) error {
 	if opts.Verbose {
-		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
-		mlog.Debug("debug logging enabled")
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Debug().Msg("debug logging enabled")
 	}
 	var refId refid.RefId
 	if c.TagValue != 0 {
@@ -51,8 +52,8 @@ type DecodeCommand struct {
 // Execute runs the decode command
 func (c *DecodeCommand) Execute(args []string) error {
 	if opts.Verbose {
-		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
-		mlog.Debug("debug logging enabled")
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Debug().Msg("debug logging enabled")
 	}
 	refIdTxt := strings.Trim(c.Positional.Refid, "=")
 	refIdTxtLen := len(refIdTxt)
@@ -102,6 +103,9 @@ func main() {
 	parser.AddCommand("decode", "Decode a refid",
 		"Decode a refid", &DecodeCommand{})
 
+	log.Logger = log.Output(
+		zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339},
+	)
 	// parse said flags
 	_, err := parser.Parse()
 	if err != nil {

@@ -3,10 +3,10 @@ package handler
 import (
 	"net/http"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
@@ -21,21 +21,21 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 
 	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, 0)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}

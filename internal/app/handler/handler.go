@@ -8,10 +8,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/resources"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type Handler struct {
@@ -36,12 +37,19 @@ func (h *Handler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
 func (h *Handler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
 	tpl, err := h.Tpl.Get(name)
 	if err != nil {
-		mlog.Infom("template locate error", mlog.Map{"tpl": name, "err": err, "vars": vars})
+		log.Info().
+			Err(err).
+			Str("tpl", name).
+			Msg("template locate error")
 		return err
 	}
 	err = tpl.Execute(w, vars)
 	if err != nil {
-		mlog.Infom("template locate error", mlog.Map{"tpl": name, "err": err})
+		log.Info().
+			Err(err).
+			Str("tpl", name).
+			Dict("vars", zerolog.Dict().Fields(vars)).
+			Msg("template execute error")
 		return err
 	}
 	return nil
@@ -50,12 +58,21 @@ func (h *Handler) TemplateExecute(w io.Writer, name string, vars map[string]any)
 func (h *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
 	tpl, err := h.Tpl.Get(name)
 	if err != nil {
-		mlog.Infom("template locate error", mlog.Map{"tpl": name, "sub": subname, "err": err, "vars": vars})
+		log.Info().
+			Err(err).
+			Str("tpl", name).
+			Str("sub", subname).
+			Msg("template locate error")
 		return err
 	}
 	err = tpl.ExecuteTemplate(w, subname, vars)
 	if err != nil {
-		mlog.Infom("template locate error", mlog.Map{"tpl": name, "sub": subname, "err": err})
+		log.Info().
+			Err(err).
+			Str("tpl", name).
+			Str("sub", subname).
+			Dict("vars", zerolog.Dict().Fields(vars)).
+			Msg("template execute error")
 		return err
 	}
 	return nil

@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cactus/mlog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -202,7 +202,8 @@ var templateFuncMap = template.FuncMap{
 				return ac.MapIndex(kv).IsValid(), nil
 			}
 		default:
-			mlog.Infof("calling IsSet with unsupported type %q (%T) will always return false", ac.Kind(), ac)
+			log.Info().
+				Msgf("calling IsSet with unsupported type %q (%T) will always return false", ac.Kind(), ac)
 		}
 
 		return false, nil

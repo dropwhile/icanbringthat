@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
@@ -44,20 +44,20 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	offset := pageNum - 1
 	earmarks, err := model.GetEarmarksByUserPaginated(ctx, h.Db, user, 10, offset)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 	for i, em := range earmarks {
 		ei, err := em.GetEventItem(ctx, h.Db)
 		if err != nil {
-			mlog.Infox("db error", mlog.A("err", err))
+			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
 		e, err := ei.GetEvent(ctx, h.Db)
 		if err != nil {
-			mlog.Infox("db error", mlog.A("err", err))
+			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
@@ -103,7 +103,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 
 	earmark, err := model.GetEarmarkByRefId(ctx, h.Db, refId)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
@@ -115,7 +115,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 
 	err = earmark.Delete(ctx, h.Db)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}

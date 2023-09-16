@@ -3,10 +3,10 @@ package handler
 import (
 	"net/http"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +67,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	user, err := model.NewUser(ctx, h.Db, email, name, []byte(passwd))
 	if err != nil {
-		mlog.Infox("error adding user", mlog.A("err", err))
+		log.Info().Err(err).Msg("error adding user")
 		http.Error(w, "error adding user", http.StatusBadRequest)
 		return
 	}

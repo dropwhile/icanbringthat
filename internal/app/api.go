@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/cactus/mlog"
 	ah "github.com/dropwhile/icbt/internal/app/handler"
 	mw "github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -10,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 type API struct {
@@ -37,7 +37,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 	r.Use(middleware.GetHead)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
-	if mlog.HasDebug() {
+	if log.Debug().Enabled() {
 		r.Use(mw.NewDebubRequestLogger())
 	}
 	r.Use(middleware.Recoverer)

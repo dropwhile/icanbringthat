@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cactus/mlog"
 	"github.com/dropwhile/icbt/internal/app/middleware"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
@@ -230,27 +230,30 @@ func (h *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if user.Id != event.UserId {
-		mlog.Infof("user id mismatch %d != %d", user.Id, event.UserId)
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.UserId", event.UserId).
+			Msg("user id mismatch")
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	err = eventItem.Delete(ctx, h.Db)
 	if err != nil {
-		mlog.Infox("db error", mlog.A("err", err))
+		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
