@@ -16,10 +16,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-var (
-	//go:embed templates
-	templateEmbedFS embed.FS
-)
+//go:embed templates
+var templateEmbedFS embed.FS
 
 type Page struct {
 	display   string

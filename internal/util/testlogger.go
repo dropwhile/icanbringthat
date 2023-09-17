@@ -28,5 +28,4 @@ func NewTestLogger(w io.Writer) zerolog.Logger {
 		log.Info().Msg("setting log level to info")
 	}
 	return logger
-
 }

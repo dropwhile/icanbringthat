@@ -26,7 +26,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	//err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
+	// err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
 	err = h.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)

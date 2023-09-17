@@ -7,8 +7,10 @@ import (
 	"fmt"
 )
 
-var _ driver.Valuer = RefId{}
-var _ sql.Scanner = (*RefId)(nil)
+var (
+	_ driver.Valuer = RefId{}
+	_ sql.Scanner   = (*RefId)(nil)
+)
 
 // Value implements the driver.Valuer interface.
 func (u RefId) Value() (driver.Value, error) {
@@ -31,7 +33,7 @@ func (u *RefId) Scan(src interface{}) error {
 		return u.UnmarshalText(src)
 
 	case string:
-		//uu, err := FromString(src)
+		// uu, err := FromString(src)
 		uu, err := FromHexString(src)
 		*u = uu
 		return err

@@ -81,7 +81,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.DeleteEventItem)
 		r.Get("/earmarks", ah.ListEarmarks)
 		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", ah.DeleteEarmark)
-		//r.Get("/profile/{uRefId:[a-zA-Z-]+}", ah.ShowProfile)
+		// r.Get("/profile/{uRefId:[a-zA-Z-]+}", ah.ShowProfile)
 	})
 
 	// Public routes
@@ -91,8 +91,8 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Post("/login", ah.Login)
 		r.Get("/login", ah.ShowLoginForm)
 		// forgot password
-		//r.Get("/forgot-password", ah.ShowForgotPassword)
-		//r.Put("/forgot-password", ah.ResetPassword)
+		// r.Get("/forgot-password", ah.ShowForgotPassword)
+		// r.Put("/forgot-password", ah.ResetPassword)
 		// account creation
 		r.Get("/create-account", ah.ShowCreateAccount)
 		r.Post("/create-account", ah.CreateAccount)

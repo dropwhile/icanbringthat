@@ -18,16 +18,18 @@ var (
 	Nil = RefId{}
 )
 
-const size = 16
-const timeStart = 0
-const tagIndex = 7
-const randStart = 8
+const (
+	size      = 16
+	timeStart = 0
+	tagIndex  = 7
+	randStart = 8
+)
 
 type RefId [size]byte
 
 func New() (RefId, error) {
 	var refId RefId
-	//id, err := uuid.NewV7()
+	// id, err := uuid.NewV7()
 	b, err := generate()
 	if err != nil {
 		return refId, err

@@ -38,7 +38,6 @@ func TestBase64RoundTrip(t *testing.T) {
 	refId2, err := FromBase64String(b64)
 	assert.NilError(t, err)
 	assert.Equal(t, refId.String(), refId2.String())
-
 }
 
 func TestHexRoundTrip(t *testing.T) {

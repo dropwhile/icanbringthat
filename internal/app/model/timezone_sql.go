@@ -21,7 +21,7 @@ func (tz *TimeZone) Value() (driver.Value, error) {
 func (tz *TimeZone) Scan(src interface{}) error {
 	switch src := src.(type) {
 	case string:
-		//uu, err := FromString(src)
+		// uu, err := FromString(src)
 		loc, err := time.LoadLocation(src)
 		*tz = TimeZone{loc}
 		return err

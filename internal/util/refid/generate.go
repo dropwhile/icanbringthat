@@ -36,9 +36,9 @@ func generate() ([]byte, error) {
 func setTime(b []byte, micros int64) {
 	ms := uint64(micros)
 	z := b[timeStart:]
-	//A 56 bit timestamp of microseconds since epoch.
-	//Which should result in about 2283 years worth of timestamps
-	//1-7 bytes: big-endian unsigned number of Unix epoch timestamp
+	// A 56 bit timestamp of microseconds since epoch.
+	// Which should result in about 2283 years worth of timestamps
+	// 1-7 bytes: big-endian unsigned number of Unix epoch timestamp
 	z[0] = byte(ms >> 48)
 	z[1] = byte(ms >> 40)
 	z[2] = byte(ms >> 32)

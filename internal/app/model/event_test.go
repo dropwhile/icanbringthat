@@ -23,7 +23,10 @@ func TestEventInsert(t *testing.T) {
 	refId := tstEventRefId
 	ts := tstTs
 	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "start_time_tz", "created", "last_modified"}).
+		[]string{
+			"id", "ref_id", "user_id", "name", "description", "start_time",
+			"start_time_tz", "created", "last_modified",
+		}).
 		AddRow(1, refId, 1, "some name", "some desc", ts, "Etc/UTC", ts, ts)
 
 	mock.ExpectBegin()
