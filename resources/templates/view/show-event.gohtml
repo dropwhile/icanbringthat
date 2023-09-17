@@ -57,7 +57,7 @@
     <div style="float: right;">
       <button
         class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-        hx-get="/events/{{.event.RefId}}/add-item"
+        hx-get="/events/{{.event.RefId}}/items/add"
         hx-target="#modalbody"
         hx-select="#form" 
         hx-trigger="click"
@@ -196,6 +196,10 @@
                     class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                     style="padding-right: 0.25rem; padding-left: 0.25rem;"
                     aria-label="Earmark"
+                    hx-get="/events/{{$.event.RefId}}/items/{{.RefId}}/earmarks/add"
+                    hx-target="#modalbody"
+                    hx-select="#form" 
+                    hx-trigger="click"
                   >
                     <span class="tooltiptext text-center">I can bring that!</span>
                     <svg

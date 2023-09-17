@@ -24,8 +24,8 @@ func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
 	if em.RefId.IsNil() {
 		em.RefId = EarmarkRefIdT.MustNew()
 	}
-	q := `INSERT INTO earmark_ (event_item_id, user_id, note) VALUES ($1, $2, $3) RETURNING *`
-	res, err := QueryOneTx[Earmark](ctx, db, q, em.EventItemId, em.UserId, em.Note)
+	q := `INSERT INTO earmark_ (ref_id, event_item_id, user_id, note) VALUES ($1, $2, $3, $4) RETURNING *`
+	res, err := QueryOneTx[Earmark](ctx, db, q, em.RefId, em.EventItemId, em.UserId, em.Note)
 	if err != nil {
 		return err
 	}

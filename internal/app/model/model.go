@@ -1,6 +1,8 @@
 package model
 
-import "github.com/dropwhile/icbt/internal/util/refid"
+import (
+	"github.com/dropwhile/icbt/internal/util/refid"
+)
 
 type ModelType interface {
 	User | Event | EventItem | Earmark

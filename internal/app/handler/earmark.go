@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -123,5 +125,146 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	if Hx(r).CurrentUrl().HasPathPrefix("/events/") {
 		w.Header().Add("HX-Refresh", "true")
 	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := middleware.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	if err != nil {
+		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		return
+	}
+
+	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	if err != nil {
+		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		return
+	}
+
+	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	tplVars := map[string]any{
+		"user":           user,
+		"event":          event,
+		"eventItem":      eventItem,
+		"title":          "Create Earmark",
+		"nav":            "create-earmark",
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	if Hx(r).Target() == "modalbody" {
+		err = h.TemplateExecuteSub(w, "create-earmark-form.gohtml", "form", tplVars)
+	} else {
+		err = h.TemplateExecute(w, "create-earmark-form.gohtml", tplVars)
+	}
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := middleware.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	if err != nil {
+		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		return
+	}
+
+	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	if err != nil {
+		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		return
+	}
+
+	_, err = model.GetEventByRefId(ctx, h.Db, eventRefId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	// make sure no earmark exists yet
+	_, err = model.GetEarmarkByEventItem(ctx, h.Db, eventItem)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		// good. this is what we want
+	case err == nil:
+		// earmark already exists!
+		http.Error(w, "already earmarked by other user - access denied", http.StatusForbidden)
+		return
+	default:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// ok for note to be empty
+	note := r.FormValue("note")
+
+	_, err = model.NewEarmark(ctx, h.Db, eventItem.Id, user.Id, note)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	if Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefId)) {
+		w.Header().Add("HX-Refresh", "true")
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
