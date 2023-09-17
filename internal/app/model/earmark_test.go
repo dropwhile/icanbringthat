@@ -28,7 +28,7 @@ func TestEarmarkInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO earmark_ (.+)*").
-		WithArgs(1, 1, "some note").
+		WithArgs(pgxmock.AnyArg(), 1, 1, "some note").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
