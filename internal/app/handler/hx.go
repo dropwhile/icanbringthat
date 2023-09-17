@@ -17,8 +17,12 @@ type Hxx struct {
 	http.Header
 }
 
-func (hx *Hxx) CurrentUrl() *HxUrlVal {
-	h := hx.Header.Get("HX-Current-URL")
+func (hxx *Hxx) Target() string {
+	return hxx.Header.Get("hx-target")
+}
+
+func (hxx *Hxx) CurrentUrl() *HxUrlVal {
+	h := hxx.Header.Get("HX-Current-URL")
 	if h != "" {
 		u, err := url.Parse(h)
 		if err == nil {
@@ -31,5 +35,8 @@ func (hx *Hxx) CurrentUrl() *HxUrlVal {
 }
 
 func Hx(r *http.Request) *Hxx {
+	if r.Header.Get("hx-request") != "true" {
+		return &Hxx{}
+	}
 	return &Hxx{r.Header}
 }

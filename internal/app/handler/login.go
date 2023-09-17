@@ -25,7 +25,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 		csrf.TemplateTag: csrf.TemplateField(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	//err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
 	err = h.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {

@@ -44,7 +44,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		"selfView":    selfView,
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-profile.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)

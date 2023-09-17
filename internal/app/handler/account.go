@@ -28,7 +28,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "create-account-form.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -114,7 +114,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		csrf.TemplateTag: csrf.TemplateField(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -207,7 +207,7 @@ func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
 		csrf.TemplateTag: csrf.TemplateField(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "forgot-password.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)

@@ -75,7 +75,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "list-events.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "create-event-form.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -196,7 +196,7 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -358,7 +358,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
-	SetHeader("content-type", "text/html")
+	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-event.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
