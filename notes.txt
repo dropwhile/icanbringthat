@@ -21,26 +21,45 @@
 
 ## library choices
 
+*   logging: zerolog
+    src: github.com/rs/zerolog
+    docs: https://godoc.org/github.com/rs/zerolog
+
 *   router: chi
     src: https://github.com/go-chi/chi
     docs: https://go-chi.io/
 
-*   middleware:
-    *   gorilla csrf
-        src: https://github.com/gorilla/csrf
+*   middleware: gorilla csrf
+    src: https://github.com/gorilla/csrf
 
-*   db driver:
-    *   pgx
-        src: https://github.com/jackc/pgx
-        docs: https://github.com/jackc/pgx/wiki/Getting-started-with-pgx-through-database-sql#getting-started-with-pgx-through-databasesql
+*   sessions: scs
+    src: https://github.com/alexedwards/scs
+    docs: https://pkg.go.dev/github.com/alexedwards/scs/v2
 
-    *   sqlx
+*   db driver: pgx
+    src: https://github.com/jackc/pgx
+    docs: https://github.com/jackc/pgx/wiki/Getting-started-with-pgx-through-database-sql#getting-started-with-pgx-through-databasesql
+
+*   db helper lib: scany/pgxscan
+    src: https://github.com/georgysavva/scany
+    docs: https://pkg.go.dev/github.com/georgysavva/scany/v2
+    *   was sqlx
+        reasons: ended up being overly verbose and 
+            a bit funky. removed quite a few LOC when
+            switching to scany
         src: https://github.com/jmoiron/sqlx
         docs: https://jmoiron.github.io/sqlx/
 
-*   db migrations: golang-migrate
-    src: https://github.com/golang-migrate/migrate
+*   db migrations: goose
+    note: was golang-migrate, but switched away.
+        reasons: single migration file is nicer, transactions support,
+        was src: https://github.com/golang-migrate/migrate
+    refs: 
+        https://pressly.github.io/goose/blog/2022/overview-sql-file
+        https://github.com/pressly/goose
 
+*   templates:
+    * go html/template
 
 ## other refs:
 

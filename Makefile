@@ -1,34 +1,40 @@
 # environment
-BUILDDIR          := ${CURDIR}/build
-ARCH              := $(shell go env GOHOSTARCH)
-OS                := $(shell go env GOHOSTOS)
-GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
+BUILDDIR            := ${CURDIR}/build
+ARCH                := $(shell go env GOHOSTARCH)
+OS                  := $(shell go env GOHOSTOS)
+GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
 
 # app specific info
-APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
-GITHASH           := $(shell git rev-parse --short HEAD)
-GOPATH            := $(shell go env GOPATH)
-VERSION_VAR       := main.ServerVersion
-DB_DSN            := $(or ${DB_DSN},"postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable")
+APP_VER             := $(shell git describe --always --tags|sed 's/^v//')
+GITHASH             := $(shell git rev-parse --short HEAD)
+GOPATH              := $(shell go env GOPATH)
+VERSION_VAR         := main.ServerVersion
+DB_DSN              := $(or ${DB_DSN},"postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable")
+GOOSE_DRIVER        ?= postgres
+GOOSE_DBSTRING      ?= ${DB_DSN}
+GOOSE_MIGRATION_DIR ?= database/migrations
 
 # flags and build configuration
-GOBUILD_OPTIONS   := -trimpath
-GOTEST_FLAGS      :=
-GOTEST_BENCHFLAGS :=
-GOBUILD_DEPFLAGS  := -tags netgo,production
-GOBUILD_LDFLAGS   ?= -s -w
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
+GOBUILD_OPTIONS     := -trimpath
+GOTEST_FLAGS        :=
+GOTEST_BENCHFLAGS   :=
+GOBUILD_DEPFLAGS    := -tags netgo,production
+GOBUILD_LDFLAGS     ?= -s -w
+GOBUILD_FLAGS       := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
-CC_BUILD_TARGETS   = server refgen
-CC_BUILD_ARCHES    = darwin/amd64 darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/amd64
-CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
+CC_BUILD_TARGETS     = server refgen
+CC_BUILD_ARCHES      = darwin/amd64 darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/amd64
+CC_OUTPUT_TPL       := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
 #export CGO_ENABLED=0
 ## enable go 1.21 loopvar "experiment"
 export GOEXPERIMENT=loopvar
+export GOOSE_DRIVER
+export GOOSE_DBSTRING
+export GOOSE_MIGRATION_DIR
 
 define HELP_OUTPUT
 Available targets:
@@ -119,16 +125,15 @@ update-go-deps:
 .PHONY: migrate
 migrate:
 	@echo ">> running migrations..."
-	@env DB_DSN="$${DB_DSN}" ./tools/migrate up
+	@goose up
 
 .PHONY: dev-db-create
 dev-db-create:
 	@echo ">> starting dev postgres..."
-#	@docker build -t my-postgres -f docker/Dockerfile-postgres .
 	@docker volume rm -f icbt-db-init
 	@docker volume create icbt-db-init
 	@docker create -v icbt-db-init:/data --name icbt-db-helper busybox true
-	@for f in  ./docker/db-init-scripts/*; do docker cp -q "$${f}" icbt-db-helper:/data; done
+	@for f in  ./database/init/*; do docker cp -q "$${f}" icbt-db-helper:/data; done
 	@docker rm -f icbt-db-helper
 	@docker run \
 		--name icbt-database \
@@ -137,7 +142,6 @@ dev-db-create:
 		-p 5432:5432 \
 		-v "icbt-db-init:/docker-entrypoint-initdb.d/" \
 		-d postgres
-#		-d my-postgres
 
 .PHONY: dev-db-start
 dev-db-start:

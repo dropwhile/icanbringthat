@@ -7,10 +7,13 @@ if ! whence -p refgen &> /dev/null; then
     exit 1
 fi
 
-
 refgen=./build/bin/refgen
 
-MAX_USER_ID=$(psql -qtAXc 'SELECT max(id) + 1 from user_;')
+NEXT_USER_ID=$(psql -qtAXc 'SELECT max(id) + 1 from user_;')
+if [ -z "$NEXT_USER_ID" ]; then
+    NEXT_USER_ID=1
+fi
+echo ">> adding user with id=${NEXT_USER_ID}"
 
 USER_ID=$(
 psql -qtAX <<END
@@ -18,15 +21,34 @@ INSERT INTO user_
     (ref_id, email, name, pwhash)
 VALUES
     (decode('$(refgen generate -b hex -t 1)', 'hex'),
-     'user${MAX_USER_ID}@example.com',
-     'test-user${MAX_USER_ID}',
+     'user${NEXT_USER_ID}@example.com',
+     'test-user${NEXT_USER_ID}',
      decode('246172676f6e32696424763d3139246d3d36353533362c743d332c703d32242f4f6159544139306b35686759316e36746a7a4d4751244471323959354753484f476a6c4f664b6864475943494f697554344b2f374f757177746e74715278774367', 'hex'))
     RETURNING id
     ;
 END
 )
 
-psql <<END
+NEXT_USER2_ID=$(psql -qtAXc 'SELECT max(id) + 1 from user_;')
+echo ">> adding a second user with id=${NEXT_USER2_ID}"
+
+USER_ID=$(
+psql -qtAX <<END
+INSERT INTO user_
+    (ref_id, email, name, pwhash)
+VALUES
+    (decode('$(refgen generate -b hex -t 1)', 'hex'),
+     'user${NEXT_USER2_ID}@example.com',
+     'test-user${NEXT_USER2_ID}',
+     decode('246172676f6e32696424763d3139246d3d36353533362c743d332c703d32242f4f6159544139306b35686759316e36746a7a4d4751244471323959354753484f476a6c4f664b6864475943494f697554344b2f374f757177746e74715278774367', 'hex'))
+    RETURNING id
+    ;
+END
+)
+
+
+echo ">> creating some events for user id=${NEXT_USER_ID}"
+psql -qtAX <<END
 INSERT INTO event_ 
     (user_id, ref_id, name, description, start_time)
 VALUES 
@@ -56,7 +78,8 @@ END
 
 EVENT_ID=$(psql -qtAXc 'SELECT id from event_ limit 1')
 
-psql <<END
+echo ">> creating some event_items for event id=${EVENT_ID}"
+psql -qtAX <<END
 INSERT INTO event_item_ 
     (ref_id, event_id, description)
 VALUES 
@@ -68,11 +91,22 @@ VALUES
     ;
 END
 
-EVENT_ITEM_ID=$(psql -qtAXc 'SELECT id from event_item_ limit 1')
-psql <<END
+EVENT_ITEM_ID=$(psql -qtAXc 'SELECT id from event_item_ limit 1;')
+echo ">> creating an earmark for event_item id=${EVENT_ITEM_ID} as user id=${NEXT_USER_ID}"
+psql -qtAX <<END
 INSERT INTO earmark_ 
     (ref_id, event_item_id, user_id, note)
 VALUES 
-    (decode('$(refgen generate -b hex -t 4)', 'hex'), ${EVENT_ITEM_ID}, 1, 'i love pickles!')
+    (decode('$(refgen generate -b hex -t 4)', 'hex'), ${EVENT_ITEM_ID}, ${NEXT_USER_ID}, 'i love pickles!')
+    ;
+END
+
+EVENT_ITEM_ID=$(psql -qtAXc 'SELECT event_item_.id from event_item_ LEFT JOIN earmark_ ON earmark_.event_item_id=event_item_.id where earmark_.id IS NULL limit 1;')
+echo ">> creating an earmark for event_item id=${EVENT_ITEM_ID} as user id=${NEXT_USER2_ID}"
+psql -qtAX <<END
+INSERT INTO earmark_ 
+    (ref_id, event_item_id, user_id, note)
+VALUES 
+    (decode('$(refgen generate -b hex -t 4)', 'hex'), ${EVENT_ITEM_ID}, ${NEXT_USER2_ID}, 'i love pickles!')
     ;
 END
