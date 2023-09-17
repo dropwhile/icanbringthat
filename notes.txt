@@ -1,3 +1,18 @@
+# TODOs
+
+*   password reset / forgot password
+*   sorting for event items?
+*   show earmark details outside of event view table?
+    click icon to view more info?
+    hover modal?
+*   share button on event page?
+*   send email
+    *   daily notifications about new item bringing
+    *   week before and/or day-before notification about event
+        (depending on user settings?
+    *   password reset / forgot password
+
+
 ## component choices
 
 *   language: go
