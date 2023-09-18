@@ -2,7 +2,8 @@ package app
 
 import (
 	ah "github.com/dropwhile/icbt/internal/app/handler"
-	mw "github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
 	res "github.com/dropwhile/icbt/resources"
@@ -38,7 +39,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	if log.Debug().Enabled() {
-		r.Use(mw.NewDebubRequestLogger())
+		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)
 	r.Use(api.SessMgr.LoadAndSave)
@@ -51,14 +52,14 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		// Must be in CORS Allowed and Exposed Headers
 		csrf.RequestHeader("X-CSRF-Token"),
 	))
-	r.Use(mw.LoadAuth(db, api.SessMgr))
+	r.Use(auth.Load(db, api.SessMgr))
 
 	ah := &ah.Handler{Db: api.Db, Tpl: api.Tpl, SessMgr: api.SessMgr}
 
 	// Routing //
 	// Protected routes
 	r.Group(func(r chi.Router) {
-		r.Use(mw.RequireAuth)
+		r.Use(auth.Require)
 		// acccount/settings
 		r.Get("/settings", ah.ShowSettings)
 		r.Post("/settings", ah.UpdateSettings)

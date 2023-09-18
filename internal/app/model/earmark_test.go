@@ -12,13 +12,13 @@ import (
 var tstEarmarkRefId = refid.MustParse("0r2ncjgvqbr09f7c304v2a4rh4")
 
 func TestEarmarkInsert(t *testing.T) {
+	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
-	t.Parallel()
 
 	refId := tstEarmarkRefId
 	ts := tstTs

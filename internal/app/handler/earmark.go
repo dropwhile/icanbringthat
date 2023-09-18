@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +19,7 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -91,7 +91,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -132,7 +132,7 @@ func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -190,7 +190,7 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return

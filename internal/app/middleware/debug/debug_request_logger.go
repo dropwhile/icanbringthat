@@ -1,4 +1,4 @@
-package middleware
+package debug
 
 import (
 	"net/http"
@@ -28,7 +28,7 @@ var defaultIgnoreHeaders = []string{
 	"x-csrf-token",
 }
 
-func NewDebubRequestLogger() func(next http.Handler) http.Handler {
+func RequestLogger() func(next http.Handler) http.Handler {
 	return httplog.RequestLogger(
 		httplog.NewLogger(
 			"httplog-example",

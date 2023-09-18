@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
 )
@@ -12,7 +12,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	_, err := middleware.UserFromContext(ctx)
+	_, err := auth.UserFromContext(ctx)
 	// already a logged in user
 	if err == nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -38,7 +38,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	_, err := middleware.UserFromContext(ctx)
+	_, err := auth.UserFromContext(ctx)
 	// already a logged in user
 	if err == nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)

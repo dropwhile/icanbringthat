@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog/log"
@@ -13,7 +13,7 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return

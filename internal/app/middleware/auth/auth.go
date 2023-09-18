@@ -1,4 +1,4 @@
-package middleware
+package auth
 
 import (
 	"context"
@@ -24,7 +24,7 @@ func IsLoggedIn(ctx context.Context) bool {
 	return ok && v
 }
 
-func LoadAuth(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+func Load(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -35,19 +35,17 @@ func LoadAuth(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler)
 					http.Error(w, "authorization failure", http.StatusInternalServerError)
 					return
 				}
-
 				ctx = context.WithValue(ctx, mwContextKey("auth"), true)
 				ctx = context.WithValue(ctx, mwContextKey("user"), user)
 			} else {
 				ctx = context.WithValue(ctx, mwContextKey("auth"), false)
 			}
-
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
-func RequireAuth(next http.Handler) http.Handler {
+func Require(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		v := ctx.Value(mwContextKey("auth"))
@@ -56,7 +54,6 @@ func RequireAuth(next http.Handler) http.Handler {
 				r.Method == http.MethodHead {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
-
 			}
 			http.Error(w, "unauthorized, please login", http.StatusUnauthorized)
 			return

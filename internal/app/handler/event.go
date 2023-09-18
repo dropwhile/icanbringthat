@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
@@ -20,7 +20,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -87,7 +87,7 @@ func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -113,7 +113,7 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -159,7 +159,7 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -208,7 +208,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -280,7 +280,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -375,7 +375,7 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return

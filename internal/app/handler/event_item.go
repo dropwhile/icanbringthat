@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
@@ -17,7 +17,7 @@ func (h *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -70,7 +70,7 @@ func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -123,7 +123,7 @@ func (h *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -190,7 +190,7 @@ func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -282,7 +282,7 @@ func (h *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return

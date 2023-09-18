@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware"
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog/log"
@@ -13,7 +13,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	_, err := middleware.UserFromContext(ctx)
+	_, err := auth.UserFromContext(ctx)
 	// already a logged in user, redirect to /account
 	if err == nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -58,7 +58,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	// see if user is logged in
-	if middleware.IsLoggedIn(ctx) {
+	if auth.IsLoggedIn(ctx) {
 		// got a user, you can't make a user if you are already logged
 		// in!
 		http.Error(w, "already logged in as a user", http.StatusForbidden)
@@ -100,7 +100,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -126,7 +126,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -193,7 +193,7 @@ func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	// already a logged in user, redirect to /account
 	if err == nil {
 		http.Redirect(w, r, "/account", http.StatusSeeOther)
@@ -223,7 +223,7 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := middleware.UserFromContext(ctx)
+	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
