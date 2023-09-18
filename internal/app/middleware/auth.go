@@ -52,6 +52,12 @@ func RequireAuth(next http.Handler) http.Handler {
 		ctx := r.Context()
 		v := ctx.Value(mwContextKey("auth"))
 		if v == nil || !v.(bool) {
+			if r.Method == http.MethodGet ||
+				r.Method == http.MethodHead {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+
+			}
 			http.Error(w, "unauthorized, please login", http.StatusUnauthorized)
 			return
 		}

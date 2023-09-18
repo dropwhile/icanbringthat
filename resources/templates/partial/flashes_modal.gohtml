@@ -2,6 +2,7 @@
     <!-- Modal backdrop. This what you want to place close to the closing body tag -->
     <div
       x-data="{showOverlay: {{if or .operations .errors}}true{{else}}false{{end}}}"
+      x-cloak
       x-show="showOverlay"
       x-transition:enter="transition ease-out duration-150"
       x-transition:enter-start="opacity-0"
@@ -13,6 +14,7 @@
     >
       <!-- Modal -->
       <div
+        x-cloak
         x-show="showOverlay"
         x-trap.noscroll.inert="showModal"
         x-transition:enter="transition ease-out duration-150"

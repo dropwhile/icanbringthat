@@ -75,6 +75,7 @@
             aria-hidden="true"
             fill="currentColor"
             viewBox="0 0 20 20"
+            x-cloak
             x-show="dark"
           >
             <path
@@ -107,7 +108,7 @@
             />
           </svg>
         </button>
-        <div x-show="show">
+        <div x-cloak x-show="show">
           <ul
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100"

@@ -2,6 +2,7 @@
   <!-- Modal backdrop. This what you want to place close to the closing body tag -->
   <div
     x-data="{showModal: false}"
+    x-cloak
     x-show="showModal"
     @keydown.escape="showModal = false"
     x-transition:enter="transition ease-out duration-150"
@@ -15,6 +16,7 @@
     <!-- Modal -->
     <div
       x-show="showModal"
+      x-cloak
       x-trap.noscroll.inert="showModal"
       x-transition:enter="transition ease-out duration-150"
       x-transition:enter-start="opacity-0 transform translate-y-1/2"

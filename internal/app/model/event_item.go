@@ -75,6 +75,6 @@ func GetEventItemByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (
 }
 
 func GetEventItemsByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*EventItem, error) {
-	q := `SELECT * FROM event_item_ WHERE event_id = $1 ORDER BY created DESC`
+	q := `SELECT * FROM event_item_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
 	return Query[EventItem](ctx, db, q, event.Id)
 }

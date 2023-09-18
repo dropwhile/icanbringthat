@@ -32,7 +32,7 @@ END
 NEXT_USER2_ID=$(psql -qtAXc 'SELECT max(id) + 1 from user_;')
 echo ">> adding a second user with id=${NEXT_USER2_ID}"
 
-USER_ID=$(
+USER_ID2=$(
 psql -qtAX <<END
 INSERT INTO user_
     (ref_id, email, name, pwhash)
@@ -47,7 +47,7 @@ END
 )
 
 
-echo ">> creating some events for user id=${NEXT_USER_ID}"
+echo ">> creating some events for user id=${USER_ID}"
 psql -qtAX <<END
 INSERT INTO event_ 
     (user_id, ref_id, name, description, start_time)

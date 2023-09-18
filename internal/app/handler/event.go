@@ -310,6 +310,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
+	event.Items = eventItems
 
 	earmarks, err := model.GetEarmarksByEvent(ctx, h.Db, event)
 	if err != nil {
@@ -318,18 +319,22 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// associate earmarks and event items
-	assoc := make(map[int]*model.EventItem)
+	// and also collect the user ids associated with
+	// earmarks
+	eventItemsMap := make(map[int]*model.EventItem)
 	for i := range eventItems {
-		assoc[eventItems[i].Id] = eventItems[i]
+		eventItemsMap[eventItems[i].Id] = eventItems[i]
 	}
+
 	userIdsMap := make(map[int]struct{})
 	for i := range earmarks {
-		if ei, ok := assoc[earmarks[i].EventItemId]; ok {
+		if ei, ok := eventItemsMap[earmarks[i].EventItemId]; ok {
 			ei.Earmark = earmarks[i]
 			userIdsMap[earmarks[i].UserId] = struct{}{}
 		}
 	}
 
+	// now get the list of usrs ids and fetch the associated users
 	userIds := util.Keys(userIdsMap)
 	earmarkUsers, err := model.GetUsersByIds(ctx, h.Db, userIds)
 	if err != nil {
@@ -337,6 +342,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// now associate the users with the earmarks
 	earmarkUsersMap := make(map[int]*model.User)
 	for i := range earmarkUsers {
 		earmarkUsersMap[earmarkUsers[i].Id] = earmarkUsers[i]
@@ -347,7 +353,6 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	event.Items = eventItems
 	tplVars := map[string]any{
 		"user":           user,
 		"owner":          owner,
