@@ -7,6 +7,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
+	"github.com/rs/zerolog/log"
 )
 
 type mwContextKey string
@@ -24,7 +25,7 @@ func IsLoggedIn(ctx context.Context) bool {
 	return ok && v
 }
 
-func Load(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -32,6 +33,7 @@ func Load(db *model.DB, sessMgr *session.SessionMgr) func(next http.Handler) htt
 				userId := sessMgr.Get(r.Context(), "user-id").(int)
 				user, err := model.GetUserById(r.Context(), db, userId)
 				if err != nil {
+					log.Err(err).Msg("authorization failure")
 					http.Error(w, "authorization failure", http.StatusInternalServerError)
 					return
 				}

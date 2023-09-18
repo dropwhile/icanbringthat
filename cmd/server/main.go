@@ -31,9 +31,9 @@ func main() {
 	// parse env vars //
 
 	// log format
-	viper.MustBindEnv("log_format")
-	viper.SetDefault("log_format", "json")
-	logFormat := viper.GetString("log_format")
+	viper.MustBindEnv("LOG_FORMAT")
+	viper.SetDefault("LOG_FORMAT", "json")
+	logFormat := viper.GetString("LOG_FORMAT")
 	if logFormat == "plain" {
 		log.Logger = log.Output(
 			zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339},
@@ -41,9 +41,9 @@ func main() {
 	}
 
 	// debug logging or not
-	viper.MustBindEnv("log_level")
-	viper.SetDefault("log_level", "info")
-	logLevel := viper.GetString("log_level")
+	viper.MustBindEnv("LOG_LEVEL")
+	viper.SetDefault("LOG_LEVEL", "info")
+	logLevel := viper.GetString("LOG_LEVEL")
 	switch strings.ToLower(logLevel) {
 	case "debug":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -57,30 +57,30 @@ func main() {
 	}
 
 	// prod mode (secure cookies) or not
-	viper.MustBindEnv("production")
-	viper.SetDefault("production", "true")
-	isProd := viper.GetBool("production")
+	viper.MustBindEnv("PRODUCTION")
+	viper.SetDefault("PRODUCTION", "true")
+	isProd := viper.GetBool("PRODUCTION")
 	log.Debug().Msgf("prod mode is %t", isProd)
 
 	// listen address/port
-	viper.MustBindEnv("bind_address")
-	viper.SetDefault("bind_address", "127.0.0.1")
-	viper.MustBindEnv("bind_port")
-	viper.SetDefault("bind_port", "8000")
-	listenAddr := viper.GetString("bind_address")
+	viper.MustBindEnv("BIND_ADDRESS")
+	viper.SetDefault("BIND_ADDRESS", "127.0.0.1")
+	viper.MustBindEnv("BIND_PORT")
+	viper.SetDefault("BIND_PORT", "8000")
+	listenAddr := viper.GetString("BIND_ADDRESS")
 	if listenAddr == "" {
 		log.Fatal().Msg("listen address not specified")
 	}
-	listenPort := viper.GetInt("bind_port")
+	listenPort := viper.GetInt("BIND_PORT")
 	if listenPort == 0 {
 		log.Fatal().Msg("listen port not specified")
 	}
 	listenHostPort := fmt.Sprintf("%s:%d", listenAddr, listenPort)
 
 	// load templates
-	viper.MustBindEnv("tpl_dir")
-	viper.SetDefault("tpl_dir", "embed")
-	tplDir := path.Clean(viper.GetString("tpl_dir"))
+	viper.MustBindEnv("TPL_DIR")
+	viper.SetDefault("TPL_DIR", "embed")
+	tplDir := path.Clean(viper.GetString("TPL_DIR"))
 	if tplDir == "embed" {
 		log.Debug().Msg("using embedded templates")
 	} else {
@@ -96,9 +96,9 @@ func main() {
 	templates := resources.MustParseTemplates(tplDir)
 
 	// static resources
-	viper.MustBindEnv("static_dir")
-	viper.SetDefault("static_dir", "embed")
-	staticDir := path.Clean(viper.GetString("static_dir"))
+	viper.MustBindEnv("STATIC_DIR")
+	viper.SetDefault("STATIC_DIR", "embed")
+	staticDir := path.Clean(viper.GetString("STATIC_DIR"))
 	if staticDir == "embed" {
 		log.Debug().Msgf("using embedded static")
 	} else {
@@ -107,8 +107,8 @@ func main() {
 	staticFS := resources.NewStaticFS(staticDir)
 
 	// database
-	viper.MustBindEnv("db_dsn")
-	dbDSN := viper.GetString("db_dsn")
+	viper.MustBindEnv("DB_DSN")
+	dbDSN := viper.GetString("DB_DSN")
 	if dbDSN == "" {
 		log.Fatal().Msg("database connection info not supplied")
 	}
@@ -139,8 +139,8 @@ func main() {
 	defer model.Close()
 
 	// csrf Key
-	viper.MustBindEnv("csrf_key")
-	csrfKeyInput := viper.GetString("csrf_key")
+	viper.MustBindEnv("CSRF_KEY")
+	csrfKeyInput := viper.GetString("CSRF_KEY")
 	if csrfKeyInput == "" {
 		log.Fatal().Msg("csrf key not supplied")
 	}

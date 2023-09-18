@@ -16,16 +16,18 @@ func NewTestLogger(w io.Writer) zerolog.Logger {
 		zerolog.ConsoleWriter{Out: w},
 	)
 
-	switch strings.ToLower(os.Getenv("log_level")) {
+	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
 	case "debug":
 		logger = logger.Level(zerolog.DebugLevel)
-		log.Debug().Msg("setting log level to debug")
+		logger.Debug().Msg("setting log level to debug")
 	case "trace":
 		logger = logger.Level(zerolog.TraceLevel)
-		log.Trace().Msg("setting log level to trace")
+		logger.Trace().Msg("setting log level to trace")
 	default:
 		logger = logger.Level(zerolog.InfoLevel)
-		log.Info().Msg("setting log level to info")
+		logger.Info().Msgf("unexpected LOG_LEVEL env var set to '%s'",
+			strings.ToLower(os.Getenv("LOG_LEVEL")))
+		logger.Info().Msg("setting log level to info")
 	}
 	return logger
 }

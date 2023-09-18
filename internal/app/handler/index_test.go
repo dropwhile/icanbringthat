@@ -2,57 +2,69 @@ package handler
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pashagolub/pgxmock/v2"
+	"gotest.tools/v3/assert"
 )
 
-func TestHandler_ShowIndex(t *testing.T) {
+func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	ts := tstTs
-	mock, err := pgxmock.NewConn()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	t.Cleanup(func() { mock.Close(ctx) })
+	mock, mux, handler := SetupHandler(t, ctx)
+	mux.Get("/", handler.ShowIndex)
 
-	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-		AddRow(1, "a", 1, 1, "some note", ts, ts)
-
-	mock.ExpectBegin()
-	mock.ExpectQuery("^INSERT INTO earmark_ (.+)*").
-		WithArgs(pgxmock.AnyArg(), 1, 1, "some note").
-		WillReturnRows(rows)
-	mock.ExpectCommit()
-	// hidden rollback after commit due to beginfunc being used
-	mock.ExpectRollback()
-
+	// create request
 	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	h := NewTestHandler(mock)
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	assert.NilError(t, err)
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(h.ShowIndex)
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
+	mux.ServeHTTP(rr, req)
+	response := rr.Result()
+	_, err = io.ReadAll(response.Body)
+	assert.NilError(t, err)
+
 	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+	assert.Assert(
+		t, StatusEqual(rr, http.StatusSeeOther),
+		"handler returned wrong status code")
+	assert.Equal(t, rr.Header().Get("location"), "/login",
+		"handler returned wrong redirect")
+	// we make sure that all expectations were met
+	assert.Assert(t, mock.ExpectationsWereMet(),
+		"there were unfulfilled expectations")
+}
+
+func TestHandler_ShowIndex_LoggedIn(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	mock, mux, handler := SetupHandler(t, ctx)
+	cookies := SetupUserSession(t, mux, mock, handler)
+	mux.Get("/", handler.ShowIndex)
+
+	// create request
+	req, err := http.NewRequest("GET", "/", nil)
+	assert.NilError(t, err)
+	for _, c := range cookies {
+		req.AddCookie(c)
 	}
-	expected := "/login"
-	if rr.Header().Get("location") != expected {
-		t.Errorf("handler returned unexpected redirect: got %v want %v",
-			rr.Header().Get("location"),
-			expected,
-		)
-	}
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+	response := rr.Result()
+	_, err = io.ReadAll(response.Body)
+	assert.NilError(t, err)
+
+	// Check the status code is what we expect.
+	assert.Assert(t, StatusEqual(rr, http.StatusSeeOther),
+		"handler returned wrong status code")
+	assert.Equal(t, rr.Header().Get("location"), "/dashboard",
+		"handler returned wrong redirect")
+	// we make sure that all expectations were met
+	assert.Assert(t, mock.ExpectationsWereMet(),
+		"there were unfulfilled expectations")
 }
