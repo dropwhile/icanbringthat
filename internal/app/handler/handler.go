@@ -16,7 +16,8 @@ import (
 )
 
 type Handler struct {
-	Db      *model.DB
+	// Db      *model.DB
+	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 }

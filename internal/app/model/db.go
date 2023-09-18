@@ -16,41 +16,13 @@ type DB struct {
 	*pgxpool.Pool
 }
 
-type pgxIface interface {
-	Begin(context.Context) (pgx.Tx, error)
-	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
-	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
-	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
-	QueryRow(context.Context, string, ...interface{}) pgx.Row
-	Ping(context.Context) error
-	Prepare(context.Context, string, string) (*pgconn.StatementDescription, error)
-	PgConn() *pgconn.PgConn
-}
-
-type PgxConnIface interface {
-	pgxIface
-	pgx.Tx
-	Close(ctx context.Context) error
-	Deallocate(ctx context.Context, name string) error
-}
-
-type PgxPoolIface interface {
-	pgxIface
-	pgx.Tx
-	Acquire(ctx context.Context) (*pgxpool.Conn, error)
-	AcquireAllIdle(ctx context.Context) []*pgxpool.Conn
-	AcquireFunc(ctx context.Context, f func(*pgxpool.Conn) error) error
-	AsConn() PgxConnIface
-	Close()
-	Stat() *pgxpool.Stat
-	Reset()
-}
-
 type PgxHandle interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...interface{}) pgx.Row
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+	Ping(context.Context) error
 }
 
 func (db *DB) GetPool() *pgxpool.Pool {
