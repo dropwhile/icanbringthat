@@ -13,15 +13,25 @@ import (
 type mwContextKey string
 
 func UserFromContext(ctx context.Context) (*model.User, error) {
-	v, ok := ctx.Value(mwContextKey("user")).(*model.User)
+	v, ok := ContextGet[*model.User](ctx, "user")
 	if !ok {
-		return nil, fmt.Errorf("bad user context")
+		return nil, fmt.Errorf("bad context value for user")
 	}
 	return v, nil
 }
 
+func ContextGet[T any](ctx context.Context, key string) (T, bool) {
+	v, ok := ctx.Value(mwContextKey(key)).(T)
+	return v, ok
+}
+
+func ContextSet(ctx context.Context, key string, value any) context.Context {
+	ctx = context.WithValue(ctx, mwContextKey(key), value)
+	return ctx
+}
+
 func IsLoggedIn(ctx context.Context) bool {
-	v, ok := ctx.Value(mwContextKey("auth")).(bool)
+	v, ok := ContextGet[bool](ctx, "auth")
 	return ok && v
 }
 

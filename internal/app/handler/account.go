@@ -31,6 +31,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "create-account-form.gohtml", tplVars)
 	if err != nil {
+		log.Debug().Err(err).Msg("template error")
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
@@ -53,7 +54,6 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if passwd != confirm_passwd {
 		http.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
 		return
-
 	}
 
 	ctx := r.Context()
@@ -67,7 +67,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	user, err := model.NewUser(ctx, h.Db, email, name, []byte(passwd))
 	if err != nil {
-		log.Info().Err(err).Msg("error adding user")
+		log.Error().Err(err).Msg("error adding user")
 		http.Error(w, "error adding user", http.StatusBadRequest)
 		return
 	}
@@ -77,15 +77,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err = h.SessMgr.RenewToken(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	// renew sesmgr token to help prevent session fixation. ref:
-	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
-	//   #renew-the-session-id-after-any-privilege-level-change
-	err = h.SessMgr.RenewToken(ctx)
-	if err != nil {
+		log.Error().Err(err).Msg("error renewing session token")
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -117,6 +109,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
 	if err != nil {
+		log.Debug().Err(err).Msg("template error")
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
@@ -133,6 +126,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form data")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -167,7 +161,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		} else {
 			oldPasswd := r.PostFormValue("old_password")
 			if ok, err := user.CheckPass(ctx, []byte(oldPasswd)); err != nil || !ok {
-				warnings = append(warnings, "Current Password invalid")
+				warnings = append(warnings, "Old Password invalid")
 			} else {
 				user.SetPass(ctx, []byte(newPasswd))
 				operations = append(operations, "Password update successfull")
@@ -179,6 +173,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	if changes {
 		err = user.Save(ctx, h.Db)
 		if err != nil {
+			log.Error().Err(err).Msg("error updating user")
 			http.Error(w, "error updating user", http.StatusInternalServerError)
 			return
 		}
@@ -210,6 +205,7 @@ func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "forgot-password.gohtml", tplVars)
 	if err != nil {
+		log.Debug().Err(err).Msg("template error")
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
@@ -225,12 +221,14 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
+		log.Debug().Err(err).Msg("bad session data")
 		http.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	err = user.Delete(ctx, h.Db)
 	if err != nil {
+		log.Debug().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
