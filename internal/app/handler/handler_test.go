@@ -27,6 +27,10 @@ func init() {
 	tstTs, _ = time.Parse(time.RFC3339, "2023-01-01T03:04:05Z")
 }
 
+func setCookie(r *http.Request, cookie string) {
+	r.Header.Set("Cookie", cookie)
+}
+
 func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
 	t.Helper()
 
@@ -44,7 +48,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	return mock, mux, h
 }
 
-func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, h *Handler) []*http.Cookie {
+func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, h *Handler) string {
 	t.Helper()
 
 	userId := 1
@@ -78,11 +82,17 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, h *
 	_, err = io.ReadAll(response.Body)
 	assert.NilError(t, err)
 
-	return response.Cookies()
+	return rr.Header().Get("Set-Cookie")
 }
 
 func StatusEqual(rr *httptest.ResponseRecorder, status int) bool {
 	return rr.Code == status
+}
+
+func AssertStatusEqual(t *testing.T, rr *httptest.ResponseRecorder, status int) {
+	t.Helper()
+	assert.Assert(t, rr.Code == status,
+		"handler returned wrong status code: got %d expected %d", rr.Code, status)
 }
 
 func TestMain(m *testing.M) {

@@ -6,6 +6,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
@@ -53,9 +54,16 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	email := r.PostFormValue("email")
 	passwd := r.PostFormValue("password")
 
+	if email == "" || passwd == "" {
+		log.Debug().Msg("missing form data")
+		http.Error(w, "Missing form data", http.StatusBadRequest)
+		return
+	}
+
 	// find user...
 	user, err := model.GetUserByEmail(ctx, h.Db, email)
 	if err != nil || user == nil {
+		log.Debug().Err(err).Msg("invalid credentials: no user match")
 		h.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -63,6 +71,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	// validate credentials...
 	ok, err := user.CheckPass(ctx, []byte(passwd))
 	if err != nil || !ok {
+		log.Debug().Err(err).Msg("invalid credentials: pass check fail")
 		h.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return

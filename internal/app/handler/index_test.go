@@ -43,15 +43,13 @@ func TestHandler_ShowIndex_LoggedIn(t *testing.T) {
 
 	ctx := context.TODO()
 	mock, mux, handler := SetupHandler(t, ctx)
-	cookies := SetupUserSession(t, mux, mock, handler)
+	cookie := SetupUserSession(t, mux, mock, handler)
 	mux.Get("/", handler.ShowIndex)
 
 	// create request
 	req, err := http.NewRequest("GET", "/", nil)
 	assert.NilError(t, err)
-	for _, c := range cookies {
-		req.AddCookie(c)
-	}
+	setCookie(req, cookie)
 
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)

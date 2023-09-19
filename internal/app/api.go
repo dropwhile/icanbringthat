@@ -66,8 +66,9 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Delete("/settings", ah.DeleteAccount)
 		// logout
 		r.Post("/logout", ah.Logout)
-		// dashboard/events/earmarks/etc
+		// dashboard
 		r.Get("/dashboard", ah.ShowDashboard)
+		// event
 		r.Get("/events", ah.ListEvents)
 		r.Post("/events", ah.CreateEvent)
 		r.Get("/events/add", ah.ShowCreateEventForm)
@@ -75,21 +76,20 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Post("/events/{eRefId:[0-9a-z]+}", ah.UpdateEvent)
 		r.Delete("/events/{eRefId:[0-9a-z]+}", ah.DeleteEvent)
 		r.Get("/events/{eRefId:[0-9a-z]+}/edit", ah.ShowEditEventForm)
+		// event item
 		r.Post("/events/{eRefId:[0-9a-z]+}/items", ah.CreateEventItem)
 		r.Get("/events/{eRefId:[0-9a-z]+}/items/add", ah.ShowCreateEventItemForm)
 		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.UpdateEventItem)
 		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.DeleteEventItem)
 		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/edit", ah.ShowEventItemEditForm)
+		// earmarks
 		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks", ah.CreateEarmark)
 		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks/add", ah.ShowCreateEarmarkForm)
 		r.Get("/earmarks", ah.ListEarmarks)
 		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", ah.DeleteEarmark)
 		/*
-			r.Get("/earmarks/add", ah.ShowCreateEarmarkForm)
-			r.Post("/earmarks/add", ah.CreateEarmark)
 			r.Get("/earmarks/{mRefId:[0-9a-z]+}", ah.ShowEarmark)
 			r.Post("/earmarks/{mRefId:[0-9a-z]+}", ah.UpdateEarmark)
-			r.Get("/earmarks/{mRefId:[0-9a-z]+}/edit", ah.DeleteEarmark)
 		*/
 		// r.Get("/profile/{uRefId:[a-zA-Z-]+}", ah.ShowProfile)
 	})
