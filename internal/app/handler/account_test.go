@@ -11,7 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/pashagolub/pgxmock/v2"
+	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 )
 
@@ -302,6 +302,9 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
@@ -346,4 +349,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 
 	// Check the status code is what we expect.
 	AssertStatusEqual(t, rr, http.StatusOK)
+	// we make sure that all expectations were met
+	assert.Assert(t, mock.ExpectationsWereMet(),
+		"there were unfulfilled expectations")
 }

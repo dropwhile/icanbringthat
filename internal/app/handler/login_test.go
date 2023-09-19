@@ -12,7 +12,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v2"
+	"github.com/pashagolub/pgxmock/v3"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 )
@@ -37,8 +37,8 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 		// bad password
 		data := url.Values{
-			"email":    []string{"user@example.com"},
-			"password": []string{"00x01"},
+			"email":    {"user@example.com"},
+			"password": {"00x01"},
 		}
 
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -64,8 +64,8 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 			WithArgs("userXYZ@example.com").
 			WillReturnError(pgx.ErrNoRows)
 		data := url.Values{
-			"email":    []string{"userXYZ@example.com"},
-			"password": []string{"00x01"},
+			"email":    {"userXYZ@example.com"},
+			"password": {"00x01"},
 		}
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", FormData(data))
@@ -90,7 +90,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 	t.Run("missing form data", func(t *testing.T) {
 		data := url.Values{
-			"email": []string{"userXYZ@example.com"},
+			"email": {"userXYZ@example.com"},
 		}
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", FormData(data))
@@ -130,8 +130,8 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 		WillReturnRows(rows)
 
 	data := url.Values{
-		"email":    []string{"user@example.com"},
-		"password": []string{"00x00"},
+		"email":    {"user@example.com"},
+		"password": {"00x00"},
 	}
 
 	// inject session into context

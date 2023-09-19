@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/dropwhile/icbt/internal/util/refid"
-	"github.com/pashagolub/pgxmock/v2"
+	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 )
 

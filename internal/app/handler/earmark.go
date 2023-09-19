@@ -87,47 +87,6 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
-	if err != nil {
-		http.Error(w, "bad earmark ref-id", http.StatusBadRequest)
-		return
-	}
-
-	earmark, err := model.GetEarmarkByRefId(ctx, h.Db, refId)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if user.Id != earmark.UserId {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	err = earmark.Delete(ctx, h.Db)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if Hx(r).CurrentUrl().HasPathPrefix("/events/") {
-		w.Header().Add("HX-Refresh", "true")
-	}
-	w.WriteHeader(http.StatusOK)
-}
-
 func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -198,22 +157,25 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
+		log.Debug().Err(err).Msg("bad event ref-id")
 		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
+		log.Debug().Err(err).Msg("bad eventitem ref-id")
 		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
 		return
 	}
 
 	_, err = model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
-		}
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -222,6 +184,7 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for event_item")
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
@@ -246,6 +209,7 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -266,5 +230,51 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("HX-Refresh", "true")
 	}
 
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
+	if err != nil {
+		log.Debug().Err(err).Msg("bad earmark ref-id")
+		http.Error(w, "bad earmark ref-id", http.StatusBadRequest)
+		return
+	}
+
+	earmark, err := model.GetEarmarkByRefId(ctx, h.Db, refId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.Id != earmark.UserId {
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	err = earmark.Delete(ctx, h.Db)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if Hx(r).CurrentUrl().HasPathPrefix("/events/") {
+		w.Header().Add("HX-Refresh", "true")
+	}
 	w.WriteHeader(http.StatusOK)
 }

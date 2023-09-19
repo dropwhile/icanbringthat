@@ -19,7 +19,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/pashagolub/pgxmock/v2"
+	"github.com/pashagolub/pgxmock/v3"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 )

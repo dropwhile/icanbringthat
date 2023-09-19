@@ -29,3 +29,7 @@ func (r RefIdTagger) HasTag(refId RefId, tag byte) bool {
 func (r RefIdTagger) IsTagged(refId RefId) bool {
 	return refId.IsTagged()
 }
+
+func (r RefIdTagger) AnyMatcher() AnyMatcher {
+	return MatchAny(byte(r))
+}
