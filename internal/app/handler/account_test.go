@@ -73,7 +73,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		// hidden rollback after commit due to beginfunc being used
 		mock.ExpectRollback()
 
-		// bad password
 		data := url.Values{"email": {"user2@example.com"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
@@ -105,7 +104,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		// bad password
 		data := url.Values{"name": {"user"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
@@ -142,7 +140,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		// hidden rollback after commit due to beginfunc being used
 		mock.ExpectRollback()
 
-		// bad password
 		data := url.Values{"name": {"user2"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
@@ -174,7 +171,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		// bad password
 		data := url.Values{"password": {"hodor"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
@@ -204,7 +200,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		// bad password
 		data := url.Values{
 			"password":         {"hodor"},
 			"confirm_password": {"hodor2"},
@@ -237,7 +232,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		// bad password
 		data := url.Values{
 			"password":         {"hodor"},
 			"confirm_password": {"hodor"},
@@ -281,7 +275,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		// hidden rollback after commit due to beginfunc being used
 		mock.ExpectRollback()
 
-		// bad password
 		data := url.Values{
 			"password":         {"hodor"},
 			"confirm_password": {"hodor"},
