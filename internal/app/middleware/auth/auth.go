@@ -67,7 +67,7 @@ func Require(next http.Handler) http.Handler {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}
-			http.Error(w, "unauthorized, please login", http.StatusUnauthorized)
+			http.Error(w, "unauthorized, please log in", http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(ctx))

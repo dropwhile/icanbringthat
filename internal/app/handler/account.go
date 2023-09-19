@@ -39,6 +39,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form data")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -231,6 +232,13 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
+	}
+	// destroy session
+	err = h.SessMgr.Destroy(ctx)
+	if err != nil {
+		// not a fatal error (do not return 500 to user), since the user deleted
+		// sucessfully already. just log the oddity
+		log.Error().Err(err).Msg("error destroying session")
 	}
 	w.WriteHeader(200)
 }
