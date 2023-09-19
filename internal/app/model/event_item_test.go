@@ -28,7 +28,7 @@ func TestEventItemInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_item_ (.+)*").
-		WithArgs(pgxmock.AnyArg(), 1, "some desc").
+		WithArgs(EventItemRefIdT.AnyMatcher(), 1, "some desc").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used

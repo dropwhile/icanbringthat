@@ -92,7 +92,7 @@ func TestUserInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_ (.+)*").
-		WithArgs(pgxmock.AnyArg(), "user1@example.com", "j rando", pgxmock.AnyArg()).
+		WithArgs(UserRefIdT.AnyMatcher(), "user1@example.com", "j rando", pgxmock.AnyArg()).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used

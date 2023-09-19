@@ -13,6 +13,8 @@ func headerWith(key, value string) http.Header {
 }
 
 func TestHxx_Boosted(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -34,6 +36,8 @@ func TestHxx_Boosted(t *testing.T) {
 }
 
 func TestHxx_CurrentUrl_HasPrefix(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -67,6 +71,8 @@ func TestHxx_CurrentUrl_HasPrefix(t *testing.T) {
 }
 
 func TestHxx_HistoryRestoreRequest(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -88,6 +94,8 @@ func TestHxx_HistoryRestoreRequest(t *testing.T) {
 }
 
 func TestHxx_Prompt(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -109,6 +117,8 @@ func TestHxx_Prompt(t *testing.T) {
 }
 
 func TestHxx_Request(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -130,6 +140,8 @@ func TestHxx_Request(t *testing.T) {
 }
 
 func TestHxx_Target(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -151,6 +163,8 @@ func TestHxx_Target(t *testing.T) {
 }
 
 func TestHxx_TriggerName(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header
@@ -172,6 +186,8 @@ func TestHxx_TriggerName(t *testing.T) {
 }
 
 func TestHxx_Trigger(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		fields http.Header

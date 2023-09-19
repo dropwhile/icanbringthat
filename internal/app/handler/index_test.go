@@ -13,56 +13,60 @@ import (
 func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
-	mock, mux, handler := SetupHandler(t, ctx)
-	mux.Get("/", handler.ShowIndex)
+	t.Run("logged in", func(t *testing.T) {
+		t.Parallel()
 
-	// create request
-	req, err := http.NewRequest("GET", "/", nil)
-	assert.NilError(t, err)
+		ctx := context.TODO()
+		mock, mux, handler := SetupHandler(t, ctx)
+		mux.Get("/", handler.ShowIndex)
 
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	response := rr.Result()
-	_, err = io.ReadAll(response.Body)
-	assert.NilError(t, err)
+		// create request
+		req, err := http.NewRequest("GET", "/", nil)
+		assert.NilError(t, err)
 
-	// Check the status code is what we expect.
-	assert.Assert(
-		t, StatusEqual(rr, http.StatusSeeOther),
-		"handler returned wrong status code")
-	assert.Equal(t, rr.Header().Get("location"), "/login",
-		"handler returned wrong redirect")
-	// we make sure that all expectations were met
-	assert.Assert(t, mock.ExpectationsWereMet(),
-		"there were unfulfilled expectations")
-}
+		rr := httptest.NewRecorder()
+		mux.ServeHTTP(rr, req)
+		response := rr.Result()
+		_, err = io.ReadAll(response.Body)
+		assert.NilError(t, err)
 
-func TestHandler_ShowIndex_LoggedIn(t *testing.T) {
-	t.Parallel()
+		// Check the status code is what we expect.
+		assert.Assert(
+			t, StatusEqual(rr, http.StatusSeeOther),
+			"handler returned wrong status code")
+		assert.Equal(t, rr.Header().Get("location"), "/login",
+			"handler returned wrong redirect")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 
-	ctx := context.TODO()
-	mock, mux, handler := SetupHandler(t, ctx)
-	cookie := SetupUserSession(t, mux, mock, handler)
-	mux.Get("/", handler.ShowIndex)
+	t.Run("logged out", func(t *testing.T) {
+		t.Parallel()
 
-	// create request
-	req, err := http.NewRequest("GET", "/", nil)
-	assert.NilError(t, err)
-	setCookie(req, cookie)
+		ctx := context.TODO()
+		mock, mux, handler := SetupHandler(t, ctx)
+		cookie := SetupUserSession(t, mux, mock, handler)
+		mux.Get("/", handler.ShowIndex)
 
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	response := rr.Result()
-	_, err = io.ReadAll(response.Body)
-	assert.NilError(t, err)
+		// create request
+		req, err := http.NewRequest("GET", "/", nil)
+		assert.NilError(t, err)
+		setCookie(req, cookie)
 
-	// Check the status code is what we expect.
-	assert.Assert(t, StatusEqual(rr, http.StatusSeeOther),
-		"handler returned wrong status code")
-	assert.Equal(t, rr.Header().Get("location"), "/dashboard",
-		"handler returned wrong redirect")
-	// we make sure that all expectations were met
-	assert.Assert(t, mock.ExpectationsWereMet(),
-		"there were unfulfilled expectations")
+		rr := httptest.NewRecorder()
+		mux.ServeHTTP(rr, req)
+		response := rr.Result()
+		_, err = io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		assert.Assert(t, StatusEqual(rr, http.StatusSeeOther),
+			"handler returned wrong status code")
+		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
+			"handler returned wrong redirect")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
