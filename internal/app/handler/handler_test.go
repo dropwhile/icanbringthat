@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -106,6 +108,10 @@ func GetTokenViaRequest(mux *chi.Mux) (string, string) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 	return csrfToken, rr.Header().Get("Set-Cookie")
+}
+
+func FormData(values url.Values) *strings.Reader {
+	return strings.NewReader(values.Encode())
 }
 
 func TestMain(m *testing.M) {
