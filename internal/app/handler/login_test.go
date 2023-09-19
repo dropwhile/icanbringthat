@@ -11,29 +11,16 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v2"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
-)
-
-var csrfMiddleware = csrf.Protect(
-	[]byte("testkey"),
-	csrf.Secure(false),
-	csrf.Path("/"),
-	csrf.RequestHeader("X-CSRF-Token"),
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	mock, mux, handler := SetupHandler(t, ctx)
-	mux.Use(csrfMiddleware)
-	mux.Post("/login", handler.Login)
-
-	// get token
-	csrfToken, cookie := GetTokenViaRequest(mux)
+	mock, _, handler := SetupHandler(t, ctx)
 
 	refId, _ := model.UserRefIdT.New()
 	ts := tstTs
@@ -52,13 +39,11 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		"password": []string{"00x01"},
 	}
 
-	req, err := http.NewRequest("POST", "http://example.com/login", strings.NewReader(data.Encode()))
-	assert.NilError(t, err)
+	ctx, _ = handler.SessMgr.Load(ctx, "")
+	req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", strings.NewReader(data.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	setCookie(req, cookie)
-	req.Header.Set("X-CSRF-Token", csrfToken)
 	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
+	handler.Login(rr, req)
 
 	response := rr.Result()
 	out, err := io.ReadAll(response.Body)
@@ -78,11 +63,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	mock, mux, handler := SetupHandler(t, ctx)
-	mux.Use(csrfMiddleware)
-	mux.Post("/login", handler.Login)
-
-	csrfToken, cookie := GetTokenViaRequest(mux)
+	mock, _, handler := SetupHandler(t, ctx)
 
 	refId, _ := model.UserRefIdT.New()
 	ts := tstTs
@@ -101,13 +82,12 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 		"password": []string{"00x00"},
 	}
 
-	req, err := http.NewRequest("POST", "http://example.com/login", strings.NewReader(data.Encode()))
-	assert.NilError(t, err)
+	// inject session into context
+	ctx, _ = handler.SessMgr.Load(ctx, "")
+	req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", strings.NewReader(data.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	setCookie(req, cookie)
-	req.Header.Set("X-CSRF-Token", csrfToken)
 	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
+	handler.Login(rr, req)
 
 	response := rr.Result()
 	out, err := io.ReadAll(response.Body)
