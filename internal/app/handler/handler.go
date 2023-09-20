@@ -16,11 +16,20 @@ import (
 )
 
 type Handler struct {
-	// Db      *model.DB
 	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 }
+
+/*
+type WrappableHandler func(*Handler, http.ResponseWriter, *http.Request)
+
+func (h *Handler) Wrap(wrapped WrappableHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		wrapped(h, w, r)
+	}
+}
+*/
 
 func (h *Handler) Template(name string) (*template.Template, error) {
 	return h.Tpl.Get(name)
