@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,7 +22,11 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, 0)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for events")
+		events = []*model.Event{}
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return

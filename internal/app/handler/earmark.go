@@ -45,19 +45,28 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	offset := pageNum - 1
 	earmarks, err := model.GetEarmarksByUserPaginated(ctx, h.Db, user, 10, offset)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no earmarks")
+		earmarks = []*model.Earmark{}
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
+
 	for i, em := range earmarks {
 		ei, err := em.GetEventItem(ctx, h.Db)
-		if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			continue
+		case err != nil:
 			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
 		e, err := ei.GetEvent(ctx, h.Db)
+		// if no rows, or other db error, honk
 		if err != nil {
 			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
@@ -99,25 +108,35 @@ func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
-		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("event not found")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("event item not found")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -158,14 +177,14 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad eventitem ref-id")
-		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -256,7 +275,7 @@ func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad earmark ref-id")
-		http.Error(w, "bad earmark ref-id", http.StatusBadRequest)
+		http.Error(w, "bad earmark ref-id", http.StatusNotFound)
 		return
 	}
 

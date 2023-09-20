@@ -48,7 +48,11 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	offset := pageNum - 1
 	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, offset*10)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event")
+		events = []*model.Event{}
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -56,7 +60,11 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	for i := range events {
 		items, err := model.GetEventItemsByEvent(ctx, h.Db, events[i])
-		if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			log.Info().Err(err).Msg("no rows for event items")
+			items = []*model.EventItem{}
+		case err != nil:
 			log.Info().Err(err).Msg("db error")
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
@@ -84,6 +92,112 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	if err != nil {
+		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		return
+	}
+
+	event, err := model.GetEventByRefId(ctx, h.Db, refId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	owner := user.Id == event.UserId
+
+	eventItems, err := model.GetEventItemsByEvent(ctx, h.Db, event)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event items")
+		eventItems = []*model.EventItem{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	event.Items = eventItems
+
+	earmarks, err := model.GetEarmarksByEvent(ctx, h.Db, event)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for earmarks")
+		earmarks = []*model.Earmark{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	// associate earmarks and event items
+	// and also collect the user ids associated with
+	// earmarks
+	eventItemsMap := make(map[int]*model.EventItem)
+	for i := range eventItems {
+		eventItemsMap[eventItems[i].Id] = eventItems[i]
+	}
+
+	userIdsMap := make(map[int]struct{})
+	for i := range earmarks {
+		if ei, ok := eventItemsMap[earmarks[i].EventItemId]; ok {
+			ei.Earmark = earmarks[i]
+			userIdsMap[earmarks[i].UserId] = struct{}{}
+		}
+	}
+
+	// now get the list of usrs ids and fetch the associated users
+	userIds := util.Keys(userIdsMap)
+	earmarkUsers, err := model.GetUsersByIds(ctx, h.Db, userIds)
+	if err != nil {
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	// now associate the users with the earmarks
+	earmarkUsersMap := make(map[int]*model.User)
+	for i := range earmarkUsers {
+		earmarkUsersMap[earmarkUsers[i].Id] = earmarkUsers[i]
+	}
+	for i := range earmarks {
+		if uu, ok := earmarkUsersMap[earmarks[i].UserId]; ok {
+			earmarks[i].User = uu
+		}
+	}
+
+	tplVars := map[string]any{
+		"user":           user,
+		"owner":          owner,
+		"event":          event,
+		"title":          "Event Details",
+		"nav":            "show-event",
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = h.TemplateExecute(w, "show-event.gohtml", tplVars)
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -104,6 +218,56 @@ func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "create-event-form.gohtml", tplVars)
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	if err != nil {
+		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		return
+	}
+
+	event, err := model.GetEventByRefId(ctx, h.Db, refId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.Id != event.UserId {
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	tplVars := map[string]any{
+		"user":           user,
+		"event":          event,
+		"title":          "Edit Event",
+		"nav":            "edit-event",
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = h.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return
@@ -160,55 +324,6 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
 }
 
-func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
-	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusBadRequest)
-		return
-	}
-
-	event, err := model.GetEventByRefId(ctx, h.Db, refId)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	case err != nil:
-		fmt.Println(err)
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if user.Id != event.UserId {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	tplVars := map[string]any{
-		"user":           user,
-		"event":          event,
-		"title":          "Edit Event",
-		"nav":            "edit-event",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
-	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
-}
-
 func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -221,7 +336,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -294,101 +409,6 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
 }
 
-func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
-	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusBadRequest)
-		return
-	}
-
-	event, err := model.GetEventByRefId(ctx, h.Db, refId)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	case err != nil:
-		fmt.Println(err)
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	owner := user.Id == event.UserId
-
-	eventItems, err := model.GetEventItemsByEvent(ctx, h.Db, event)
-	if err != nil {
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-	event.Items = eventItems
-
-	earmarks, err := model.GetEarmarksByEvent(ctx, h.Db, event)
-	if err != nil {
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	// associate earmarks and event items
-	// and also collect the user ids associated with
-	// earmarks
-	eventItemsMap := make(map[int]*model.EventItem)
-	for i := range eventItems {
-		eventItemsMap[eventItems[i].Id] = eventItems[i]
-	}
-
-	userIdsMap := make(map[int]struct{})
-	for i := range earmarks {
-		if ei, ok := eventItemsMap[earmarks[i].EventItemId]; ok {
-			ei.Earmark = earmarks[i]
-			userIdsMap[earmarks[i].UserId] = struct{}{}
-		}
-	}
-
-	// now get the list of usrs ids and fetch the associated users
-	userIds := util.Keys(userIdsMap)
-	earmarkUsers, err := model.GetUsersByIds(ctx, h.Db, userIds)
-	if err != nil {
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	// now associate the users with the earmarks
-	earmarkUsersMap := make(map[int]*model.User)
-	for i := range earmarkUsers {
-		earmarkUsersMap[earmarkUsers[i].Id] = earmarkUsers[i]
-	}
-	for i := range earmarks {
-		if uu, ok := earmarkUsersMap[earmarks[i].UserId]; ok {
-			earmarks[i].User = uu
-		}
-	}
-
-	tplVars := map[string]any{
-		"user":           user,
-		"owner":          owner,
-		"event":          event,
-		"title":          "Event Details",
-		"nav":            "show-event",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "show-event.gohtml", tplVars)
-	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
-}
-
 func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -401,7 +421,7 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 

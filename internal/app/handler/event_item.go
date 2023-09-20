@@ -25,12 +25,17 @@ func (h *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -66,6 +71,83 @@ func (h *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (h *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	if err != nil {
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
+		return
+	}
+
+	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	if err != nil {
+		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
+		return
+	}
+
+	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.Id != event.UserId {
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.UserId", event.UserId).
+			Msg("user id mismatch")
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event item")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	tplVars := map[string]any{
+		"user":           user,
+		"event":          event,
+		"eventItem":      eventItem,
+		"title":          "Edit Event Item",
+		"nav":            "edit-event-item",
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	if Hx(r).Target() == "modalbody" {
+		err = h.TemplateExecuteSub(w, "edit-eventitem-form.gohtml", "form", tplVars)
+	} else {
+		err = h.TemplateExecute(w, "edit-eventitem-form.gohtml", tplVars)
+	}
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -79,7 +161,7 @@ func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -127,73 +209,6 @@ func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
 }
 
-func (h *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
-	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
-		return
-	}
-
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
-	if err != nil {
-		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
-		return
-	}
-
-	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if user.Id != event.UserId {
-		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
-			Msg("user id mismatch")
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	tplVars := map[string]any{
-		"user":           user,
-		"event":          event,
-		"eventItem":      eventItem,
-		"title":          "Edit Event Item",
-		"nav":            "edit-event-item",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	if Hx(r).Target() == "modalbody" {
-		err = h.TemplateExecuteSub(w, "edit-eventitem-form.gohtml", "form", tplVars)
-	} else {
-		err = h.TemplateExecute(w, "edit-eventitem-form.gohtml", tplVars)
-	}
-	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
-}
-
 func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -206,13 +221,13 @@ func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
-		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -318,13 +333,13 @@ func (h *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
-		http.Error(w, "bad eventitem-ref-id", http.StatusBadRequest)
+		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 

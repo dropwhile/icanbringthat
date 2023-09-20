@@ -37,6 +37,60 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	// parse user-id url param
+	tplVars := map[string]any{
+		"user":           user,
+		"title":          "Settings",
+		"flashes":        h.SessMgr.FlashPopAll(ctx),
+		csrf.TemplateTag: csrf.TemplateField(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
+	if err != nil {
+		log.Debug().Err(err).Msg("template error")
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	// already a logged in user, redirect to /account
+	if err == nil {
+		http.Redirect(w, r, "/account", http.StatusSeeOther)
+		return
+	}
+
+	// parse user-id url param
+	tplVars := map[string]any{
+		"user":           user,
+		"flashes":        h.SessMgr.FlashPopKey(ctx, "operations"),
+		csrf.TemplateTag: csrf.TemplateField(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = h.TemplateExecute(w, "forgot-password.gohtml", tplVars)
+	if err != nil {
+		log.Debug().Err(err).Msg("template error")
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
@@ -87,33 +141,6 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	h.SessMgr.FlashAppend(ctx, "operations", "Account created. You are now logged in.")
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
-}
-
-func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	// parse user-id url param
-	tplVars := map[string]any{
-		"user":           user,
-		"title":          "Settings",
-		"flashes":        h.SessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
-	if err != nil {
-		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
 }
 
 func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
@@ -190,37 +217,6 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	user, err := auth.UserFromContext(ctx)
-	// already a logged in user, redirect to /account
-	if err == nil {
-		http.Redirect(w, r, "/account", http.StatusSeeOther)
-		return
-	}
-
-	// parse user-id url param
-	tplVars := map[string]any{
-		"user":           user,
-		"flashes":        h.SessMgr.FlashPopKey(ctx, "operations"),
-		csrf.TemplateTag: csrf.TemplateField(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "forgot-password.gohtml", tplVars)
-	if err != nil {
-		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/account", http.StatusSeeOther)
-}
-
 func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -246,4 +242,8 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("error destroying session")
 	}
 	w.WriteHeader(200)
+}
+
+func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
