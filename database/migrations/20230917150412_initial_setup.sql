@@ -9,11 +9,14 @@ BEGIN
 END;
 $$;
 -- +goose StatementEnd
+-- create domain/type
+CREATE DOMAIN refid_bytea AS BYTEA
+  CONSTRAINT check_length CHECK (octet_length(VALUE) = 16);
 
 -- create user table
 CREATE TABLE IF NOT EXISTS user_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    ref_id bytea NOT NULL,
+    ref_id refid_bytea NOT NULL,
     email varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
     pwhash bytea NOT NULL,
@@ -30,7 +33,7 @@ CREATE TRIGGER last_mod_user
 -- create event table
 CREATE TABLE IF NOT EXISTS event_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    ref_id bytea NOT NULL,
+    ref_id refid_bytea NOT NULL,
     user_id integer NOT NULL,
     name text NOT NULL,
     description text NOT NULL,
@@ -48,7 +51,7 @@ CREATE TRIGGER last_mod_event
 -- create event item
 CREATE TABLE IF NOT EXISTS event_item_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    ref_id bytea NOT NULL,
+    ref_id refid_bytea NOT NULL,
     event_id integer NOT NULL,
     description text NOT NULL,
     created timestamp NOT NULL DEFAULT timezone('utc', now()),
@@ -64,7 +67,7 @@ CREATE TRIGGER last_mod_event_item_
 -- create earmark
 CREATE TABLE IF NOT EXISTS earmark_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    ref_id bytea NOT NULL,
+    ref_id refid_bytea NOT NULL,
     event_item_id integer NOT NULL,
     user_id integer NOT NULL,
     notes text NOT NULL,
