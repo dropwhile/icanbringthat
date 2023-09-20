@@ -25,6 +25,7 @@ func TestHxx_Boosted(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -60,6 +61,7 @@ func TestHxx_CurrentUrl_HasPrefix(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -83,6 +85,7 @@ func TestHxx_HistoryRestoreRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -106,6 +109,7 @@ func TestHxx_Prompt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -129,6 +133,7 @@ func TestHxx_Request(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -152,6 +157,7 @@ func TestHxx_Target(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -175,6 +181,7 @@ func TestHxx_TriggerName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}
@@ -198,6 +205,7 @@ func TestHxx_Trigger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			hxx := &Hxx{
 				Header: tt.fields,
 			}

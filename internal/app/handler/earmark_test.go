@@ -20,7 +20,7 @@ import (
 func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Parallel()
 
-	refId, _ := model.EarmarkRefIdT.New()
+	refId := model.EarmarkRefIdT.MustNew()
 	ts := tstTs
 	user := &model.User{
 		Id:           1,

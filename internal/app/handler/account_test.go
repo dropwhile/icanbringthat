@@ -19,7 +19,7 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refId, _ := model.UserRefIdT.New()
+	refId := model.UserRefIdT.MustNew()
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -122,8 +122,15 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
-		u := *user
-		user = &u
+		user := &model.User{
+			Id:           1,
+			RefId:        refId,
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       pwhash,
+			Created:      ts,
+			LastModified: ts,
+		}
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"name": {"user"}}
@@ -376,7 +383,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId, _ := model.UserRefIdT.New()
+	refId := model.UserRefIdT.MustNew()
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
