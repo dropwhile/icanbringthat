@@ -18,9 +18,6 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
-	mock, _, handler := SetupHandler(t, ctx)
-
 	refId, _ := model.UserRefIdT.New()
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
@@ -35,7 +32,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	}
 
 	t.Run("update email with same as existing", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"email": {"user@example.com"}}
@@ -52,7 +57,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		messages := handler.SessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t, messages,
 			map[string][]string{
-				"errors": {"Same Email specified as was already present"},
+				"errors": {"Same Email specified was already present"},
 			},
 		)
 
@@ -63,7 +68,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update email", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
@@ -101,7 +114,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update name with same as existing", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"name": {"user"}}
@@ -119,7 +140,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"errors": {"Same Name specified as was already present"},
+				"errors": {"Same Name specified was already present"},
 			},
 		)
 
@@ -130,7 +151,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update name", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
@@ -168,7 +197,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update passwd with missing confirm password", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"password": {"hodor"}}
@@ -197,7 +234,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update passwd with mismatched confirm password", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{
@@ -229,7 +274,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update passwd with invalid old password", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{
@@ -262,7 +315,15 @@ func TestHandler_Account_Update(t *testing.T) {
 	})
 
 	t.Run("update passwd", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
+		// copy user to avoid context user being modified
+		// impacting future tests
+		u := *user
+		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		// note: can't pregenerate an expected pwhash to fulfill the sql query,

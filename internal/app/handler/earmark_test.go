@@ -18,8 +18,7 @@ import (
 )
 
 func TestHandler_Earmark_Delete(t *testing.T) {
-	ctx := context.TODO()
-	mock, _, handler := SetupHandler(t, ctx)
+	t.Parallel()
 
 	refId, _ := model.EarmarkRefIdT.New()
 	ts := tstTs
@@ -43,7 +42,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	}
 
 	t.Run("delete earmark", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -80,7 +82,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	})
 
 	t.Run("delete earmark missing refid", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -102,7 +107,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	})
 
 	t.Run("delete earmark bad refid", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -125,7 +133,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	})
 
 	t.Run("delete earmark not found", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -153,7 +164,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	})
 
 	t.Run("delete earmark refid wrong type", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -177,7 +191,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	})
 
 	t.Run("delete earmark wrong user", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -209,6 +226,8 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 }
 
 func TestHandler_Earmark_Create(t *testing.T) {
+	t.Parallel()
+
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
@@ -275,6 +294,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		)
 
 	t.Run("create earmark", func(t *testing.T) {
+		t.Parallel()
+
 		eventRows := pgxmock.NewRows(
 			[]string{
 				"id", "ref_id", "user_id", "name", "description",
@@ -328,6 +349,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark bad event refid", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -355,6 +378,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark wrong type event refid", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -382,6 +407,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark bad event item id", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -409,6 +436,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark wrong type event item id", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -436,6 +465,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark missing event", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -467,6 +498,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	})
 
 	t.Run("create earmark missing event item", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")

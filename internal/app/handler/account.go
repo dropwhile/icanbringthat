@@ -142,7 +142,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		changes = true
 		operations = append(operations, "Email update successfull")
 	} else if email == user.Email {
-		warnings = append(warnings, "Same Email specified as was already present")
+		warnings = append(warnings, "Same Email specified was already present")
 	}
 
 	name := r.PostFormValue("name")
@@ -151,7 +151,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		changes = true
 		operations = append(operations, "Name update successfull")
 	} else if name == user.Name {
-		warnings = append(warnings, "Same Name specified as was already present")
+		warnings = append(warnings, "Same Name specified was already present")
 	}
 
 	newPasswd := r.PostFormValue("password")

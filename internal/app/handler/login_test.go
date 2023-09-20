@@ -20,14 +20,15 @@ import (
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
-	mock, _, handler := SetupHandler(t, ctx)
-
 	refId, _ := model.UserRefIdT.New()
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 
 	t.Run("bad password", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
 			AddRow(1, refId, "user@example.com", "user", pwhash, ts, ts)
@@ -59,6 +60,10 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	})
 
 	t.Run("no matching user", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+
 		// no matching user
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs("userXYZ@example.com").
@@ -89,6 +94,10 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	})
 
 	t.Run("missing form data", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
 		}
