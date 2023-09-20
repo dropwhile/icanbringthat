@@ -91,7 +91,12 @@ func SetHeader(key, value string) func(next http.Handler) http.Handler {
 }
 
 func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Fprint(w, err)
+		return
+	}
+
 	x := r.Form.Get("tpl")
 	y := r.Form.Get("nav")
 	if x == "" {
@@ -105,7 +110,7 @@ func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 		"title": y,
 		"nav":   y,
 	}
-	err := h.TemplateExecute(w, x, tplVars)
+	err = h.TemplateExecute(w, x, tplVars)
 	if err != nil {
 		fmt.Fprint(w, err)
 	}

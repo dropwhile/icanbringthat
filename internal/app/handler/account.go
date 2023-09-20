@@ -164,7 +164,12 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			if ok, err := user.CheckPass(ctx, []byte(oldPasswd)); err != nil || !ok {
 				warnings = append(warnings, "Old Password invalid")
 			} else {
-				user.SetPass(ctx, []byte(newPasswd))
+				err = user.SetPass(ctx, []byte(newPasswd))
+				if err != nil {
+					log.Error().Err(err).Msg("error setting user password")
+					http.Error(w, "error updating user", http.StatusInternalServerError)
+					return
+				}
 				operations = append(operations, "Password update successfull")
 				changes = true
 			}

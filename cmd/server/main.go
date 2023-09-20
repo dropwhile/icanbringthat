@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"crypto/sha1"
+	"crypto/sha256"
 	_ "database/sql"
 	"errors"
 	"fmt"
@@ -152,7 +152,7 @@ func main() {
 		[]byte("C/RWyRGBRXSCL5st5bFsPstuKQNDpRIix0vUlQ4QP80="),
 		4096,
 		32,
-		sha1.New,
+		sha256.New,
 	)
 
 	// routing/handlers

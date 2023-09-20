@@ -261,7 +261,7 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 		panic(err)
 	}
 
-	fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
 		if filepath.Ext(p) == ".gohtml" {
 			name := filepath.Base(p)
 			c, err := nonViewTemplates.Clone()
@@ -278,6 +278,9 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 		}
 		return nil
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	return templates
 }
