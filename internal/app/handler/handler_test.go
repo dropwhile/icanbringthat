@@ -24,10 +24,37 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstTs time.Time
+var tstTs time.Time = MustParseTime(time.RFC3339, "2023-01-01T03:04:05Z")
 
-func init() {
-	tstTs, _ = time.Parse(time.RFC3339, "2023-01-01T03:04:05Z")
+func MustParseTime(layout, value string) time.Time {
+	ts, err := time.Parse(layout, value)
+	if err != nil {
+		panic(err)
+	}
+	return ts
+}
+
+type CloseTimeMatcher struct {
+	value  time.Time
+	within time.Duration
+}
+
+// Match satisfies sqlmock.Argument interface
+func (a CloseTimeMatcher) Match(v interface{}) bool {
+	ts, ok := v.(time.Time)
+	if !ok {
+		return false
+	}
+	if ts.Equal(a.value) {
+		return true
+	}
+	if ts.Before(a.value) {
+		return !ts.Add(a.within).Before(a.value)
+	}
+	if ts.After(a.value) {
+		return !ts.Add(-a.within).After(a.value)
+	}
+	return true
 }
 
 func setCookie(r *http.Request, cookie string) {

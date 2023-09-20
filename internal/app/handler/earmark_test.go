@@ -532,4 +532,57 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
+
+	t.Run("create earmark eventitem not matching event", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "user_id", "name", "description",
+				"start_time", "start_time_tz", "created", "last_modified",
+			}).
+			AddRow(
+				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+		eventItemRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "event_id", "description", "created", "last_modified",
+			}).
+			AddRow(
+				eventItem.Id, eventItem.RefId, 33, eventItem.Description,
+				ts, ts,
+			)
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefId", event.RefId.String())
+		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefId).
+			WillReturnRows(eventRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
+			WithArgs(eventItem.RefId).
+			WillReturnRows(eventItemRows)
+
+		data := url.Values{"note": {"some note"}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateEarmark(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }

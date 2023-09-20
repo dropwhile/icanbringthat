@@ -3,6 +3,7 @@ package util
 import (
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog"
@@ -14,7 +15,18 @@ func NewTestLogger(w io.Writer) zerolog.Logger {
 	// to enable log matching if desired.
 	logger := log.Output(
 		zerolog.ConsoleWriter{Out: w},
-	)
+	).With().Caller().Logger()
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		short := file
+		for i := len(file) - 1; i > 0; i-- {
+			if file[i] == '/' {
+				short = file[i+1:]
+				break
+			}
+		}
+		file = short
+		return file + ":" + strconv.Itoa(line)
+	}
 
 	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
 	case "debug":

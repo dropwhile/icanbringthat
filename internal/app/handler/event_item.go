@@ -78,12 +78,18 @@ func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
+		log.Debug().Err(err).Msg("bad event ref-id")
 		http.Error(w, "bad event-ref-id", http.StatusBadRequest)
 		return
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for event")
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -99,12 +105,14 @@ func (h *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	description := r.FormValue("description")
 	if description == "" {
+		log.Debug().Err(err).Msg("description form element empty")
 		http.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
@@ -209,7 +217,11 @@ func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -225,9 +237,23 @@ func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if eventItem.EventId != event.Id {
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.Id", event.Id).
+			Int("eventItem.EventId", eventItem.EventId).
+			Msg("eventItem.EventId and event.Id mismatch")
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -251,12 +277,14 @@ func (h *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	description := r.FormValue("description")
 	if description == "" {
+		log.Debug().Err(err).Msg("missing form data")
 		http.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
@@ -301,7 +329,11 @@ func (h *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -317,9 +349,23 @@ func (h *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if eventItem.EventId != event.Id {
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.Id", event.Id).
+			Int("eventItem.EventId", eventItem.EventId).
+			Msg("eventItem.EventId and event.Id mismatch")
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 

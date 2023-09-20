@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,6 +13,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -120,6 +121,7 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form data")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -129,26 +131,29 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	when := r.PostFormValue("when")
 	tz := r.PostFormValue("timezone")
 	if name == "" || description == "" || when == "" || tz == "" {
+		log.Debug().Msg("missing form data")
 		http.Error(w, "bad form data", http.StatusBadRequest)
-		fmt.Println(err)
 		return
 	}
 
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
+		log.Debug().Err(err).Msg("error loading tz")
 		tz = "Etc/UTC"
 		loc, _ = time.LoadLocation(tz)
 	}
 
 	startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 	if err != nil {
-		http.Error(w, "bad form data - datetime", http.StatusBadRequest)
+		log.Debug().Err(err).Msg("error parsing start time")
+		http.Error(w, "bad form data - when", http.StatusBadRequest)
 		fmt.Println(err)
 		return
 	}
 
-	event, err := model.NewEvent(ctx, h.Db, user.Id, name, description, startTime, tz)
+	event, err := model.NewEvent(ctx, h.Db, user.Id, name, description, startTime, loc.String())
 	if err != nil {
+		log.Debug().Err(err).Msg("db error")
 		http.Error(w, "error creating event", http.StatusInternalServerError)
 		return
 	}
@@ -173,7 +178,7 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	switch {
-	case err == sql.ErrNoRows:
+	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
@@ -222,11 +227,11 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	switch {
-	case err == sql.ErrNoRows:
+	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
-		fmt.Println(err)
+		log.Debug().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
@@ -245,31 +250,44 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	description := r.PostFormValue("description")
 	when := r.PostFormValue("when")
 	tz := r.PostFormValue("timezone")
-	if name == "" || description == "" || when == "" || tz == "" {
+	if name == "" && description == "" && when == "" && tz == "" {
 		http.Error(w, "bad form data", http.StatusBadRequest)
-		fmt.Println(err)
 		return
 	}
 
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		tz = "Etc/UTC"
-		loc, _ = time.LoadLocation(tz)
-	}
-
-	startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
-	if err != nil {
-		http.Error(w, "bad form data - datetime", http.StatusBadRequest)
-		fmt.Println(err)
+	switch {
+	case when == "" && tz != "":
+		fallthrough
+	case when != "" && tz == "":
+		http.Error(w, "bad form data", http.StatusBadRequest)
 		return
+	case when != "" && tz != "":
+		loc, err := time.LoadLocation(tz)
+		if err != nil {
+			log.Debug().Err(err).Msg("error loading tz")
+			tz = "Etc/UTC"
+			loc, _ = time.LoadLocation(tz)
+		}
+		startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
+		if err != nil {
+			log.Debug().Err(err).Msg("error parsing start time")
+			http.Error(w, "bad form data - when", http.StatusBadRequest)
+			return
+		}
+		event.StartTime = startTime
+		event.StartTimeTZ = loc.String()
 	}
 
-	event.Name = name
-	event.Description = description
-	event.StartTime = startTime
-	event.StartTimeTZ = tz
+	if name != "" {
+		event.Name = name
+	}
+	if description != "" {
+		event.Description = description
+	}
+
 	err = event.Save(ctx, h.Db)
 	if err != nil {
+		log.Debug().Err(err).Msg("db error")
 		http.Error(w, "error updating event", http.StatusInternalServerError)
 		return
 	}
@@ -294,7 +312,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	switch {
-	case err == sql.ErrNoRows:
+	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
@@ -388,7 +406,11 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
