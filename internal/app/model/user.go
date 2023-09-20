@@ -40,7 +40,7 @@ func (user *User) Insert(ctx context.Context, db PgxHandle) error {
 	if user.RefId.IsNil() {
 		user.RefId = UserRefIdT.MustNew()
 	}
-	q := `INSERT INTO user_ (ref_id, email, name, pwhash, timezone) VALUES ($1, $2, $3, $4) RETURNING *`
+	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
 	res, err := QueryOneTx[User](ctx, db, q, user.RefId, user.Email, user.Name, user.PWHash)
 	if err != nil {
 		return err

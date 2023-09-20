@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -413,4 +414,196 @@ func TestHandler_Account_Delete(t *testing.T) {
 	// we make sure that all expectations were met
 	assert.Assert(t, mock.ExpectationsWereMet(),
 		"there were unfulfilled expectations")
+}
+
+func TestHandler_Account_Create(t *testing.T) {
+	t.Parallel()
+
+	t.Run("create happy path", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		data := url.Values{
+			"email":            {"user@example.com"},
+			"name":             {"user"},
+			"password":         {"00x00"},
+			"confirm_password": {"00x00"},
+		}
+
+		pwhash, _ := util.HashPW([]byte("00x00"))
+		rows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "email", "pwhash", "created", "last_modified",
+			}).AddRow(
+			1, model.UserRefIdT.MustNew(), "user@example.com", pwhash, tstTs, tstTs,
+		)
+
+		mock.ExpectBegin()
+		mock.ExpectQuery("^INSERT INTO user_").
+			WithArgs(model.UserRefIdT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WillReturnRows(rows)
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateAccount(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		messages := handler.SessMgr.FlashPopAll(ctx)
+		assert.DeepEqual(t, messages,
+			map[string][]string{
+				"operations": {"Account created. You are now logged in."},
+			},
+		)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
+			"handler returned wrong redirect")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create missing form data", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		data := url.Values{
+			"email":            {"user@example.com"},
+			"password":         {"00x00"},
+			"confirm_password": {"00x00"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateAccount(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create password mismatch", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		data := url.Values{
+			"email":            {"user@example.com"},
+			"name":             {"user"},
+			"password":         {"00x00"},
+			"confirm_password": {"00x01"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateAccount(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create user already exists", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		data := url.Values{
+			"email":            {"user@example.com"},
+			"name":             {"user"},
+			"password":         {"00x00"},
+			"confirm_password": {"00x00"},
+		}
+
+		mock.ExpectBegin()
+		mock.ExpectQuery("^INSERT INTO user_").
+			WithArgs(model.UserRefIdT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WillReturnError(fmt.Errorf("duplicate row"))
+		mock.ExpectRollback()
+		mock.ExpectRollback()
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateAccount(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create user already logged in", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		pwhash, _ := util.HashPW([]byte("00x00"))
+		user := &model.User{
+			Id:           1,
+			RefId:        model.UserRefIdT.MustNew(),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       pwhash,
+			Created:      tstTs,
+			LastModified: tstTs,
+		}
+		ctx = auth.ContextSet(ctx, "user", user)
+		ctx = auth.ContextSet(ctx, "auth", true)
+
+		data := url.Values{
+			"email":            {"user@example.com"},
+			"name":             {"user"},
+			"password":         {"00x00"},
+			"confirm_password": {"00x00"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateAccount(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
