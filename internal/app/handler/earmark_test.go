@@ -100,7 +100,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		assert.NilError(t, err)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -126,7 +126,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		assert.NilError(t, err)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -184,7 +184,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		assert.NilError(t, err)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -371,7 +371,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -400,7 +400,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -429,7 +429,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -458,7 +458,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
