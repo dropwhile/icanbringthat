@@ -76,7 +76,7 @@ VALUES
     ;
 END
 
-EVENT_ID=$(psql -qtAXc 'SELECT id from event_ limit 1')
+EVENT_ID=$(psql -qtAXc "SELECT id from event_ WHERE event_.user_id = ${USER_ID} order by id DESC limit 1;")
 
 echo ">> creating some event_items for event id=${EVENT_ID}"
 psql -qtAX <<END

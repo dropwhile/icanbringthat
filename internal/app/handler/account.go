@@ -24,6 +24,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"title":          "Create Account",
 		"flashes":        h.SessMgr.FlashPopKey(ctx, "operations"),
+		"next":           r.FormValue("next"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -140,7 +141,11 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	h.SessMgr.Put(r.Context(), "user-id", user.Id)
 	h.SessMgr.FlashAppend(ctx, "operations", "Account created. You are now logged in.")
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	target := "/dashboard"
+	if r.PostFormValue("next") != "" {
+		target = r.FormValue("next")
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {

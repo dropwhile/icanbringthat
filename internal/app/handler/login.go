@@ -22,6 +22,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 
 	tplVars := map[string]any{
 		"title":          "Login",
+		"next":           r.FormValue("next"),
 		"flashes":        h.SessMgr.FlashPopKey(ctx, "login"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 	}
@@ -87,7 +88,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// Then make the privilege-level change.
 	h.SessMgr.Put(r.Context(), "user-id", user.Id)
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	target := "/dashboard"
+	if r.PostFormValue("next") != "" {
+		target = r.FormValue("next")
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {

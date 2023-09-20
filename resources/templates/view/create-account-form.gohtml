@@ -94,6 +94,9 @@
             >
           </label>
           {{ .csrfField }}
+          {{if .next }}
+          <input hidden name="next" value="{{.next}}">
+          {{end}}
 
           <div class="flex mt-6 text-sm">
             <label class="flex items-center dark:text-gray-400">

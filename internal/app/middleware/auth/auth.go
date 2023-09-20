@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
@@ -64,7 +66,13 @@ func Require(next http.Handler) http.Handler {
 		if v == nil || !v.(bool) {
 			if r.Method == http.MethodGet ||
 				r.Method == http.MethodHead {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				target := "/login"
+				if !strings.HasPrefix(r.URL.Path, "/login") {
+					q := url.Values{}
+					q.Set("next", r.URL.Path)
+					target = strings.Join([]string{target, q.Encode()}, "?")
+				}
+				http.Redirect(w, r, target, http.StatusSeeOther)
 				return
 			}
 			http.Error(w, "unauthorized, please log in", http.StatusUnauthorized)
