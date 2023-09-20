@@ -24,6 +24,7 @@ func TestHxx_Boosted(t *testing.T) {
 		{"present", headerWith("hx-boosted", "true"), true},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -60,6 +61,7 @@ func TestHxx_CurrentUrl_HasPrefix(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -84,6 +86,7 @@ func TestHxx_HistoryRestoreRequest(t *testing.T) {
 		{"present", headerWith("hx-history-restore-request", "true"), true},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -108,6 +111,7 @@ func TestHxx_Prompt(t *testing.T) {
 		{"present", headerWith("hx-prompt", "hodor"), "hodor"},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -132,6 +136,7 @@ func TestHxx_Request(t *testing.T) {
 		{"present", headerWith("hx-request", "true"), true},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -156,6 +161,7 @@ func TestHxx_Target(t *testing.T) {
 		{"present", headerWith("hx-target", "#someid"), "#someid"},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -180,6 +186,7 @@ func TestHxx_TriggerName(t *testing.T) {
 		{"present", headerWith("hx-trigger-name", "someid"), "someid"},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
@@ -204,6 +211,7 @@ func TestHxx_Trigger(t *testing.T) {
 		{"present", headerWith("hx-trigger", "someid"), "someid"},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			hxx := &Hxx{
