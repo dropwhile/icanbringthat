@@ -11,8 +11,9 @@ import (
 var UserPWResetRefIdT = refid.RefIdTagger(5)
 
 type UserPWReset struct {
-	RefId  refid.RefId `db:"ref_id"`
-	UserId int         `db:"user_id"`
+	RefId   refid.RefId `db:"ref_id"`
+	UserId  int         `db:"user_id"`
+	Created time.Time
 }
 
 func (upw *UserPWReset) IsExpired() bool {
