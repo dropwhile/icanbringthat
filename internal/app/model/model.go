@@ -5,12 +5,13 @@ import (
 )
 
 type ModelType interface {
-	User | Event | EventItem | Earmark
+	User | Event | EventItem | Earmark | UserPWReset
 }
 
 var (
-	UserRefIdT      = refid.RefIdTagger(1)
-	EventRefIdT     = refid.RefIdTagger(2)
-	EventItemRefIdT = refid.RefIdTagger(3)
-	EarmarkRefIdT   = refid.RefIdTagger(4)
+	UserRefIdT        = refid.RefIdTagger(1)
+	EventRefIdT       = refid.RefIdTagger(2)
+	EventItemRefIdT   = refid.RefIdTagger(3)
+	EarmarkRefIdT     = refid.RefIdTagger(4)
+	UserPWResetRefIdT = refid.RefIdTagger(5)
 )

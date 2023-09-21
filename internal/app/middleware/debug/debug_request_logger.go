@@ -2,9 +2,9 @@ package debug
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/go-chi/httplog"
+	"github.com/rs/zerolog/log"
 )
 
 var defaultIgnoreHeaders = []string{
@@ -29,13 +29,6 @@ var defaultIgnoreHeaders = []string{
 }
 
 func RequestLogger() func(next http.Handler) http.Handler {
-	return httplog.RequestLogger(
-		httplog.NewLogger(
-			"httplog-example",
-			httplog.Options{
-				SkipHeaders:     defaultIgnoreHeaders,
-				TimeFieldFormat: time.RFC3339,
-			},
-		),
-	)
+	httplog.DefaultOptions.SkipHeaders = defaultIgnoreHeaders
+	return httplog.RequestLogger(log.Logger)
 }

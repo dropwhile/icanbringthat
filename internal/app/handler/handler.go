@@ -21,6 +21,7 @@ type Handler struct {
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 	Mailer  *util.Mailer
+	Hmac    *util.Hmac
 }
 
 /*

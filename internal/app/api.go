@@ -17,24 +17,33 @@ import (
 type API struct {
 	*chi.Mux
 	handler *ah.Handler
+	closers []func()
 }
 
 func (api *API) Close() {
-	api.handler.SessMgr.Close()
+	for _, f := range api.closers {
+		f()
+	}
 }
 
-func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey []byte, isProd bool) *API {
+func (api *API) OnClose(f func()) {
+	api.closers = append(api.closers, f)
+}
+
+func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hmacKey []byte, isProd bool) *API {
 	ah := &ah.Handler{
 		Db:      db,
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db.GetPool()),
 		Mailer:  mailer,
+		Hmac:    util.NewHmac(hmacKey),
 	}
 
 	api := &API{
 		Mux:     chi.NewRouter(),
 		handler: ah,
 	}
+	api.OnClose(ah.SessMgr.Close)
 
 	// Router/Middleware //
 	r := api.Mux

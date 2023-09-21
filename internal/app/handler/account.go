@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -256,6 +258,7 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	log.Debug().Msg("test")
 
 	// attempt to get user from session
 	if _, err := auth.UserFromContext(ctx); err == nil {
@@ -289,13 +292,42 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !doFake {
-		message := fmt.Sprintf("password reset for user %s to %s", user.Name, user.Email)
-		go func() {
-			err := h.Mailer.Send("", user.Email, message)
+		scheme := "http"
+		if r.TLS != nil {
+			scheme = "https"
+		}
+		u := &url.URL{
+			Scheme: scheme,
+			Host:   r.Host,
+		}
+		u = u.JoinPath(fmt.Sprintf("/forgot-password/%s", model.UserPWResetRefIdT.MustNew()))
+		subject := "Password reset"
+		var buf bytes.Buffer
+		err := h.TemplateExecute(&buf, "mail_password_reset.gohtml",
+			map[string]any{
+				"Subject":          subject,
+				"PasswordResetUrl": u.String(),
+			},
+		)
+		if err != nil {
+			http.Error(w, "template error", http.StatusInternalServerError)
+			return
+		}
+		messagePlain := fmt.Sprintf("Password reset url: %s", u.String())
+		messageHtml := buf.String()
+		log.Debug().
+			Str("plain", messagePlain).
+			Str("html", messageHtml).
+			Msg("email content")
+
+		_ = user
+		/*go func() {
+			err := h.Mailer.Send("", []string{user.Email}, subject, messagePlain, messageHtml)
 			if err != nil {
 				log.Info().Err(err).Msg("error sending email")
 			}
 		}()
+		*/
 	}
 
 	h.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")

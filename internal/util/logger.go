@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -40,6 +41,29 @@ func NewTestLogger(w io.Writer) zerolog.Logger {
 		logger.Info().Msgf("unexpected LOG_LEVEL env var set to '%s'",
 			strings.ToLower(os.Getenv("LOG_LEVEL")))
 		logger.Info().Msg("setting log level to info")
+	}
+	return logger
+}
+
+func NewLogger(w io.Writer) zerolog.Logger {
+	// don't log timestamps for test logs,
+	// to enable log matching if desired.
+	logger := log.Output(
+		zerolog.ConsoleWriter{
+			Out:        w,
+			TimeFormat: time.RFC3339,
+		},
+	).With().Caller().Logger()
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		short := file
+		for i := len(file) - 1; i > 0; i-- {
+			if file[i] == '/' {
+				short = file[i+1:]
+				break
+			}
+		}
+		file = short
+		return file + ":" + strconv.Itoa(line)
 	}
 	return logger
 }

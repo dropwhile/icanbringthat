@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
@@ -37,20 +36,7 @@ func main() {
 	viper.SetDefault("LOG_FORMAT", "json")
 	logFormat := viper.GetString("LOG_FORMAT")
 	if logFormat == "plain" {
-		log.Logger = log.Output(
-			zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339},
-		).With().Caller().Logger()
-		zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-			short := file
-			for i := len(file) - 1; i > 0; i-- {
-				if file[i] == '/' {
-					short = file[i+1:]
-					break
-				}
-			}
-			file = short
-			return file + ":" + strconv.Itoa(line)
-		}
+		log.Logger = util.NewLogger(os.Stderr)
 	}
 
 	// debug logging or not
@@ -167,6 +153,13 @@ func main() {
 		32,
 		sha256.New,
 	)
+	hmacKeyBytes := pbkdf2.Key(
+		csrfKeyBytes,
+		[]byte("i4L04cpiG6JebX5brY53sBBqCyX16IwbjagbMkytmQQ="),
+		4096,
+		32,
+		sha256.New,
+	)
 
 	viper.MustBindEnv("SMTP_HOSTNAME")
 	smtpHostname := viper.GetString("SMTP_HOSTNAME")
@@ -201,7 +194,7 @@ func main() {
 	mailer := util.NewMailer(smtpHost, smtpPort, smtpHostname, smtpUser, smtpPass)
 
 	// routing/handlers
-	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, isProd)
+	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
 	defer r.Close()
 	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(http.FS(staticFS))))
 
