@@ -2,11 +2,14 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dropwhile/icbt/internal/util/refid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
+
+var EarmarkRefIdT = refid.RefIdTagger(4)
 
 type Earmark struct {
 	Id           int
@@ -73,6 +76,13 @@ func GetEarmarkById(ctx context.Context, db PgxHandle, id int) (*Earmark, error)
 }
 
 func GetEarmarkByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*Earmark, error) {
+	if !EarmarkRefIdT.HasCorrectTag(refId) {
+		err := fmt.Errorf(
+			"bad refid type: got %d expected %d",
+			refId.Tag(), EarmarkRefIdT.Tag(),
+		)
+		return nil, err
+	}
 	q := `SELECT * FROM earmark_ WHERE ref_id = $1`
 	return QueryOne[Earmark](ctx, db, q, refId)
 }

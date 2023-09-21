@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -86,16 +85,16 @@ func (h *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if refId.Time().Add(30 * time.Minute).Before(time.Now()) {
-		log.Debug().Err(err).Msg("token expired")
-		http.Error(w, "token expired", http.StatusBadRequest)
-		return
-	}
-
 	upw, err := model.GetUserPWResetByRefId(ctx, h.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		http.Error(w, "bad data", http.StatusBadRequest)
+		return
+	}
+
+	if upw.IsExpired() {
+		log.Debug().Err(err).Msg("token expired")
+		http.Error(w, "token expired", http.StatusBadRequest)
 		return
 	}
 
@@ -207,13 +206,12 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 			Msg("email content")
 
 		_ = user
-		/*go func() {
+		go func() {
 			err := h.Mailer.Send("", []string{user.Email}, subject, messagePlain, messageHtml)
 			if err != nil {
 				log.Info().Err(err).Msg("error sending email")
 			}
 		}()
-		*/
 	}
 
 	h.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")
@@ -223,11 +221,10 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// get user from session
-	_, err := auth.UserFromContext(ctx)
-	// already a logged in user
-	if err == nil {
-		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+	// attempt to get user from session
+	if _, err := auth.UserFromContext(ctx); err == nil {
+		// already a logged in user, reject password reset
+		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
@@ -269,16 +266,16 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if refId.Time().Add(30 * time.Minute).Before(time.Now()) {
-		log.Debug().Err(err).Msg("token expired")
-		http.Error(w, "token expired", http.StatusBadRequest)
-		return
-	}
-
 	upw, err := model.GetUserPWResetByRefId(ctx, h.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		http.Error(w, "bad data", http.StatusBadRequest)
+		return
+	}
+
+	if upw.IsExpired() {
+		log.Debug().Err(err).Msg("token expired")
+		http.Error(w, "token expired", http.StatusBadRequest)
 		return
 	}
 

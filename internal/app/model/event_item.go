@@ -2,10 +2,13 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dropwhile/icbt/internal/util/refid"
 )
+
+var EventItemRefIdT = refid.RefIdTagger(3)
 
 type EventItem struct {
 	Id           int
@@ -70,6 +73,13 @@ func GetEventItemById(ctx context.Context, db PgxHandle, id int) (*EventItem, er
 }
 
 func GetEventItemByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*EventItem, error) {
+	if !EventItemRefIdT.HasCorrectTag(refId) {
+		err := fmt.Errorf(
+			"bad refid type: got %d expected %d",
+			refId.Tag(), EventItemRefIdT.Tag(),
+		)
+		return nil, err
+	}
 	q := `SELECT * FROM event_item_ WHERE ref_id = $1`
 	return QueryOne[EventItem](ctx, db, q, refId)
 }

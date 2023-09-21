@@ -9,6 +9,8 @@ import (
 	"github.com/dropwhile/icbt/internal/util/refid"
 )
 
+var UserRefIdT = refid.RefIdTagger(1)
+
 type User struct {
 	Id           int
 	RefId        refid.RefId `db:"ref_id"`
@@ -84,6 +86,13 @@ func GetUserById(ctx context.Context, db PgxHandle, id int) (*User, error) {
 }
 
 func GetUserByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*User, error) {
+	if !UserRefIdT.HasCorrectTag(refId) {
+		err := fmt.Errorf(
+			"bad refid type: got %d expected %d",
+			refId.Tag(), UserRefIdT.Tag(),
+		)
+		return nil, err
+	}
 	q := `SELECT * FROM user_ WHERE ref_id = $1`
 	return QueryOne[User](ctx, db, q, refId)
 }

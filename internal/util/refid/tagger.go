@@ -33,3 +33,11 @@ func (r RefIdTagger) IsTagged(refId RefId) bool {
 func (r RefIdTagger) AnyMatcher() AnyMatcher {
 	return MatchAny(byte(r))
 }
+
+func (r RefIdTagger) Tag() byte {
+	return byte(r)
+}
+
+func (r RefIdTagger) HasCorrectTag(refId RefId) bool {
+	return refId.HasTag(byte(r))
+}
