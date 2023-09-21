@@ -25,7 +25,7 @@ func TestUserPWResetInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-		WithArgs(UserRefIdT.AnyMatcher(), 1).
+		WithArgs(UserPWResetRefIdT.AnyMatcher(), 1).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used

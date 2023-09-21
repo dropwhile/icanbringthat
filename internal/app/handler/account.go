@@ -1,16 +1,11 @@
 package handler
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -19,7 +14,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	// get user from session
 	_, err := auth.UserFromContext(ctx)
-	// already a logged in user, redirect to /account
+	// already a logged in user, redirect to
 	if err == nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 		return
@@ -64,34 +59,6 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
-	if err != nil {
-		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get user from session
-	_, err := auth.UserFromContext(ctx)
-	// already a logged in user, redirect to /account
-	if err == nil {
-		http.Redirect(w, r, "/account", http.StatusSeeOther)
-		return
-	}
-
-	tplVars := map[string]any{
-		"title":          "Forgot Password",
-		"next":           r.FormValue("next"),
-		"flashes":        h.SessMgr.FlashPopKey(ctx, "forgot-password"),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
-	}
-	// render user profile view
-	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "forgot-password.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
 		http.Error(w, "template error", http.StatusInternalServerError)
@@ -254,82 +221,4 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("error destroying session")
 	}
 	w.WriteHeader(200)
-}
-
-func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	log.Debug().Msg("test")
-
-	// attempt to get user from session
-	if _, err := auth.UserFromContext(ctx); err == nil {
-		// already a logged in user, reject password reset
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	email := r.PostFormValue("email")
-	if email == "" {
-		http.Error(w, "bad form data", http.StatusBadRequest)
-		return
-	}
-
-	// don't leak existence of user. if email doens't match,
-	// behave like we sent a reset anyway...
-	doFake := false
-	user, err := model.GetUserByEmail(ctx, h.Db, email)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no user found")
-		doFake = true
-	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if doFake {
-		log.Info().Str("email", email).Msg("pretending to sent password reset email")
-	}
-
-	if !doFake {
-		scheme := "http"
-		if r.TLS != nil {
-			scheme = "https"
-		}
-		u := &url.URL{
-			Scheme: scheme,
-			Host:   r.Host,
-		}
-		u = u.JoinPath(fmt.Sprintf("/forgot-password/%s", model.UserPWResetRefIdT.MustNew()))
-		subject := "Password reset"
-		var buf bytes.Buffer
-		err := h.TemplateExecute(&buf, "mail_password_reset.gohtml",
-			map[string]any{
-				"Subject":          subject,
-				"PasswordResetUrl": u.String(),
-			},
-		)
-		if err != nil {
-			http.Error(w, "template error", http.StatusInternalServerError)
-			return
-		}
-		messagePlain := fmt.Sprintf("Password reset url: %s", u.String())
-		messageHtml := buf.String()
-		log.Debug().
-			Str("plain", messagePlain).
-			Str("html", messageHtml).
-			Msg("email content")
-
-		_ = user
-		/*go func() {
-			err := h.Mailer.Send("", []string{user.Email}, subject, messagePlain, messageHtml)
-			if err != nil {
-				log.Info().Err(err).Msg("error sending email")
-			}
-		}()
-		*/
-	}
-
-	h.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

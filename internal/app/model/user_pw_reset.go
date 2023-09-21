@@ -13,7 +13,7 @@ type UserPWReset struct {
 
 func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
 	if upw.RefId.IsNil() {
-		upw.RefId = UserRefIdT.MustNew()
+		upw.RefId = UserPWResetRefIdT.MustNew()
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
 	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefId, upw.UserId)

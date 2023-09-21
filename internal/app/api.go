@@ -112,8 +112,10 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 		r.Post("/login", ah.Login)
 		r.Get("/login", ah.ShowLoginForm)
 		// forgot password
-		r.Get("/forgot-password", ah.ShowForgotPassword)
-		r.Post("/forgot-password", ah.ResetPassword)
+		r.Get("/forgot-password", ah.ShowForgotPasswordForm)
+		r.Post("/forgot-password", ah.SendResetPasswordEmail)
+		r.Get("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", ah.ShowPasswordResetForm)
+		r.Post("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", ah.ResetPassword)
 		// account creation
 		r.Get("/create-account", ah.ShowCreateAccount)
 		r.Post("/create-account", ah.CreateAccount)
