@@ -54,6 +54,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		"title":          "Settings",
 		"flashes":        h.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -81,6 +82,7 @@ func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
 		"user":           user,
 		"flashes":        h.SessMgr.FlashPopKey(ctx, "operations"),
 		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

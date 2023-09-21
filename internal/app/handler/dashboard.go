@@ -56,6 +56,7 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		"earmarkCount":   earmarkCount,
 		"flashes":        h.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
 	}
 
 	// render user profile view

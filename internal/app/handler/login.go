@@ -25,6 +25,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 		"next":           r.FormValue("next"),
 		"flashes":        h.SessMgr.FlashPopKey(ctx, "login"),
 		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
