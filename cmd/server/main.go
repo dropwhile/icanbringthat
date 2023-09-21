@@ -15,6 +15,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 	pgxz "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -167,8 +168,40 @@ func main() {
 		sha256.New,
 	)
 
+	viper.MustBindEnv("SMTP_HOSTNAME")
+	smtpHostname := viper.GetString("SMTP_HOSTNAME")
+	if smtpHostname == "" {
+		log.Fatal().Msg("smtp mail host name")
+	}
+
+	viper.MustBindEnv("SMTP_HOST")
+	smtpHost := viper.GetString("SMTP_HOST")
+	if smtpHost == "" {
+		smtpHost = smtpHostname
+	}
+
+	viper.MustBindEnv("SMTP_PORT")
+	smtpPort := viper.GetInt("SMTP_PORT")
+	if smtpPort == 0 {
+		log.Fatal().Msg("smtp mail port")
+	}
+
+	viper.MustBindEnv("SMTP_USER")
+	smtpUser := viper.GetString("SMTP_USER")
+	if smtpUser == "" {
+		log.Fatal().Msg("smtp mail username")
+	}
+
+	viper.MustBindEnv("SMTP_PASS")
+	smtpPass := viper.GetString("SMTP_PASS")
+	if smtpPass == "" {
+		log.Fatal().Msg("smtp mail password")
+	}
+
+	mailer := util.NewMailer(smtpHost, smtpPort, smtpHostname, smtpUser, smtpPass)
+
 	// routing/handlers
-	r := app.NewAPI(model, templates, csrfKeyBytes, isProd)
+	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, isProd)
 	defer r.Close()
 	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(http.FS(staticFS))))
 

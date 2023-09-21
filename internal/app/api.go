@@ -6,6 +6,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
+	"github.com/dropwhile/icbt/internal/util"
 	res "github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,21 +16,24 @@ import (
 
 type API struct {
 	*chi.Mux
-	Db      *model.DB
-	SessMgr *session.SessionMgr
-	Tpl     res.TemplateMap
+	handler *ah.Handler
 }
 
 func (api *API) Close() {
-	api.SessMgr.Close()
+	api.handler.SessMgr.Close()
 }
 
-func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API {
-	api := &API{
-		SessMgr: session.NewDBSessionManager(db.GetPool()),
-		Mux:     chi.NewRouter(),
+func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey []byte, isProd bool) *API {
+	ah := &ah.Handler{
 		Db:      db,
 		Tpl:     tpl,
+		SessMgr: session.NewDBSessionManager(db.GetPool()),
+		Mailer:  mailer,
+	}
+
+	api := &API{
+		Mux:     chi.NewRouter(),
+		handler: ah,
 	}
 
 	// Router/Middleware //
@@ -42,7 +46,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)
-	r.Use(api.SessMgr.LoadAndSave)
+	r.Use(ah.SessMgr.LoadAndSave)
 	r.Use(csrf.Protect(
 		csrfKey,
 		// false in development only!
@@ -52,9 +56,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		// Must be in CORS Allowed and Exposed Headers
 		csrf.RequestHeader("X-CSRF-Token"),
 	))
-	r.Use(auth.Load(db, api.SessMgr))
-
-	ah := &ah.Handler{Db: api.Db, Tpl: api.Tpl, SessMgr: api.SessMgr}
+	r.Use(auth.Load(db, ah.SessMgr))
 
 	// Routing //
 	// Protected routes
@@ -101,8 +103,8 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, csrfKey []byte, isProd bool) *API
 		r.Post("/login", ah.Login)
 		r.Get("/login", ah.ShowLoginForm)
 		// forgot password
-		// r.Get("/forgot-password", ah.ShowForgotPassword)
-		// r.Put("/forgot-password", ah.ResetPassword)
+		r.Get("/forgot-password", ah.ShowForgotPassword)
+		r.Post("/forgot-password", ah.ResetPassword)
 		// account creation
 		r.Get("/create-account", ah.ShowCreateAccount)
 		r.Post("/create-account", ah.CreateAccount)

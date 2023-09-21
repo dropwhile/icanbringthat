@@ -10,6 +10,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -19,6 +20,7 @@ type Handler struct {
 	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
+	Mailer  *util.Mailer
 }
 
 /*

@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -70,17 +73,17 @@ func (h *Handler) ShowForgotPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
-	user, err := auth.UserFromContext(ctx)
+	_, err := auth.UserFromContext(ctx)
 	// already a logged in user, redirect to /account
 	if err == nil {
 		http.Redirect(w, r, "/account", http.StatusSeeOther)
 		return
 	}
 
-	// parse user-id url param
 	tplVars := map[string]any{
-		"user":           user,
-		"flashes":        h.SessMgr.FlashPopKey(ctx, "operations"),
+		"title":          "Forgot Password",
+		"next":           r.FormValue("next"),
+		"flashes":        h.SessMgr.FlashPopKey(ctx, "forgot-password"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -252,5 +255,49 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/account", http.StatusSeeOther)
+	ctx := r.Context()
+
+	// attempt to get user from session
+	if _, err := auth.UserFromContext(ctx); err == nil {
+		// already a logged in user, reject password reset
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	email := r.PostFormValue("email")
+	if email == "" {
+		http.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+
+	// don't leak existence of user. if email doens't match,
+	// behave like we sent a reset anyway...
+	doFake := false
+	user, err := model.GetUserByEmail(ctx, h.Db, email)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no user found")
+		doFake = true
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if doFake {
+		log.Info().Str("email", email).Msg("pretending to sent password reset email")
+	}
+
+	if !doFake {
+		message := fmt.Sprintf("password reset for user %s to %s", user.Name, user.Email)
+		go func() {
+			err := h.Mailer.Send("", user.Email, message)
+			if err != nil {
+				log.Info().Err(err).Msg("error sending email")
+			}
+		}()
+	}
+
+	h.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
