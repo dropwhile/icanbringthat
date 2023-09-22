@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	//"html/template"
+	"html/template"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,7 +12,6 @@ import (
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
-	"github.com/google/safehtml/template"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

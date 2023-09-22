@@ -3,16 +3,14 @@ package resources
 import (
 	"embed"
 	"fmt"
-	"os"
-
-	//"html/template"
+	"html/template"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/google/safehtml/template"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -238,22 +236,15 @@ func (tm *TemplateMap) Get(name string) (*template.Template, error) {
 func MustParseTemplates(templatesDir string) TemplateMap {
 	templates := make(TemplateMap, 0)
 
-	var templateFS template.TrustedFS
-	var nameFS fs.FS
+	var templateFS fs.FS
 	if templatesDir == "embed" {
 		var err error
-		tfs := template.TrustedFSFromEmbed(templateEmbedFS)
-		templateFS, err = tfs.Sub(template.TrustedSourceFromConstant("templates"))
-		if err != nil {
-			panic(err)
-		}
-		nameFS, err = fs.Sub(templateEmbedFS, "templates")
+		templateFS, err = fs.Sub(templateEmbedFS, "templates")
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		templateFS = template.TrustedFSFromTrustedSource(template.TrustedSourceFromEnvVar("TPL_DIR"))
-		nameFS = os.DirFS(templatesDir)
+		templateFS = os.DirFS(templatesDir)
 	}
 
 	nonViewTemplates, err := template.New("").Funcs(templateFuncMap).ParseFS(
@@ -265,7 +256,7 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 		panic(err)
 	}
 
-	viewSub, err := fs.Sub(nameFS, "view")
+	viewSub, err := fs.Sub(templateFS, "view")
 	if err != nil {
 		panic(err)
 	}
