@@ -93,3 +93,10 @@
 *   use t.cleanup instead of defer in tests
     https://brandur.org/fragments/go-prefer-t-cleanup-with-parallel-subtests
     https://github.com/moricho/tparallel/issues/23#issuecomment-1694646461
+
+*   hero icons
+    https://heroicons.com/
+
+*   chi routing docs
+    https://go-chi.io/
+
