@@ -1,7 +1,7 @@
-/.git
-/.envrc
-/.modd
-/.vscode
-/notes.txt
-/build
-/diagrams
+.git
+.envrc
+.modd
+.vscode
+notes.txt
+build/
+diagrams/
