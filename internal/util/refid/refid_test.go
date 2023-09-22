@@ -3,10 +3,10 @@ package refid
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"testing"
 	"time"
 
+	"github.com/google/safehtml/template"
 	"gotest.tools/v3/assert"
 )
 

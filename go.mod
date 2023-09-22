@@ -8,11 +8,12 @@ require (
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.1
+	github.com/google/safehtml v0.1.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/pashagolub/pgxmock/v2 v2.12.0
+	github.com/pashagolub/pgxmock/v3 v3.0.0
 	github.com/rs/zerolog v1.30.0
 	github.com/spf13/viper v1.16.0
 	golang.org/x/crypto v0.12.0
@@ -32,7 +33,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pashagolub/pgxmock/v3 v3.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
