@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	_ "database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -196,7 +198,25 @@ func main() {
 	// routing/handlers
 	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
 	defer r.Close()
+	// serve static files
 	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(http.FS(staticFS))))
+	// serve favicon
+	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		f, err := staticFS.Open("img/favicon.ico")
+		if err != nil {
+			log.Debug().Err(err).Msg("cant read favicon")
+			http.Error(w, "Not Found", 404)
+			return
+		}
+		defer f.Close()
+		b, err := io.ReadAll(f)
+		if err != nil {
+			log.Debug().Err(err).Msg("cant read favicon")
+			http.Error(w, "Not Found", 404)
+			return
+		}
+		http.ServeContent(w, r, "favicon.ico", time.Time{}, bytes.NewReader(b))
+	})
 
 	log.Info().Msgf("listening on %s", listenHostPort)
 	server := &http.Server{
