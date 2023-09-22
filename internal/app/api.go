@@ -51,7 +51,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 	r.Use(middleware.GetHead)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
-	if log.Debug().Enabled() {
+	if log.Trace().Enabled() {
 		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)

@@ -8,18 +8,43 @@ COPY . /workdir/
 RUN make build
 ARG GITHASH
 ARG APP_VER
+ENV GOEXPERIMENT=loopvar
 RUN make build
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 # make runnable image
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates
+WORKDIR /app
 COPY --from=builder /workdir/build/bin/* /app/
+COPY --from=builder /workdir/database/migrations /app/database/migrations
+COPY --from=builder /go/bin/goose /app/
 
-ENV DEBUG false
-ENV BIND_ADDRESS 0.0.0.0
-ENV BIND_PORT 8000
-ENV TPL_DIR embed
-ENV STATIC_DIR embed
+ENV DEBUG=false
+ENV BIND_ADDRESS=0.0.0.0
+ENV BIND_PORT=8000
+ENV TPL_DIR=embed
+ENV STATIC_DIR=embed
+ENV TPL_DIR="embed"
+ENV STATIC_DIR="embed"
+ENV LOG_LEVEL=trace
+ENV LOG_FORMAT=plain
+# production (sets cookies to secure, etc)
+ENV PRODUCTION=false
+# csrf key
+ENV CSRF_KEY=""
+# mail hostname
+ENV SMTP_HOSTNAME=""
+ENV SMTP_PORT=""
+ENV SMTP_USER=""
+ENV SMTP_PASS=""
+# db data
+ENV DB_DSN=""
+# migrations
+ENV GOOSE_DRIVER=postgres
+ENV GOOSE_DBSTRING=""
+ENV GOOSE_MIGRATION_DIR=database/migrations
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app"
 
 EXPOSE 8000
-ENTRYPOINT ["/app/server"]
+CMD ["/app/server"]
