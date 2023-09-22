@@ -127,5 +127,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 		}
 	})
 
+	r.NotFound(ah.NotFound)
+
 	return api
 }

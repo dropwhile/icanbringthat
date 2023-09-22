@@ -17,7 +17,7 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	// try to get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
@@ -28,21 +28,21 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		events = []*model.Event{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "dashboard.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }

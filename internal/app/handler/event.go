@@ -23,14 +23,14 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		events = []*model.Event{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 			items = []*model.EventItem{}
 		case err != nil:
 			log.Info().Err(err).Msg("db error")
-			http.Error(w, "db error", http.StatusInternalServerError)
+			h.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
 		events[i].Items = items
@@ -87,7 +87,7 @@ func (h *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "list-events.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -98,13 +98,13 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		h.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -112,11 +112,11 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -129,7 +129,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = []*model.EventItem{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 	event.Items = eventItems
@@ -141,7 +141,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		earmarks = []*model.Earmark{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -165,7 +165,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	userIds := util.Keys(userIdsMap)
 	earmarkUsers, err := model.GetUsersByIds(ctx, h.Db, userIds)
 	if err != nil {
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -193,7 +193,7 @@ func (h *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-event.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -204,7 +204,7 @@ func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
@@ -219,7 +219,7 @@ func (h *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "create-event-form.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -230,13 +230,13 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		h.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -244,16 +244,16 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if user.Id != event.UserId {
-		http.Error(w, "access denied", http.StatusForbidden)
+		h.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
@@ -269,7 +269,7 @@ func (h *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -280,13 +280,13 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -296,7 +296,7 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	tz := r.PostFormValue("timezone")
 	if name == "" || description == "" || when == "" || tz == "" {
 		log.Debug().Msg("missing form data")
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
@@ -310,7 +310,7 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 	if err != nil {
 		log.Debug().Err(err).Msg("error parsing start time")
-		http.Error(w, "bad form data - when", http.StatusBadRequest)
+		h.Error(w, "bad form data - when", http.StatusBadRequest)
 		fmt.Println(err)
 		return
 	}
@@ -318,7 +318,7 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event, err := model.NewEvent(ctx, h.Db, user.Id, name, description, startTime, loc.String())
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
-		http.Error(w, "error creating event", http.StatusInternalServerError)
+		h.Error(w, "error creating event", http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
@@ -330,34 +330,34 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		h.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Debug().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if user.Id != event.UserId {
-		http.Error(w, "access denied", http.StatusForbidden)
+		h.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -366,7 +366,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	when := r.PostFormValue("when")
 	tz := r.PostFormValue("timezone")
 	if name == "" && description == "" && when == "" && tz == "" {
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
@@ -374,7 +374,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	case when == "" && tz != "":
 		fallthrough
 	case when != "" && tz == "":
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	case when != "" && tz != "":
 		loc, err := time.LoadLocation(tz)
@@ -386,7 +386,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 		if err != nil {
 			log.Debug().Err(err).Msg("error parsing start time")
-			http.Error(w, "bad form data - when", http.StatusBadRequest)
+			h.Error(w, "bad form data - when", http.StatusBadRequest)
 			return
 		}
 		event.StartTime = startTime
@@ -403,7 +403,7 @@ func (h *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	err = event.Save(ctx, h.Db)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
-		http.Error(w, "error updating event", http.StatusInternalServerError)
+		h.Error(w, "error updating event", http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
@@ -415,24 +415,24 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		http.Error(w, "bad event ref-id", http.StatusNotFound)
+		h.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
 	event, err := model.GetEventByRefId(ctx, h.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -441,14 +441,14 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 			Int("user.Id", user.Id).
 			Int("event.UserId", event.UserId).
 			Msg("user id mismatch")
-		http.Error(w, "access denied", http.StatusForbidden)
+		h.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	err = event.Delete(ctx, h.Db)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 

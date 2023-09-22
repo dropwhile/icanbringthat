@@ -32,7 +32,7 @@ func (h *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	// err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
 	err = h.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -49,7 +49,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -58,7 +58,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if email == "" || passwd == "" {
 		log.Debug().Msg("missing form data")
-		http.Error(w, "Missing form data", http.StatusBadRequest)
+		h.Error(w, "Missing form data", http.StatusBadRequest)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err = h.SessMgr.RenewToken(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		h.Error(w, err.Error(), 500)
 		return
 	}
 	// Then make the privilege-level change.
@@ -98,7 +98,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	if err := h.SessMgr.Clear(r.Context()); err != nil {
-		http.Error(w, err.Error(), 500)
+		h.Error(w, err.Error(), 500)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
 	if err := h.SessMgr.RenewToken(r.Context()); err != nil {
-		http.Error(w, "session error", http.StatusInternalServerError)
+		h.Error(w, "session error", http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)

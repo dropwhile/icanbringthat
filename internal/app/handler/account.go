@@ -33,7 +33,7 @@ func (h *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	err = h.TemplateExecute(w, "create-account-form.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -44,7 +44,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	err = h.TemplateExecute(w, "show-settings.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -69,7 +69,7 @@ func (h *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -78,11 +78,11 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	passwd := r.PostFormValue("password")
 	confirm_passwd := r.PostFormValue("confirm_password")
 	if email == "" || name == "" || passwd == "" {
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 	if passwd != confirm_passwd {
-		http.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
+		h.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
 		return
 	}
 
@@ -91,14 +91,14 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if auth.IsLoggedIn(ctx) {
 		// got a user, you can't make a user if you are already logged
 		// in!
-		http.Error(w, "already logged in as a user", http.StatusForbidden)
+		h.Error(w, "already logged in as a user", http.StatusForbidden)
 		return
 	}
 
 	user, err := model.NewUser(ctx, h.Db, email, name, []byte(passwd))
 	if err != nil {
 		log.Error().Err(err).Msg("error adding user")
-		http.Error(w, "error adding user", http.StatusBadRequest)
+		h.Error(w, "error adding user", http.StatusBadRequest)
 		return
 	}
 
@@ -108,7 +108,7 @@ func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	err = h.SessMgr.RenewToken(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error renewing session token")
-		http.Error(w, err.Error(), 500)
+		h.Error(w, err.Error(), 500)
 		return
 	}
 	// Then make the privilege-level change.
@@ -128,13 +128,13 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -173,7 +173,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 				err = user.SetPass(ctx, []byte(newPasswd))
 				if err != nil {
 					log.Error().Err(err).Msg("error setting user password")
-					http.Error(w, "error updating user", http.StatusInternalServerError)
+					h.Error(w, "error updating user", http.StatusInternalServerError)
 					return
 				}
 				operations = append(operations, "Password update successfull")
@@ -186,7 +186,7 @@ func (h *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		err = user.Save(ctx, h.Db)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
-			http.Error(w, "error updating user", http.StatusInternalServerError)
+			h.Error(w, "error updating user", http.StatusInternalServerError)
 			return
 		}
 		h.SessMgr.FlashAppend(ctx, "operations", operations...)
@@ -203,14 +203,14 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		log.Debug().Err(err).Msg("bad session data")
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	err = user.Delete(ctx, h.Db)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 	// destroy session

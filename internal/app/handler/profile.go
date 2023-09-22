@@ -14,14 +14,14 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		h.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	// parse user-id url param
 	profileUserRefId, err := model.UserRefIdT.Parse(chi.URLParam(r, "uRefId"))
 	if err != nil {
-		http.Error(w, "bad user ref-id", http.StatusNotFound)
+		h.Error(w, "bad user ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	} else {
 		profileUser, err = model.GetUserByRefId(ctx, h.Db, profileUserRefId)
 		if err != nil {
-			http.Error(w, "user not found", http.StatusNotFound)
+			h.Error(w, "user not found", http.StatusNotFound)
 			return
 		}
 	}
@@ -47,7 +47,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = h.TemplateExecute(w, "show-profile.gohtml", tplVars)
 	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }

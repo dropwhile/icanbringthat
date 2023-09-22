@@ -24,16 +24,6 @@ type Handler struct {
 	Hmac    *util.Hmac
 }
 
-/*
-type WrappableHandler func(*Handler, http.ResponseWriter, *http.Request)
-
-func (h *Handler) Wrap(wrapped WrappableHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		wrapped(h, w, r)
-	}
-}
-*/
-
 func (h *Handler) Template(name string) (*template.Template, error) {
 	return h.Tpl.Get(name)
 }
@@ -91,17 +81,6 @@ func (h *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars map
 	return nil
 }
 
-// SetHeader is a convenience handler to set a response header key/value
-func SetHeader(key, value string) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set(key, value)
-			next.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(fn)
-	}
-}
-
 func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -125,5 +104,26 @@ func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 	err = h.TemplateExecute(w, x, tplVars)
 	if err != nil {
 		fmt.Fprint(w, err)
+	}
+}
+
+func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
+	h.Error(w, "Not Found", 404)
+}
+
+func (h *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
+	w.Header().Set("content-type", "text/html")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(code)
+	err := h.TemplateExecute(w, "error-page.gohtml", map[string]any{
+		"ErrorCode":   404,
+		"ErrorStatus": statusMsg,
+		"title":       fmt.Sprintf("%d - %s", code, statusMsg),
+	})
+	if err != nil {
+		// error rendering template, so just return a very basic status page
+		log.Debug().Err(err).Msg("custom error status page render issue")
+		fmt.Fprintln(w, statusMsg)
+		return
 	}
 }

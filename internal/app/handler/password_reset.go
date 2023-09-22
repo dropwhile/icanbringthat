@@ -39,7 +39,7 @@ func (h *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request)
 	err = h.TemplateExecute(w, "forgot-password-form.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -59,7 +59,7 @@ func (h *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	refIdStr := chi.URLParam(r, "upwRefId")
 	if hmacStr == "" || refIdStr == "" {
 		log.Debug().Msg("missing url query data")
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -67,13 +67,13 @@ func (h *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	hmacBytes, err := util.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 	// check hmac
 	if !h.Hmac.Validate([]byte(refIdStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
@@ -81,27 +81,27 @@ func (h *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	refId, err := model.UserPWResetRefIdT.Parse(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	upw, err := model.GetUserPWResetByRefId(ctx, h.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	if upw.IsExpired() {
 		log.Debug().Err(err).Msg("token expired")
-		http.Error(w, "token expired", http.StatusBadRequest)
+		h.Error(w, "token expired", http.StatusBadRequest)
 		return
 	}
 
 	_, err = model.GetUserById(ctx, h.Db, upw.UserId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
@@ -119,7 +119,7 @@ func (h *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	err = h.TemplateExecute(w, "password-reset-form.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		http.Error(w, "template error", http.StatusInternalServerError)
+		h.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -131,13 +131,13 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	// attempt to get user from session
 	if _, err := auth.UserFromContext(ctx); err == nil {
 		// already a logged in user, reject password reset
-		http.Error(w, "access denied", http.StatusForbidden)
+		h.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	email := r.PostFormValue("email")
 	if email == "" {
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
@@ -151,7 +151,7 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		doFake = true
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		h.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -164,7 +164,7 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		upw, err := model.NewUserPWReset(ctx, h.Db, user)
 		if err != nil {
 			log.Info().Err(err).Msg("db error")
-			http.Error(w, "db error", http.StatusInternalServerError)
+			h.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
 		upwRefIdStr := upw.RefId.String()
@@ -195,7 +195,7 @@ func (h *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 			},
 		)
 		if err != nil {
-			http.Error(w, "template error", http.StatusInternalServerError)
+			h.Error(w, "template error", http.StatusInternalServerError)
 			return
 		}
 		messagePlain := fmt.Sprintf("Password reset url: %s", u.String())
@@ -224,7 +224,7 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// attempt to get user from session
 	if _, err := auth.UserFromContext(ctx); err == nil {
 		// already a logged in user, reject password reset
-		http.Error(w, "access denied", http.StatusForbidden)
+		h.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
@@ -232,7 +232,7 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	refIdStr := chi.URLParam(r, "upwRefId")
 	if hmacStr == "" || refIdStr == "" {
 		log.Debug().Msg("missing url query data")
-		http.Error(w, "not found", http.StatusNotFound)
+		h.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -240,7 +240,7 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	confirmPassword := r.PostFormValue("confirm_password")
 	if newPasswd == "" || newPasswd != confirmPassword {
 		log.Debug().Msg("bad form data")
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		h.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
@@ -248,13 +248,13 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	hmacBytes, err := util.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 	// check hmac
 	if !h.Hmac.Validate([]byte(refIdStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
@@ -262,40 +262,40 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	refId, err := model.UserPWResetRefIdT.Parse(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	upw, err := model.GetUserPWResetByRefId(ctx, h.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	if upw.IsExpired() {
 		log.Debug().Err(err).Msg("token expired")
-		http.Error(w, "token expired", http.StatusBadRequest)
+		h.Error(w, "token expired", http.StatusBadRequest)
 		return
 	}
 
 	user, err := model.GetUserById(ctx, h.Db, upw.UserId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
-		http.Error(w, "bad data", http.StatusBadRequest)
+		h.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	err = user.SetPass(ctx, []byte(newPasswd))
 	if err != nil {
 		log.Debug().Err(err).Msg("error updating password")
-		http.Error(w, "error updating user password", http.StatusInternalServerError)
+		h.Error(w, "error updating user password", http.StatusInternalServerError)
 		return
 	}
 	err = user.Save(ctx, h.Db)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
-		http.Error(w, "error updating user password", http.StatusInternalServerError)
+		h.Error(w, "error updating user password", http.StatusInternalServerError)
 		return
 	}
 
@@ -311,7 +311,7 @@ func (h *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err = h.SessMgr.RenewToken(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		h.Error(w, err.Error(), 500)
 		return
 	}
 	// Then make the privilege-level change.
