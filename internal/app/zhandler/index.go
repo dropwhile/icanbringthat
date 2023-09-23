@@ -1,4 +1,4 @@
-package handler
+package zhandler
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 )
 
-func (h *Handler) ShowIndex(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) ShowIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session

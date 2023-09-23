@@ -1,4 +1,4 @@
-package handler
+package zhandler
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
@@ -15,20 +16,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		h.Error(w, "bad session data", http.StatusBadRequest)
+		z.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
+	earmarkCount, err := model.GetEarmarkCountByUser(ctx, z.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -44,32 +45,32 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	earmarks, err := model.GetEarmarksByUserPaginated(ctx, h.Db, user, 10, offset)
+	earmarks, err := model.GetEarmarksByUserPaginated(ctx, z.Db, user, 10, offset)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no earmarks")
 		earmarks = []*model.Earmark{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	for i, em := range earmarks {
-		ei, err := em.GetEventItem(ctx, h.Db)
+		ei, err := em.GetEventItem(ctx, z.Db)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			continue
 		case err != nil:
 			log.Info().Err(err).Msg("db error")
-			h.Error(w, "db error", http.StatusInternalServerError)
+			z.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
-		e, err := ei.GetEvent(ctx, h.Db)
+		e, err := ei.GetEvent(ctx, z.Db)
 		// if no rows, or other db error, honk
 		if err != nil {
 			log.Info().Err(err).Msg("db error")
-			h.Error(w, "db error", http.StatusInternalServerError)
+			z.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
 		ei.Event = e
@@ -89,56 +90,56 @@ func (h *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
+	err = z.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
 	if err != nil {
-		h.Error(w, "template error", http.StatusInternalServerError)
+		z.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		h.Error(w, "bad session data", http.StatusBadRequest)
+		z.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
-		h.Error(w, "bad event-ref-id", http.StatusNotFound)
+		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
-		h.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
+		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
+	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("event not found")
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("event item not found")
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -153,62 +154,62 @@ func (h *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if Hx(r).Target() == "modalbody" {
-		err = h.TemplateExecuteSub(w, "create-earmark-form.gohtml", "form", tplVars)
+	if htmx.Hx(r).Target() == "modalbody" {
+		err = z.TemplateExecuteSub(w, "create-earmark-form.gohtml", "form", tplVars)
 	} else {
-		err = h.TemplateExecute(w, "create-earmark-form.gohtml", tplVars)
+		err = z.TemplateExecute(w, "create-earmark-form.gohtml", tplVars)
 	}
 	if err != nil {
-		h.Error(w, "template error", http.StatusInternalServerError)
+		z.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		h.Error(w, "bad session data", http.StatusBadRequest)
+		z.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
-		h.Error(w, "bad event-ref-id", http.StatusNotFound)
+		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad eventitem ref-id")
-		h.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
+		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, h.Db, eventRefId)
+	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event")
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, h.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event_item")
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -218,91 +219,91 @@ func (h *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 			Int("event.Id", event.Id).
 			Int("eventItem.EventId", eventItem.EventId).
 			Msg("eventItem.EventId and event.Id mismatch")
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
 	// make sure no earmark exists yet
-	_, err = model.GetEarmarkByEventItem(ctx, h.Db, eventItem)
+	_, err = model.GetEarmarkByEventItem(ctx, z.Db, eventItem)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		// good. this is what we want
 	case err == nil:
 		// earmark already exists!
-		h.Error(w, "already earmarked by other user - access denied", http.StatusForbidden)
+		z.Error(w, "already earmarked by other user - access denied", http.StatusForbidden)
 		return
 	default:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form")
-		h.Error(w, err.Error(), http.StatusBadRequest)
+		z.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// ok for note to be empty
 	note := r.FormValue("note")
 
-	_, err = model.NewEarmark(ctx, h.Db, eventItem.Id, user.Id, note)
+	_, err = model.NewEarmark(ctx, z.Db, eventItem.Id, user.Id, note)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefId)) {
+	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefId)) {
 		w.Header().Add("HX-Refresh", "true")
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		h.Error(w, "bad session data", http.StatusBadRequest)
+		z.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad earmark ref-id")
-		h.Error(w, "bad earmark ref-id", http.StatusNotFound)
+		z.Error(w, "bad earmark ref-id", http.StatusNotFound)
 		return
 	}
 
-	earmark, err := model.GetEarmarkByRefId(ctx, h.Db, refId)
+	earmark, err := model.GetEarmarkByRefId(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		h.Error(w, "not found", http.StatusNotFound)
+		z.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	if user.Id != earmark.UserId {
-		h.Error(w, "access denied", http.StatusForbidden)
+		z.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	err = earmark.Delete(ctx, h.Db)
+	err = earmark.Delete(ctx, z.Db)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	if Hx(r).CurrentUrl().HasPathPrefix("/events/") {
+	if htmx.Hx(r).CurrentUrl().HasPathPrefix("/events/") {
 		w.Header().Add("HX-Refresh", "true")
 	}
 	w.WriteHeader(http.StatusOK)

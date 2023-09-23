@@ -1,4 +1,4 @@
-package handler
+package zhandler
 
 import (
 	"errors"
@@ -11,38 +11,38 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		h.Error(w, "bad session data", http.StatusBadRequest)
+		z.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
-	events, err := model.GetEventsByUserPaginated(ctx, h.Db, user, 10, 0)
+	events, err := model.GetEventsByUserPaginated(ctx, z.Db, user, 10, 0)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for events")
 		events = []*model.Event{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(ctx, h.Db, user)
+	eventCount, err := model.GetEventCountByUser(ctx, z.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, h.Db, user)
+	earmarkCount, err := model.GetEarmarkCountByUser(ctx, z.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		h.Error(w, "db error", http.StatusInternalServerError)
+		z.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -54,16 +54,16 @@ func (h *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		"events":         events,
 		"eventCount":     eventCount,
 		"earmarkCount":   earmarkCount,
-		"flashes":        h.SessMgr.FlashPopAll(ctx),
+		"flashes":        z.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = h.TemplateExecute(w, "dashboard.gohtml", tplVars)
+	err = z.TemplateExecute(w, "dashboard.gohtml", tplVars)
 	if err != nil {
-		h.Error(w, "template error", http.StatusInternalServerError)
+		z.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }

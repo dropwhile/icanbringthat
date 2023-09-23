@@ -1,4 +1,4 @@
-package handler
+package zhandler
 
 import (
 	"context"
@@ -61,13 +61,13 @@ func setCookie(r *http.Request, cookie string) {
 	r.Header.Set("Cookie", cookie)
 }
 
-func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
+func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *ZHandler) {
 	t.Helper()
 
 	mock, err := pgxmock.NewConn()
 	assert.NilError(t, err)
 	t.Cleanup(func() { mock.Close(ctx) })
-	h := &Handler{
+	h := &ZHandler{
 		Db:      mock,
 		Tpl:     resources.TemplateMap{},
 		SessMgr: session.NewMemorySessionManager(),
@@ -78,17 +78,17 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	return mock, mux, h
 }
 
-func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, h *Handler) string {
+func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, z *ZHandler) string {
 	t.Helper()
 
 	userId := 1
 	ts := tstTs
 
 	mux.Get("/dummy", func(w http.ResponseWriter, r *http.Request) {
-		err := h.SessMgr.RenewToken(r.Context())
+		err := z.SessMgr.RenewToken(r.Context())
 		assert.NilError(t, err)
 		// add data to session
-		h.SessMgr.Put(r.Context(), "user-id", userId)
+		z.SessMgr.Put(r.Context(), "user-id", userId)
 		w.WriteHeader(http.StatusOK)
 	})
 

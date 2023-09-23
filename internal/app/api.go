@@ -1,13 +1,13 @@
 package app
 
 import (
-	ah "github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/zhandler"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
-	res "github.com/dropwhile/icbt/resources"
+	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
@@ -16,7 +16,7 @@ import (
 
 type API struct {
 	*chi.Mux
-	handler *ah.Handler
+	handler *zhandler.ZHandler
 	closers []func()
 }
 
@@ -30,8 +30,11 @@ func (api *API) OnClose(f func()) {
 	api.closers = append(api.closers, f)
 }
 
-func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hmacKey []byte, isProd bool) *API {
-	ah := &ah.Handler{
+func NewAPI(
+	db *model.DB, tpl resources.TemplateMap, mailer *util.Mailer,
+	csrfKey, hmacKey []byte, isProd bool,
+) *API {
+	zh := &zhandler.ZHandler{
 		Db:      db,
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db.GetPool()),
@@ -41,9 +44,9 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 
 	api := &API{
 		Mux:     chi.NewRouter(),
-		handler: ah,
+		handler: zh,
 	}
-	api.OnClose(ah.SessMgr.Close)
+	api.OnClose(zh.SessMgr.Close)
 
 	// Router/Middleware //
 	r := api.Mux
@@ -55,7 +58,7 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)
-	r.Use(ah.SessMgr.LoadAndSave)
+	r.Use(zh.SessMgr.LoadAndSave)
 	r.Use(csrf.Protect(
 		csrfKey,
 		// false in development only!
@@ -65,69 +68,69 @@ func NewAPI(db *model.DB, tpl res.TemplateMap, mailer *util.Mailer, csrfKey, hma
 		// Must be in CORS Allowed and Exposed Headers
 		csrf.RequestHeader("X-CSRF-Token"),
 	))
-	r.Use(auth.Load(db, ah.SessMgr))
+	r.Use(auth.Load(db, zh.SessMgr))
 
 	// Routing //
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Require)
 		// acccount/settings
-		r.Get("/settings", ah.ShowSettings)
-		r.Post("/settings", ah.UpdateSettings)
-		r.Delete("/settings", ah.DeleteAccount)
+		r.Get("/settings", zh.ShowSettings)
+		r.Post("/settings", zh.UpdateSettings)
+		r.Delete("/settings", zh.DeleteAccount)
 		// logout
-		r.Post("/logout", ah.Logout)
+		r.Post("/logout", zh.Logout)
 		// dashboard
-		r.Get("/dashboard", ah.ShowDashboard)
+		r.Get("/dashboard", zh.ShowDashboard)
 		// event
-		r.Get("/events", ah.ListEvents)
-		r.Post("/events", ah.CreateEvent)
-		r.Get("/events/add", ah.ShowCreateEventForm)
-		r.Get("/events/{eRefId:[0-9a-z]+}", ah.ShowEvent)
-		r.Post("/events/{eRefId:[0-9a-z]+}", ah.UpdateEvent)
-		r.Delete("/events/{eRefId:[0-9a-z]+}", ah.DeleteEvent)
-		r.Get("/events/{eRefId:[0-9a-z]+}/edit", ah.ShowEditEventForm)
+		r.Get("/events", zh.ListEvents)
+		r.Post("/events", zh.CreateEvent)
+		r.Get("/events/add", zh.ShowCreateEventForm)
+		r.Get("/events/{eRefId:[0-9a-z]+}", zh.ShowEvent)
+		r.Post("/events/{eRefId:[0-9a-z]+}", zh.UpdateEvent)
+		r.Delete("/events/{eRefId:[0-9a-z]+}", zh.DeleteEvent)
+		r.Get("/events/{eRefId:[0-9a-z]+}/edit", zh.ShowEditEventForm)
 		// event item
-		r.Post("/events/{eRefId:[0-9a-z]+}/items", ah.CreateEventItem)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/add", ah.ShowCreateEventItemForm)
-		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.UpdateEventItem)
-		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", ah.DeleteEventItem)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/edit", ah.ShowEventItemEditForm)
+		r.Post("/events/{eRefId:[0-9a-z]+}/items", zh.CreateEventItem)
+		r.Get("/events/{eRefId:[0-9a-z]+}/items/add", zh.ShowCreateEventItemForm)
+		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", zh.UpdateEventItem)
+		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", zh.DeleteEventItem)
+		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/edit", zh.ShowEventItemEditForm)
 		// earmarks
-		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks", ah.CreateEarmark)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks/add", ah.ShowCreateEarmarkForm)
-		r.Get("/earmarks", ah.ListEarmarks)
-		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", ah.DeleteEarmark)
+		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks", zh.CreateEarmark)
+		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks/add", zh.ShowCreateEarmarkForm)
+		r.Get("/earmarks", zh.ListEarmarks)
+		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", zh.DeleteEarmark)
 		/*
-			r.Get("/earmarks/{mRefId:[0-9a-z]+}", ah.ShowEarmark)
-			r.Post("/earmarks/{mRefId:[0-9a-z]+}", ah.UpdateEarmark)
+			r.Get("/earmarks/{mRefId:[0-9a-z]+}", zh.ShowEarmark)
+			r.Post("/earmarks/{mRefId:[0-9a-z]+}", zh.UpdateEarmark)
 		*/
-		// r.Get("/profile/{uRefId:[a-zA-Z-]+}", ah.ShowProfile)
+		// r.Get("/profile/{uRefId:[a-zA-Z-]+}", zh.ShowProfile)
 	})
 
 	// Public routes
 	r.Group(func(r chi.Router) {
-		r.Get("/", ah.ShowIndex)
+		r.Get("/", zh.ShowIndex)
 		// login
-		r.Post("/login", ah.Login)
-		r.Get("/login", ah.ShowLoginForm)
+		r.Post("/login", zh.Login)
+		r.Get("/login", zh.ShowLoginForm)
 		// forgot password
-		r.Get("/forgot-password", ah.ShowForgotPasswordForm)
-		r.Post("/forgot-password", ah.SendResetPasswordEmail)
-		r.Get("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", ah.ShowPasswordResetForm)
-		r.Post("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", ah.ResetPassword)
+		r.Get("/forgot-password", zh.ShowForgotPasswordForm)
+		r.Post("/forgot-password", zh.SendResetPasswordEmail)
+		r.Get("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ShowPasswordResetForm)
+		r.Post("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ResetPassword)
 		// account creation
-		r.Get("/create-account", ah.ShowCreateAccount)
-		r.Post("/create-account", ah.CreateAccount)
+		r.Get("/create-account", zh.ShowCreateAccount)
+		r.Post("/create-account", zh.CreateAccount)
 		// local only debug stuff
 		if !isProd {
 			r.Route("/debug", func(r chi.Router) {
-				r.Get("/templates", ah.TestTemplates)
+				r.Get("/templates", zh.TestTemplates)
 			})
 		}
 	})
 
-	r.NotFound(ah.NotFound)
+	r.NotFound(zh.NotFound)
 
 	return api
 }

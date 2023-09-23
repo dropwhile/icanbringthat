@@ -1,4 +1,4 @@
-package handler
+package zhandler
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Handler struct {
+type ZHandler struct {
 	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
@@ -24,11 +24,11 @@ type Handler struct {
 	Hmac    *util.Hmac
 }
 
-func (h *Handler) Template(name string) (*template.Template, error) {
-	return h.Tpl.Get(name)
+func (z *ZHandler) Template(name string) (*template.Template, error) {
+	return z.Tpl.Get(name)
 }
 
-func (h *Handler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
+func (z *ZHandler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
 	htmxCurrentUrl := r.Header.Get("HX-Current-URL")
 	if htmxCurrentUrl != "" {
 		u, err := url.Parse(htmxCurrentUrl)
@@ -37,8 +37,8 @@ func (h *Handler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
 	return false
 }
 
-func (h *Handler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
-	tpl, err := h.Tpl.Get(name)
+func (z *ZHandler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
+	tpl, err := z.Tpl.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
@@ -58,8 +58,8 @@ func (h *Handler) TemplateExecute(w io.Writer, name string, vars map[string]any)
 	return nil
 }
 
-func (h *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
-	tpl, err := h.Tpl.Get(name)
+func (z *ZHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
+	tpl, err := z.Tpl.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
@@ -81,7 +81,7 @@ func (h *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars map
 	return nil
 }
 
-func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
+func (z *ZHandler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Fprint(w, err)
@@ -101,21 +101,21 @@ func (h *Handler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 		"title": y,
 		"nav":   y,
 	}
-	err = h.TemplateExecute(w, x, tplVars)
+	err = z.TemplateExecute(w, x, tplVars)
 	if err != nil {
 		fmt.Fprint(w, err)
 	}
 }
 
-func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
-	h.Error(w, "Not Found", 404)
+func (z *ZHandler) NotFound(w http.ResponseWriter, r *http.Request) {
+	z.Error(w, "Not Found", 404)
 }
 
-func (h *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
+func (z *ZHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	w.Header().Set("content-type", "text/html")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
-	err := h.TemplateExecute(w, "error-page.gohtml", map[string]any{
+	err := z.TemplateExecute(w, "error-page.gohtml", map[string]any{
 		"ErrorCode":   404,
 		"ErrorStatus": statusMsg,
 		"title":       fmt.Sprintf("%d - %s", code, statusMsg),
