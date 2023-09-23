@@ -16,6 +16,7 @@ import (
 type GenerateCommand struct {
 	TagValue uint8  `short:"t" long:"tag-value" default:"0" description:"tag value" required:"true"`
 	Encoding string `short:"b" long:"base" default:"native" description:"Encode/Decode base. Either native (modified base32), hex, or base64"`
+	TimeAt   string `short:"d" long:"datetime" description:"the date/time to use in the token. Uses RFC3339 format"`
 }
 
 // Execute runs the encode command
@@ -29,6 +30,16 @@ func (c *GenerateCommand) Execute(args []string) error {
 		refId = refid.MustNewTagged(c.TagValue)
 	} else {
 		refId = refid.MustNew()
+	}
+
+	var ts time.Time
+	if c.TimeAt != "" {
+		var err error
+		ts, err = time.Parse(time.RFC3339, c.TimeAt)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error parsing datetime")
+		}
+		refId.SetTime(ts)
 	}
 
 	switch c.Encoding {

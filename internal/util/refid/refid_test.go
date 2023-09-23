@@ -30,6 +30,16 @@ func TestGetTime(t *testing.T) {
 	assert.Equal(t, ts.UTC(), refId2.Time().UTC())
 }
 
+func TestSetTime(t *testing.T) {
+	t.Parallel()
+
+	ts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
+
+	refId := MustNew()
+	refId.SetTime(ts)
+	assert.Equal(t, ts.UTC(), refId.Time().UTC())
+}
+
 func TestBase64RoundTrip(t *testing.T) {
 	t.Parallel()
 

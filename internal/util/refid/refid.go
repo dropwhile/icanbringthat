@@ -137,6 +137,11 @@ func FromHexString(input string) (RefId, error) {
 	return refId, nil
 }
 
+func (refId *RefId) SetTime(ts time.Time) *RefId {
+	setTime(refId[:], ts.UTC().UnixMicro())
+	return refId
+}
+
 func (refId *RefId) SetTag(tag byte) *RefId {
 	refId[tagIndex] = tag
 	return refId
