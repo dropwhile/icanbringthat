@@ -292,18 +292,25 @@ func (z *ZHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		z.Error(w, "error updating user password", http.StatusInternalServerError)
 		return
 	}
-	err = user.Save(ctx, z.Db)
+
+	err = pgx.BeginFunc(ctx, z.Db, func(tx pgx.Tx) error {
+		innerErr := user.Save(ctx, tx)
+		if innerErr != nil {
+			log.Debug().Err(innerErr).Msg("inner db error saving user")
+			return innerErr
+		}
+
+		innerErr = upw.Delete(ctx, tx)
+		if innerErr != nil {
+			log.Debug().Err(innerErr).Msg("inner db error cleaning up pw reset token")
+			return innerErr
+		}
+		return nil
+	})
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		z.Error(w, "error updating user password", http.StatusInternalServerError)
 		return
-	}
-
-	err = upw.Delete(ctx, z.Db)
-	if err != nil {
-		log.Info().Err(err).Msg("error cleaning up pw reset token")
-		// do not throw a 500 level error here though, just carry on since
-		// the user was already found..
 	}
 
 	// renew sesmgr token to help prevent session fixation. ref:

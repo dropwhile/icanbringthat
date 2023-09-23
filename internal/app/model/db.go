@@ -18,11 +18,9 @@ type DB struct {
 
 type PgxHandle interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
-	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(context.Context, string, ...interface{}) pgx.Row
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
-	Ping(context.Context) error
 }
 
 func (db *DB) GetPool() *pgxpool.Pool {
@@ -87,7 +85,7 @@ func QueryTx[T ModelType](ctx context.Context, db PgxHandle, query string, args 
 }
 
 func ExecTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
-	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		commandTag, err := tx.Exec(ctx, query, args...)
 		if err != nil {
 			log.Info().Err(err).Msg("DB Error")

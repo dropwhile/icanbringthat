@@ -3,6 +3,7 @@ package zhandler
 import (
 	"context"
 	"flag"
+	"html/template"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -67,10 +68,12 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	mock, err := pgxmock.NewConn()
 	assert.NilError(t, err)
 	t.Cleanup(func() { mock.Close(ctx) })
+	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &ZHandler{
 		Db:      mock,
-		Tpl:     resources.TemplateMap{},
+		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewMemorySessionManager(),
+		Hmac:    util.NewHmac([]byte("test-hmac-key")),
 	}
 	mux := chi.NewMux()
 	mux.Use(h.SessMgr.LoadAndSave)
