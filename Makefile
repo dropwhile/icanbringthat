@@ -27,6 +27,9 @@ CC_BUILD_TARGETS     = server refgen
 CC_BUILD_ARCHES      = darwin/amd64 darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/amd64
 CC_OUTPUT_TPL       := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
+# misc
+DOCKER_PREBUILD     ?=
+
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
 #export CGO_ENABLED=0
@@ -158,6 +161,7 @@ dev-db-purge:
 .PHONY: docker-build
 docker-build:
 	@echo ">> Building docker image..."
+	@${DOCKER_PREBUILD}
 	@DOCKER_BUILDKIT=1 docker build \
 		--build-arg GITHASH=${(GITHASH} \
 		--build-arg APP_VER=${APP_VER} \
