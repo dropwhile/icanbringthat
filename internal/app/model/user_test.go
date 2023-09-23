@@ -164,7 +164,7 @@ func TestUserDelete(t *testing.T) {
 
 	refId := tstUserRefId
 	mock.ExpectBegin()
-	mock.ExpectExec("^DELETE FROM user_ (.+)*").
+	mock.ExpectExec("^DELETE FROM user_ (.+)").
 		WithArgs(1).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
