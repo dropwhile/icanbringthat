@@ -55,7 +55,7 @@ func Exec[T ModelType](ctx context.Context, db PgxHandle, query string, args ...
 
 func QueryOneTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	var t T
-	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		err := pgxscan.Get(ctx, tx, &t, query, args...)
 		if err != nil {
 			log.Info().Err(err).Msg("DB Error")
@@ -70,7 +70,7 @@ func QueryOneTx[T ModelType](ctx context.Context, db PgxHandle, query string, ar
 
 func QueryTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
 	var t []*T
-	err := pgx.BeginFunc(context.Background(), db, func(tx pgx.Tx) error {
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		err := pgxscan.Select(ctx, tx, &t, query, args...)
 		if err != nil {
 			log.Info().Err(err).Msg("DB Error")
