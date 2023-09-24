@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS event_ (
     name text NOT NULL,
     description text NOT NULL,
     start_time timestamptz,
+    start_time_tz varchar(255) DEFAULT 'Etc/UTC',
     created timestamp NOT NULL DEFAULT timezone('utc', now()),
     last_modified timestamp NOT NULL DEFAULT timezone('utc', now()),
     CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES user_(id) ON DELETE CASCADE
@@ -70,7 +71,7 @@ CREATE TABLE IF NOT EXISTS earmark_ (
     ref_id refid_bytea NOT NULL,
     event_item_id integer NOT NULL,
     user_id integer NOT NULL,
-    notes text NOT NULL,
+    note text NOT NULL,
     created timestamp DEFAULT timezone('utc', now()),
     last_modified timestamp DEFAULT timezone('utc', now()),
     CONSTRAINT event_item_fk FOREIGN KEY(event_item_id) REFERENCES event_item_(id) ON DELETE CASCADE,
