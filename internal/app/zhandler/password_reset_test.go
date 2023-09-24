@@ -2,6 +2,7 @@ package zhandler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -400,6 +401,81 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("pwreset with user upw delete failure", func(t *testing.T) {
+		t.Parallel()
+
+		pwrRows := pgxmock.NewRows(pwColumns).
+			AddRow(pwr.RefId, pwr.UserId, pwr.Created)
+		userRows := pgxmock.NewRows(userColumns).
+			AddRow(user.Id, user.RefId, user.Email, user.Name, user.PWHash)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+
+		// generate hmac
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		// base32 encode hmac
+		macStr := util.Base32EncodeToString(macBytes)
+
+		rctx.URLParams.Add("hmac", macStr)
+
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
+			WithArgs(pwr.RefId).
+			WillReturnRows(pwrRows)
+		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
+			WithArgs(user.Id).
+			WillReturnRows(userRows)
+		// start outer tx
+		mock.ExpectBegin()
+		// begin first inner tx for user update
+		mock.ExpectBegin()
+		mock.ExpectExec("^UPDATE user_ (.+)").
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Id).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		// commit+rollback first inner tx
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// begin second inner tx for user_pw_reset_ delete
+		mock.ExpectBegin()
+		mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
+			WithArgs(pwr.RefId).
+			WillReturnError(fmt.Errorf("honk honk"))
+		// rollback second inner tx
+		mock.ExpectRollback()
+		mock.ExpectRollback()
+		// rollback outer tx
+		// rollback before putting conn back in pool
+		mock.ExpectRollback()
+		mock.ExpectRollback()
+
+		data := url.Values{
+			"password":         {"newpass"},
+			"confirm_password": {"newpass"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.ResetPassword(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		userId := handler.SessMgr.GetInt(ctx, "user-id")
+		assert.Assert(t, userId == 0)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusInternalServerError)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
