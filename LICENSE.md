@@ -2,7 +2,7 @@
 
 ## ICanBringThat
 *   License Type: Proprietary
-*   License URL: <this file>
+*   License URL: `<this file>`
 *   License Text:
     ```
     All rights reserved
