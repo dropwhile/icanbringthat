@@ -122,7 +122,13 @@ var templateFuncMap = template.FuncMap{
 		return t.UTC().Format("2006-01-02T15:04Z07:00")
 	},
 	"formatTSLocal": func(t time.Time, zone string) string {
-		loc, _ := time.LoadLocation(zone)
+		loc, err := time.LoadLocation(zone)
+		if err != nil {
+			log.Info().Err(err).
+				Str("zone", zone).
+				Msg("error loading loc from zone")
+			return t.UTC().Format("2006-01-02T15:04")
+		}
 		return t.In(loc).Format("2006-01-02T15:04")
 	},
 	"formatDateTime": func(t time.Time) string {
