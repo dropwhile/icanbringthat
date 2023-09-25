@@ -93,7 +93,7 @@ func GetEarmarkByEventItem(ctx context.Context, db PgxHandle, eventItem *EventIt
 }
 
 func GetEarmarksByUser(ctx context.Context, db PgxHandle, user *User) ([]*Earmark, error) {
-	q := `SELECT * FROM earmark_ WHERE user_id = $1 ORDER BY created DESC`
+	q := `SELECT * FROM earmark_ WHERE user_id = $1 ORDER BY created DESC, id DESC`
 	return Query[Earmark](ctx, db, q, user.Id)
 }
 
@@ -118,13 +118,14 @@ func GetEarmarksWithEventsByUser(ctx context.Context, db PgxHandle, user *User) 
 		WHERE 
 			user_id = $1
 		ORDER BY
-			created DESC
+			created DESC,
+			id DESC
 	`
 	return Query[Earmark](ctx, db, q, user.Id)
 }
 
 func GetEarmarksByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Earmark, error) {
-	q := `SELECT * FROM earmark_ WHERE earmark_.user_id = $1 ORDER BY created DESC LIMIT $2 OFFSET $3`
+	q := `SELECT * FROM earmark_ WHERE earmark_.user_id = $1 ORDER BY created DESC, id DESC LIMIT $2 OFFSET $3`
 	return Query[Earmark](ctx, db, q, user.Id, limit, offset)
 }
 

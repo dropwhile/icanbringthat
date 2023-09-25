@@ -83,12 +83,12 @@ func GetEventByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*Eve
 }
 
 func GetEventsByUser(ctx context.Context, db PgxHandle, user *User) ([]*Event, error) {
-	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY created DESC`
+	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY start_time DESC, id DESC`
 	return Query[Event](ctx, db, q, user.Id)
 }
 
 func GetEventsByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Event, error) {
-	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY start_time DESC LIMIT $2 OFFSET $3`
+	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY start_time DESC, id DESC LIMIT $2 OFFSET $3`
 	return Query[Event](ctx, db, q, user.Id, limit, offset)
 }
 
