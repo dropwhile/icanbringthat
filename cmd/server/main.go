@@ -41,6 +41,9 @@ func main() {
 		log.Logger = util.NewLogger(os.Stderr)
 	}
 
+	log.Info().Msg("starting up...")
+	log.Info().Msgf("server version: %s", ServerVersion)
+
 	// debug logging or not
 	viper.MustBindEnv("LOG_LEVEL")
 	viper.SetDefault("LOG_LEVEL", "info")
@@ -48,20 +51,20 @@ func main() {
 	switch strings.ToLower(logLevel) {
 	case "debug":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-		log.Debug().Msg("setting log level to debug")
+		log.Debug().Msg("setting log level: debug")
 	case "trace":
 		zerolog.SetGlobalLevel(zerolog.TraceLevel)
-		log.Trace().Msg("setting log level to trace")
+		log.Trace().Msg("setting log level: trace")
 	default:
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
-		log.Info().Msg("setting log level to info")
+		log.Info().Msg("setting log level: info")
 	}
 
 	// prod mode (secure cookies) or not
 	viper.MustBindEnv("PRODUCTION")
 	viper.SetDefault("PRODUCTION", "true")
 	isProd := viper.GetBool("PRODUCTION")
-	log.Debug().Msgf("prod mode is %t", isProd)
+	log.Debug().Msgf("prod mode: %t", isProd)
 
 	// listen address/port
 	viper.MustBindEnv("BIND_ADDRESS")
@@ -92,7 +95,7 @@ func main() {
 		if err != nil && os.IsNotExist(err) {
 			log.Fatal().Msgf("template dir does not exist: %s", tplDir)
 		}
-		log.Debug().Msgf("template dir set to: %s", tplDir)
+		log.Debug().Msgf("template dir: %s", tplDir)
 	}
 	templates := resources.MustParseTemplates(tplDir)
 
@@ -103,7 +106,7 @@ func main() {
 	if staticDir == "embed" {
 		log.Debug().Msgf("using embedded static")
 	} else {
-		log.Debug().Msgf("static dir set to: %s", staticDir)
+		log.Debug().Msgf("static dir: %s", staticDir)
 	}
 	staticFS := resources.NewStaticFS(staticDir)
 
@@ -218,7 +221,7 @@ func main() {
 		http.ServeContent(w, r, "favicon.ico", time.Time{}, bytes.NewReader(b))
 	})
 
-	log.Info().Msgf("listening on %s", listenHostPort)
+	log.Info().Msgf("listening: %s", listenHostPort)
 	server := &http.Server{
 		Addr:              listenHostPort,
 		Handler:           r,
