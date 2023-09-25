@@ -29,6 +29,7 @@ CC_OUTPUT_TPL       := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
 # misc
 DOCKER_PREBUILD     ?=
+DOCKER_POSTBUILD    ?=
 
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
@@ -168,6 +169,7 @@ docker-build:
 		-t icbt \
 		-f docker/Dockerfile \
 		.
+	@${DOCKER_POSTBUILD}
 
 .PHONY: run
 run: build
