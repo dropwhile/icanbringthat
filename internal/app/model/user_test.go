@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/dropwhile/refid"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 )

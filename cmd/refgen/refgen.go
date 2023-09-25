@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/dropwhile/refid"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

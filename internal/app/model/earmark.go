@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/dropwhile/refid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 

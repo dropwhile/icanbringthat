@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/icbt/internal/util/refid"
+	"github.com/dropwhile/refid"
 )
 
 var UserRefIdT = refid.RefIdTagger(1)

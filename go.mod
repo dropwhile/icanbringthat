@@ -1,10 +1,11 @@
 module github.com/dropwhile/icbt
 
-go 1.21.0
+go 1.21.1
 
 require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20230902070821-95fa2ac9d520
 	github.com/alexedwards/scs/v2 v2.5.1
+	github.com/dropwhile/refid v0.0.0-20230925004649-b4e17f30e607
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.1
