@@ -59,6 +59,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dropwhile/refid v0.0.0-20230925010841-b804bf4ca036 h1:O9AcQrthLGlsWd0hkVtsENMfyWdXcoHg4wE75UtgyQU=
 github.com/dropwhile/refid v0.0.0-20230925010841-b804bf4ca036/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
+github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb h1:RJqbtt81AVKz6l/DbKHO40xFfPhcpubLfr+QQ6lcQUs=
+github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
+github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e h1:jIfb749f7eg+JA5yYFaeEgaCZC8na4xyvcKMSKVoZzo=
+github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
