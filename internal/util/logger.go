@@ -15,7 +15,10 @@ func NewTestLogger(w io.Writer) zerolog.Logger {
 	// don't log timestamps for test logs,
 	// to enable log matching if desired.
 	logger := log.Output(
-		zerolog.ConsoleWriter{Out: w},
+		zerolog.ConsoleWriter{
+			Out:          w,
+			PartsExclude: []string{zerolog.TimestampFieldName},
+		},
 	).With().Caller().Logger()
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		short := file
