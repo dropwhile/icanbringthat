@@ -9,7 +9,7 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EventRefIdT = refid.RefIdTagger(2)
+var EventRefIdT = refid.Tagger(2)
 
 type Event struct {
 	Id           int

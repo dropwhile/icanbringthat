@@ -8,7 +8,7 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var EventItemRefIdT = refid.RefIdTagger(3)
+var EventItemRefIdT = refid.Tagger(3)
 
 type EventItem struct {
 	Id           int

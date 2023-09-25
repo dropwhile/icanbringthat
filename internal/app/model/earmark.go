@@ -9,7 +9,7 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EarmarkRefIdT = refid.RefIdTagger(4)
+var EarmarkRefIdT = refid.Tagger(4)
 
 type Earmark struct {
 	Id           int

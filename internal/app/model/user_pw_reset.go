@@ -8,7 +8,7 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var UserPWResetRefIdT = refid.RefIdTagger(5)
+var UserPWResetRefIdT = refid.Tagger(5)
 
 type UserPWReset struct {
 	RefId   refid.RefId `db:"ref_id"`

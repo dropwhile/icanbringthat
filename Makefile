@@ -120,7 +120,7 @@ check: setup setup-check
 .PHONY: update-go-deps
 update-go-deps:
 	@echo ">> updating Go dependencies..."
-	@go get -u all
+	@GOPRIVATE=github.com/dropwhile go get -u all
 	@go mod tidy
 
 .PHONY: migrate

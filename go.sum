@@ -63,6 +63,8 @@ github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb h1:RJqbtt81AVKz6l/
 github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
 github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e h1:jIfb749f7eg+JA5yYFaeEgaCZC8na4xyvcKMSKVoZzo=
 github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
+github.com/dropwhile/refid v0.0.0-20230925040446-26bf64392265 h1:A6i2znP0jQSr4uRGCbmU/dOg/22dKpsZkllqzqEHnzY=
+github.com/dropwhile/refid v0.0.0-20230925040446-26bf64392265/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

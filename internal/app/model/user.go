@@ -9,7 +9,7 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var UserRefIdT = refid.RefIdTagger(1)
+var UserRefIdT = refid.Tagger(1)
 
 type User struct {
 	Id           int
