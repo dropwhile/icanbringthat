@@ -57,14 +57,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dropwhile/refid v0.0.0-20230925010841-b804bf4ca036 h1:O9AcQrthLGlsWd0hkVtsENMfyWdXcoHg4wE75UtgyQU=
-github.com/dropwhile/refid v0.0.0-20230925010841-b804bf4ca036/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
-github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb h1:RJqbtt81AVKz6l/DbKHO40xFfPhcpubLfr+QQ6lcQUs=
-github.com/dropwhile/refid v0.0.0-20230925033749-4e886ec2c9cb/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
-github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e h1:jIfb749f7eg+JA5yYFaeEgaCZC8na4xyvcKMSKVoZzo=
-github.com/dropwhile/refid v0.0.0-20230925035816-55d92995963e/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
-github.com/dropwhile/refid v0.0.0-20230925040446-26bf64392265 h1:A6i2znP0jQSr4uRGCbmU/dOg/22dKpsZkllqzqEHnzY=
-github.com/dropwhile/refid v0.0.0-20230925040446-26bf64392265/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
+github.com/dropwhile/refid v0.0.0-20230925043023-9193be27c60e h1:VbPN1TvOisixOvU4b3xid68SJXVn4TRJuzDKhrcPgvA=
+github.com/dropwhile/refid v0.0.0-20230925043023-9193be27c60e/go.mod h1:Apf1E46QKGLdL8rUQea++FtzUhai0Jo6Jz9oC0G0eWc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
@@ -211,8 +205,8 @@ github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUz
 github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.29.1/go.mod h1:Le6ESbR7hc+DP6Lt1THiV8CQSdkkNrd3R0XbEgp3ZBU=
-github.com/rs/zerolog v1.30.0 h1:SymVODrcRsaRaSInD9yQtKbtWqwsfoPcRff/oRXLj4c=
-github.com/rs/zerolog v1.30.0/go.mod h1:/tk+P47gFdPXq4QYjvCmT5/Gsug2nagsFWBWhAiSi1w=
+github.com/rs/zerolog v1.31.0 h1:FcTR3NnLWW+NnTwwhFWiJSZr4ECLpqCm6QsEnyvbV4A=
+github.com/rs/zerolog v1.31.0/go.mod h1:/7mN4D5sKwJLZQ2b/znpjC3/GQWY/xaDXUM0kKWRHss=
 github.com/spf13/afero v1.10.0 h1:EaGW2JJh15aKOejeuJ+wpFSHnbd7GE6Wvp3TsNhb6LY=
 github.com/spf13/afero v1.10.0/go.mod h1:UBogFpq8E9Hx+xc5CNTTEpTnuHVmXDwZcZcE1eb/UhQ=
 github.com/spf13/cast v1.5.1 h1:R+kOtfhWQE6TVQzY+4D7wJLBgkdVasCEFxSUBYBYIlA=
