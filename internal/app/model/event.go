@@ -92,6 +92,20 @@ func GetEventsByUserPaginated(ctx context.Context, db PgxHandle, user *User, lim
 	return Query[Event](ctx, db, q, user.Id, limit, offset)
 }
 
+func GetEventsComingSoonByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Event, error) {
+	q := `
+		SELECT *
+		FROM event_
+		WHERE
+			event_.user_id = $1
+			start_time > CURRENT_TIMESTAMP(0)
+		ORDER BY 
+			start_time ASC,
+			id ASC
+		LIMIT $2 OFFSET $3`
+	return Query[Event](ctx, db, q, user.Id, limit, offset)
+}
+
 func GetEventCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
 	q := `SELECT count(*) FROM event_ WHERE user_id = $1`
 	var count int = 0
