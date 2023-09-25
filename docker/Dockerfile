@@ -4,11 +4,11 @@
 FROM golang:1.21-alpine as builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
-ARG GITHASH
-ARG APP_VER
 ENV GOEXPERIMENT=loopvar
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 COPY . /workdir/
+ARG GITHASH
+ARG APP_VER
 RUN make build
 
 # make runnable image
