@@ -2,7 +2,7 @@
 
 # do the building
 FROM golang:1.21-alpine as builder
-RUN apk add --no-cache ca-certificates make git
+RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ARG GITHASH
 ARG APP_VER
