@@ -40,7 +40,7 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 
 func (user *User) Insert(ctx context.Context, db PgxHandle) error {
 	if user.RefId.IsNil() {
-		user.RefId = UserRefIdT.MustNew()
+		user.RefId = refid.Must(UserRefIdT.New())
 	}
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
 	res, err := QueryOneTx[User](ctx, db, q, user.RefId, user.Email, user.Name, user.PWHash)

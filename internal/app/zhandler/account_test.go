@@ -12,6 +12,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/refid"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 )
@@ -19,7 +20,7 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refId := model.UserRefIdT.MustNew()
+	refId := refid.Must(model.UserRefIdT.New())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -383,7 +384,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := model.UserRefIdT.MustNew()
+	refId := refid.Must(model.UserRefIdT.New())
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
@@ -445,7 +446,7 @@ func TestHandler_Account_Create(t *testing.T) {
 			[]string{
 				"id", "ref_id", "email", "pwhash", "created", "last_modified",
 			}).AddRow(
-			1, model.UserRefIdT.MustNew(), "user@example.com", pwhash, tstTs, tstTs,
+			1, refid.Must(model.UserRefIdT.New()), "user@example.com", pwhash, tstTs, tstTs,
 		)
 
 		mock.ExpectBegin()
@@ -582,7 +583,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		pwhash, _ := util.HashPW([]byte("00x00"))
 		user := &model.User{
 			Id:           1,
-			RefId:        model.UserRefIdT.MustNew(),
+			RefId:        refid.Must(model.UserRefIdT.New()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,

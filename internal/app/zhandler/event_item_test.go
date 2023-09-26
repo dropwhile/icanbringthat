@@ -11,6 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
@@ -23,7 +24,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        model.UserRefIdT.MustNew(),
+		RefId:        refid.Must(model.UserRefIdT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -32,7 +33,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        model.EventRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventRefIdT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -43,7 +44,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        model.EventItemRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventItemRefIdT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -254,7 +255,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        model.UserRefIdT.MustNew(),
+		RefId:        refid.Must(model.UserRefIdT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -263,7 +264,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        model.EventRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventRefIdT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -274,7 +275,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        model.EventItemRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventItemRefIdT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -282,7 +283,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		Id:           3,
-		RefId:        model.EarmarkRefIdT.MustNew(),
+		RefId:        refid.Must(model.EarmarkRefIdT.New()),
 		EventItemId:  eventItem.Id,
 		UserId:       user.Id,
 		Note:         "nothing",
@@ -670,7 +671,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        model.UserRefIdT.MustNew(),
+		RefId:        refid.Must(model.UserRefIdT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -679,7 +680,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        model.EventRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventRefIdT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -690,7 +691,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        model.EventItemRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventItemRefIdT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,

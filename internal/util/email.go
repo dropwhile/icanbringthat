@@ -30,7 +30,7 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 		return fmt.Errorf("no content")
 	}
 	var buf strings.Builder
-	boundary := refid.MustNew()
+	boundary := refid.Must(refid.New())
 	// write headers, set up boundary
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", mail.Sender))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(mail.To, ";")))

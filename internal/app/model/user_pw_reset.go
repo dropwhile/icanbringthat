@@ -22,7 +22,7 @@ func (upw *UserPWReset) IsExpired() bool {
 
 func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
 	if upw.RefId.IsNil() {
-		upw.RefId = UserPWResetRefIdT.MustNew()
+		upw.RefId = refid.Must(UserPWResetRefIdT.New())
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
 	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefId, upw.UserId)

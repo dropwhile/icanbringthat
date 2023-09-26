@@ -12,6 +12,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
@@ -24,7 +25,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        model.UserRefIdT.MustNew(),
+		RefId:        refid.Must(model.UserRefIdT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -33,7 +34,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefId:   model.UserPWResetRefIdT.MustNew(),
+		RefId:   refid.Must(model.UserPWResetRefIdT.New()),
 		UserId:  user.Id,
 		Created: ts,
 	}
@@ -238,7 +239,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := model.EventItemRefIdT.MustNew()
+		refId := refid.Must(model.EventItemRefIdT.New())
 		rctx.URLParams.Add("upwRefId", refId.String())
 
 		// generate hmac
@@ -361,7 +362,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset upw is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refId := model.UserPWResetRefIdT.MustNew()
+		refId := refid.Must(model.UserPWResetRefIdT.New())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refId.SetTime(rfts)
 		ctx := context.TODO()

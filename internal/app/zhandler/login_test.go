@@ -11,6 +11,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/rs/zerolog/log"
@@ -20,7 +21,7 @@ import (
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	refId := model.UserRefIdT.MustNew()
+	refId := refid.Must(model.UserRefIdT.New())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 
@@ -126,7 +127,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := model.UserRefIdT.MustNew()
+	refId := refid.Must(model.UserRefIdT.New())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	rows := pgxmock.NewRows(

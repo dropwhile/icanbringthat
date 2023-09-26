@@ -23,7 +23,7 @@ type EventItem struct {
 
 func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {
 	if ei.RefId.IsNil() {
-		ei.RefId = EventItemRefIdT.MustNew()
+		ei.RefId = refid.Must(EventItemRefIdT.New())
 	}
 	q := `INSERT INTO event_item_ (ref_id, event_id, description) VALUES ($1, $2, $3) RETURNING *`
 	res, err := QueryOneTx[EventItem](ctx, db, q, ei.RefId, ei.EventId, ei.Description)

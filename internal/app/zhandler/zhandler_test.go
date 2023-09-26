@@ -18,6 +18,7 @@ import (
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
+	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"
@@ -95,7 +96,7 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, z *
 		w.WriteHeader(http.StatusOK)
 	})
 
-	refId := model.UserRefIdT.MustNew()
+	refId := refid.Must(model.UserRefIdT.New())
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
 		AddRow(userId, refId, "user@example.com", "user", []byte("00x00"), ts, ts)

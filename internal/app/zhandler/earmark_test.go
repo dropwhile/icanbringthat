@@ -11,6 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
@@ -20,7 +21,7 @@ import (
 func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Parallel()
 
-	refId := model.EarmarkRefIdT.MustNew()
+	refId := refid.Must(model.EarmarkRefIdT.New())
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
@@ -141,7 +142,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId = model.EarmarkRefIdT.MustNew()
+		refId = refid.Must(model.EarmarkRefIdT.New())
 		rctx.URLParams.Add("mRefId", refId.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
@@ -172,7 +173,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId = model.EventRefIdT.MustNew()
+		refId = refid.Must(model.EventRefIdT.New())
 		rctx.URLParams.Add("mRefId", refId.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
@@ -231,7 +232,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        model.UserRefIdT.MustNew(),
+		RefId:        refid.Must(model.UserRefIdT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -240,7 +241,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        model.EventRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventRefIdT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -251,7 +252,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        model.EventItemRefIdT.MustNew(),
+		RefId:        refid.Must(model.EventItemRefIdT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -259,7 +260,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		Id:           3,
-		RefId:        model.EarmarkRefIdT.MustNew(),
+		RefId:        refid.Must(model.EarmarkRefIdT.New()),
 		EventItemId:  eventItem.Id,
 		UserId:       user.Id,
 		Note:         "nothing",

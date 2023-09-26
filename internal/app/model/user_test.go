@@ -11,7 +11,7 @@ import (
 
 var (
 	columns      = []string{"id", "ref_id", "email", "name", "pwhash"}
-	tstUserRefId = refid.MustParse("0r2nck7r2z7g35fefj2tv65thw")
+	tstUserRefId = refid.Must(refid.Parse("0r2nck7r2z7g35fefj2tv65thw"))
 )
 
 func TestUserSetPassword(t *testing.T) {
