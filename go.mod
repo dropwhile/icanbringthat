@@ -5,14 +5,13 @@ go 1.21.1
 require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20230902070821-95fa2ac9d520
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/dropwhile/refid v0.0.0-20230926201634-071ae2d0595d
+	github.com/dropwhile/refid v0.0.0-20230926224708-56537f1d2f6d
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.1
 	github.com/gorilla/csrf v1.7.1
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.4.3
-	github.com/jessevdk/go-flags v1.5.0
 	github.com/pashagolub/pgxmock/v3 v3.0.0
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
