@@ -24,13 +24,13 @@ func (z *ZHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
@@ -82,19 +82,19 @@ func (z *ZHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
@@ -115,7 +115,7 @@ func (z *ZHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event item")
@@ -159,14 +159,14 @@ func (z *ZHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event")
@@ -207,7 +207,7 @@ func (z *ZHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
 func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
@@ -220,19 +220,19 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		z.Error(w, "not found", http.StatusNotFound)
@@ -252,7 +252,7 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		z.Error(w, "not found", http.StatusNotFound)
@@ -315,7 +315,7 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefId)) {
+	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
 		w.Header().Add("HX-Refresh", "true")
 	}
 
@@ -332,19 +332,19 @@ func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
@@ -364,7 +364,7 @@ func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)

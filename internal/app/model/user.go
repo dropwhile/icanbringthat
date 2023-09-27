@@ -9,11 +9,11 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var UserRefIdT = refid.Tagger(1)
+var UserRefIDT = refid.Tagger(1)
 
 type User struct {
 	Id           int
-	RefId        refid.RefId `db:"ref_id"`
+	RefID        refid.RefID `db:"ref_id"`
 	Email        string
 	Name         string `db:"name"`
 	PWHash       []byte `db:"pwhash"`
@@ -39,16 +39,16 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 }
 
 func (user *User) Insert(ctx context.Context, db PgxHandle) error {
-	if user.RefId.IsNil() {
-		user.RefId = refid.Must(UserRefIdT.New())
+	if user.RefID.IsNil() {
+		user.RefID = refid.Must(UserRefIDT.New())
 	}
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryOneTx[User](ctx, db, q, user.RefId, user.Email, user.Name, user.PWHash)
+	res, err := QueryOneTx[User](ctx, db, q, user.RefID, user.Email, user.Name, user.PWHash)
 	if err != nil {
 		return err
 	}
 	user.Id = res.Id
-	user.RefId = res.RefId
+	user.RefID = res.RefID
 	user.Created = res.Created
 	user.LastModified = res.LastModified
 	return nil
@@ -85,11 +85,11 @@ func GetUserById(ctx context.Context, db PgxHandle, id int) (*User, error) {
 	return QueryOne[User](ctx, db, q, id)
 }
 
-func GetUserByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*User, error) {
-	if !UserRefIdT.HasCorrectTag(refId) {
+func GetUserByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*User, error) {
+	if !UserRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), UserRefIdT.Tag(),
+			refId.Tag(), UserRefIDT.Tag(),
 		)
 		return nil, err
 	}

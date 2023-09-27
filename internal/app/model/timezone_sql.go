@@ -27,5 +27,5 @@ func (tz *TimeZone) Scan(src interface{}) error {
 		return err
 	}
 
-	return fmt.Errorf("refid: cannot convert %T to RefId", src)
+	return fmt.Errorf("refid: cannot convert %T to RefID", src)
 }

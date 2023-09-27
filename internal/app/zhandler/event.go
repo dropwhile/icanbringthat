@@ -102,13 +102,13 @@ func (z *ZHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, refId)
+	event, err := model.GetEventByRefID(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -234,13 +234,13 @@ func (z *ZHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, refId)
+	event, err := model.GetEventByRefID(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -321,7 +321,7 @@ func (z *ZHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		z.Error(w, "error creating event", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
 func (z *ZHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
@@ -334,13 +334,13 @@ func (z *ZHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, refId)
+	event, err := model.GetEventByRefID(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		z.Error(w, "not found", http.StatusNotFound)
@@ -406,7 +406,7 @@ func (z *ZHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		z.Error(w, "error updating event", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefId), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
 func (z *ZHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
@@ -419,13 +419,13 @@ func (z *ZHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, refId)
+	event, err := model.GetEventByRefID(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		z.Error(w, "not found", http.StatusNotFound)

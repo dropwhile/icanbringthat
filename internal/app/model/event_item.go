@@ -8,11 +8,11 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var EventItemRefIdT = refid.Tagger(3)
+var EventItemRefIDT = refid.Tagger(3)
 
 type EventItem struct {
 	Id           int
-	RefId        refid.RefId `db:"ref_id"`
+	RefID        refid.RefID `db:"ref_id"`
 	EventId      int         `db:"event_id"`
 	Description  string
 	Created      time.Time
@@ -22,16 +22,16 @@ type EventItem struct {
 }
 
 func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {
-	if ei.RefId.IsNil() {
-		ei.RefId = refid.Must(EventItemRefIdT.New())
+	if ei.RefID.IsNil() {
+		ei.RefID = refid.Must(EventItemRefIDT.New())
 	}
 	q := `INSERT INTO event_item_ (ref_id, event_id, description) VALUES ($1, $2, $3) RETURNING *`
-	res, err := QueryOneTx[EventItem](ctx, db, q, ei.RefId, ei.EventId, ei.Description)
+	res, err := QueryOneTx[EventItem](ctx, db, q, ei.RefID, ei.EventId, ei.Description)
 	if err != nil {
 		return err
 	}
 	ei.Id = res.Id
-	ei.RefId = res.RefId
+	ei.RefID = res.RefID
 	ei.Created = res.Created
 	ei.LastModified = res.LastModified
 	return nil
@@ -72,11 +72,11 @@ func GetEventItemById(ctx context.Context, db PgxHandle, id int) (*EventItem, er
 	return QueryOne[EventItem](ctx, db, q, id)
 }
 
-func GetEventItemByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*EventItem, error) {
-	if !EventItemRefIdT.HasCorrectTag(refId) {
+func GetEventItemByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*EventItem, error) {
+	if !EventItemRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), EventItemRefIdT.Tag(),
+			refId.Tag(), EventItemRefIDT.Tag(),
 		)
 		return nil, err
 	}

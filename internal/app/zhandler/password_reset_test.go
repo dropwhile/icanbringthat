@@ -25,7 +25,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refid.Must(model.UserRefIdT.New()),
+		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -34,7 +34,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefId:   refid.Must(model.UserPWResetRefIdT.New()),
+		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
 		UserId:  user.Id,
 		Created: ts,
 	}
@@ -46,19 +46,19 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefId, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.Id, user.RefId, user.Email, user.Name, user.PWHash)
+			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -66,7 +66,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.Id).
@@ -84,7 +84,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin second inner tx for user_pw_reset_ delete
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 		// commit+rollback second inner tx
 		mock.ExpectCommit()
@@ -127,10 +127,10 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -164,10 +164,10 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -201,10 +201,10 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		macBytes[0] += 1
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
@@ -239,8 +239,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := refid.Must(model.EventItemRefIdT.New())
-		rctx.URLParams.Add("upwRefId", refId.String())
+		refId := refid.Must(model.EventItemRefIDT.New())
+		rctx.URLParams.Add("upwRefID", refId.String())
 
 		// generate hmac
 		macBytes := handler.Hmac.Generate([]byte(refId.String()))
@@ -277,10 +277,10 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -288,7 +288,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{
@@ -315,17 +315,17 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefId, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -333,7 +333,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.Id).
@@ -362,7 +362,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset upw is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refId := refid.Must(model.UserPWResetRefIdT.New())
+		refId := refid.Must(model.UserPWResetRefIDT.New())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refId.SetTime(rfts)
 		ctx := context.TODO()
@@ -370,7 +370,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", refId.String())
+		rctx.URLParams.Add("upwRefID", refId.String())
 
 		// generate hmac
 		macBytes := handler.Hmac.Generate([]byte(refId.String()))
@@ -384,7 +384,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(model.UserPWResetRefIdT.AnyMatcher()).
+			WithArgs(model.UserPWResetRefIDT.AnyMatcher()).
 			WillReturnRows(pwrRows)
 
 		data := url.Values{
@@ -411,19 +411,19 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefId, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.Id, user.RefId, user.Email, user.Name, user.PWHash)
+			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefId", pwr.RefId.String())
+		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefId.String()))
+		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -431,7 +431,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.Id).
@@ -449,7 +449,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin second inner tx for user_pw_reset_ delete
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
-			WithArgs(pwr.RefId).
+			WithArgs(pwr.RefID).
 			WillReturnError(fmt.Errorf("honk honk"))
 		// rollback second inner tx
 		mock.ExpectRollback()

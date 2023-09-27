@@ -24,7 +24,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refid.Must(model.UserRefIdT.New()),
+		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -33,7 +33,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        refid.Must(model.EventRefIdT.New()),
+		RefID:        refid.Must(model.EventRefIDT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -44,7 +44,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        refid.Must(model.EventItemRefIdT.New()),
+		RefID:        refid.Must(model.EventItemRefIDT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -64,12 +64,12 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 				ts, ts,
 			)
 
@@ -79,15 +79,15 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(model.EventItemRefIdT.AnyMatcher(), eventItem.EventId, "some description").
+			WithArgs(model.EventItemRefIDT.AnyMatcher(), eventItem.EventId, "some description").
 			WillReturnRows(eventItemRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -105,7 +105,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"),
-			fmt.Sprintf("/events/%s", event.RefId),
+			fmt.Sprintf("/events/%s", event.RefID),
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
@@ -121,7 +121,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
 
 		data := url.Values{"description": {"some description"}}
 
@@ -149,10 +149,10 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{"description": {"some description"}}
@@ -177,7 +177,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, 33, event.Name, event.Description,
+				event.Id, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -187,10 +187,10 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 
 		data := url.Values{"description": {"some description"}}
@@ -215,7 +215,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -225,10 +225,10 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 
 		data := url.Values{"descriptionxxx": {"some description"}}
@@ -255,7 +255,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refid.Must(model.UserRefIdT.New()),
+		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -264,7 +264,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        refid.Must(model.EventRefIdT.New()),
+		RefID:        refid.Must(model.EventRefIDT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -275,7 +275,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        refid.Must(model.EventItemRefIdT.New()),
+		RefID:        refid.Must(model.EventItemRefIDT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -283,7 +283,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		Id:           3,
-		RefId:        refid.Must(model.EarmarkRefIdT.New()),
+		RefID:        refid.Must(model.EarmarkRefIDT.New()),
 		EventItemId:  eventItem.Id,
 		UserId:       user.Id,
 		Note:         "nothing",
@@ -307,17 +307,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefId, earmark.EventItemId, earmark.UserId,
+				earmark.Id, earmark.RefID, earmark.EventItemId, earmark.UserId,
 				earmark.Note, ts, ts,
 			)
 
@@ -327,14 +327,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
 			WithArgs(eventItem.Id).
@@ -373,8 +373,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", eventItem.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"description": {"new description"}}
 
@@ -402,11 +402,11 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{"description": {"new description"}}
@@ -431,7 +431,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -441,14 +441,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{"description": {"new description"}}
@@ -473,7 +473,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, 33, event.Name, event.Description,
+				event.Id, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -483,11 +483,11 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 
 		data := url.Values{"description": {"new description"}}
@@ -512,17 +512,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefId, earmark.EventItemId, 33,
+				earmark.Id, earmark.RefID, earmark.EventItemId, 33,
 				earmark.Note, ts, ts,
 			)
 
@@ -532,14 +532,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
 			WithArgs(eventItem.Id).
@@ -567,17 +567,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefId, earmark.EventItemId, earmark.UserId,
+				earmark.Id, earmark.RefID, earmark.EventItemId, earmark.UserId,
 				earmark.Note, ts, ts,
 			)
 
@@ -587,14 +587,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
 			WithArgs(eventItem.Id).
@@ -622,12 +622,12 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, 33, eventItem.Description,
+				eventItem.Id, eventItem.RefID, 33, eventItem.Description,
 				ts, ts,
 			)
 
@@ -637,14 +637,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 
 		data := url.Values{"description": {"new description"}}
@@ -671,7 +671,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refid.Must(model.UserRefIdT.New()),
+		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -680,7 +680,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        refid.Must(model.EventRefIdT.New()),
+		RefID:        refid.Must(model.EventRefIDT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -691,7 +691,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        refid.Must(model.EventItemRefIdT.New()),
+		RefID:        refid.Must(model.EventItemRefIDT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -711,12 +711,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 				ts, ts,
 			)
 
@@ -726,14 +726,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
@@ -767,8 +767,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", eventItem.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -794,8 +794,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", event.RefID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -821,11 +821,11 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -848,7 +848,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -858,14 +858,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -888,7 +888,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, 33, event.Name, event.Description,
+				event.Id, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -898,11 +898,11 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -925,12 +925,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefId, 33, eventItem.Description,
+				eventItem.Id, eventItem.RefID, 33, eventItem.Description,
 				ts, ts,
 			)
 
@@ -940,14 +940,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)

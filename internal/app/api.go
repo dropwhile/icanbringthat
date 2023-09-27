@@ -86,26 +86,26 @@ func NewAPI(
 		r.Get("/events", zh.ListEvents)
 		r.Post("/events", zh.CreateEvent)
 		r.Get("/events/add", zh.ShowCreateEventForm)
-		r.Get("/events/{eRefId:[0-9a-z]+}", zh.ShowEvent)
-		r.Post("/events/{eRefId:[0-9a-z]+}", zh.UpdateEvent)
-		r.Delete("/events/{eRefId:[0-9a-z]+}", zh.DeleteEvent)
-		r.Get("/events/{eRefId:[0-9a-z]+}/edit", zh.ShowEditEventForm)
+		r.Get("/events/{eRefID:[0-9a-z]+}", zh.ShowEvent)
+		r.Post("/events/{eRefID:[0-9a-z]+}", zh.UpdateEvent)
+		r.Delete("/events/{eRefID:[0-9a-z]+}", zh.DeleteEvent)
+		r.Get("/events/{eRefID:[0-9a-z]+}/edit", zh.ShowEditEventForm)
 		// event item
-		r.Post("/events/{eRefId:[0-9a-z]+}/items", zh.CreateEventItem)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/add", zh.ShowCreateEventItemForm)
-		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", zh.UpdateEventItem)
-		r.Delete("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}", zh.DeleteEventItem)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/edit", zh.ShowEventItemEditForm)
+		r.Post("/events/{eRefID:[0-9a-z]+}/items", zh.CreateEventItem)
+		r.Get("/events/{eRefID:[0-9a-z]+}/items/add", zh.ShowCreateEventItemForm)
+		r.Post("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}", zh.UpdateEventItem)
+		r.Delete("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}", zh.DeleteEventItem)
+		r.Get("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}/edit", zh.ShowEventItemEditForm)
 		// earmarks
-		r.Post("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks", zh.CreateEarmark)
-		r.Get("/events/{eRefId:[0-9a-z]+}/items/{iRefId:[0-9a-z]+}/earmarks/add", zh.ShowCreateEarmarkForm)
+		r.Post("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}/earmarks", zh.CreateEarmark)
+		r.Get("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}/earmarks/add", zh.ShowCreateEarmarkForm)
 		r.Get("/earmarks", zh.ListEarmarks)
-		r.Delete("/earmarks/{mRefId:[0-9a-z]+}", zh.DeleteEarmark)
+		r.Delete("/earmarks/{mRefID:[0-9a-z]+}", zh.DeleteEarmark)
 		/*
-			r.Get("/earmarks/{mRefId:[0-9a-z]+}", zh.ShowEarmark)
-			r.Post("/earmarks/{mRefId:[0-9a-z]+}", zh.UpdateEarmark)
+			r.Get("/earmarks/{mRefID:[0-9a-z]+}", zh.ShowEarmark)
+			r.Post("/earmarks/{mRefID:[0-9a-z]+}", zh.UpdateEarmark)
 		*/
-		// r.Get("/profile/{uRefId:[a-zA-Z-]+}", zh.ShowProfile)
+		// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
 	})
 
 	// Public routes
@@ -117,8 +117,8 @@ func NewAPI(
 		// forgot password
 		r.Get("/forgot-password", zh.ShowForgotPasswordForm)
 		r.Post("/forgot-password", zh.SendResetPasswordEmail)
-		r.Get("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ShowPasswordResetForm)
-		r.Post("/forgot-password/{upwRefId:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ResetPassword)
+		r.Get("/forgot-password/{upwRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ShowPasswordResetForm)
+		r.Post("/forgot-password/{upwRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.ResetPassword)
 		// account creation
 		r.Get("/create-account", zh.ShowCreateAccount)
 		r.Post("/create-account", zh.CreateAccount)

@@ -56,7 +56,7 @@ func (z *ZHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "upwRefId")
+	refIdStr := chi.URLParam(r, "upwRefID")
 	if hmacStr == "" || refIdStr == "" {
 		log.Debug().Msg("missing url query data")
 		z.Error(w, "not found", http.StatusNotFound)
@@ -78,14 +78,14 @@ func (z *ZHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIdT.Parse(refIdStr)
+	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		z.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefId(ctx, z.Db, refId)
+	upw, err := model.GetUserPWResetByRefID(ctx, z.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		z.Error(w, "bad data", http.StatusBadRequest)
@@ -167,10 +167,10 @@ func (z *ZHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 			z.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
-		upwRefIdStr := upw.RefId.String()
+		upwRefIDStr := upw.RefID.String()
 
 		// generate hmac
-		macBytes := z.Hmac.Generate([]byte(upwRefIdStr))
+		macBytes := z.Hmac.Generate([]byte(upwRefIDStr))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -183,7 +183,7 @@ func (z *ZHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 			Scheme: scheme,
 			Host:   r.Host,
 		}
-		u = u.JoinPath(fmt.Sprintf("/forgot-password/%s-%s", upwRefIdStr, macStr))
+		u = u.JoinPath(fmt.Sprintf("/forgot-password/%s-%s", upwRefIDStr, macStr))
 
 		// construct email
 		subject := "Password reset"
@@ -229,7 +229,7 @@ func (z *ZHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "upwRefId")
+	refIdStr := chi.URLParam(r, "upwRefID")
 	if hmacStr == "" || refIdStr == "" {
 		log.Debug().Msg("missing url query data")
 		z.Error(w, "not found", http.StatusNotFound)
@@ -259,14 +259,14 @@ func (z *ZHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIdT.Parse(refIdStr)
+	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		z.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefId(ctx, z.Db, refId)
+	upw, err := model.GetUserPWResetByRefID(ctx, z.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		z.Error(w, "bad data", http.StatusBadRequest)

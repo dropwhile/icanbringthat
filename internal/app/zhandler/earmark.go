@@ -107,19 +107,19 @@ func (z *ZHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("event not found")
@@ -131,7 +131,7 @@ func (z *ZHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("event item not found")
@@ -175,21 +175,21 @@ func (z *ZHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefId, err := model.EventRefIdT.Parse(chi.URLParam(r, "eRefId"))
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
 		z.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefId, err := model.EventItemRefIdT.Parse(chi.URLParam(r, "iRefId"))
+	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad eventitem ref-id")
 		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefId(ctx, z.Db, eventRefId)
+	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event")
@@ -201,7 +201,7 @@ func (z *ZHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefId(ctx, z.Db, eventItemRefId)
+	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event_item")
@@ -256,7 +256,7 @@ func (z *ZHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefId)) {
+	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
 		w.Header().Add("HX-Refresh", "true")
 	}
 
@@ -273,14 +273,14 @@ func (z *ZHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EarmarkRefIdT.Parse(chi.URLParam(r, "mRefId"))
+	refId, err := model.EarmarkRefIDT.Parse(chi.URLParam(r, "mRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad earmark ref-id")
 		z.Error(w, "bad earmark ref-id", http.StatusNotFound)
 		return
 	}
 
-	earmark, err := model.GetEarmarkByRefId(ctx, z.Db, refId)
+	earmark, err := model.GetEarmarkByRefID(ctx, z.Db, refId)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		z.Error(w, "not found", http.StatusNotFound)

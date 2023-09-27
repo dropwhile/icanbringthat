@@ -9,11 +9,11 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EventRefIdT = refid.Tagger(2)
+var EventRefIDT = refid.Tagger(2)
 
 type Event struct {
 	Id           int
-	RefId        refid.RefId `db:"ref_id"`
+	RefID        refid.RefID `db:"ref_id"`
 	UserId       int         `db:"user_id"`
 	Name         string
 	Description  string
@@ -25,16 +25,16 @@ type Event struct {
 }
 
 func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
-	if e.RefId.IsNil() {
-		e.RefId = refid.Must(EventRefIdT.New())
+	if e.RefID.IsNil() {
+		e.RefID = refid.Must(EventRefIDT.New())
 	}
 	q := `INSERT INTO event_ (user_id, ref_id, name, description, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
-	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefId, e.Name, e.Description, e.StartTime, e.StartTimeTZ)
+	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefID, e.Name, e.Description, e.StartTime, e.StartTimeTZ)
 	if err != nil {
 		return err
 	}
 	e.Id = res.Id
-	e.RefId = res.RefId
+	e.RefID = res.RefID
 	e.Created = res.Created
 	e.LastModified = res.LastModified
 	return nil
@@ -70,11 +70,11 @@ func GetEventById(ctx context.Context, db PgxHandle, id int) (*Event, error) {
 	return QueryOne[Event](ctx, db, q, id)
 }
 
-func GetEventByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*Event, error) {
-	if !EventRefIdT.HasCorrectTag(refId) {
+func GetEventByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*Event, error) {
+	if !EventRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), EventRefIdT.Tag(),
+			refId.Tag(), EventRefIDT.Tag(),
 		)
 		return nil, err
 	}

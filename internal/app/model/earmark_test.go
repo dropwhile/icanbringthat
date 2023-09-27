@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEarmarkRefId = refid.Must(refid.Parse("0r2ncjgvqbr09f7c304v2a4rh4"))
+var tstEarmarkRefID = refid.Must(refid.Parse("0r2ncjgvqbr09f7c304v2a4rh4"))
 
 func TestEarmarkInsert(t *testing.T) {
 	t.Parallel()
@@ -20,7 +20,7 @@ func TestEarmarkInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
@@ -28,7 +28,7 @@ func TestEarmarkInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO earmark_ (.+)*").
-		WithArgs(EarmarkRefIdT.AnyMatcher(), 1, 1, "some note").
+		WithArgs(EarmarkRefIDT.AnyMatcher(), 1, 1, "some note").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -36,11 +36,11 @@ func TestEarmarkInsert(t *testing.T) {
 
 	earmark, err := NewEarmark(ctx, mock, 1, 1, "some note")
 	assert.NilError(t, err)
-	assert.Check(t, earmark.RefId.HasTag(4))
+	assert.Check(t, earmark.RefID.HasTag(4))
 
 	assert.DeepEqual(t, earmark, &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",
@@ -63,7 +63,7 @@ func TestEarmarkSave(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -76,7 +76,7 @@ func TestEarmarkSave(t *testing.T) {
 
 	earmark := &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",
@@ -101,7 +101,7 @@ func TestEarmarkDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -114,7 +114,7 @@ func TestEarmarkDelete(t *testing.T) {
 
 	earmark := &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",
@@ -139,7 +139,7 @@ func TestEarmarkGetById(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
@@ -154,7 +154,7 @@ func TestEarmarkGetById(t *testing.T) {
 
 	assert.DeepEqual(t, earmark, &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",
@@ -168,7 +168,7 @@ func TestEarmarkGetById(t *testing.T) {
 	}
 }
 
-func TestEarmarkGetByRefId(t *testing.T) {
+func TestEarmarkGetByRefID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -177,7 +177,7 @@ func TestEarmarkGetByRefId(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
@@ -187,12 +187,12 @@ func TestEarmarkGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	earmark, err := GetEarmarkByRefId(ctx, mock, refId)
+	earmark, err := GetEarmarkByRefID(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",
@@ -215,7 +215,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefId
+	refId := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
@@ -227,7 +227,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 
 	eventItem := &EventItem{
 		Id:          1,
-		RefId:       refId,
+		RefID:       refId,
 		EventId:     1,
 		Description: "some desc",
 	}
@@ -236,7 +236,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 
 	assert.DeepEqual(t, earmark, &Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       1,
 		Note:         "some note",

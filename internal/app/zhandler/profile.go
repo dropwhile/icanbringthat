@@ -19,7 +19,7 @@ func (z *ZHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	profileUserRefId, err := model.UserRefIdT.Parse(chi.URLParam(r, "uRefId"))
+	profileUserRefID, err := model.UserRefIDT.Parse(chi.URLParam(r, "uRefID"))
 	if err != nil {
 		z.Error(w, "bad user ref-id", http.StatusNotFound)
 		return
@@ -27,11 +27,11 @@ func (z *ZHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 
 	selfView := false
 	var profileUser *model.User
-	if user.RefId == profileUserRefId {
+	if user.RefID == profileUserRefID {
 		selfView = true
 		profileUser = user
 	} else {
-		profileUser, err = model.GetUserByRefId(ctx, z.Db, profileUserRefId)
+		profileUser, err = model.GetUserByRefID(ctx, z.Db, profileUserRefID)
 		if err != nil {
 			z.Error(w, "user not found", http.StatusNotFound)
 			return

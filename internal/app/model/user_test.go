@@ -11,7 +11,7 @@ import (
 
 var (
 	columns      = []string{"id", "ref_id", "email", "name", "pwhash"}
-	tstUserRefId = refid.Must(refid.Parse("0r2nck7r2z7g35fefj2tv65thw"))
+	tstUserRefID = refid.Must(refid.Parse("0r2nck7r2z7g35fefj2tv65thw"))
 )
 
 func TestUserSetPassword(t *testing.T) {
@@ -23,10 +23,10 @@ func TestUserSetPassword(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	user := &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -55,11 +55,11 @@ func TestUserSetPassword(t *testing.T) {
 func TestUserCheckPassword(t *testing.T) {
 	t.Parallel()
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	ctx := context.TODO()
 	user := &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -86,13 +86,13 @@ func TestUserInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_ (.+)*").
-		WithArgs(UserRefIdT.AnyMatcher(), "user1@example.com", "j rando", pgxmock.AnyArg()).
+		WithArgs(UserRefIDT.AnyMatcher(), "user1@example.com", "j rando", pgxmock.AnyArg()).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -101,13 +101,13 @@ func TestUserInsert(t *testing.T) {
 	user, err := NewUser(ctx, mock, "user1@example.com", "j rando", []byte("000x000"))
 	assert.NilError(t, err)
 
-	assert.Check(t, user.RefId.HasTag(1))
+	assert.Check(t, user.RefID.HasTag(1))
 	passOk, err := user.CheckPass(ctx, []byte("000x000"))
 	assert.NilError(t, err)
 	assert.Check(t, passOk)
 	assert.DeepEqual(t, user, &User{
 		Id:     1,
-		RefId:  user.RefId,
+		RefID:  user.RefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: user.PWHash,
@@ -128,7 +128,7 @@ func TestUserSave(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE user_ (.+)*").
 		WithArgs("user1@example.com", "j rando", []byte("000x000"), 1).
@@ -139,7 +139,7 @@ func TestUserSave(t *testing.T) {
 
 	user := &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -162,7 +162,7 @@ func TestUserDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_ (.+)").
 		WithArgs(1).
@@ -173,7 +173,7 @@ func TestUserDelete(t *testing.T) {
 
 	user := &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -196,7 +196,7 @@ func TestUserGetById(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
@@ -209,7 +209,7 @@ func TestUserGetById(t *testing.T) {
 
 	assert.DeepEqual(t, user, &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -221,7 +221,7 @@ func TestUserGetById(t *testing.T) {
 	}
 }
 
-func TestUserGetByRefId(t *testing.T) {
+func TestUserGetByRefID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -230,7 +230,7 @@ func TestUserGetByRefId(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
@@ -238,12 +238,12 @@ func TestUserGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	user, err := GetUserByRefId(ctx, mock, refId)
+	user, err := GetUserByRefID(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, user, &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -264,7 +264,7 @@ func TestUserGetByEmail(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstUserRefId
+	refId := tstUserRefID
 	rows := pgxmock.NewRows(columns).
 		AddRow(1, refId, "user1@example.com", "j rando", []byte("000x000"))
 
@@ -277,7 +277,7 @@ func TestUserGetByEmail(t *testing.T) {
 
 	assert.DeepEqual(t, user, &User{
 		Id:     1,
-		RefId:  refId,
+		RefID:  refId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),

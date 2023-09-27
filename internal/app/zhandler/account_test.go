@@ -20,12 +20,12 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refId := refid.Must(model.UserRefIdT.New())
+	refId := refid.Must(model.UserRefIDT.New())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       pwhash,
@@ -125,7 +125,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// impacting future tests
 		user := &model.User{
 			Id:           1,
-			RefId:        refId,
+			RefID:        refId,
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,
@@ -384,11 +384,11 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := refid.Must(model.UserRefIdT.New())
+	refId := refid.Must(model.UserRefIDT.New())
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -446,12 +446,12 @@ func TestHandler_Account_Create(t *testing.T) {
 			[]string{
 				"id", "ref_id", "email", "pwhash", "created", "last_modified",
 			}).AddRow(
-			1, refid.Must(model.UserRefIdT.New()), "user@example.com", pwhash, tstTs, tstTs,
+			1, refid.Must(model.UserRefIDT.New()), "user@example.com", pwhash, tstTs, tstTs,
 		)
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIdT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -553,7 +553,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIdT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()
 		mock.ExpectRollback()
@@ -583,7 +583,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		pwhash, _ := util.HashPW([]byte("00x00"))
 		user := &model.User{
 			Id:           1,
-			RefId:        refid.Must(model.UserRefIdT.New()),
+			RefID:        refid.Must(model.UserRefIDT.New()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,

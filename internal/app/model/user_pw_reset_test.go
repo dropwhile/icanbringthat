@@ -25,7 +25,7 @@ func TestUserPWResetInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-		WithArgs(UserPWResetRefIdT.AnyMatcher(), 1).
+		WithArgs(UserPWResetRefIDT.AnyMatcher(), 1).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -33,7 +33,7 @@ func TestUserPWResetInsert(t *testing.T) {
 
 	user := &User{
 		Id:     1,
-		RefId:  tstUserRefId,
+		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -42,9 +42,9 @@ func TestUserPWResetInsert(t *testing.T) {
 	upw, err := NewUserPWReset(ctx, mock, user)
 	assert.NilError(t, err)
 
-	assert.Check(t, upw.RefId.HasTag(5))
+	assert.Check(t, upw.RefID.HasTag(5))
 	assert.DeepEqual(t, upw, &UserPWReset{
-		RefId:  refId,
+		RefID:  refId,
 		UserId: 1,
 	})
 
@@ -73,7 +73,7 @@ func TestUserPWReserDelete(t *testing.T) {
 	mock.ExpectRollback()
 
 	upw := &UserPWReset{
-		RefId:  refId,
+		RefID:  refId,
 		UserId: 1,
 	}
 	err = upw.Delete(ctx, mock)
@@ -85,7 +85,7 @@ func TestUserPWReserDelete(t *testing.T) {
 	}
 }
 
-func TestUserPWReserGetByRefId(t *testing.T) {
+func TestUserPWReserGetByRefID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -103,11 +103,11 @@ func TestUserPWReserGetByRefId(t *testing.T) {
 		WithArgs(refId).
 		WillReturnRows(rows)
 
-	upw, err := GetUserPWResetByRefId(ctx, mock, refId)
+	upw, err := GetUserPWResetByRefID(ctx, mock, refId)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, upw, &UserPWReset{
-		RefId:  refId,
+		RefID:  refId,
 		UserId: 1,
 	})
 

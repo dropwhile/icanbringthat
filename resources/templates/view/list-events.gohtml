@@ -61,7 +61,7 @@
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <a href="/events/{{.RefId }}">
+                  <a href="/events/{{.RefID }}">
                     <p class="font-semibold">{{.Name}}</p>
                   </a>
                 </div>
@@ -89,7 +89,7 @@
                   onmouseout="outFunc(this)"
                 >
                   <span class="tooltiptext">Copy to clipboard</span>
-                  <span hidden class="eventlink">/events/{{.RefId}}</span>
+                  <span hidden class="eventlink">/events/{{.RefID}}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -112,7 +112,7 @@
                   style="padding-right: 0.25rem; padding-left: 0.25rem;"
                   aria-label="Remove"
                   hx-confirm="Are you sure?"
-                  hx-delete="/events/{{.RefId}}"
+                  hx-delete="/events/{{.RefID}}"
                   hx-trigger="click throttle:1s"
                   hx-target="closest tr"
                   hx-swap="outerHTML swap:1s"

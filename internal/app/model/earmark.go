@@ -9,11 +9,11 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EarmarkRefIdT = refid.Tagger(4)
+var EarmarkRefIDT = refid.Tagger(4)
 
 type Earmark struct {
 	Id           int
-	RefId        refid.RefId `db:"ref_id"`
+	RefID        refid.RefID `db:"ref_id"`
 	EventItemId  int         `db:"event_item_id"`
 	UserId       int         `db:"user_id"`
 	Note         string
@@ -24,16 +24,16 @@ type Earmark struct {
 }
 
 func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
-	if em.RefId.IsNil() {
-		em.RefId = refid.Must(EarmarkRefIdT.New())
+	if em.RefID.IsNil() {
+		em.RefID = refid.Must(EarmarkRefIDT.New())
 	}
 	q := `INSERT INTO earmark_ (ref_id, event_item_id, user_id, note) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryOneTx[Earmark](ctx, db, q, em.RefId, em.EventItemId, em.UserId, em.Note)
+	res, err := QueryOneTx[Earmark](ctx, db, q, em.RefID, em.EventItemId, em.UserId, em.Note)
 	if err != nil {
 		return err
 	}
 	em.Id = res.Id
-	em.RefId = res.RefId
+	em.RefID = res.RefID
 	em.Created = res.Created
 	em.LastModified = res.LastModified
 	return nil
@@ -75,11 +75,11 @@ func GetEarmarkById(ctx context.Context, db PgxHandle, id int) (*Earmark, error)
 	return QueryOne[Earmark](ctx, db, q, id)
 }
 
-func GetEarmarkByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*Earmark, error) {
-	if !EarmarkRefIdT.HasCorrectTag(refId) {
+func GetEarmarkByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*Earmark, error) {
+	if !EarmarkRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), EarmarkRefIdT.Tag(),
+			refId.Tag(), EarmarkRefIDT.Tag(),
 		)
 		return nil, err
 	}

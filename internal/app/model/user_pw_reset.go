@@ -8,34 +8,34 @@ import (
 	"github.com/dropwhile/refid"
 )
 
-var UserPWResetRefIdT = refid.Tagger(5)
+var UserPWResetRefIDT = refid.Tagger(5)
 
 type UserPWReset struct {
-	RefId   refid.RefId `db:"ref_id"`
+	RefID   refid.RefID `db:"ref_id"`
 	UserId  int         `db:"user_id"`
 	Created time.Time
 }
 
 func (upw *UserPWReset) IsExpired() bool {
-	return upw.RefId.Time().Add(30 * time.Minute).Before(time.Now())
+	return upw.RefID.Time().Add(30 * time.Minute).Before(time.Now())
 }
 
 func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
-	if upw.RefId.IsNil() {
-		upw.RefId = refid.Must(UserPWResetRefIdT.New())
+	if upw.RefID.IsNil() {
+		upw.RefID = refid.Must(UserPWResetRefIDT.New())
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefId, upw.UserId)
+	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefID, upw.UserId)
 	if err != nil {
 		return err
 	}
-	upw.RefId = res.RefId
+	upw.RefID = res.RefID
 	return nil
 }
 
 func (upw *UserPWReset) Delete(ctx context.Context, db PgxHandle) error {
 	q := `DELETE FROM user_pw_reset_ WHERE ref_id = $1`
-	return ExecTx[UserPWReset](ctx, db, q, upw.RefId)
+	return ExecTx[UserPWReset](ctx, db, q, upw.RefID)
 }
 
 func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset, error) {
@@ -49,11 +49,11 @@ func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset
 	return upw, nil
 }
 
-func GetUserPWResetByRefId(ctx context.Context, db PgxHandle, refId refid.RefId) (*UserPWReset, error) {
-	if !UserPWResetRefIdT.HasCorrectTag(refId) {
+func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*UserPWReset, error) {
+	if !UserPWResetRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), UserPWResetRefIdT.Tag(),
+			refId.Tag(), UserPWResetRefIDT.Tag(),
 		)
 		return nil, err
 	}

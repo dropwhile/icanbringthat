@@ -21,11 +21,11 @@ import (
 func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Parallel()
 
-	refId := refid.Must(model.EarmarkRefIdT.New())
+	refId := refid.Must(model.EarmarkRefIDT.New())
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -34,7 +34,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		Id:           1,
-		RefId:        refId,
+		RefID:        refId,
 		EventItemId:  1,
 		UserId:       user.Id,
 		Note:         "nothing",
@@ -51,14 +51,14 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefId", earmark.RefId.String())
+		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-			AddRow(earmark.Id, earmark.RefId, earmark.EventItemId, user.Id, earmark.Note, ts, ts)
+			AddRow(earmark.Id, earmark.RefID, earmark.EventItemId, user.Id, earmark.Note, ts, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefId).
+			WithArgs(earmark.RefID).
 			WillReturnRows(rows)
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM earmark_").
@@ -116,7 +116,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefId", "hodor")
+		rctx.URLParams.Add("mRefID", "hodor")
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -142,8 +142,8 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId = refid.Must(model.EarmarkRefIdT.New())
-		rctx.URLParams.Add("mRefId", refId.String())
+		refId = refid.Must(model.EarmarkRefIDT.New())
+		rctx.URLParams.Add("mRefID", refId.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(refId).
@@ -173,8 +173,8 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId = refid.Must(model.EventRefIdT.New())
-		rctx.URLParams.Add("mRefId", refId.String())
+		refId = refid.Must(model.EventRefIDT.New())
+		rctx.URLParams.Add("mRefID", refId.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -200,14 +200,14 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefId", earmark.RefId.String())
+		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-			AddRow(earmark.Id, earmark.RefId, earmark.EventItemId, user.Id+1, earmark.Note, ts, ts)
+			AddRow(earmark.Id, earmark.RefID, earmark.EventItemId, user.Id+1, earmark.Note, ts, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefId).
+			WithArgs(earmark.RefID).
 			WillReturnRows(rows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
@@ -232,7 +232,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefId:        refid.Must(model.UserRefIdT.New()),
+		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -241,7 +241,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		Id:           1,
-		RefId:        refid.Must(model.EventRefIdT.New()),
+		RefID:        refid.Must(model.EventRefIDT.New()),
 		UserId:       user.Id,
 		Name:         "event",
 		Description:  "description",
@@ -252,7 +252,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		Id:           2,
-		RefId:        refid.Must(model.EventItemRefIdT.New()),
+		RefID:        refid.Must(model.EventItemRefIDT.New()),
 		EventId:      event.Id,
 		Description:  "eventitem",
 		Created:      ts,
@@ -260,7 +260,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		Id:           3,
-		RefId:        refid.Must(model.EarmarkRefIdT.New()),
+		RefID:        refid.Must(model.EarmarkRefIDT.New()),
 		EventItemId:  eventItem.Id,
 		UserId:       user.Id,
 		Note:         "nothing",
@@ -274,7 +274,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			"start_time", "start_time_tz", "created", "last_modified",
 		}).
 		AddRow(
-			event.Id, event.RefId, event.UserId, event.Name, event.Description,
+			event.Id, event.RefID, event.UserId, event.Name, event.Description,
 			event.StartTime, event.StartTimeTZ, ts, ts,
 		)
 	eventItemRows := pgxmock.NewRows(
@@ -282,7 +282,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			"id", "ref_id", "event_id", "description", "created", "last_modified",
 		}).
 		AddRow(
-			eventItem.Id, eventItem.RefId, eventItem.EventId, eventItem.Description,
+			eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
 			ts, ts,
 		)
 	earmarkRows := pgxmock.NewRows(
@@ -290,7 +290,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 		}).
 		AddRow(
-			earmark.Id, earmark.RefId, earmark.EventItemId, earmark.UserId,
+			earmark.Id, earmark.RefID, earmark.EventItemId, earmark.UserId,
 			earmark.Note, ts, ts,
 		)
 
@@ -303,7 +303,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 				"start_time", "start_time_tz", "created", "last_modified",
 			}).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		ctx := context.TODO()
@@ -312,14 +312,14 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(eventItem.Id).
@@ -327,7 +327,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO earmark_").
-			WithArgs(model.EarmarkRefIdT.AnyMatcher(), earmark.EventItemId, earmark.UserId, "some note").
+			WithArgs(model.EarmarkRefIDT.AnyMatcher(), earmark.EventItemId, earmark.UserId, "some note").
 			WillReturnRows(earmarkRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -358,8 +358,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", "hodor")
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", "hodor")
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
@@ -387,8 +387,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", eventItem.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
@@ -416,8 +416,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", "hodor")
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", "hodor")
 
 		data := url.Values{"note": {"some note"}}
 
@@ -445,8 +445,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", event.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", event.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
@@ -474,11 +474,11 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{"note": {"some note"}}
@@ -507,14 +507,14 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{"note": {"some note"}}
@@ -543,7 +543,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 				"start_time", "start_time_tz", "created", "last_modified",
 			}).
 			AddRow(
-				event.Id, event.RefId, event.UserId, event.Name, event.Description,
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(
@@ -551,7 +551,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 				"id", "ref_id", "event_id", "description", "created", "last_modified",
 			}).
 			AddRow(
-				eventItem.Id, eventItem.RefId, 33, eventItem.Description,
+				eventItem.Id, eventItem.RefID, 33, eventItem.Description,
 				ts, ts,
 			)
 		ctx := context.TODO()
@@ -560,14 +560,14 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefId", event.RefId.String())
-		rctx.URLParams.Add("iRefId", eventItem.RefId.String())
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefId).
+			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefId).
+			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 
 		data := url.Values{"note": {"some note"}}
