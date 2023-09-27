@@ -27,12 +27,20 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
           CI: true
+          GOEXPERIMENT: loopvar
+          LOG_LEVEL: trace
+          LOG_FORMAT: plain
+          PRODUCTION: false
         run: make build
 
       - name: Check
         env:
           GOPROXY: "https://proxy.golang.org"
           CI: true
+          GOEXPERIMENT: loopvar
+          LOG_LEVEL: trace
+          LOG_FORMAT: plain
+          PRODUCTION: false
         run: |
           make check
 
@@ -40,4 +48,8 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
           CI: true
+          GOEXPERIMENT: loopvar
+          LOG_LEVEL: trace
+          LOG_FORMAT: plain
+          PRODUCTION: false
         run: make test
