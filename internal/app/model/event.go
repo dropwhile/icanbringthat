@@ -97,7 +97,7 @@ func GetEventsComingSoonByUserPaginated(ctx context.Context, db PgxHandle, user 
 		SELECT *
 		FROM event_
 		WHERE
-			event_.user_id = $1
+			event_.user_id = $1 AND
 			start_time > CURRENT_TIMESTAMP(0)
 		ORDER BY 
 			start_time ASC,

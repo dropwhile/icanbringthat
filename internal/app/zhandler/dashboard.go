@@ -21,7 +21,7 @@ func (z *ZHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := model.GetEventsByUserPaginated(ctx, z.Db, user, 10, 0)
+	events, err := model.GetEventsComingSoonByUserPaginated(ctx, z.Db, user, 10, 0)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for events")
