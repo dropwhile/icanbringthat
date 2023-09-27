@@ -45,5 +45,6 @@ ENV GOOSE_DBSTRING=""
 ENV GOOSE_MIGRATION_DIR=database/migrations
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app"
 
+USER nobody
 EXPOSE 8000
 CMD ["/app/server"]
