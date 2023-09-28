@@ -166,7 +166,7 @@ docker-build:
 	@DOCKER_BUILDKIT=1 docker build \
 		--build-arg GITHASH=${(GITHASH} \
 		--build-arg APP_VER=${APP_VER} \
-		-t icbt \
+		-t icbt:latest \
 		-f docker/Dockerfile \
 		.
 	@${DOCKER_POSTBUILD}
