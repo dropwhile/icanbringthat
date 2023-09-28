@@ -50,6 +50,7 @@ func NewAPI(
 
 	// Router/Middleware //
 	r := api.Mux
+	r.Use(middleware.RealIP)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)
 	r.Use(middleware.RequestID)
