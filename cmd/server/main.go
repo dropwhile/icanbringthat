@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	_ "database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"path"
@@ -201,41 +199,12 @@ func main() {
 	// routing/handlers
 	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
 	defer r.Close()
-	// serve static files
-	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(http.FS(staticFS))))
-	// serve favicon
-	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		f, err := staticFS.Open("img/favicon.ico")
-		if err != nil {
-			log.Debug().Err(err).Msg("cant read favicon")
-			http.Error(w, "Not Found", 404)
-			return
-		}
-		defer f.Close()
-		b, err := io.ReadAll(f)
-		if err != nil {
-			log.Debug().Err(err).Msg("cant read favicon")
-			http.Error(w, "Not Found", 404)
-			return
-		}
-		http.ServeContent(w, r, "favicon.ico", time.Time{}, bytes.NewReader(b))
-	})
-	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		f, err := staticFS.Open("robots.txt")
-		if err != nil {
-			log.Debug().Err(err).Msg("cant read robots.txt")
-			http.Error(w, "Not Found", 404)
-			return
-		}
-		defer f.Close()
-		b, err := io.ReadAll(f)
-		if err != nil {
-			log.Debug().Err(err).Msg("cant read robots.txt")
-			http.Error(w, "Not Found", 404)
-			return
-		}
-		http.ServeContent(w, r, "robots.txt", time.Time{}, bytes.NewReader(b))
-	})
+
+	// serve static files dir as /static/*
+	r.Get("/static/*", resources.FileServer(staticFS, "/static"))
+	// some other single item static files
+	r.Get("/favicon.ico", resources.ServeSingle(staticFS, "img/favicon.ico"))
+	r.Get("/robots.txt", resources.ServeSingle(staticFS, "robots.txt"))
 
 	log.Info().Msgf("listening: %s", listenHostPort)
 	server := &http.Server{
