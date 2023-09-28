@@ -92,6 +92,7 @@
           <button
             class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none"
             @click="profile=!profile"
+            @click.outside="profile=false"
             @keydown.escape="profile=false"
             aria-label="Account"
             aria-haspopup="true"
@@ -114,7 +115,6 @@
               x-transition:leave="transition ease-in duration-150"
               x-transition:leave-start="opacity-100"
               x-transition:leave-end="opacity-0"
-              @click.outside="profile=!profile"
               @keydown.escape="profile=!profile"
               class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
               aria-label="submenu"
