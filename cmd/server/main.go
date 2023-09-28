@@ -220,6 +220,22 @@ func main() {
 		}
 		http.ServeContent(w, r, "favicon.ico", time.Time{}, bytes.NewReader(b))
 	})
+	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		f, err := staticFS.Open("robots.txt")
+		if err != nil {
+			log.Debug().Err(err).Msg("cant read robots.txt")
+			http.Error(w, "Not Found", 404)
+			return
+		}
+		defer f.Close()
+		b, err := io.ReadAll(f)
+		if err != nil {
+			log.Debug().Err(err).Msg("cant read robots.txt")
+			http.Error(w, "Not Found", 404)
+			return
+		}
+		http.ServeContent(w, r, "robots.txt", time.Time{}, bytes.NewReader(b))
+	})
 
 	log.Info().Msgf("listening: %s", listenHostPort)
 	server := &http.Server{
