@@ -9,7 +9,7 @@ RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 COPY . /workdir/
 ARG GITHASH
 ARG APP_VER
-RUN make build
+RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"
 
 # make runnable image
 FROM alpine:latest

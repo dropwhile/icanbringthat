@@ -164,7 +164,7 @@ docker-build:
 	@echo ">> Building docker image..."
 	@${DOCKER_PREBUILD}
 	@DOCKER_BUILDKIT=1 docker build \
-		--build-arg GITHASH=${(GITHASH} \
+		--build-arg GITHASH=${GITHASH} \
 		--build-arg APP_VER=${APP_VER} \
 		-t icbt:latest \
 		-f docker/Dockerfile \
