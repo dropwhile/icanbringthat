@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type ZHandler struct {
+type XHandler struct {
 	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
@@ -24,11 +24,11 @@ type ZHandler struct {
 	Hmac    *util.Hmac
 }
 
-func (z *ZHandler) Template(name string) (*template.Template, error) {
-	return z.Tpl.Get(name)
+func (x *XHandler) Template(name string) (*template.Template, error) {
+	return x.Tpl.Get(name)
 }
 
-func (z *ZHandler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
+func (x *XHandler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
 	htmxCurrentUrl := r.Header.Get("HX-Current-URL")
 	if htmxCurrentUrl != "" {
 		u, err := url.Parse(htmxCurrentUrl)
@@ -37,8 +37,8 @@ func (z *ZHandler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
 	return false
 }
 
-func (z *ZHandler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
-	tpl, err := z.Tpl.Get(name)
+func (x *XHandler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
+	tpl, err := x.Tpl.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
@@ -58,8 +58,8 @@ func (z *ZHandler) TemplateExecute(w io.Writer, name string, vars map[string]any
 	return nil
 }
 
-func (z *ZHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
-	tpl, err := z.Tpl.Get(name)
+func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
+	tpl, err := x.Tpl.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
@@ -81,41 +81,41 @@ func (z *ZHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars ma
 	return nil
 }
 
-func (z *ZHandler) TestTemplates(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) TestTemplates(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Fprint(w, err)
 		return
 	}
 
-	x := r.Form.Get("tpl")
 	y := r.Form.Get("nav")
-	if x == "" {
-		x = "index.gohtml"
-	}
+	z := r.Form.Get("tpl")
 	if y == "" {
 		y = "dashboard"
+	}
+	if z == "" {
+		z = "index.gohtml"
 	}
 	tplVars := map[string]any{
 		"user":  "nope",
 		"title": y,
 		"nav":   y,
 	}
-	err = z.TemplateExecute(w, x, tplVars)
+	err = x.TemplateExecute(w, z, tplVars)
 	if err != nil {
 		fmt.Fprint(w, err)
 	}
 }
 
-func (z *ZHandler) NotFound(w http.ResponseWriter, r *http.Request) {
-	z.Error(w, "Not Found", 404)
+func (x *XHandler) NotFound(w http.ResponseWriter, r *http.Request) {
+	x.Error(w, "Not Found", 404)
 }
 
-func (z *ZHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
+func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	w.Header().Set("content-type", "text/html")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
-	err := z.TemplateExecute(w, "error-page.gohtml", map[string]any{
+	err := x.TemplateExecute(w, "error-page.gohtml", map[string]any{
 		"ErrorCode":   404,
 		"ErrorStatus": statusMsg,
 		"title":       fmt.Sprintf("%d - %s", code, statusMsg),

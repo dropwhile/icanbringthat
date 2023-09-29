@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (z *ZHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -23,21 +23,21 @@ func (z *ZHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"title":          "Login",
 		"next":           r.FormValue("next"),
-		"flashes":        z.SessMgr.FlashPopKey(ctx, "login"),
+		"flashes":        x.SessMgr.FlashPopKey(ctx, "login"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	// err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
-	err = z.TemplateExecute(w, "login-form.gohtml", tplVars)
+	err = x.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -49,7 +49,7 @@ func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		z.Error(w, err.Error(), http.StatusBadRequest)
+		x.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -58,15 +58,15 @@ func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if email == "" || passwd == "" {
 		log.Debug().Msg("missing form data")
-		z.Error(w, "Missing form data", http.StatusBadRequest)
+		x.Error(w, "Missing form data", http.StatusBadRequest)
 		return
 	}
 
 	// find user...
-	user, err := model.GetUserByEmail(ctx, z.Db, email)
+	user, err := model.GetUserByEmail(ctx, x.Db, email)
 	if err != nil || user == nil {
 		log.Debug().Err(err).Msg("invalid credentials: no user match")
-		z.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
+		x.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -74,7 +74,7 @@ func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ok, err := user.CheckPass(ctx, []byte(passwd))
 	if err != nil || !ok {
 		log.Debug().Err(err).Msg("invalid credentials: pass check fail")
-		z.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
+		x.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -82,13 +82,13 @@ func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = z.SessMgr.RenewToken(ctx)
+	err = x.SessMgr.RenewToken(ctx)
 	if err != nil {
-		z.Error(w, err.Error(), 500)
+		x.Error(w, err.Error(), 500)
 		return
 	}
 	// Then make the privilege-level change.
-	z.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.Id)
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
 		target = r.FormValue("next")
@@ -96,17 +96,17 @@ func (z *ZHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
-func (z *ZHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	if err := z.SessMgr.Clear(r.Context()); err != nil {
-		z.Error(w, err.Error(), 500)
+func (x *XHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	if err := x.SessMgr.Clear(r.Context()); err != nil {
+		x.Error(w, err.Error(), 500)
 		return
 	}
 
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	if err := z.SessMgr.RenewToken(r.Context()); err != nil {
-		z.Error(w, "session error", http.StatusInternalServerError)
+	if err := x.SessMgr.RenewToken(r.Context()); err != nil {
+		x.Error(w, "session error", http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)

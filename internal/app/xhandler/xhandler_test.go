@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"context"
@@ -90,14 +90,14 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 	tm.Send(from, to, subject, bodyPlain, bodyHtml)
 }
 
-func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *ZHandler) {
+func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *XHandler) {
 	t.Helper()
 
 	mock, err := pgxmock.NewConn()
 	assert.NilError(t, err)
 	t.Cleanup(func() { mock.Close(ctx) })
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
-	h := &ZHandler{
+	h := &XHandler{
 		Db:      mock,
 		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewMemorySessionManager(),
@@ -110,17 +110,17 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	return mock, mux, h
 }
 
-func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, z *ZHandler) string {
+func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *XHandler) string {
 	t.Helper()
 
 	userId := 1
 	ts := tstTs
 
 	mux.Get("/dummy", func(w http.ResponseWriter, r *http.Request) {
-		err := z.SessMgr.RenewToken(r.Context())
+		err := x.SessMgr.RenewToken(r.Context())
 		assert.NilError(t, err)
 		// add data to session
-		z.SessMgr.Put(r.Context(), "user-id", userId)
+		x.SessMgr.Put(r.Context(), "user-id", userId)
 		w.WriteHeader(http.StatusOK)
 	})
 

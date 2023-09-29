@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (z *ZHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -23,28 +23,28 @@ func (z *ZHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	// parse user-id url param
 	tplVars := map[string]any{
 		"title":          "Create Account",
-		"flashes":        z.SessMgr.FlashPopKey(ctx, "operations"),
+		"flashes":        x.SessMgr.FlashPopKey(ctx, "operations"),
 		"next":           r.FormValue("next"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = z.TemplateExecute(w, "create-account-form.gohtml", tplVars)
+	err = x.TemplateExecute(w, "create-account-form.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (z *ZHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
@@ -52,24 +52,24 @@ func (z *ZHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"user":           user,
 		"title":          "Settings",
-		"flashes":        z.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = z.TemplateExecute(w, "show-settings.gohtml", tplVars)
+	err = x.TemplateExecute(w, "show-settings.gohtml", tplVars)
 	if err != nil {
 		log.Debug().Err(err).Msg("template error")
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (z *ZHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
-		z.Error(w, err.Error(), http.StatusBadRequest)
+		x.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -78,11 +78,11 @@ func (z *ZHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	passwd := r.PostFormValue("password")
 	confirm_passwd := r.PostFormValue("confirm_password")
 	if email == "" || name == "" || passwd == "" {
-		z.Error(w, "bad form data", http.StatusBadRequest)
+		x.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 	if passwd != confirm_passwd {
-		z.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
+		x.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
 		return
 	}
 
@@ -91,29 +91,29 @@ func (z *ZHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if auth.IsLoggedIn(ctx) {
 		// got a user, you can't make a user if you are already logged
 		// in!
-		z.Error(w, "already logged in as a user", http.StatusForbidden)
+		x.Error(w, "already logged in as a user", http.StatusForbidden)
 		return
 	}
 
-	user, err := model.NewUser(ctx, z.Db, email, name, []byte(passwd))
+	user, err := model.NewUser(ctx, x.Db, email, name, []byte(passwd))
 	if err != nil {
 		log.Error().Err(err).Msg("error adding user")
-		z.Error(w, "error adding user", http.StatusBadRequest)
+		x.Error(w, "error adding user", http.StatusBadRequest)
 		return
 	}
 
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = z.SessMgr.RenewToken(ctx)
+	err = x.SessMgr.RenewToken(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error renewing session token")
-		z.Error(w, err.Error(), 500)
+		x.Error(w, err.Error(), 500)
 		return
 	}
 	// Then make the privilege-level change.
-	z.SessMgr.Put(r.Context(), "user-id", user.Id)
-	z.SessMgr.FlashAppend(ctx, "operations", "Account created. You are now logged in.")
+	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.FlashAppend(ctx, "operations", "Account created. You are now logged in.")
 
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
@@ -122,19 +122,19 @@ func (z *ZHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
-func (z *ZHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
-		z.Error(w, err.Error(), http.StatusBadRequest)
+		x.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -173,7 +173,7 @@ func (z *ZHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 				err = user.SetPass(ctx, []byte(newPasswd))
 				if err != nil {
 					log.Error().Err(err).Msg("error setting user password")
-					z.Error(w, "error updating user", http.StatusInternalServerError)
+					x.Error(w, "error updating user", http.StatusInternalServerError)
 					return
 				}
 				operations = append(operations, "Password update successfull")
@@ -183,38 +183,38 @@ func (z *ZHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = user.Save(ctx, z.Db)
+		err = user.Save(ctx, x.Db)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
-			z.Error(w, "error updating user", http.StatusInternalServerError)
+			x.Error(w, "error updating user", http.StatusInternalServerError)
 			return
 		}
-		z.SessMgr.FlashAppend(ctx, "operations", operations...)
+		x.SessMgr.FlashAppend(ctx, "operations", operations...)
 	} else {
-		z.SessMgr.FlashAppend(ctx, "errors", warnings...)
+		x.SessMgr.FlashAppend(ctx, "errors", warnings...)
 	}
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (z *ZHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		log.Debug().Err(err).Msg("bad session data")
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
-	err = user.Delete(ctx, z.Db)
+	err = user.Delete(ctx, x.Db)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 	// destroy session
-	err = z.SessMgr.Destroy(ctx)
+	err = x.SessMgr.Destroy(ctx)
 	if err != nil {
 		// not a fatal error (do not return 500 to user), since the user deleted
 		// sucessfully already. just log the oddity

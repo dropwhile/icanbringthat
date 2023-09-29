@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"errors"
@@ -14,31 +14,31 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (z *ZHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		z.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -47,7 +47,7 @@ func (z *ZHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 			Int("user.Id", user.Id).
 			Int("event.UserId", event.UserId).
 			Msg("user id mismatch")
-		z.Error(w, "access denied", http.StatusForbidden)
+		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
@@ -62,47 +62,47 @@ func (z *ZHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).Target() == "modalbody" {
-		err = z.TemplateExecuteSub(w, "create-eventitem-form.gohtml", "form", tplVars)
+		err = x.TemplateExecuteSub(w, "create-eventitem-form.gohtml", "form", tplVars)
 	} else {
-		err = z.TemplateExecute(w, "create-eventitem-form.gohtml", tplVars)
+		err = x.TemplateExecute(w, "create-eventitem-form.gohtml", tplVars)
 	}
 	if err != nil {
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (z *ZHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		z.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
-		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
+		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -111,19 +111,19 @@ func (z *ZHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 			Int("user.Id", user.Id).
 			Int("event.UserId", event.UserId).
 			Msg("user id mismatch")
-		z.Error(w, "access denied", http.StatusForbidden)
+		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
+	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event item")
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -139,42 +139,42 @@ func (z *ZHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).Target() == "modalbody" {
-		err = z.TemplateExecuteSub(w, "edit-eventitem-form.gohtml", "form", tplVars)
+		err = x.TemplateExecuteSub(w, "edit-eventitem-form.gohtml", "form", tplVars)
 	} else {
-		err = z.TemplateExecute(w, "edit-eventitem-form.gohtml", tplVars)
+		err = x.TemplateExecute(w, "edit-eventitem-form.gohtml", tplVars)
 	}
 	if err != nil {
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (z *ZHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
-		z.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event")
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -183,63 +183,63 @@ func (z *ZHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 			Int("user.Id", user.Id).
 			Int("event.UserId", event.UserId).
 			Msg("user id mismatch")
-		z.Error(w, "access denied", http.StatusForbidden)
+		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form")
-		z.Error(w, err.Error(), http.StatusBadRequest)
+		x.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	description := r.FormValue("description")
 	if description == "" {
 		log.Debug().Err(err).Msg("description form element empty")
-		z.Error(w, "bad form data", http.StatusBadRequest)
+		x.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
-	_, err = model.NewEventItem(ctx, z.Db, event.Id, description)
+	_, err = model.NewEventItem(ctx, x.Db, event.Id, description)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
-func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		z.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
 	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
 	if err != nil {
-		z.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
+		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -248,18 +248,18 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 			Int("user.Id", user.Id).
 			Int("event.UserId", event.UserId).
 			Msg("user id mismatch")
-		z.Error(w, "access denied", http.StatusForbidden)
+		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
+	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		z.Error(w, "not found", http.StatusNotFound)
+		x.Error(w, "not found", http.StatusNotFound)
 		return
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
-		z.Error(w, "db error", http.StatusInternalServerError)
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -275,7 +275,7 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	// check if earmark exists, and is marked by someone else
 	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, z.Db, eventItem)
+	earmark, err := model.GetEarmarkByEventItem(ctx, x.Db, eventItem)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("db error")
@@ -306,7 +306,7 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventItem.Description = description
-	err = eventItem.Save(ctx, z.Db)
+	err = eventItem.Save(ctx, x.Db)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -322,7 +322,7 @@ func (z *ZHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -344,7 +344,7 @@ func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, z.Db, eventRefID)
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
@@ -364,7 +364,7 @@ func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, z.Db, eventItemRefID)
+	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
@@ -385,7 +385,7 @@ func (z *ZHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = eventItem.Delete(ctx, z.Db)
+	err = eventItem.Delete(ctx, x.Db)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)

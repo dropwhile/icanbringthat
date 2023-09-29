@@ -4,7 +4,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/zhandler"
+	"github.com/dropwhile/icbt/internal/app/xhandler"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
@@ -16,7 +16,7 @@ import (
 
 type API struct {
 	*chi.Mux
-	handler *zhandler.ZHandler
+	handler *xhandler.XHandler
 	closers []func()
 }
 
@@ -34,7 +34,7 @@ func NewAPI(
 	db *model.DB, tpl resources.TemplateMap, mailer *util.Mailer,
 	csrfKey, hmacKey []byte, isProd bool,
 ) *API {
-	zh := &zhandler.ZHandler{
+	zh := &xhandler.XHandler{
 		Db:      db,
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db.GetPool()),

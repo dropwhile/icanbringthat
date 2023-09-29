@@ -1,4 +1,4 @@
-package zhandler
+package xhandler
 
 import (
 	"net/http"
@@ -8,20 +8,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (z *ZHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		z.Error(w, "bad session data", http.StatusBadRequest)
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	// parse user-id url param
 	profileUserRefID, err := model.UserRefIDT.Parse(chi.URLParam(r, "uRefID"))
 	if err != nil {
-		z.Error(w, "bad user ref-id", http.StatusNotFound)
+		x.Error(w, "bad user ref-id", http.StatusNotFound)
 		return
 	}
 
@@ -31,9 +31,9 @@ func (z *ZHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		selfView = true
 		profileUser = user
 	} else {
-		profileUser, err = model.GetUserByRefID(ctx, z.Db, profileUserRefID)
+		profileUser, err = model.GetUserByRefID(ctx, x.Db, profileUserRefID)
 		if err != nil {
-			z.Error(w, "user not found", http.StatusNotFound)
+			x.Error(w, "user not found", http.StatusNotFound)
 			return
 		}
 	}
@@ -45,9 +45,9 @@ func (z *ZHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = z.TemplateExecute(w, "show-profile.gohtml", tplVars)
+	err = x.TemplateExecute(w, "show-profile.gohtml", tplVars)
 	if err != nil {
-		z.Error(w, "template error", http.StatusInternalServerError)
+		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
 }
