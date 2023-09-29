@@ -206,12 +206,7 @@ func (z *ZHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 			Msg("email content")
 
 		_ = user
-		go func() {
-			err := z.Mailer.Send("", []string{user.Email}, subject, messagePlain, messageHtml)
-			if err != nil {
-				log.Info().Err(err).Msg("error sending email")
-			}
-		}()
+		z.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml)
 	}
 
 	z.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")

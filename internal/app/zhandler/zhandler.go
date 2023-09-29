@@ -20,7 +20,7 @@ type ZHandler struct {
 	Db      model.PgxHandle
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
-	Mailer  *util.Mailer
+	Mailer  util.MailSender
 	Hmac    *util.Hmac
 }
 

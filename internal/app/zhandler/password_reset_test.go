@@ -3,9 +3,11 @@ package zhandler
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -477,6 +479,124 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusInternalServerError)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+}
+
+func TestHandler_SendResetPasswordEmail(t *testing.T) {
+	t.Parallel()
+
+	ts := tstTs
+	user := &model.User{
+		Id:           1,
+		RefID:        refid.Must(model.UserRefIDT.New()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	pwr := &model.UserPWReset{
+		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
+		UserId:  user.Id,
+		Created: ts,
+	}
+
+	userColumns := []string{"id", "ref_id", "email", "name", "pwhash"}
+	pwColumns := []string{"ref_id", "user_id", "created"}
+	passResetTpl := template.Must(template.New("").Parse(`{{.Subject}}: {{.PasswordResetUrl}}`))
+
+	t.Run("send pw reset email", func(t *testing.T) {
+		t.Parallel()
+
+		userRows := pgxmock.NewRows(userColumns).
+			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
+		upwRows := pgxmock.NewRows(pwColumns).
+			AddRow(pwr.RefID, pwr.UserId, ts)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		handler.Tpl["mail_password_reset.gohtml"] = passResetTpl
+
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
+			WithArgs(user.Email).
+			WillReturnRows(userRows)
+		mock.ExpectBegin()
+		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
+			WithArgs(model.UserPWResetRefIDT.AnyMatcher(), user.Id).
+			WillReturnRows(upwRows)
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		data := url.Values{"email": {"user@example.com"}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/send-password-reset", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.SendResetPasswordEmail(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		tm := handler.Mailer.(*TestMailer)
+		assert.Equal(t, len(tm.Sent), 1)
+		message := tm.Sent[0].BodyPlain
+		after, found := strings.CutPrefix(message, "Password reset url: http://example.com/forgot-password/")
+		assert.Assert(t, found)
+		refParts := strings.Split(after, "-")
+		rId := refid.Must(model.UserPWResetRefIDT.Parse(refParts[0]))
+		hmacBytes, err := util.Base32DecodeString(refParts[1])
+		assert.NilError(t, err)
+		assert.Assert(t, handler.Hmac.Validate([]byte(rId.String()), hmacBytes))
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/login",
+			"handler returned wrong redirect")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("send pw reset email no user", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		handler.Tpl["mail_password_reset.gohtml"] = passResetTpl
+
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
+			WithArgs(user.Email).
+			WillReturnError(pgx.ErrNoRows)
+
+		data := url.Values{"email": {"user@example.com"}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/send-password-reset", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.SendResetPasswordEmail(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		tm := handler.Mailer.(*TestMailer)
+		assert.Equal(t, len(tm.Sent), 0)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/login",
+			"handler returned wrong redirect")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

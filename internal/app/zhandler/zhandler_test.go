@@ -63,6 +63,33 @@ func setCookie(r *http.Request, cookie string) {
 	r.Header.Set("Cookie", cookie)
 }
 
+type TestMailer struct {
+	Sent []*util.Mail
+}
+
+func (tm *TestMailer) SendRaw(mail *util.Mail) error {
+	tm.Sent = append(tm.Sent, mail)
+	return nil
+}
+
+func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string) error {
+	if from == "" {
+		from = "user@example.com"
+	}
+	mail := &util.Mail{
+		Sender:    from,
+		To:        to,
+		Subject:   subject,
+		BodyPlain: bodyPlain,
+		BodyHtml:  bodyHtml,
+	}
+	return tm.SendRaw(mail)
+}
+
+func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string) {
+	tm.Send(from, to, subject, bodyPlain, bodyHtml)
+}
+
 func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *ZHandler) {
 	t.Helper()
 
@@ -74,6 +101,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		Db:      mock,
 		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewMemorySessionManager(),
+		Mailer:  &TestMailer{make([]*util.Mail, 0)},
 		Hmac:    util.NewHmac([]byte("test-hmac-key")),
 	}
 	mux := chi.NewMux()

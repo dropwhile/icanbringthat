@@ -25,6 +25,12 @@ type Mailer struct {
 	auth     smtp.Auth
 }
 
+type MailSender interface {
+	SendRaw(*Mail) error
+	Send(string, []string, string, string, string) error
+	SendAsync(string, []string, string, string, string)
+}
+
 func (m *Mailer) SendRaw(mail *Mail) error {
 	if mail.BodyHtml == "" && mail.BodyPlain == "" {
 		return fmt.Errorf("no content")
@@ -75,6 +81,15 @@ func (m *Mailer) Send(from string, to []string, subject, bodyPlain, bodyHtml str
 		BodyHtml:  bodyHtml,
 	}
 	return m.SendRaw(mail)
+}
+
+func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string) {
+	go func() {
+		err := m.Send(from, to, subject, bodyPlain, bodyHtml)
+		if err != nil {
+			log.Info().Err(err).Msg("error sending email")
+		}
+	}()
 }
 
 func NewMailer(host string, port int, hostname string, user, pass string) *Mailer {
