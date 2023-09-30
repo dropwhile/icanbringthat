@@ -5,8 +5,6 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
@@ -26,15 +24,6 @@ type XHandler struct {
 
 func (x *XHandler) Template(name string) (*template.Template, error) {
 	return x.Tpl.Get(name)
-}
-
-func (x *XHandler) HxCurrentUrlHasPrefix(r *http.Request, prefix string) bool {
-	htmxCurrentUrl := r.Header.Get("HX-Current-URL")
-	if htmxCurrentUrl != "" {
-		u, err := url.Parse(htmxCurrentUrl)
-		return err == nil && strings.HasPrefix(u.Path, prefix)
-	}
-	return false
 }
 
 func (x *XHandler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
@@ -79,32 +68,6 @@ func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars ma
 		return err
 	}
 	return nil
-}
-
-func (x *XHandler) TestTemplates(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
-	y := r.Form.Get("nav")
-	z := r.Form.Get("tpl")
-	if y == "" {
-		y = "dashboard"
-	}
-	if z == "" {
-		z = "index.gohtml"
-	}
-	tplVars := map[string]any{
-		"user":  "nope",
-		"title": y,
-		"nav":   y,
-	}
-	err = x.TemplateExecute(w, z, tplVars)
-	if err != nil {
-		fmt.Fprint(w, err)
-	}
 }
 
 func (x *XHandler) NotFound(w http.ResponseWriter, r *http.Request) {

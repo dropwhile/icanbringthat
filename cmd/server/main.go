@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/app"
+	"github.com/dropwhile/icbt/internal/app/api"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
@@ -197,7 +197,7 @@ func main() {
 	mailer := util.NewMailer(smtpHost, smtpPort, smtpHostname, smtpUser, smtpPass)
 
 	// routing/handlers
-	r := app.NewAPI(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
+	r := api.New(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
 	defer r.Close()
 
 	// serve static files dir as /static/*
