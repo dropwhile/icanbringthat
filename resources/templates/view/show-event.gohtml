@@ -1,17 +1,32 @@
 {{ define "main" }}
   <!-- new event form -->
-  <h4
-    class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
-    >
+  <h4 class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     <div>
-      <span>{{.event.Name | titlecase}}</span>
-      {{if eq $.event.UserId $.user.Id}}
-      <span class="px-2" style="float:right;">
-        <div class="tooltipright">
-          <a href="/events/{{.event.RefID}}/edit"
-            class="text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-            aria-label="Edit">
-            <span class="tooltiptextright text-center">Edit event</span>
+      <span class="pr-2">
+        {{.event.Name | titlecase}}
+      </span>
+    </div>
+    <div>
+      <span
+        class="pl-2"
+        x-data="{date: new Date($el.innerText)}"
+        x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {timeStyle: 'short', hour12: true})"
+        >
+          {{.event.StartTime | formatTS}}
+      </span>
+    </div>
+    {{if eq .event.UserId .user.Id}}
+    <div>
+        <div class="tooltip">
+          <button
+            class="align-middle text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+            style="padding-right: 0.25rem; padding-left: 0.25rem;"
+            aria-label="Copy Link"
+            onclick="myFunction(this)"
+            onmouseout="outFunc(this)"
+            >
+            <span class="tooltiptext">Copy Link to clipboard</span>
+            <span hidden class="eventlink">/events/{{.event.RefID}}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -19,27 +34,27 @@
               stroke-width="1.5"
               stroke="currentColor"
               class="w-6 h-6"
-              style="display: block; margin:auto;"
-              >
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
               />
             </svg>
-          </a>
+          </button>
         </div>
-      </span>
-      {{end}}
+        <button
+          class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+          aria-label="Edit Event"
+          hx-get="/events/{{$.event.RefID}}/edit"
+          hx-target="body"
+          hx-push-url="true"
+          hx-trigger="click"
+          >
+          Edit Event
+        </button>
     </div>
-    <div
-      class="w-32 mr-1"
-      style="float:right;"
-      x-data="{date: new Date($el.innerText)}"
-      x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {timeStyle: 'short', hour12: true})"
-      >
-        {{.event.StartTime | formatTS}}
-    </div>
+    {{end}}
   </h4>
   <div
   class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800"
@@ -51,11 +66,13 @@
 
   <!-- item table -->
   <h4
-    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+    class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
   >
-    Items
+    <div>
+      Items
+    </div>
     {{ if .owner }}
-    <div style="float: right;">
+    <div>
       <button
         class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
         hx-get="/events/{{.event.RefID}}/items/add"

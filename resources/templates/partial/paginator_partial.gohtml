@@ -38,7 +38,7 @@
             {{ range .Pages }}
             <li>
               {{if and (not .IsCurrent) (not (eq .String "...")) }}
-              <a href="?page={{.}}">
+              <a href="{{$.BaseUrl}}?page={{.}}">
               {{end}}
                 <button
                 {{if .IsCurrent}}
