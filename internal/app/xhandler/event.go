@@ -10,6 +10,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
@@ -267,7 +268,11 @@ func (x *XHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "modalbody" {
+		err = x.TemplateExecuteSub(w, "edit-event-form.gohtml", "form", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return

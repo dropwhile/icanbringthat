@@ -15,7 +15,6 @@
           {{.event.StartTime | formatTS}}
       </span>
     </div>
-    {{if eq .event.UserId .user.Id}}
     <div>
         <div class="tooltip">
           <button
@@ -43,18 +42,19 @@
             </svg>
           </button>
         </div>
+        {{if .owner }}
         <button
           class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
           aria-label="Edit Event"
           hx-get="/events/{{$.event.RefID}}/edit"
-          hx-target="body"
-          hx-push-url="true"
+          hx-target="#modalbody"
+          hx-select="#form" 
           hx-trigger="click"
           >
           Edit Event
         </button>
+        {{end}}
     </div>
-    {{end}}
   </h4>
   <div
   class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800"
