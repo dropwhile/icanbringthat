@@ -64,6 +64,10 @@
         </main>
       </div>
     </div>
+    {{with .flashes}}
+      {{template "flashes_modal" .}}
+    {{end}}
+    {{template "full_modal" .}}
   </body>
 </html>
 {{- end }}

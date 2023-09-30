@@ -218,7 +218,11 @@ func (x *XHandler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "create-event-form.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "modalbody" {
+		err = x.TemplateExecuteSub(w, "create-event-form.gohtml", "form", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "create-event-form.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
