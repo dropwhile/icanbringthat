@@ -36,12 +36,12 @@ htmx.onLoad(function(content) {
     navigator.clipboard.writeText(text);
     
     var tooltip = obj.querySelector('.tooltiptext');
-    tooltip.innerHTML = "Copied url";
+    tooltip.innerHTML = "Link copied";
   }
 
   function outFunc(obj) {
     var tooltip = obj.querySelector('.tooltiptext');
-    tooltip.innerHTML = "Copy to clipboard";
+    tooltip.innerHTML = "Copy link to clipboard";
   }
 </script>
 {{end}}
