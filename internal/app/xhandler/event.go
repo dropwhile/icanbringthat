@@ -137,31 +137,18 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// sort if needed
 	if len(event.ItemSortOrder) > 0 {
 		log.Debug().Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).Msg("sorting")
-		itemsLen := len(eventItems)
-		seen := make(map[int]struct{})
-		orderedItems := make([]*model.EventItem, 0)
-		for _, i := range event.ItemSortOrder {
-			for j := range eventItems {
-				if eventItems[j].Id == i {
-					orderedItems = append(orderedItems, eventItems[j])
-					seen[i] = struct{}{}
-				}
+		sortSet := util.ToSetIndexed(event.ItemSortOrder)
+		eventItemLen := len(eventItems)
+		sortedList := make([]*model.EventItem, len(event.ItemSortOrder))
+		unsortedList := make([]*model.EventItem, 0)
+		for j := range eventItems {
+			if idx, ok := sortSet[eventItems[j].Id]; ok && idx < eventItemLen {
+				sortedList[idx] = eventItems[j]
+			} else {
+				unsortedList = append(unsortedList, eventItems[j])
 			}
 		}
-		// if not all items are part of the sort order yet,
-		// then prepend them (eg. probably new items so put on top)
-		if len(seen) < itemsLen {
-			prepend := make([]*model.EventItem, 0)
-			for i := range eventItems {
-				if _, ok := seen[i]; ok {
-					continue
-				}
-				prepend = append(prepend, eventItems[i])
-			}
-			prepend = append(prepend, orderedItems...)
-			orderedItems = prepend
-		}
-		eventItems = orderedItems
+		eventItems = append(unsortedList, sortedList...)
 	}
 	event.Items = eventItems
 
