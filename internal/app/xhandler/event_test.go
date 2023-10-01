@@ -898,6 +898,272 @@ func TestHandler_Event_Update(t *testing.T) {
 	})
 }
 
+func TestHandler_Event_UpdateSorting(t *testing.T) {
+	t.Parallel()
+
+	ts := tstTs
+	user := &model.User{
+		Id:           1,
+		RefID:        refid.Must(model.UserRefIDT.New()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Created:      ts,
+		LastModified: ts,
+	}
+	event := &model.Event{
+		Id:            1,
+		RefID:         refid.Must(model.EventRefIDT.New()),
+		UserId:        user.Id,
+		Name:          "event",
+		Description:   "description",
+		ItemSortOrder: []int{1, 2, 3},
+		StartTime:     ts,
+		StartTimeTZ:   "Etc/UTC",
+		Created:       ts,
+		LastModified:  ts,
+	}
+
+	eventColumns := []string{
+		"id", "ref_id", "user_id", "name", "description", "item_sort_order",
+		"start_time", "start_time_tz", "created", "last_modified",
+	}
+
+	t.Run("update", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("^UPDATE event_ ").
+			WithArgs(
+				event.Name, event.Description, []int{1, 3, 2},
+				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
+				event.Id).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		data := url.Values{
+			"sortOrder": {"1", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusOK)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update bad refid", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", refid.Must(model.EarmarkRefIDT.New()).String())
+
+		data := url.Values{
+			"sortOrder": {"1", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update missing event", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnError(pgx.ErrNoRows)
+
+		data := url.Values{
+			"sortOrder": {"1", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update user.id not match event.userid", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"sortOrder": {"1", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update update nothing", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"namexxx": {event.Name},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update bad values", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"sortOrder": {"a", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+}
+
 func TestHandler_Event_Delete(t *testing.T) {
 	t.Parallel()
 

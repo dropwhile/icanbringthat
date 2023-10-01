@@ -73,7 +73,7 @@ func TestEventSave(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_ (.+)*").
-		WithArgs("some name", "some desc", []int{}, ts, "Etc/UTC", 1).
+		WithArgs("some name", "some desc", []int{1, 2, 3}, ts, "Etc/UTC", 1).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -85,7 +85,7 @@ func TestEventSave(t *testing.T) {
 		UserId:        1,
 		Name:          "some name",
 		Description:   "some desc",
-		ItemSortOrder: []int{},
+		ItemSortOrder: []int{1, 2, 3},
 		StartTime:     ts,
 		StartTimeTZ:   "Etc/UTC",
 		Created:       ts,
