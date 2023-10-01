@@ -31,7 +31,7 @@ func TestEventInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
-		WithArgs(1, EventRefIDT.AnyMatcher(), "some name", "some desc", ts, "Etc/UTC").
+		WithArgs(1, EventRefIDT.AnyMatcher(), "some name", "some desc", []int{}, ts, "Etc/UTC").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -73,22 +73,23 @@ func TestEventSave(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_ (.+)*").
-		WithArgs("some name", "some desc", ts, "Etc/UTC", 1).
+		WithArgs("some name", "some desc", []int{}, ts, "Etc/UTC", 1).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
 
 	event := &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
-		Name:         "some name",
-		Description:  "some desc",
-		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
-		Created:      ts,
-		LastModified: ts,
+		Id:            1,
+		RefID:         refId,
+		UserId:        1,
+		Name:          "some name",
+		Description:   "some desc",
+		ItemSortOrder: []int{},
+		StartTime:     ts,
+		StartTimeTZ:   "Etc/UTC",
+		Created:       ts,
+		LastModified:  ts,
 	}
 	err = event.Save(ctx, mock)
 	assert.NilError(t, err)

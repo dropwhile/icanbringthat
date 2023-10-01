@@ -29,8 +29,8 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 	if e.RefID.IsNil() {
 		e.RefID = refid.Must(EventRefIDT.New())
 	}
-	q := `INSERT INTO event_ (user_id, ref_id, name, description, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
-	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefID, e.Name, e.Description, e.StartTime, e.StartTimeTZ)
+	q := `INSERT INTO event_ (user_id, ref_id, name, description, item_sort_order, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`
+	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefID, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTZ)
 	if err != nil {
 		return err
 	}
@@ -38,6 +38,7 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 	e.RefID = res.RefID
 	e.Created = res.Created
 	e.LastModified = res.LastModified
+	e.ItemSortOrder = res.ItemSortOrder
 	return nil
 }
 
@@ -53,11 +54,12 @@ func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
 
 func NewEvent(ctx context.Context, db PgxHandle, userId int, name, description string, startTime time.Time, startTimeTZ string) (*Event, error) {
 	event := &Event{
-		Name:        name,
-		UserId:      userId,
-		Description: description,
-		StartTime:   startTime,
-		StartTimeTZ: startTimeTZ,
+		Name:          name,
+		UserId:        userId,
+		Description:   description,
+		ItemSortOrder: []int{},
+		StartTime:     startTime,
+		StartTimeTZ:   startTimeTZ,
 	}
 	err := event.Insert(ctx, db)
 	if err != nil {

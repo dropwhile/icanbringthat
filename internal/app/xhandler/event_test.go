@@ -69,8 +69,8 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name,
-				event.Description, CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
+				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -246,8 +246,8 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name,
-				event.Description, CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
+				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -326,15 +326,16 @@ func TestHandler_Event_Update(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
-		Name:         "event",
-		Description:  "description",
-		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
-		Created:      ts,
-		LastModified: ts,
+		Id:            1,
+		RefID:         refid.Must(model.EventRefIDT.New()),
+		UserId:        user.Id,
+		Name:          "event",
+		Description:   "description",
+		ItemSortOrder: []int{},
+		StartTime:     ts,
+		StartTimeTZ:   "Etc/UTC",
+		Created:       ts,
+		LastModified:  ts,
 	}
 
 	eventColumns := []string{
@@ -366,7 +367,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(
-				event.Name, event.Description,
+				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
 				event.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -537,7 +538,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(
-				event.Name, event.Description,
+				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
 				event.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -592,7 +593,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(
-				event.Name, event.Description,
+				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
 				event.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -647,7 +648,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(
-				event.Name, event.Description,
+				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
 				event.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -823,7 +824,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(
-				event.Name, event.Description,
+				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
 				event.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
