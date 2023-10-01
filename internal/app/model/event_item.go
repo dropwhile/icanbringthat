@@ -55,7 +55,12 @@ func (ei *EventItem) GetEvent(ctx context.Context, db PgxHandle) (*Event, error)
 	return event, nil
 }
 
-func NewEventItem(ctx context.Context, db PgxHandle, eventId int, description string) (*EventItem, error) {
+func NewEventItem(
+	ctx context.Context,
+	db PgxHandle,
+	eventId int,
+	description string,
+) (*EventItem, error) {
 	eventItem := &EventItem{
 		EventId:     eventId,
 		Description: description,

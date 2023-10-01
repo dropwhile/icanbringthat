@@ -92,7 +92,7 @@ func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtm
 	}()
 }
 
-func NewMailer(host string, port int, hostname string, user, pass string) *Mailer {
+func NewMailer(host string, port int, hostname, user, pass string) *Mailer {
 	auth := smtp.PlainAuth("", user, pass, hostname)
 	return &Mailer{
 		hostname: hostname,

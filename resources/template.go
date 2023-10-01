@@ -169,7 +169,7 @@ var templateFuncMap = template.FuncMap{
 	"subt": func(i, j int) int {
 		return i - j
 	},
-	"set": func(ac reflect.Value, k reflect.Value, v reflect.Value) error {
+	"set": func(ac, k, v reflect.Value) error {
 		switch ac.Kind() {
 		case reflect.Map:
 			if k.Type() == ac.Type().Key() {
@@ -180,7 +180,7 @@ var templateFuncMap = template.FuncMap{
 		return fmt.Errorf("calling set with unsupported type %q (%T) -> %q (%T)", ac.Kind(), ac, k.Kind(), k)
 	},
 	// isset is a helper func from hugo
-	"isset": func(ac reflect.Value, kv reflect.Value) (bool, error) {
+	"isset": func(ac, kv reflect.Value) (bool, error) {
 		switch ac.Kind() {
 		case reflect.Array, reflect.Slice:
 			k := 0
@@ -212,7 +212,7 @@ var templateFuncMap = template.FuncMap{
 
 		return false, nil
 	},
-	"eqorempty": func(arg0 reflect.Value, arg1 reflect.Value) (bool, error) {
+	"eqorempty": func(arg0, arg1 reflect.Value) (bool, error) {
 		k1 := arg0.Kind()
 		k2 := arg1.Kind()
 		if k1 != k2 {

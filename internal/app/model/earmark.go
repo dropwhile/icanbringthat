@@ -57,7 +57,7 @@ func (em *Earmark) GetEventItem(ctx context.Context, db PgxHandle) (*EventItem, 
 	return eventItem, nil
 }
 
-func NewEarmark(ctx context.Context, db PgxHandle, eventItemId int, userId int, note string) (*Earmark, error) {
+func NewEarmark(ctx context.Context, db PgxHandle, eventItemId, userId int, note string) (*Earmark, error) {
 	earmark := &Earmark{
 		EventItemId: eventItemId,
 		UserId:      userId,
