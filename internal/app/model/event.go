@@ -29,6 +29,9 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 	if e.RefID.IsNil() {
 		e.RefID = refid.Must(EventRefIDT.New())
 	}
+	if e.ItemSortOrder == nil {
+		e.ItemSortOrder = []int{}
+	}
 	q := `INSERT INTO event_ (user_id, ref_id, name, description, item_sort_order, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`
 	res, err := QueryOneTx[Event](ctx, db, q, e.UserId, e.RefID, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTZ)
 	if err != nil {
