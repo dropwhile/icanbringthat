@@ -12,16 +12,17 @@ import (
 var EventRefIDT = refid.Tagger(2)
 
 type Event struct {
-	Id           int
-	RefID        refid.RefID `db:"ref_id"`
-	UserId       int         `db:"user_id"`
-	Name         string
-	Description  string
-	StartTime    time.Time `db:"start_time"`
-	StartTimeTZ  string    `db:"start_time_tz"`
-	Created      time.Time
-	LastModified time.Time    `db:"last_modified"`
-	Items        []*EventItem `db:"-"`
+	Id            int
+	RefID         refid.RefID `db:"ref_id"`
+	UserId        int         `db:"user_id"`
+	Name          string
+	Description   string
+	StartTime     time.Time `db:"start_time"`
+	StartTimeTZ   string    `db:"start_time_tz"`
+	ItemSortOrder []int     `db:"item_sort_order"`
+	Created       time.Time
+	LastModified  time.Time    `db:"last_modified"`
+	Items         []*EventItem `db:"-"`
 }
 
 func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
@@ -41,8 +42,8 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 }
 
 func (e *Event) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE event_ SET name = $1, description = $2, start_time = $3, start_time_tz = $4 WHERE id = $5`
-	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.StartTime, e.StartTimeTZ, e.Id)
+	q := `UPDATE event_ SET name = $1, description = $2, item_sort_order = $3, start_time = $4, start_time_tz = $5 WHERE id = $6`
+	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTZ, e.Id)
 }
 
 func (e *Event) Delete(ctx context.Context, db PgxHandle) error {

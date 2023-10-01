@@ -7,21 +7,27 @@
   integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
   crossorigin="anonymous"
   ></script>
-<script
-  src="https://unpkg.com/hyperscript.org@0.9.11"
-  ></script>
-<script 
-  src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
-  defer
-  ></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-  defer
-  ></script>
+<script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script
-  src="/static/js/init-alpine.js"
-  ></script>
+<script src="http://SortableJS.github.io/Sortable/Sortable.js"></script>
+<script src="/static/js/init-alpine.js"></script>
+
+<!-- sortable -->
+<script>
+htmx.onLoad(function(content) {
+  var sortables = content.querySelectorAll(".sortable");
+  for (var i = 0; i < sortables.length; i++) {
+    var sortable = sortables[i];
+    new Sortable(sortable, {
+        animation: 150,
+        ghostClass: 'sortable-ghost'
+    });
+  }
+})
+</script>
+
 <!-- focus trap for modals -->
 <script>
   function myFunction(obj) {

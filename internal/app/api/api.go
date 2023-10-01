@@ -100,6 +100,7 @@ func New(
 			// event item
 			r.Post("/events/{eRefID:[0-9a-z]+}/items", zh.CreateEventItem)
 			r.Get("/events/{eRefID:[0-9a-z]+}/items/add", zh.ShowCreateEventItemForm)
+			r.Post("/events/{eRefID:[0-9a-z]+}/sort", zh.UpdateEventItemSorting)
 			r.Post("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}", zh.UpdateEventItem)
 			r.Delete("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}", zh.DeleteEventItem)
 			r.Get("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}/edit", zh.ShowEventItemEditForm)

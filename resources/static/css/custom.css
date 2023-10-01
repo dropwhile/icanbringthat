@@ -6,3 +6,12 @@ tr.htmx-swapping td {
 [x-cloak] {
     display: none !important;
 }
+
+.sortable-ghost {
+    opacity: .5;
+    background: #C8EBFB;
+}
+.sort-handle {
+	cursor: move;
+	cursor: -webkit-grabbing;
+}

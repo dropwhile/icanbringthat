@@ -133,6 +133,36 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
+
+	// sort if needed
+	if len(event.ItemSortOrder) > 0 {
+		log.Debug().Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).Msg("sorting")
+		itemsLen := len(eventItems)
+		seen := make(map[int]struct{})
+		orderedItems := make([]*model.EventItem, 0)
+		for _, i := range event.ItemSortOrder {
+			for j := range eventItems {
+				if eventItems[j].Id == i {
+					orderedItems = append(orderedItems, eventItems[j])
+					seen[i] = struct{}{}
+				}
+			}
+		}
+		// if not all items are part of the sort order yet,
+		// then prepend them (eg. probably new items so put on top)
+		if len(seen) < itemsLen {
+			prepend := make([]*model.EventItem, 0)
+			for i := range eventItems {
+				if _, ok := seen[i]; ok {
+					continue
+				}
+				prepend = append(prepend, eventItems[i])
+			}
+			prepend = append(prepend, orderedItems...)
+			orderedItems = prepend
+		}
+		eventItems = orderedItems
+	}
 	event.Items = eventItems
 
 	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event)
@@ -416,6 +446,76 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
+}
+
+func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	if err != nil {
+		x.Error(w, "bad event-ref-id", http.StatusNotFound)
+		return
+	}
+
+	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		x.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.Id != event.UserId {
+		log.Info().
+			Int("user.Id", user.Id).
+			Int("event.UserId", event.UserId).
+			Msg("user id mismatch")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	sortOrder, ok := r.Form["sortOrder"]
+	if !ok {
+		log.Debug().Err(err).Msg("missing form data")
+		http.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+	order := make([]int, 0)
+	// make sure values are ok
+	for _, v := range sortOrder {
+		if i, err := strconv.Atoi(v); err != nil {
+			log.Debug().Err(err).Msg("bad form data")
+			http.Error(w, "bad form data", http.StatusBadRequest)
+			return
+		} else {
+			order = append(order, i)
+		}
+	}
+	event.ItemSortOrder = util.RemoveDuplicates(order)
+	err = event.Save(ctx, x.Db)
+	if err != nil {
+		log.Debug().Err(err).Msg("db error")
+		x.Error(w, "error updating event", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
