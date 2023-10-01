@@ -1162,6 +1162,46 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
+
+	t.Run("update bad values 2", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"sortOrder": {"a123"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
 
 func TestHandler_Event_Delete(t *testing.T) {
