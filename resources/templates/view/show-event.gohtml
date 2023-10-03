@@ -115,7 +115,7 @@
               <th class="px-4 py-3">Description</th>
               <th class="px-4 py-3">Earmarked By</th>
               <th class="px-4 py-3">Earmark Note</th>
-              <th class="pl-2 py-3 text-center">Actions</th>
+              <th class="py-3 text-center">Actions</th>
               <th></th>
             </tr>
           </thead>
@@ -153,7 +153,7 @@
                   {{if .Earmark}}{{.Earmark.Note}}{{end}}
                 </div>
               </td>
-              <td class="pl-2 text-sm text-center" style="width:9rem">
+              <td class="text-sm text-center" style="width:8rem">
                 {{if .Earmark }}
                   {{if and .Earmark (eq .Earmark.UserId $.user.Id)}}
                     <!-- viewer owns earmark -->
@@ -352,7 +352,7 @@
               <td>
                 <div class="tooltip">
                   <span class="tooltiptext text-center" style="top: -60%; right: 160%;">Click and drag to sort rows</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sort-handle">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sort-handle align-middle">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                   </svg>
                 </div>
