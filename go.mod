@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20230902070821-95fa2ac9d520
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/dropwhile/refid v1.0.2
+	github.com/dropwhile/refid v1.0.3
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.1
