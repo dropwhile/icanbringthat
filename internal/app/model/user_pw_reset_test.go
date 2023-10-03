@@ -18,7 +18,7 @@ func TestUserPWResetInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("0r2y7pynskjgapab7cg0a87ny8"))
+	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
 		AddRow(refId, 1)
@@ -63,7 +63,7 @@ func TestUserPWReserDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("0r2y7pynskjgapab7cg0a87ny8"))
+	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
 		WithArgs(refId).
@@ -94,7 +94,7 @@ func TestUserPWReserGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("0r2y7pynskjgapab7cg0a87ny8"))
+	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
 		AddRow(refId, 1)

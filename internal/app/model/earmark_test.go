@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEarmarkRefID = refid.Must(refid.Parse("0r2ncjgvqbr09f7c304v2a4rh4"))
+var tstEarmarkRefID = refid.Must(refid.Parse("065f77gsvzv092fr8x100fdx0c"))
 
 func TestEarmarkInsert(t *testing.T) {
 	t.Parallel()

@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEventItemRefID = refid.Must(refid.Parse("0r2ncjvmzyqg7hfywffnnjqqrc"))
+var tstEventItemRefID = refid.Must(refid.Parse("065f77kvj03069yhn864xhzq4r"))
 
 func TestEventItemInsert(t *testing.T) {
 	t.Parallel()
