@@ -2,7 +2,7 @@ package util
 
 var empty = struct{}{}
 
-func RemoveDuplicates[T string | int](sliceList []T) []T {
+func RemoveDuplicates[T comparable](sliceList []T) []T {
 	allKeys := make(map[T]struct{})
 	list := []T{}
 	for _, item := range sliceList {
@@ -14,7 +14,7 @@ func RemoveDuplicates[T string | int](sliceList []T) []T {
 	return list
 }
 
-func ToSet[T string | int](sliceList []T) map[T]struct{} {
+func ToSet[T comparable](sliceList []T) map[T]struct{} {
 	keys := make(map[T]struct{})
 	for _, item := range sliceList {
 		keys[item] = empty
@@ -22,7 +22,7 @@ func ToSet[T string | int](sliceList []T) map[T]struct{} {
 	return keys
 }
 
-func ToSetIndexed[T string | int](sliceList []T) map[T]int {
+func ToSetIndexed[T comparable](sliceList []T) map[T]int {
 	keys := make(map[T]int)
 	for i, item := range sliceList {
 		keys[item] = i
