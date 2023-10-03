@@ -7,9 +7,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/rs/zerolog/log"
 )
 
 type mwContextKey string

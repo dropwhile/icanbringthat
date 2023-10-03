@@ -1,6 +1,11 @@
 package api
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gorilla/csrf"
+	"github.com/rs/zerolog/log"
+
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -8,10 +13,6 @@ import (
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 )
 
 type API struct {

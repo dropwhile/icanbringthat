@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util/htmx"
-	"github.com/dropwhile/icbt/resources"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util/htmx"
+	"github.com/dropwhile/icbt/resources"
 )
 
 func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {

@@ -9,13 +9,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {

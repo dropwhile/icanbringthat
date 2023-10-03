@@ -7,8 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 var tstTs time.Time

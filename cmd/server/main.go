@@ -12,10 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/app/api"
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/icbt/resources"
 	pgxz "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/tracelog"
@@ -23,6 +19,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/pbkdf2"
+
+	"github.com/dropwhile/icbt/internal/app/api"
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/resources"
 )
 
 // ServerVersion holds the server version string

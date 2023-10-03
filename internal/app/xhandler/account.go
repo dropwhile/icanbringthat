@@ -3,10 +3,11 @@ package xhandler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
 )
 
 func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {

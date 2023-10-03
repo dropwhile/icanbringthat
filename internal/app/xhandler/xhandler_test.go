@@ -13,17 +13,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/icbt/resources"
 	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/session"
+	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/resources"
 )
 
 var tstTs time.Time = MustParseTime(time.RFC3339, "2023-01-01T03:04:05Z")

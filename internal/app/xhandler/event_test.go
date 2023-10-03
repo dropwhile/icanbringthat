@@ -9,14 +9,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/refid"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Event_Create(t *testing.T) {

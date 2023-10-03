@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {

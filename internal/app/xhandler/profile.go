@@ -3,9 +3,10 @@ package xhandler
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/go-chi/chi/v5"
 )
 
 func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {

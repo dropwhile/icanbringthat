@@ -4,11 +4,12 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/app/model"
 )
 
 func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {

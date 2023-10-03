@@ -6,8 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 var logBuffer = &bytes.Buffer{}
