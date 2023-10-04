@@ -14,7 +14,7 @@ var UserRefIDT = refid.Tagger(1)
 
 type User struct {
 	Id           int
-	RefID        *refid.RefID `db:"ref_id"`
+	RefID        refid.RefID `db:"ref_id"`
 	Email        string
 	Name         string `db:"name"`
 	PWHash       []byte `db:"pwhash"`
@@ -40,7 +40,7 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 }
 
 func (user *User) Insert(ctx context.Context, db PgxHandle) error {
-	if user.RefID == nil || user.RefID.IsNil() {
+	if user.RefID.IsNil() {
 		user.RefID = refid.Must(UserRefIDT.New())
 	}
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
@@ -86,7 +86,7 @@ func GetUserById(ctx context.Context, db PgxHandle, id int) (*User, error) {
 	return QueryOne[User](ctx, db, q, id)
 }
 
-func GetUserByRefID(ctx context.Context, db PgxHandle, refId *refid.RefID) (*User, error) {
+func GetUserByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*User, error) {
 	if !UserRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",

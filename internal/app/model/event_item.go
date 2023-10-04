@@ -12,8 +12,8 @@ var EventItemRefIDT = refid.Tagger(3)
 
 type EventItem struct {
 	Id           int
-	RefID        *refid.RefID `db:"ref_id"`
-	EventId      int          `db:"event_id"`
+	RefID        refid.RefID `db:"ref_id"`
+	EventId      int         `db:"event_id"`
 	Description  string
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
@@ -22,7 +22,7 @@ type EventItem struct {
 }
 
 func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {
-	if ei.RefID == nil || ei.RefID.IsNil() {
+	if ei.RefID.IsNil() {
 		ei.RefID = refid.Must(EventItemRefIDT.New())
 	}
 	q := `INSERT INTO event_item_ (ref_id, event_id, description) VALUES ($1, $2, $3) RETURNING *`
@@ -77,7 +77,7 @@ func GetEventItemById(ctx context.Context, db PgxHandle, id int) (*EventItem, er
 	return QueryOne[EventItem](ctx, db, q, id)
 }
 
-func GetEventItemByRefID(ctx context.Context, db PgxHandle, refId *refid.RefID) (*EventItem, error) {
+func GetEventItemByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*EventItem, error) {
 	if !EventItemRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",

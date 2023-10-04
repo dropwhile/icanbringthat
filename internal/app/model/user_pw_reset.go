@@ -11,8 +11,8 @@ import (
 var UserPWResetRefIDT = refid.Tagger(5)
 
 type UserPWReset struct {
-	RefID   *refid.RefID `db:"ref_id"`
-	UserId  int          `db:"user_id"`
+	RefID   refid.RefID `db:"ref_id"`
+	UserId  int         `db:"user_id"`
 	Created time.Time
 }
 
@@ -21,7 +21,7 @@ func (upw *UserPWReset) IsExpired() bool {
 }
 
 func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
-	if upw.RefID == nil || upw.RefID.IsNil() {
+	if upw.RefID.IsNil() {
 		upw.RefID = refid.Must(UserPWResetRefIDT.New())
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
@@ -49,7 +49,7 @@ func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset
 	return upw, nil
 }
 
-func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refId *refid.RefID) (*UserPWReset, error) {
+func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*UserPWReset, error) {
 	if !UserPWResetRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
