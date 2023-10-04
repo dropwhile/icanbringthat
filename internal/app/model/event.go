@@ -13,8 +13,8 @@ var EventRefIDT = refid.Tagger(2)
 
 type Event struct {
 	Id            int
-	RefID         refid.RefID `db:"ref_id"`
-	UserId        int         `db:"user_id"`
+	RefID         *refid.RefID `db:"ref_id"`
+	UserId        int          `db:"user_id"`
 	Name          string
 	Description   string
 	StartTime     time.Time `db:"start_time"`
@@ -26,7 +26,7 @@ type Event struct {
 }
 
 func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
-	if e.RefID.IsNil() {
+	if e.RefID == nil || e.RefID.IsNil() {
 		e.RefID = refid.Must(EventRefIDT.New())
 	}
 	if e.ItemSortOrder == nil {
@@ -76,7 +76,7 @@ func GetEventById(ctx context.Context, db PgxHandle, id int) (*Event, error) {
 	return QueryOne[Event](ctx, db, q, id)
 }
 
-func GetEventByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*Event, error) {
+func GetEventByRefID(ctx context.Context, db PgxHandle, refId *refid.RefID) (*Event, error) {
 	if !EventRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",

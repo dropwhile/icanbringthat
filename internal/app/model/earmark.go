@@ -13,9 +13,9 @@ var EarmarkRefIDT = refid.Tagger(4)
 
 type Earmark struct {
 	Id           int
-	RefID        refid.RefID `db:"ref_id"`
-	EventItemId  int         `db:"event_item_id"`
-	UserId       int         `db:"user_id"`
+	RefID        *refid.RefID `db:"ref_id"`
+	EventItemId  int          `db:"event_item_id"`
+	UserId       int          `db:"user_id"`
 	Note         string
 	Created      time.Time
 	LastModified time.Time  `db:"last_modified"`
@@ -24,7 +24,7 @@ type Earmark struct {
 }
 
 func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
-	if em.RefID.IsNil() {
+	if em.RefID == nil || em.RefID.IsNil() {
 		em.RefID = refid.Must(EarmarkRefIDT.New())
 	}
 	q := `INSERT INTO earmark_ (ref_id, event_item_id, user_id, note) VALUES ($1, $2, $3, $4) RETURNING *`
@@ -75,7 +75,7 @@ func GetEarmarkById(ctx context.Context, db PgxHandle, id int) (*Earmark, error)
 	return QueryOne[Earmark](ctx, db, q, id)
 }
 
-func GetEarmarkByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*Earmark, error) {
+func GetEarmarkByRefID(ctx context.Context, db PgxHandle, refId *refid.RefID) (*Earmark, error) {
 	if !EarmarkRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
