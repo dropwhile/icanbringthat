@@ -9,11 +9,11 @@ BEGIN
 END;
 $$;
 -- +goose StatementEnd
--- create domain/type
+--- create domain/type
 CREATE DOMAIN refid_bytea AS BYTEA
   CONSTRAINT check_length CHECK (octet_length(VALUE) = 16);
 
--- create user table
+--- create user table
 CREATE TABLE IF NOT EXISTS user_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     ref_id refid_bytea NOT NULL,
@@ -30,7 +30,7 @@ CREATE TRIGGER last_mod_user
 	FOR EACH ROW
     EXECUTE PROCEDURE update_last_modified();
 
--- create event table
+--- create event table
 CREATE TABLE IF NOT EXISTS event_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     ref_id refid_bytea NOT NULL,
@@ -49,7 +49,7 @@ CREATE TRIGGER last_mod_event
 	FOR EACH ROW
     EXECUTE PROCEDURE update_last_modified();
 
--- create event item
+--- create event item
 CREATE TABLE IF NOT EXISTS event_item_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     ref_id refid_bytea NOT NULL,
@@ -65,7 +65,7 @@ CREATE TRIGGER last_mod_event_item_
 	FOR EACH ROW
     EXECUTE PROCEDURE update_last_modified();
 
--- create earmark
+--- create earmark
 CREATE TABLE IF NOT EXISTS earmark_ (
     id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     ref_id refid_bytea NOT NULL,
@@ -85,24 +85,24 @@ CREATE TRIGGER last_mod_earmark
     EXECUTE PROCEDURE update_last_modified();
 
 -- +goose Down
--- drop earmarks table/indexes/triggers
+--- drop earmarks table/indexes/triggers
 DROP INDEX IF EXISTS earmark_ref_idx;
 DROP TRIGGER IF EXISTS last_mod_earmark ON earmark_;
 DROP TABLE IF EXISTS earmark_;
 
--- drop events items table/indexes/triggers
+--- drop events items table/indexes/triggers
 DROP INDEX IF EXISTS event_item_ref_idx;
 DROP TABLE IF EXISTS event_item_;
 
--- drop events table/indexes/triggers
+--- drop events table/indexes/triggers
 DROP INDEX IF EXISTS event_ref_idx;
 DROP TRIGGER IF EXISTS last_mod_event on event_;
 DROP TABLE IF EXISTS event_;
 
--- drop user table/indexes/triggers
+--- drop user table/indexes/triggers
 DROP INDEX IF EXISTS user_ref_idx;
 CREATE TRIGGER last_mod_user on user_;
 DROP TABLE IF EXISTS user_;
 
--- drop functions
+--- drop functions
 DROP FUNCTION IF EXISTS update_last_modified;
