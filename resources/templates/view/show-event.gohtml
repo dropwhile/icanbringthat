@@ -4,6 +4,7 @@
       class="align-middle text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
       style="padding-right: 0.25rem; padding-left: 0.25rem;"
       aria-label="Unfavorite this Event"
+      hx-confirm="Are you sure?"
       hx-delete="/events/{{$.event.RefID}}/favorite"
       hx-target="#favorite"
       >

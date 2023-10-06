@@ -43,7 +43,6 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
 			if v > 1 {
 				pageNum = min(maxPageNum, int(v))
-				fmt.Println(pageNum)
 			}
 		}
 	}
@@ -352,7 +351,6 @@ func (x *XHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Debug().Err(err).Msg("error parsing start time")
 		x.Error(w, "bad form data - when", http.StatusBadRequest)
-		fmt.Println(err)
 		return
 	}
 

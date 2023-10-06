@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"time"
+
+	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
 type Favorite struct {
@@ -73,4 +75,27 @@ func GetFavoritesByUser(ctx context.Context, db PgxHandle, user *User) ([]*Favor
 func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle, user *User, event *Event) (*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE user_id = $1 AND event_id = $2 ORDER BY created DESC,id DESC`
 	return QueryOne[Favorite](ctx, db, q, user.Id, event.Id)
+}
+
+func GetFavoriteCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
+	q := `SELECT count(*) FROM favorite_ WHERE user_id = $1`
+	var count int = 0
+	err := pgxscan.Get(ctx, db, &count, q, user.Id)
+	return count, err
+}
+
+func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Favorite, error) {
+	q := `
+	SELECT 
+		favorite_.*
+	FROM favorite_ 
+	JOIN event_ ON
+		favorite_.event_id = event_.id
+	WHERE favorite_.user_id = $1 
+	ORDER BY 
+		event_.start_time DESC,
+		event_.id DESC
+	LIMIT $2 OFFSET $3
+	`
+	return Query[Favorite](ctx, db, q, user.Id, limit, offset)
 }

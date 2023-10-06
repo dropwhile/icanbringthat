@@ -76,6 +76,11 @@ func GetEventById(ctx context.Context, db PgxHandle, id int) (*Event, error) {
 	return QueryOne[Event](ctx, db, q, id)
 }
 
+func GetEventsByIds(ctx context.Context, db PgxHandle, eventIds []int) ([]*Event, error) {
+	q := `SELECT * FROM event_ WHERE id = ANY($1)`
+	return Query[Event](ctx, db, q, eventIds)
+}
+
 func GetEventByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*Event, error) {
 	if !EventRefIDT.HasCorrectTag(refId) {
 		err := fmt.Errorf(

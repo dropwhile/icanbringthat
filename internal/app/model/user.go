@@ -104,6 +104,6 @@ func GetUserByEmail(ctx context.Context, db PgxHandle, email string) (*User, err
 }
 
 func GetUsersByIds(ctx context.Context, db PgxHandle, userIds []int) ([]*User, error) {
-	q := `SELECT user_.* FROM user_ WHERE id = ANY($1)`
+	q := `SELECT * FROM user_ WHERE id = ANY($1)`
 	return Query[User](ctx, db, q, userIds)
 }

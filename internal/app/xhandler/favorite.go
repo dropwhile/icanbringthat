@@ -4,15 +4,99 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util/htmx"
+	"github.com/dropwhile/icbt/resources"
 )
+
+func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	favoritesCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	maxPageNum := resources.CalculateMaxPageNum(favoritesCount, 10)
+	pageNumParam := r.FormValue("page")
+	if pageNumParam != "" {
+		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
+			if v > 1 {
+				pageNum = min(maxPageNum, int(v))
+			}
+		}
+	}
+
+	offset := pageNum - 1
+	favorites, err := model.GetFavoritesByUserPaginated(ctx, x.Db, user, 10, offset*10)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event")
+		favorites = []*model.Favorite{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventIds := make([]int, 0)
+	favoritesMap := make(map[int]*model.Favorite)
+	for i := range favorites {
+		eventIds = append(eventIds, favorites[i].EventId)
+		favoritesMap[favorites[i].EventId] = favorites[i]
+	}
+
+	events, err := model.GetEventsByIds(ctx, x.Db, eventIds)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	for i := range events {
+		event := events[i]
+		if fav, ok := favoritesMap[event.Id]; ok {
+			fav.Event = event
+		}
+	}
+
+	tplVars := map[string]any{
+		"user":           user,
+		"favorites":      favorites,
+		"favoritesCount": favoritesCount,
+		"pgInput":        resources.NewPgInput(favoritesCount, 10, pageNum, "/favorites"),
+		"title":          "My Favorites",
+		"nav":            "favorites",
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
+	if err != nil {
+		x.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
 
 func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

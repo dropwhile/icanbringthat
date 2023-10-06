@@ -99,9 +99,7 @@ func New(
 			r.Delete("/events/{eRefID:[0-9a-z]+}", zh.DeleteEvent)
 			r.Get("/events/{eRefID:[0-9a-z]+}/edit", zh.ShowEditEventForm)
 			// favorites
-			/*
-				r.Get("/favorites", zh.ListFavorites)
-			*/
+			r.Get("/favorites", zh.ListFavorites)
 			r.Put("/events/{eRefID:[0-9a-z]+}/favorite", zh.AddFavorite)
 			r.Delete("/events/{eRefID:[0-9a-z]+}/favorite", zh.DeleteFavorite)
 			// event item
