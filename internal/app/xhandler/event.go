@@ -199,10 +199,24 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	has_favorite := false
+	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user, event)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		has_favorite = false
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	case err == nil:
+		has_favorite = true
+	}
+
 	tplVars := map[string]any{
 		"user":           user,
 		"owner":          owner,
 		"event":          event,
+		"favorite":       has_favorite,
 		"title":          "Event Details",
 		"nav":            "show-event",
 		csrf.TemplateTag: csrf.TemplateField(r),

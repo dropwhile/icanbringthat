@@ -98,6 +98,12 @@ func New(
 			r.Post("/events/{eRefID:[0-9a-z]+}", zh.UpdateEvent)
 			r.Delete("/events/{eRefID:[0-9a-z]+}", zh.DeleteEvent)
 			r.Get("/events/{eRefID:[0-9a-z]+}/edit", zh.ShowEditEventForm)
+			// favorites
+			/*
+				r.Get("/favorites", zh.ListFavorites)
+			*/
+			r.Put("/events/{eRefID:[0-9a-z]+}/favorite", zh.AddFavorite)
+			r.Delete("/events/{eRefID:[0-9a-z]+}/favorite", zh.DeleteFavorite)
 			// event item
 			r.Post("/events/{eRefID:[0-9a-z]+}/items", zh.CreateEventItem)
 			r.Get("/events/{eRefID:[0-9a-z]+}/items/add", zh.ShowCreateEventItemForm)

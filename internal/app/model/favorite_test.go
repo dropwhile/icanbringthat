@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/refid"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 )
@@ -194,6 +195,57 @@ func TestFavoriteGetByEvent(t *testing.T) {
 		EventId: event.Id,
 		Created: ts,
 	}})
+
+	// we make sure that all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestFavoriteGetByUserEvent(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	mock, err := pgxmock.NewConn()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	t.Cleanup(func() { mock.Close(ctx) })
+
+	ts := tstTs
+	rows := pgxmock.NewRows(favoriteColumns).
+		AddRow(1, 1, 1, ts)
+
+	mock.ExpectQuery("^SELECT (.+) FROM favorite_ *").
+		WithArgs(1, 1).
+		WillReturnRows(rows)
+
+	user := &User{
+		Id:     1,
+		RefID:  tstUserRefID,
+		Email:  "user1@example.com",
+		Name:   "j rando",
+		PWHash: []byte("000x000"),
+	}
+	event := &Event{
+		Id:           1,
+		RefID:        refid.Must(EventRefIDT.New()),
+		UserId:       user.Id,
+		Name:         "event",
+		Description:  "description",
+		StartTime:    ts,
+		StartTimeTZ:  "Etc/UTC",
+		Created:      ts,
+		LastModified: ts,
+	}
+	favorite, err := GetFavoriteByUserEvent(ctx, mock, user, event)
+	assert.NilError(t, err)
+
+	assert.DeepEqual(t, favorite, &Favorite{
+		Id:      1,
+		UserId:  1,
+		EventId: 1,
+		Created: ts,
+	})
 
 	// we make sure that all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
