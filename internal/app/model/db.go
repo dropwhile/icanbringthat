@@ -30,19 +30,19 @@ func SetupFromDb(pool *pgxpool.Pool) *DB {
 	return &DB{pool}
 }
 
-func QueryOne[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
+func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	var t T
 	err := pgxscan.Get(ctx, db, &t, query, args...)
 	return &t, err
 }
 
-func Query[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
+func Query[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
 	var t []*T
 	err := pgxscan.Select(ctx, db, &t, query, args...)
 	return t, err
 }
 
-func Exec[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
+func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
 	commandTag, err := db.Exec(ctx, query, args...)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func Exec[T ModelType](ctx context.Context, db PgxHandle, query string, args ...
 	return nil
 }
 
-func QueryOneTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
+func QueryOneTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	var t T
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		err := pgxscan.Get(ctx, tx, &t, query, args...)
@@ -68,7 +68,7 @@ func QueryOneTx[T ModelType](ctx context.Context, db PgxHandle, query string, ar
 	return &t, nil
 }
 
-func QueryTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
+func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
 	var t []*T
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		err := pgxscan.Select(ctx, tx, &t, query, args...)
@@ -83,7 +83,7 @@ func QueryTx[T ModelType](ctx context.Context, db PgxHandle, query string, args 
 	return t, nil
 }
 
-func ExecTx[T ModelType](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
+func ExecTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		commandTag, err := tx.Exec(ctx, query, args...)
 		if err != nil {
