@@ -62,14 +62,14 @@ func GetFavoriteById(ctx context.Context, db PgxHandle, id int) (*Favorite, erro
 	return QueryOne[Favorite](ctx, db, q, id)
 }
 
-func GetFavoritesByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*Favorite, error) {
-	q := `SELECT * FROM favorite_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
-	return Query[Favorite](ctx, db, q, event.Id)
-}
-
 func GetFavoritesByUser(ctx context.Context, db PgxHandle, user *User) ([]*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE user_id = $1 ORDER BY created DESC,id DESC`
 	return Query[Favorite](ctx, db, q, user.Id)
+}
+
+func GetFavoritesByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*Favorite, error) {
+	q := `SELECT * FROM favorite_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
+	return Query[Favorite](ctx, db, q, event.Id)
 }
 
 func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle, user *User, event *Event) (*Favorite, error) {
