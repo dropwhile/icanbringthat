@@ -48,6 +48,7 @@
                 name="email"
                 required
                 autofocus 
+                autocomplete="email"
               >
               <div
                 class="absolute inset-y-0 flex items-center ml-3 pointer-events-none"
@@ -77,6 +78,7 @@
               type="password"
               name="password"
               required
+              autocomplete="current-password"
             />
           </label>
           {{ .csrfField }}

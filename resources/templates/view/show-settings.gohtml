@@ -11,21 +11,17 @@
     <form method="post" action="/settings">
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Email</span>
-        <div
-          class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400"
-        >
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
           <input
             class="block w-full pl-10 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
             placeholder="user@example.com"
             type="email"
             name="email"
             value="{{.user.Email}}"
-            autocomplete="off"
             required
+            autocomplete="email"
           >
-          <div
-            class="absolute inset-y-0 flex items-center ml-3 pointer-events-none"
-          >
+          <div class="absolute inset-y-0 flex items-center ml-3 pointer-events-none">
             <svg
               class="w-5 h-5"
               aria-hidden="true"
@@ -35,15 +31,13 @@
               stroke-width="2"
               viewBox="0 0 24 24"
               stroke="currentColor"
-            >
+              >
               <path
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               ></path>
             </svg>
           </div>
-          <button
-            class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-          >
+          <button class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
             Update
           </button>
         </div>
@@ -64,6 +58,7 @@
             type="text"
             name="name"
             required
+            data-1p-ignore
           >
           <button
             class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
@@ -96,6 +91,7 @@
           type="password"
           name="old_password"
           required
+          autocomplete="current-password"
         >
       </label>
 
@@ -108,6 +104,7 @@
           type="password"
           name="password"
           required
+          autocomplete="new-password"
         >
       </label>
       <label class="block mb-4 text-sm">
@@ -121,6 +118,7 @@
           type="password"
           name="confirm_password"
           required
+          autocomplete="new-password"
         >
       </label>
       {{ .csrfField }}

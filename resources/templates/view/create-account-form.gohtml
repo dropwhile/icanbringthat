@@ -37,7 +37,8 @@
                 type="email"
                 name="email"
                 required
-                autofocus 
+                autofocus
+                autocomplete="email"
               >
               <div
                 class="absolute inset-y-0 flex items-center ml-3 pointer-events-none"
@@ -78,7 +79,8 @@
               type="password"
               name="password"
               required
-            >
+              autocomplete="new-password"
+              >
           </label>
           <label class="block mt-4 text-sm">
             <span class="text-gray-700 dark:text-gray-400">
@@ -91,7 +93,8 @@
               type="password"
               name="confirm_password"
               required
-            >
+              autocomplete="new-password"
+              >
           </label>
           {{ .csrfField }}
           {{if .next }}
