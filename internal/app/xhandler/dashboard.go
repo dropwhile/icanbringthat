@@ -47,6 +47,13 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	// parse user-id url param
 	tplVars := map[string]any{
 		"user":           user,
@@ -55,6 +62,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		"events":         events,
 		"eventCount":     eventCount,
 		"earmarkCount":   earmarkCount,
+		"favoriteCount":  favoriteCount,
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),

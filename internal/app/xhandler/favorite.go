@@ -27,7 +27,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favoritesCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
+	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -35,7 +35,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pageNum := 1
-	maxPageNum := resources.CalculateMaxPageNum(favoritesCount, 10)
+	maxPageNum := resources.CalculateMaxPageNum(favoriteCount, 10)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
@@ -81,8 +81,8 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"user":           user,
 		"favorites":      favorites,
-		"favoritesCount": favoritesCount,
-		"pgInput":        resources.NewPgInput(favoritesCount, 10, pageNum, "/favorites"),
+		"favoriteCount":  favoriteCount,
+		"pgInput":        resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":          "My Favorites",
 		"nav":            "favorites",
 		csrf.TemplateTag: csrf.TemplateField(r),
