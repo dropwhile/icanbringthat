@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
 	"time"
 
 	pgxz "github.com/jackc/pgx-zerolog"
@@ -215,10 +217,28 @@ func main() {
 		WriteTimeout:      5 * time.Second,
 	}
 
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		// handle signals
+		signals := make(chan os.Signal, 1)
+		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+		<-signals
+
+		// We received an interrupt signal, shut down.
+		log.Print("HTTP server shutting down...")
+		if err := server.Shutdown(context.Background()); err != nil {
+			// Error from closing listeners, or context timeout:
+			log.Printf("HTTP server Shutdown: %v", err)
+		}
+		close(idleConnsClosed)
+	}()
+
 	err := server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Info().Msg("server closed")
 	} else if err != nil {
 		log.Fatal().Err(err).Msg("error starting server")
 	}
+
+	<-idleConnsClosed
 }
