@@ -6,7 +6,9 @@ RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ENV GOEXPERIMENT=loopvar
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-COPY . /workdir/
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . ./
 ARG GITHASH
 ARG APP_VER
 RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"
