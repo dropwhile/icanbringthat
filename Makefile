@@ -5,20 +5,20 @@ OS                  := $(shell go env GOHOSTOS)
 GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
 
 # app specific info
-APP_VER             := $(shell git describe --always --tags|sed 's/^v//')
-GITHASH             := $(shell git rev-parse --short HEAD)
+APP_VER             ?= $(shell git describe --always --tags|sed 's/^v//')
+GITHASH             ?= $(shell git rev-parse --short HEAD)
 GOPATH              := $(shell go env GOPATH)
 VERSION_VAR         := main.ServerVersion
-DB_DSN              := $(or ${DB_DSN},"postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable")
+DB_DSN              ?= "postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable"
 GOOSE_DRIVER        ?= postgres
 GOOSE_DBSTRING      ?= ${DB_DSN}
 GOOSE_MIGRATION_DIR ?= database/migrations
 
 # flags and build configuration
-GOBUILD_OPTIONS     := -trimpath
-GOTEST_FLAGS        :=
-GOTEST_BENCHFLAGS   :=
-GOBUILD_DEPFLAGS    := -tags netgo,production
+GOBUILD_OPTIONS     ?= -trimpath
+GOTEST_FLAGS        ?=
+GOTEST_BENCHFLAGS   ?=
+GOBUILD_DEPFLAGS    ?= -tags netgo,production
 GOBUILD_LDFLAGS     ?= -s -w
 GOBUILD_FLAGS       := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
