@@ -174,7 +174,7 @@ docker-build:
 .PHONY: run
 run: build
 	@echo ">> starting dev server..."
-	@./build/bin/server
+	@exec ./build/bin/server
 
 .PHONY: devrun
 devrun: 
