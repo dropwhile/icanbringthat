@@ -14,9 +14,6 @@ import (
 	"syscall"
 	"time"
 
-	pgxz "github.com/jackc/pgx-zerolog"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -32,7 +29,9 @@ import (
 var ServerVersion = "no-version"
 
 func main() {
+	//----------------//
 	// parse env vars //
+	//----------------//
 
 	// log format
 	viper.MustBindEnv("LOG_FORMAT")
@@ -98,7 +97,6 @@ func main() {
 		}
 		log.Debug().Msgf("template dir: %s", tplDir)
 	}
-	templates := resources.MustParseTemplates(tplDir)
 
 	// static resources
 	viper.MustBindEnv("STATIC_DIR")
@@ -109,7 +107,6 @@ func main() {
 	} else {
 		log.Debug().Msgf("static dir: %s", staticDir)
 	}
-	staticFS := resources.NewStaticFS(staticDir)
 
 	// database
 	viper.MustBindEnv("DB_DSN")
@@ -117,31 +114,6 @@ func main() {
 	if dbDSN == "" {
 		log.Fatal().Msg("database connection info not supplied")
 	}
-	var dbpool *pgxpool.Pool
-	if zerolog.GlobalLevel() == zerolog.TraceLevel {
-		config, err := pgxpool.ParseConfig(dbDSN)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to connect to database")
-		}
-		config.ConnConfig.Tracer = &tracelog.TraceLog{
-			Logger:   pgxz.NewLogger(log.Logger),
-			LogLevel: tracelog.LogLevelTrace,
-		}
-		dbpool, err = pgxpool.NewWithConfig(context.Background(), config)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to connect to database")
-		}
-	} else {
-		var err error
-		dbpool, err = pgxpool.New(context.Background(), dbDSN)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to connect to database")
-		}
-	}
-	defer dbpool.Close()
-
-	model := model.SetupFromDb(dbpool)
-	defer model.Close()
 
 	// csrf Key
 	viper.MustBindEnv("CSRF_KEY")
@@ -149,23 +121,6 @@ func main() {
 	if csrfKeyInput == "" {
 		log.Fatal().Msg("csrf key not supplied")
 	}
-
-	// generate csrfKey based on input, using pdkdf2 to stretch/shrink
-	// as needed to fit 32 byte key requirement
-	csrfKeyBytes := pbkdf2.Key(
-		[]byte(csrfKeyInput),
-		[]byte("C/RWyRGBRXSCL5st5bFsPstuKQNDpRIix0vUlQ4QP80="),
-		4096,
-		32,
-		sha256.New,
-	)
-	hmacKeyBytes := pbkdf2.Key(
-		csrfKeyBytes,
-		[]byte("i4L04cpiG6JebX5brY53sBBqCyX16IwbjagbMkytmQQ="),
-		4096,
-		32,
-		sha256.New,
-	)
 
 	viper.MustBindEnv("SMTP_HOSTNAME")
 	smtpHostname := viper.GetString("SMTP_HOSTNAME")
@@ -197,13 +152,43 @@ func main() {
 		log.Fatal().Msg("smtp mail password")
 	}
 
+	//--------------------//
+	// configure services //
+	//--------------------//
+
+	// setup db pool & models
+	db, err := model.SetupFromDsn(dbDSN)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to database")
+	}
+	defer db.Close()
+
+	// generate csrfKey based on input, using pdkdf2 to stretch/shrink
+	// as needed to fit 32 byte key requirement
+	csrfKeyBytes := pbkdf2.Key(
+		[]byte(csrfKeyInput),
+		[]byte("C/RWyRGBRXSCL5st5bFsPstuKQNDpRIix0vUlQ4QP80="),
+		4096,
+		32,
+		sha256.New,
+	)
+	hmacKeyBytes := pbkdf2.Key(
+		csrfKeyBytes,
+		[]byte("i4L04cpiG6JebX5brY53sBBqCyX16IwbjagbMkytmQQ="),
+		4096,
+		32,
+		sha256.New,
+	)
+	// configure mailer
 	mailer := util.NewMailer(smtpHost, smtpPort, smtpHostname, smtpUser, smtpPass)
 
 	// routing/handlers
-	r := api.New(model, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
+	templates := resources.MustParseTemplates(tplDir)
+	r := api.New(db, templates, mailer, csrfKeyBytes, hmacKeyBytes, isProd)
 	defer r.Close()
 
 	// serve static files dir as /static/*
+	staticFS := resources.NewStaticFS(staticDir)
 	r.Get("/static/*", resources.FileServer(staticFS, "/static"))
 	// some other single item static files
 	r.Get("/favicon.ico", resources.ServeSingle(staticFS, "img/favicon.ico"))
@@ -217,6 +202,7 @@ func main() {
 		WriteTimeout:      5 * time.Second,
 	}
 
+	// signal handling && graceful shutdown
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		// handle signals
@@ -233,7 +219,8 @@ func main() {
 		close(idleConnsClosed)
 	}()
 
-	err := server.ListenAndServe()
+	// listen
+	err = server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Info().Msg("server closed")
 	} else if err != nil {

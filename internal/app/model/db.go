@@ -26,10 +26,6 @@ func (db *DB) GetPool() *pgxpool.Pool {
 	return db.Pool
 }
 
-func SetupFromDb(pool *pgxpool.Pool) *DB {
-	return &DB{pool}
-}
-
 func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	var t T
 	err := pgxscan.Get(ctx, db, &t, query, args...)
