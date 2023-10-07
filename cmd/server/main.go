@@ -35,9 +35,7 @@ func main() {
 		log.Logger = util.NewLogger(os.Stderr)
 	}
 	zerolog.SetGlobalLevel(config.LogLevel)
-
 	log.Info().Msgf("setting log level: %s", config.LogLevel.String())
-	log.Info().Msgf("prod mode: %t", config.Production)
 
 	if config.TemplateDir == "embed" {
 		log.Debug().Msg("templates: embedded")
@@ -54,6 +52,8 @@ func main() {
 	} else {
 		log.Debug().Msgf("static: dir=%s", config.StaticDir)
 	}
+
+	log.Info().Msgf("prod mode: %t", config.Production)
 
 	//--------------------//
 	// configure services //
@@ -78,8 +78,8 @@ func main() {
 	// routing/handlers
 	r := api.New(
 		db, templates, mailer,
-		config.CSRFKeyBytes,
 		config.HMACKeyBytes,
+		config.CSRFKeyBytes,
 		config.Production,
 	)
 	defer r.Close()

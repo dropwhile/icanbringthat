@@ -32,8 +32,11 @@ func (api *API) OnClose(f func()) {
 }
 
 func New(
-	db *model.DB, tpl resources.TemplateMap, mailer *util.Mailer,
-	csrfKey, hmacKey []byte, isProd bool,
+	db *model.DB,
+	tpl resources.TemplateMap,
+	mailer *util.Mailer,
+	hmacKey, csrfKey []byte,
+	isProd bool,
 ) *API {
 	zh := &xhandler.XHandler{
 		Db:      db,
@@ -43,10 +46,7 @@ func New(
 		Hmac:    util.NewHmac(hmacKey),
 	}
 
-	api := &API{
-		Mux:     chi.NewRouter(),
-		handler: zh,
-	}
+	api := &API{Mux: chi.NewRouter(), handler: zh}
 	api.OnClose(zh.SessMgr.Close)
 
 	// Router/Middleware //
