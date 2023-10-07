@@ -109,10 +109,8 @@ func main() {
 		// We received an interrupt signal, shut down.
 		log.Info().Msg("HTTP server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
-			if err != nil {
-				// Error from closing listeners, or context timeout:
-				log.Error().Err(err).Msg("HTTP server shutdown error")
-			}
+			// Error from closing listeners, or context timeout:
+			log.Error().Err(err).Msg("HTTP server shutdown error")
 		}
 		close(idleConnsClosed)
 	}()
@@ -121,11 +119,8 @@ func main() {
 	log.Info().Msg("starting up...")
 	log.Info().Msgf("listening: %s", config.ListenHostPort)
 	log.Info().Msgf("server version: %s", ServerVersion)
-	err = server.ListenAndServe()
-	if errors.Is(err, http.ErrServerClosed) {
-		log.Info().Msg("server closed")
-	} else if err != nil {
-		log.Fatal().Err(err).Msg("error starting server")
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal().Err(err).Msg("HTTP server error")
 	}
 
 	<-idleConnsClosed
