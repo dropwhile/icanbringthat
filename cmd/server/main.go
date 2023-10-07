@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	_ "database/sql"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -91,7 +92,6 @@ func main() {
 	r.Get("/favicon.ico", resources.ServeSingle(staticFS, "img/favicon.ico"))
 	r.Get("/robots.txt", resources.ServeSingle(staticFS, "robots.txt"))
 
-	log.Info().Msgf("listening: %s", config.ListenHostPort)
 	server := &http.Server{
 		Addr:              config.ListenHostPort,
 		Handler:           r,
@@ -109,17 +109,22 @@ func main() {
 		// We received an interrupt signal, shut down.
 		log.Info().Msg("HTTP server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
-			// Error from closing listeners, or context timeout:
-			log.Error().Err(err).Msg("HTTP server shutdown error")
+			if err != nil {
+				// Error from closing listeners, or context timeout:
+				log.Error().Err(err).Msg("HTTP server shutdown error")
+			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
 	log.Info().Msg("starting up...")
+	log.Info().Msgf("listening: %s", config.ListenHostPort)
 	log.Info().Msgf("server version: %s", ServerVersion)
 	err = server.ListenAndServe()
-	if err != nil {
+	if errors.Is(err, http.ErrServerClosed) {
+		log.Info().Msg("server closed")
+	} else if err != nil {
 		log.Fatal().Err(err).Msg("error starting server")
 	}
 
