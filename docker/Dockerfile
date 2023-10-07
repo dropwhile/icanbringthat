@@ -31,7 +31,7 @@ ENV LOG_FORMAT=plain
 # production (sets cookies to secure, etc)
 ENV PRODUCTION=false
 # csrf key
-ENV CSRF_KEY=""
+ENV HMAC_KEY=""
 # mail hostname
 ENV SMTP_HOSTNAME=""
 ENV SMTP_PORT=""

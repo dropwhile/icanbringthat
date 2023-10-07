@@ -239,7 +239,7 @@ func (tm *TemplateMap) Get(name string) (*template.Template, error) {
 	return nil, fmt.Errorf("template not found for name %s", name)
 }
 
-func MustParseTemplates(templatesDir string) TemplateMap {
+func ParseTemplates(templatesDir string) (TemplateMap, error) {
 	templates := make(TemplateMap, 0)
 
 	var templateFS fs.FS
@@ -247,7 +247,7 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 		var err error
 		templateFS, err = fs.Sub(templateEmbedFS, "templates")
 		if err != nil {
-			panic(err)
+			return templates, err
 		}
 	} else {
 		templateFS = os.DirFS(templatesDir)
@@ -259,12 +259,12 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 		"partial/*.gohtml",
 	)
 	if err != nil {
-		panic(err)
+		return templates, err
 	}
 
 	viewSub, err := fs.Sub(templateFS, "view")
 	if err != nil {
-		panic(err)
+		return templates, err
 	}
 
 	err = fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
@@ -272,21 +272,21 @@ func MustParseTemplates(templatesDir string) TemplateMap {
 			name := filepath.Base(p)
 			c, err := nonViewTemplates.Clone()
 			if err != nil {
-				panic(err)
+				return err
 			}
 			t, err := c.New(name).Funcs(templateFuncMap).ParseFS(
 				templateFS, fmt.Sprintf("view/%s", name),
 			)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			templates[name] = t
 		}
 		return nil
 	})
 	if err != nil {
-		panic(err)
+		return templates, err
 	}
 
-	return templates
+	return templates, nil
 }
