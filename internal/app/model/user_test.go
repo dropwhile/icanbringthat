@@ -137,6 +137,13 @@ func TestUserSave(t *testing.T) {
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
+	mock.ExpectBegin()
+	mock.ExpectExec("^UPDATE user_ (.+)*").
+		WithArgs("user1@example.com", "j rando", []byte("000x000"), true, 1).
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+	mock.ExpectCommit()
+	// hidden rollback after commit due to beginfunc being used
+	mock.ExpectRollback()
 
 	user := &User{
 		Id:     1,
@@ -145,6 +152,9 @@ func TestUserSave(t *testing.T) {
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
 	}
+	err = user.Save(ctx, mock)
+	assert.NilError(t, err)
+	user.Verified = true
 	err = user.Save(ctx, mock)
 	assert.NilError(t, err)
 
