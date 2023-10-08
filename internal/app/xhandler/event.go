@@ -507,7 +507,7 @@ func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request
 			order = append(order, i)
 		}
 	}
-	event.ItemSortOrder = util.RemoveDuplicates(order)
+	event.ItemSortOrder = util.Uniq(order)
 	err = event.Save(ctx, x.Db)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")

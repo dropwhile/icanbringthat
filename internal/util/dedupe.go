@@ -2,7 +2,7 @@ package util
 
 var empty = struct{}{}
 
-func RemoveDuplicates[T comparable](sliceList []T) []T {
+func Uniq[T comparable](sliceList []T) []T {
 	allKeys := make(map[T]struct{}, len(sliceList))
 	list := make([]T, 0, len(sliceList))
 	for _, item := range sliceList {
