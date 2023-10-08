@@ -17,9 +17,9 @@ RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
-COPY --from=builder /workdir/build/bin/* /app/
-COPY --from=builder /workdir/database/migrations /app/database/migrations
-COPY --from=builder /go/bin/goose /app/
+COPY --from=builder --link /go/bin/goose /app/goose
+COPY --from=builder --link /workdir/build/bin/server /app/server
+COPY --from=builder --link /workdir/database/migrations /app/database/migrations
 
 ENV DEBUG=false
 ENV BIND_ADDRESS=0.0.0.0

@@ -166,6 +166,8 @@ docker-build:
 	@DOCKER_BUILDKIT=1 docker build \
 		--build-arg GITHASH=${GITHASH} \
 		--build-arg APP_VER=${APP_VER} \
+		--build-arg BUILDKIT_INLINE_CACHE=1 \
+		--cache-from icbt:latest \
 		-t icbt:latest \
 		-f docker/Dockerfile \
 		.
