@@ -497,6 +497,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
