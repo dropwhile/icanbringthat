@@ -24,7 +24,7 @@ func (uv *UserVerify) Insert(ctx context.Context, db PgxHandle) error {
 	if uv.RefID.IsNil() {
 		uv.RefID = refid.Must(VerifyRefIDT.New())
 	}
-	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
+	q := `INSERT INTO user_verify_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
 	res, err := QueryOneTx[UserVerify](ctx, db, q, uv.RefID, uv.UserId)
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func (uv *UserVerify) Insert(ctx context.Context, db PgxHandle) error {
 }
 
 func (uv *UserVerify) Delete(ctx context.Context, db PgxHandle) error {
-	q := `DELETE FROM user_pw_reset_ WHERE ref_id = $1`
+	q := `DELETE FROM user_verify_ WHERE ref_id = $1`
 	return ExecTx[UserVerify](ctx, db, q, uv.RefID)
 }
 
@@ -57,6 +57,6 @@ func GetUserVerifyByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) 
 		)
 		return nil, err
 	}
-	q := `SELECT * FROM user_pw_reset_ WHERE ref_id = $1`
+	q := `SELECT * FROM user_verify_ WHERE ref_id = $1`
 	return QueryOne[UserVerify](ctx, db, q, refId)
 }

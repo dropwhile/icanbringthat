@@ -9,7 +9,9 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestUserPWResetInsert(t *testing.T) {
+var tstRefIDUserVerify = refid.Must(refid.Parse("065h0vbe7450c8ks641me3ny9c"))
+
+func TestUserVerifyUserInsert(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -18,14 +20,13 @@ func TestUserPWResetInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
-		AddRow(refId, 1)
+		AddRow(tstRefIDUserVerify, 1)
 
 	mock.ExpectBegin()
-	mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-		WithArgs(UserPWResetRefIDT.AnyMatcher(), 1).
+	mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
+		WithArgs(VerifyRefIDT.AnyMatcher(), 1).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -39,12 +40,12 @@ func TestUserPWResetInsert(t *testing.T) {
 		PWHash: []byte("000x000"),
 	}
 
-	upw, err := NewUserPWReset(ctx, mock, user)
+	upw, err := NewUserVerify(ctx, mock, user)
 	assert.NilError(t, err)
 
-	assert.Check(t, upw.RefID.HasTag(5))
-	assert.DeepEqual(t, upw, &UserPWReset{
-		RefID:  refId,
+	assert.Check(t, upw.RefID.HasTag(6))
+	assert.DeepEqual(t, upw, &UserVerify{
+		RefID:  tstRefIDUserVerify,
 		UserId: 1,
 	})
 
@@ -54,7 +55,7 @@ func TestUserPWResetInsert(t *testing.T) {
 	}
 }
 
-func TestUserPWResetDelete(t *testing.T) {
+func TestUserVerifyUserDelete(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -63,17 +64,16 @@ func TestUserPWResetDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	mock.ExpectBegin()
-	mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
-		WithArgs(refId).
+	mock.ExpectExec("^DELETE FROM user_verify_ (.+)").
+		WithArgs(tstRefIDUserVerify).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
 
-	upw := &UserPWReset{
-		RefID:  refId,
+	upw := &UserVerify{
+		RefID:  tstRefIDUserVerify,
 		UserId: 1,
 	}
 	err = upw.Delete(ctx, mock)
@@ -85,7 +85,7 @@ func TestUserPWResetDelete(t *testing.T) {
 	}
 }
 
-func TestUserPWResetGetByRefID(t *testing.T) {
+func TestUserVerifyUserGetByRefID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -94,20 +94,19 @@ func TestUserPWResetGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
-		AddRow(refId, 1)
+		AddRow(tstRefIDUserVerify, 1)
 
-	mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-		WithArgs(refId).
+	mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
+		WithArgs(VerifyRefIDT.AnyMatcher()).
 		WillReturnRows(rows)
 
-	upw, err := GetUserPWResetByRefID(ctx, mock, refId)
+	upw, err := GetUserVerifyByRefID(ctx, mock, tstRefIDUserVerify)
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, upw, &UserPWReset{
-		RefID:  refId,
+	assert.DeepEqual(t, upw, &UserVerify{
+		RefID:  tstRefIDUserVerify,
 		UserId: 1,
 	})
 
