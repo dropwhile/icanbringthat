@@ -68,13 +68,13 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	hmacBytes, err := util.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 	// check hmac
 	if !x.Hmac.Validate([]byte(refIdStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
@@ -82,20 +82,20 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
 	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
 	if upw.IsExpired() {
 		log.Debug().Err(err).Msg("token expired")
-		x.Error(w, "token expired", http.StatusBadRequest)
+		x.Error(w, "token expired", http.StatusNotFound)
 		return
 	}
 

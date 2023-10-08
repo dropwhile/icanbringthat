@@ -15,7 +15,7 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-func (x *XHandler) SendEmailVerification(w http.ResponseWriter, r *http.Request) {
+func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session
@@ -89,7 +89,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "vRefID")
+	refIdStr := chi.URLParam(r, "uvRefID")
 	if hmacStr == "" || refIdStr == "" {
 		log.Debug().Msg("missing url query data")
 		x.Error(w, "not found", http.StatusNotFound)
@@ -106,7 +106,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// check hmac
 	if !x.Hmac.Validate([]byte(refIdStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 

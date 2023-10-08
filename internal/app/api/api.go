@@ -119,8 +119,8 @@ func New(
 				r.Post("/earmarks/{mRefID:[0-9a-z]+}", zh.UpdateEarmark)
 			*/
 			// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
-			r.Post("/verify", zh.SendEmailVerification)
-			r.Get("/verify/{vRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.VerifyEmail)
+			r.Post("/verify", zh.SendVerificationEmail)
+			r.Get("/verify/{uvRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.VerifyEmail)
 		})
 
 		// Public routes
