@@ -1,7 +1,7 @@
 .git
 .github
 .envrc
-.modd
+.modd.conf
 .vscode
 notes.txt
 build/

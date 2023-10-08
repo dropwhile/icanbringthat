@@ -5,13 +5,13 @@ FROM golang:1.21-alpine as builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ENV GOEXPERIMENT=loopvar
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest; rm -rf /go/pkg/ /root/.cache/
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
 ARG GITHASH
 ARG APP_VER
-RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"
+RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
 
 # make runnable image
 FROM alpine:latest
