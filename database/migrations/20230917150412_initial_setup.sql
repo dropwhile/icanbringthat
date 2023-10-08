@@ -101,7 +101,7 @@ DROP TABLE IF EXISTS event_;
 
 --- drop user table/indexes/triggers
 DROP INDEX IF EXISTS user_ref_idx;
-CREATE TRIGGER last_mod_user on user_;
+DROP TRIGGER IF EXISTS last_mod_user on user_;
 DROP TABLE IF EXISTS user_;
 
 --- drop functions

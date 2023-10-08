@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS user_pw_reset_ (
 CREATE UNIQUE INDEX user_pw_reset_ref_idx ON user_pw_reset_(ref_id);
 
 -- +goose Down
-DELETE INDEX IF EXISTS user_pw_reset_ref_idx;
+DROP INDEX IF EXISTS user_pw_reset_ref_idx;
 DROP TABLE IF EXISTS user_pw_reset_;

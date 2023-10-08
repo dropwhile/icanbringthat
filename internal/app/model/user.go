@@ -18,6 +18,7 @@ type User struct {
 	Email        string
 	Name         string `db:"name"`
 	PWHash       []byte `db:"pwhash"`
+	Verified     bool
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
 }
@@ -56,8 +57,8 @@ func (user *User) Insert(ctx context.Context, db PgxHandle) error {
 }
 
 func (user *User) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3 WHERE id = $4`
-	return ExecTx[User](ctx, db, q, user.Email, user.Name, user.PWHash, user.Id)
+	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3, verified = $4 WHERE id = $5`
+	return ExecTx[User](ctx, db, q, user.Email, user.Name, user.PWHash, user.Verified, user.Id)
 }
 
 func (user *User) Delete(ctx context.Context, db PgxHandle) error {

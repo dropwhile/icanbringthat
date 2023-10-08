@@ -127,7 +127,6 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 
 func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	log.Debug().Msg("test")
 
 	// attempt to get user from session
 	if _, err := auth.UserFromContext(ctx); err == nil {
