@@ -8,12 +8,72 @@
   <div
     class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl"
   >
+    {{if not .user.Verified }}
+    <form method="post" action="/verify">
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Verfication Status</span>
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+          <input
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple text-red-600 dark:text-red-400 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
+            type="text"
+            value="Account is not yet verified."
+            disabled
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none text-red-600 dark:text-red-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-5 h-5"
+              aria-hidden="true"
+              >
+              <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+            Verify &nbsp;
+          </button>
+        </div>
+      </label>
+      {{ .csrfField }}
+    </form>
+    {{else}}
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Verfication Status</span>
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+          <input
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple text-green-600 dark:text-green-400 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
+            type="text"
+            value="Account is verified."
+            disabled
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none text-green-600 dark:text-green-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-5 h-5"
+              aria-hidden="true"
+              >
+              <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md focus:outline-none opacity-50 cursor-not-allowed">
+            Verified
+          </button>
+        </div>
+      </label>
+    {{end}}
+
     <form method="post" action="/settings">
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Email</span>
         <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
           <input
-            class="block w-full pl-10 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
             placeholder="user@example.com"
             type="email"
             name="email"
@@ -21,7 +81,7 @@
             required
             autocomplete="email"
           >
-          <div class="absolute inset-y-0 flex items-center ml-3 pointer-events-none">
+          <div class="absolute inset-y-0 right-0 flex items-center mr-3 pointer-events-none">
             <svg
               class="w-5 h-5"
               aria-hidden="true"
@@ -37,10 +97,15 @@
               ></path>
             </svg>
           </div>
-          <button class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
             Update
           </button>
         </div>
+        {{if .user.Verified }}
+        <span class="text-xs text-gray-600 dark:text-gray-400">
+          Note: If you change email, the account will need to be re-verified.
+        </span>
+        {{end}}
       </label>
       {{ .csrfField }}
     </form>
@@ -53,6 +118,7 @@
         >
           <input
             class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
             placeholder="Name"
             value="{{.user.Name}}"
             type="text"
@@ -60,32 +126,13 @@
             required
             data-1p-ignore
           >
-          <button
-            class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-          >
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
             Update
           </button>
         </div>
       </label>
       {{ .csrfField }}
     </form>
-
-    {{if not .user.Verified }}
-    <form method="post" action="/verify">
-      <button style="float:right;" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
-        Verify Account 
-      </button>
-      <div class="text-red-600 dark:text-red-400">
-        Account is not yet verified. <br>
-        Please verify account.
-      </div>
-      {{ .csrfField }}
-    </form>
-    {{else}}
-      <div class="text-green-600 dark:text-green-400">
-        Account is verified.
-      </div>
-    {{end}}
   </div>
 
   <!-- Password -->
@@ -139,7 +186,7 @@
         >
       </label>
       {{ .csrfField }}
-      <div class="block" style="text-align:right">
+      <div class="block" style="text-align:left">
         <button class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
           Update 
         </button>
