@@ -9,13 +9,12 @@
         x: 'center',
         y: 'top',
       }
-    }
-    );
+    });
     {{range .operations}}
-      notyf.success("{{.}}")
+      notyf.success("{{.}}");
     {{end}}
     {{range .errors}}
-      notyf.error("{{.}}")
+      notyf.error("{{.}}");
     {{end}}
   </script>
   {{end}}
