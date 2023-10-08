@@ -32,6 +32,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -79,7 +80,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), false, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -444,7 +445,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), false, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.Id).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()

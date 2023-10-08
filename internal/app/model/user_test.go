@@ -25,11 +25,12 @@ func TestUserSetPassword(t *testing.T) {
 
 	refId := tstUserRefID
 	user := &User{
-		Id:     1,
-		RefID:  refId,
-		Email:  "user1@example.com",
-		Name:   "j rando",
-		PWHash: []byte("000x000"),
+		Id:       1,
+		RefID:    refId,
+		Email:    "user1@example.com",
+		Name:     "j rando",
+		PWHash:   []byte("000x000"),
+		Verified: false,
 	}
 
 	err = user.SetPass(ctx, []byte("111x111"))
@@ -37,7 +38,7 @@ func TestUserSetPassword(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE user_ (.+)*").
-		WithArgs("user1@example.com", "j rando", user.PWHash, false, 1).
+		WithArgs("user1@example.com", "j rando", user.PWHash, user.Verified, user.Id).
 		WillReturnResult(pgxmock.NewResult("INSERT", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
