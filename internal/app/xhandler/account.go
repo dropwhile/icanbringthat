@@ -155,7 +155,6 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		user.Verified = false
 		changes = true
 		operations = append(operations, "Email update successfull")
-		operations = append(operations, "Account verification email sent")
 	} else if email == user.Email {
 		warnings = append(warnings, "Same Email specified was already present")
 	}
