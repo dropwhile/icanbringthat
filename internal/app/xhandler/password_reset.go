@@ -31,7 +31,7 @@ func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request
 	tplVars := map[string]any{
 		"title":          "Forgot Password",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopKey(ctx, "forgot-password"),
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -109,7 +109,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	tplVars := map[string]any{
 		"title":          "Reset Password",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopKey(ctx, "reset-password"),
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 		"refId":          refIdStr,
@@ -209,7 +209,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml)
 	}
 
-	x.SessMgr.FlashAppend(ctx, "login", "Password reset email sent.")
+	x.SessMgr.FlashAppend(ctx, "success", "Password reset email sent.")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 

@@ -24,7 +24,7 @@ func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"title":          "Login",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopKey(ctx, "login"),
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -67,7 +67,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := model.GetUserByEmail(ctx, x.Db, email)
 	if err != nil || user == nil {
 		log.Debug().Err(err).Msg("invalid credentials: no user match")
-		x.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
+		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -75,7 +75,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ok, err := user.CheckPass(ctx, []byte(passwd))
 	if err != nil || !ok {
 		log.Debug().Err(err).Msg("invalid credentials: pass check fail")
-		x.SessMgr.FlashAppend(ctx, "login", "Invalid credentials")
+		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -94,10 +94,13 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.PostFormValue("next") != "" {
 		target = r.FormValue("next")
 	}
+	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (x *XHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	if err := x.SessMgr.Clear(r.Context()); err != nil {
 		x.Error(w, err.Error(), 500)
 		return
@@ -110,5 +113,6 @@ func (x *XHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		x.Error(w, "session error", http.StatusInternalServerError)
 		return
 	}
+	x.SessMgr.FlashAppend(ctx, "success", "Logout successful")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -24,7 +24,7 @@ func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	// parse user-id url param
 	tplVars := map[string]any{
 		"title":          "Create Account",
-		"flashes":        x.SessMgr.FlashPopKey(ctx, "operations"),
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		"next":           r.FormValue("next"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
@@ -114,7 +114,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	// Then make the privilege-level change.
 	x.SessMgr.Put(r.Context(), "user-id", user.Id)
-	x.SessMgr.FlashAppend(ctx, "operations", "Account created. You are now logged in.")
+	x.SessMgr.FlashAppend(ctx, "success", "Account created. You are now logged in.")
 
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
@@ -141,14 +141,14 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 
 	changes := false
 	warnings := make([]string, 0)
-	operations := make([]string, 0)
+	successMsgs := make([]string, 0)
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
 		user.Email = email
 		user.Verified = false
 		changes = true
-		operations = append(operations, "Email update successfull")
+		successMsgs = append(successMsgs, "Email update successfull")
 	} else if email == user.Email {
 		warnings = append(warnings, "Same Email specified was already present")
 	}
@@ -157,7 +157,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	if name != "" && name != user.Name {
 		user.Name = name
 		changes = true
-		operations = append(operations, "Name update successfull")
+		successMsgs = append(successMsgs, "Name update successfull")
 	} else if name == user.Name {
 		warnings = append(warnings, "Same Name specified was already present")
 	}
@@ -178,7 +178,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 					x.Error(w, "error updating user", http.StatusInternalServerError)
 					return
 				}
-				operations = append(operations, "Password update successfull")
+				successMsgs = append(successMsgs, "Password update successfull")
 				changes = true
 			}
 		}
@@ -191,9 +191,9 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			x.Error(w, "error updating user", http.StatusInternalServerError)
 			return
 		}
-		x.SessMgr.FlashAppend(ctx, "operations", operations...)
+		x.SessMgr.FlashAppend(ctx, "success", successMsgs...)
 	} else {
-		x.SessMgr.FlashAppend(ctx, "errors", warnings...)
+		x.SessMgr.FlashAppend(ctx, "error", warnings...)
 	}
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }

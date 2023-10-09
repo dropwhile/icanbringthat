@@ -1,5 +1,5 @@
 {{define "flashes_modal"}}
-  {{if or .operations .errors }}
+  {{if or .success .error }}
   <script>
     var notyf = new Notyf({
       ripple: false,
@@ -10,12 +10,12 @@
         y: 'top',
       }
     });
-    {{range .operations}}
+    {{ range .success }}
       notyf.success("{{.}}");
-    {{end}}
-    {{range .errors}}
+    {{ end }}
+    {{ range .error }}
       notyf.error("{{.}}");
-    {{end}}
+    {{ end }}
   </script>
   {{end}}
 {{end}}

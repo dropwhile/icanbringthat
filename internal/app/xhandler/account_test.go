@@ -61,7 +61,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		messages := handler.SessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t, messages,
 			map[string][]string{
-				"errors": {"Same Email specified was already present"},
+				"error": {"Same Email specified was already present"},
 			},
 		)
 
@@ -105,7 +105,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"operations": {"Email update successfull"},
+				"success": {"Email update successfull"},
 			},
 		)
 
@@ -151,7 +151,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"errors": {"Same Name specified was already present"},
+				"error": {"Same Name specified was already present"},
 			},
 		)
 
@@ -195,7 +195,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"operations": {"Name update successfull"},
+				"success": {"Name update successfull"},
 			},
 		)
 
@@ -234,7 +234,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"errors": {"New Password and Confirm Password do not match"},
+				"error": {"New Password and Confirm Password do not match"},
 			},
 		)
 
@@ -274,7 +274,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"errors": {"New Password and Confirm Password do not match"},
+				"error": {"New Password and Confirm Password do not match"},
 			},
 		)
 
@@ -315,7 +315,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"errors": {"Old Password invalid"},
+				"error": {"Old Password invalid"},
 			},
 		)
 
@@ -366,7 +366,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
-				"operations": {"Password update successfull"},
+				"success": {"Password update successfull"},
 			},
 		)
 
@@ -470,7 +470,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		messages := handler.SessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t, messages,
 			map[string][]string{
-				"operations": {"Account created. You are now logged in."},
+				"success": {"Account created. You are now logged in."},
 			},
 		)
 

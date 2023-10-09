@@ -74,7 +74,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	_ = user
 	x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml)
 
-	x.SessMgr.FlashAppend(ctx, "operations", "Account verification email sent.")
+	x.SessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
@@ -151,6 +151,6 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	x.SessMgr.FlashAppend(ctx, "operations", "Email verification successfull")
+	x.SessMgr.FlashAppend(ctx, "success", "Email verification successfull")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
