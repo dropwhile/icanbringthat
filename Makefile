@@ -8,6 +8,7 @@ GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
 APP_VER             ?= $(shell git describe --always --tags|sed 's/^v//')
 GITHASH             ?= $(shell git rev-parse --short HEAD)
 GOPATH              := $(shell go env GOPATH)
+GOBIN               := ${GOPATH}/bin
 VERSION_VAR         := main.ServerVersion
 DB_DSN              ?= "postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable"
 GOOSE_DRIVER        ?= postgres
@@ -62,22 +63,25 @@ clean:
 	@rm -rf "${BUILDDIR}"
 
 .PHONY: setup
-setup:
+setup: ${GOBIN}/sqlc
 
 .PHONY: setup-check
-setup-check: ${GOPATH}/bin/staticcheck ${GOPATH}/bin/gosec ${GOPATH}/bin/govulncheck
+setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 
-${GOPATH}/bin/staticcheck:
+${GOBIN}/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 
-${GOPATH}/bin/gosec:
+${GOBIN}/gosec:
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 
-${GOPATH}/bin/govulncheck:
+${GOBIN}/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
-${GOPATH}/bin/stringer:
+${GOBIN}/stringer:
 	go install golang.org/x/tools/cmd/stringer@latest
+
+${GOBIN}/sqlc:
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 .PHONY: build 
 build: setup
@@ -110,13 +114,13 @@ cover: setup
 check: setup setup-check
 	@echo ">> Running checks and validators..."
 	@echo "... staticcheck ..."
-	@${GOPATH}/bin/staticcheck ./...
+	@${GOBIN}/staticcheck ./...
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... gosec ..."
-	@${GOPATH}/bin/gosec -quiet ./...
+	@${GOBIN}/gosec -quiet ./...
 	@echo "... govulncheck ..."
-	@${GOPATH}/bin/govulncheck ./...
+	@${GOBIN}/govulncheck ./...
 
 .PHONY: update-go-deps
 update-go-deps:
