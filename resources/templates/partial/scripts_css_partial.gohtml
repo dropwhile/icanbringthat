@@ -13,23 +13,21 @@
 <script src="/static/js/notyf.min.js"></script>
 <script src="/static/js/init-alpine.js"></script>
 
-<!-- sortable -->
 <script>
-htmx.onLoad(function(content) {
-  var sortables = content.querySelectorAll(".sortable");
-  for (var i = 0; i < sortables.length; i++) {
-    var sortable = sortables[i];
-    new Sortable(sortable, {
-        animation: 150,
-        ghostClass: "sortable-ghost",
-        handle: ".sort-handle"
-    });
-  }
-})
-</script>
+  //-- sortable -->
+  htmx.onLoad(function(content) {
+    var sortables = content.querySelectorAll(".sortable");
+    for (var i = 0; i < sortables.length; i++) {
+      var sortable = sortables[i];
+      new Sortable(sortable, {
+          animation: 150,
+          ghostClass: "sortable-ghost",
+          handle: ".sort-handle"
+      });
+    }
+  })
 
-<!-- focus trap for modals -->
-<script>
+  //-- focus trap for modals -->
   function myFunction(obj) {
     var copyText = obj.querySelector('.eventlink');
     var text = location.origin + copyText.innerHTML;

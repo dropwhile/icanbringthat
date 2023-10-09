@@ -114,10 +114,8 @@ func New(
 			r.Get("/events/{eRefID:[0-9a-z]+}/items/{iRefID:[0-9a-z]+}/earmarks/add", zh.ShowCreateEarmarkForm)
 			r.Get("/earmarks", zh.ListEarmarks)
 			r.Delete("/earmarks/{mRefID:[0-9a-z]+}", zh.DeleteEarmark)
-			/*
-				r.Get("/earmarks/{mRefID:[0-9a-z]+}", zh.ShowEarmark)
-				r.Post("/earmarks/{mRefID:[0-9a-z]+}", zh.UpdateEarmark)
-			*/
+			// r.Get("/earmarks/{mRefID:[0-9a-z]+}", zh.ShowEarmark)
+			// r.Post("/earmarks/{mRefID:[0-9a-z]+}", zh.UpdateEarmark)
 			// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
 			r.Post("/verify", zh.SendVerificationEmail)
 			r.Get("/verify/{uvRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.VerifyEmail)
