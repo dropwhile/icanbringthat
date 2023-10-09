@@ -1,0 +1,40 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "database/queries"
+    schema: "database/migrations"
+    database:
+      uri: ${DB_DSN}
+    gen:
+      go:
+        package: "modelx"
+        out: "internal/app/modelx"
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_db_tags: true
+        omit_unused_structs: true
+        json_tags_case_style: snake
+        query_parameter_limit: 2
+    rules:
+      - postgresql-no-seq-scan
+overrides:
+  go:
+    overrides:
+      - db_type: "refid_bytea"
+        go_type: "github.com/dropwhile/refid.RefID"
+      - db_type: "refid_bytea"
+        go_type: "github.com/dropwhile/refid.NullRefID"
+        nullable: true
+      - db_type: "pg_catalog.timestamp"
+        go_type: "time.Time"
+      - db_type: "timestamptz"
+        go_type: "time.Time"
+      - column: "event_.start_time_tz"
+        go_type: "github.com/dropwhile/icbt/internal/app/model.TimeZone"
+rules:
+  - name: postgresql-query-too-costly
+    message: "Query cost estimate is too high"
+    rule: "postgresql.explain.plan.total_cost > 1.0"
+  - name: postgresql-no-seq-scan
+    message: "Query plan results in a sequential scan"
+    rule: "postgresql.explain.plan.node_type == 'Seq Scan'"
