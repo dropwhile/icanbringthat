@@ -118,9 +118,13 @@ check: setup setup-check
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... gosec ..."
-	@${GOBIN}/gosec -quiet ./...
+	@${GOBIN}/gosec -quiet -exclude-generated ./...
 	@echo "... govulncheck ..."
 	@${GOBIN}/govulncheck ./...
+	@echo "... sqlc diff ..."
+	@${GOBIN}/sqlc diff
+	@echo "... sqlc vet ..."
+	@${GOBIN}/sqlc vet
 
 .PHONY: update-go-deps
 update-go-deps:
