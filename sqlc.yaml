@@ -14,23 +14,26 @@ sql:
         emit_db_tags: true
         omit_unused_structs: true
         json_tags_case_style: snake
+        #build_tags: true
         query_parameter_limit: 2
     rules:
       - postgresql-no-seq-scan
 overrides:
   go:
     overrides:
-      - db_type: "refid_bytea"
-        go_type: "github.com/dropwhile/refid.RefID"
-      - db_type: "refid_bytea"
-        go_type: "github.com/dropwhile/refid.NullRefID"
+      - db_type: refid_bytea
+        go_type: github.com/dropwhile/refid.RefID
+      - db_type: refid_bytea
+        go_type: github.com/dropwhile/refid.NullRefID
         nullable: true
-      - db_type: "pg_catalog.timestamp"
-        go_type: "time.Time"
-      - db_type: "timestamptz"
-        go_type: "time.Time"
-      - column: "event_.start_time_tz"
-        go_type: "github.com/dropwhile/icbt/internal/app/model.TimeZone"
+      - db_type: pg_catalog.timestamp
+        go_type: time.Time
+      - db_type: timestamptz
+        go_type: time.Time
+      - column: event_.start_time_tz
+        go_type: github.com/dropwhile/icbt/internal/app/model.TimeZone
+      - column: user_.pwhash
+        go_struct_tag: json:"-" db:"pwhash"
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"
