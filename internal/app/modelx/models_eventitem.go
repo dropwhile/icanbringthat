@@ -4,7 +4,8 @@ import "context"
 
 type EventItemExpanded struct {
 	*EventItem
-	Event *Event
+	Event   *Event
+	Earmark *EarmarkExpanded
 }
 
 func (q *Queries) NewEventItem(ctx context.Context, eventID int32, description string) (*EventItem, error) {

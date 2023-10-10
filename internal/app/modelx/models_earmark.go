@@ -5,6 +5,7 @@ import "context"
 type EarmarkExpanded struct {
 	*Earmark
 	EventItem *EventItemExpanded
+	User      *User
 }
 
 func (q *Queries) NewEarmark(ctx context.Context, eventItemID int32, userID int32, note string) (*Earmark, error) {
