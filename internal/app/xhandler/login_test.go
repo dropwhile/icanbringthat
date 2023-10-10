@@ -15,14 +15,14 @@ import (
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refId := refid.Must(modelx.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 
@@ -128,7 +128,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refId := refid.Must(modelx.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	rows := pgxmock.NewRows(

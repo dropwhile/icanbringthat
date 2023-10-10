@@ -16,6 +16,13 @@ sql:
         json_tags_case_style: snake
         #build_tags: true
         query_parameter_limit: 2
+        output_files_suffix: .gen.go
+        output_batch_file_name: batch.gen.go
+        output_models_file_name: models.gen.go
+        output_db_file_name: db.gen.go
+        output_querier_file_name: querier.gen.go
+        rename:
+          pwhash: PwHash
     rules:
       - postgresql-no-seq-scan
 overrides:
@@ -31,7 +38,7 @@ overrides:
       - db_type: timestamptz
         go_type: time.Time
       - column: event_.start_time_tz
-        go_type: github.com/dropwhile/icbt/internal/app/model.TimeZone
+        go_type: github.com/dropwhile/icbt/internal/util.TimeZone
       - column: user_.pwhash
         go_struct_tag: json:"-" db:"pwhash"
 rules:

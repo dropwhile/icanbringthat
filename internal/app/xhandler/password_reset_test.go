@@ -19,6 +19,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
@@ -28,7 +29,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(modelx.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -493,7 +494,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(modelx.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),

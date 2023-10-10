@@ -7,11 +7,13 @@ import (
 	"github.com/dropwhile/refid"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/modelx"
 )
 
 var (
 	columns      = []string{"id", "ref_id", "email", "name", "pwhash"}
-	tstUserRefID = refid.Must(refid.Parse("065f77c7jht024dzak7wc6k7xc"))
+	tstUserRefID = refid.Must(modelx.ParseUserRefID("065f77c7jht024dzak7wc6k7xc"))
 )
 
 func TestUserSetPassword(t *testing.T) {
@@ -93,7 +95,7 @@ func TestUserInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_ (.+)*").
-		WithArgs(UserRefIDT.AnyMatcher(), "user1@example.com", "j rando", pgxmock.AnyArg()).
+		WithArgs(modelx.UserRefIDMatcher{}, "user1@example.com", "j rando", pgxmock.AnyArg()).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used

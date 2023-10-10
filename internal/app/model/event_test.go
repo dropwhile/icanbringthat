@@ -7,6 +7,8 @@ import (
 	"github.com/dropwhile/refid"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/modelx"
 )
 
 var tstEventRefID = refid.Must(refid.Parse("065f77p96rp05pze29y74wx7q8"))
@@ -229,6 +231,7 @@ func TestEventsGetByUser(t *testing.T) {
 	t.Cleanup(func() { mock.Close(ctx) })
 
 	refId := tstEventRefID
+	userRefId := refid.Must(modelx.NewUserRefID())
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
@@ -240,7 +243,7 @@ func TestEventsGetByUser(t *testing.T) {
 
 	user := &User{
 		Id:     1,
-		RefID:  refId,
+		RefID:  userRefId,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),

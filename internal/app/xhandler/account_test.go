@@ -15,13 +15,14 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refId := refid.Must(modelx.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -386,7 +387,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refId := refid.Must(modelx.NewUserRefID())
 	ts := tstTs
 	user := &model.User{
 		Id:           1,
@@ -448,12 +449,12 @@ func TestHandler_Account_Create(t *testing.T) {
 			[]string{
 				"id", "ref_id", "email", "pwhash", "created", "last_modified",
 			}).AddRow(
-			1, refid.Must(model.UserRefIDT.New()), "user@example.com", pwhash, tstTs, tstTs,
+			1, refid.Must(modelx.NewUserRefID()), "user@example.com", pwhash, tstTs, tstTs,
 		)
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(modelx.UserRefIDMatcher{}, "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -555,7 +556,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(modelx.UserRefIDMatcher{}, "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()
 		mock.ExpectRollback()
@@ -585,7 +586,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		pwhash, _ := util.HashPW([]byte("00x00"))
 		user := &model.User{
 			Id:           1,
-			RefID:        refid.Must(model.UserRefIDT.New()),
+			RefID:        refid.Must(modelx.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,

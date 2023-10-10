@@ -7,6 +7,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 )
 
 func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +21,7 @@ func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	profileUserRefID, err := model.UserRefIDT.Parse(chi.URLParam(r, "uRefID"))
+	profileUserRefID, err := modelx.ParseUserRefID(chi.URLParam(r, "uRefID"))
 	if err != nil {
 		x.Error(w, "bad user ref-id", http.StatusNotFound)
 		return

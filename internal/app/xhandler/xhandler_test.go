@@ -21,7 +21,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
@@ -125,7 +125,7 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *
 		w.WriteHeader(http.StatusOK)
 	})
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refId := refid.Must(modelx.NewUserRefID())
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
 		AddRow(userId, refId, "user@example.com", "user", []byte("00x00"), ts, ts)
