@@ -7,7 +7,6 @@ package modelx
 import (
 	"time"
 
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -22,16 +21,16 @@ type Earmark struct {
 }
 
 type Event struct {
-	ID            int32         `db:"id" json:"id"`
-	RefID         EventRefID    `db:"ref_id" json:"ref_id"`
-	UserID        int32         `db:"user_id" json:"user_id"`
-	Name          string        `db:"name" json:"name"`
-	Description   string        `db:"description" json:"description"`
-	StartTime     time.Time     `db:"start_time" json:"start_time"`
-	StartTimeTz   util.TimeZone `db:"start_time_tz" json:"start_time_tz"`
-	Created       time.Time     `db:"created" json:"created"`
-	LastModified  time.Time     `db:"last_modified" json:"last_modified"`
-	ItemSortOrder []int32       `db:"item_sort_order" json:"item_sort_order"`
+	ID            int32      `db:"id" json:"id"`
+	RefID         EventRefID `db:"ref_id" json:"ref_id"`
+	UserID        int32      `db:"user_id" json:"user_id"`
+	Name          string     `db:"name" json:"name"`
+	Description   string     `db:"description" json:"description"`
+	StartTime     time.Time  `db:"start_time" json:"start_time"`
+	StartTimeTz   TimeZone   `db:"start_time_tz" json:"start_time_tz"`
+	Created       time.Time  `db:"created" json:"created"`
+	LastModified  time.Time  `db:"last_modified" json:"last_modified"`
+	ItemSortOrder []int32    `db:"item_sort_order" json:"item_sort_order"`
 }
 
 type EventItem struct {

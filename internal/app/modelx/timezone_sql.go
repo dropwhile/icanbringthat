@@ -1,4 +1,4 @@
-package util
+package modelx
 
 import (
 	"database/sql/driver"

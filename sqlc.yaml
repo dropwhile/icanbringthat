@@ -38,9 +38,8 @@ overrides:
       - db_type: timestamptz
         go_type: time.Time
       - column: event_.start_time_tz
-        go_type: github.com/dropwhile/icbt/internal/util.TimeZone
-      - column: user_.pwhash
-        go_struct_tag: json:"-" db:"pwhash"
+        go_type: 
+          type: TimeZone
       - column: user_.ref_id
         go_type: 
           type: UserRefID
@@ -59,6 +58,8 @@ overrides:
       - column: earmark_.ref_id
         go_type: 
           type: EarmarkRefID
+      - column: user_.pwhash
+        go_struct_tag: json:"-" db:"pwhash"
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"

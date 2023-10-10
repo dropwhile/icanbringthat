@@ -9,7 +9,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -25,13 +24,13 @@ RETURNING id, ref_id, user_id, name, description, start_time, start_time_tz, cre
 `
 
 type CreateEventParams struct {
-	UserID        int32         `db:"user_id" json:"user_id"`
-	RefID         EventRefID    `db:"ref_id" json:"ref_id"`
-	Name          string        `db:"name" json:"name"`
-	Description   string        `db:"description" json:"description"`
-	ItemSortOrder []int32       `db:"item_sort_order" json:"item_sort_order"`
-	StartTime     time.Time     `db:"start_time" json:"start_time"`
-	StartTimeTz   util.TimeZone `db:"start_time_tz" json:"start_time_tz"`
+	UserID        int32      `db:"user_id" json:"user_id"`
+	RefID         EventRefID `db:"ref_id" json:"ref_id"`
+	Name          string     `db:"name" json:"name"`
+	Description   string     `db:"description" json:"description"`
+	ItemSortOrder []int32    `db:"item_sort_order" json:"item_sort_order"`
+	StartTime     time.Time  `db:"start_time" json:"start_time"`
+	StartTimeTz   TimeZone   `db:"start_time_tz" json:"start_time_tz"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
@@ -317,7 +316,7 @@ type UpdateEventParams struct {
 	Description   pgtype.Text        `db:"description" json:"description"`
 	ItemSortOrder []int32            `db:"item_sort_order" json:"item_sort_order"`
 	StartTime     pgtype.Timestamptz `db:"start_time" json:"start_time"`
-	StartTimeTz   util.TimeZone      `db:"start_time_tz" json:"start_time_tz"`
+	StartTimeTz   TimeZone           `db:"start_time_tz" json:"start_time_tz"`
 	ID            int32              `db:"id" json:"id"`
 }
 
