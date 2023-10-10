@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -27,7 +26,7 @@ RETURNING id, ref_id, user_id, name, description, start_time, start_time_tz, cre
 
 type CreateEventParams struct {
 	UserID        int32         `db:"user_id" json:"user_id"`
-	RefID         refid.RefID   `db:"ref_id" json:"ref_id"`
+	RefID         EventRefID    `db:"ref_id" json:"ref_id"`
 	Name          string        `db:"name" json:"name"`
 	Description   string        `db:"description" json:"description"`
 	ItemSortOrder []int32       `db:"item_sort_order" json:"item_sort_order"`
@@ -100,7 +99,7 @@ SELECT id, ref_id, user_id, name, description, start_time, start_time_tz, create
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEventByRefId(ctx context.Context, refID refid.RefID) (Event, error) {
+func (q *Queries) GetEventByRefId(ctx context.Context, refID EventRefID) (Event, error) {
 	row := q.db.QueryRow(ctx, getEventByRefId, refID)
 	var i Event
 	err := row.Scan(

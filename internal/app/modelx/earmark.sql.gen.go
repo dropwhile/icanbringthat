@@ -7,8 +7,6 @@ package modelx
 
 import (
 	"context"
-
-	"github.com/dropwhile/refid"
 )
 
 const createEarmark = `-- name: CreateEarmark :one
@@ -22,10 +20,10 @@ RETURNING id, ref_id, event_item_id, user_id, note, created, last_modified
 `
 
 type CreateEarmarkParams struct {
-	RefID       refid.RefID `db:"ref_id" json:"ref_id"`
-	EventItemID int32       `db:"event_item_id" json:"event_item_id"`
-	UserID      int32       `db:"user_id" json:"user_id"`
-	Note        string      `db:"note" json:"note"`
+	RefID       EarmarkRefID `db:"ref_id" json:"ref_id"`
+	EventItemID int32        `db:"event_item_id" json:"event_item_id"`
+	UserID      int32        `db:"user_id" json:"user_id"`
+	Note        string       `db:"note" json:"note"`
 }
 
 func (q *Queries) CreateEarmark(ctx context.Context, arg CreateEarmarkParams) (Earmark, error) {
@@ -116,7 +114,7 @@ SELECT id, ref_id, event_item_id, user_id, note, created, last_modified FROM ear
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEarmarkByRefID(ctx context.Context, refID refid.RefID) (Earmark, error) {
+func (q *Queries) GetEarmarkByRefID(ctx context.Context, refID EarmarkRefID) (Earmark, error) {
 	row := q.db.QueryRow(ctx, getEarmarkByRefID, refID)
 	var i Earmark
 	err := row.Scan(

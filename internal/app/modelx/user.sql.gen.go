@@ -8,7 +8,6 @@ package modelx
 import (
 	"context"
 
-	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -23,10 +22,10 @@ RETURNING id, ref_id, email, name, pwhash, created, last_modified, verified
 `
 
 type CreateUserParams struct {
-	RefID  refid.RefID `db:"ref_id" json:"ref_id"`
-	Email  string      `db:"email" json:"email"`
-	Name   string      `db:"name" json:"name"`
-	PwHash []byte      `db:"pwhash" json:"-"`
+	RefID  UserRefID `db:"ref_id" json:"ref_id"`
+	Email  string    `db:"email" json:"email"`
+	Name   string    `db:"name" json:"name"`
+	PwHash []byte    `db:"pwhash" json:"-"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -107,7 +106,7 @@ SELECT id, ref_id, email, name, pwhash, created, last_modified, verified FROM us
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetUserByRefID(ctx context.Context, refID refid.RefID) (User, error) {
+func (q *Queries) GetUserByRefID(ctx context.Context, refID UserRefID) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByRefID, refID)
 	var i User
 	err := row.Scan(

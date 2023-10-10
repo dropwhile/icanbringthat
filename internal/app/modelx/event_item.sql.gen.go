@@ -7,8 +7,6 @@ package modelx
 
 import (
 	"context"
-
-	"github.com/dropwhile/refid"
 )
 
 const createEventItem = `-- name: CreateEventItem :one
@@ -22,9 +20,9 @@ RETURNING id, ref_id, event_id, description, created, last_modified
 `
 
 type CreateEventItemParams struct {
-	RefID       refid.RefID `db:"ref_id" json:"ref_id"`
-	EventID     int32       `db:"event_id" json:"event_id"`
-	Description string      `db:"description" json:"description"`
+	RefID       EventItemRefID `db:"ref_id" json:"ref_id"`
+	EventID     int32          `db:"event_id" json:"event_id"`
+	Description string         `db:"description" json:"description"`
 }
 
 func (q *Queries) CreateEventItem(ctx context.Context, arg CreateEventItemParams) (EventItem, error) {
@@ -75,7 +73,7 @@ SELECT id, ref_id, event_id, description, created, last_modified FROM event_item
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEventItemByRefId(ctx context.Context, refID refid.RefID) (EventItem, error) {
+func (q *Queries) GetEventItemByRefId(ctx context.Context, refID EventItemRefID) (EventItem, error) {
 	row := q.db.QueryRow(ctx, getEventItemByRefId, refID)
 	var i EventItem
 	err := row.Scan(

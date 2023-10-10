@@ -128,7 +128,7 @@ func main() {
 	)
 	flag.StringVar(&prefix, "t", "", "type prefix")
 	flag.StringVar(&suffix, "s", ".gen.go", "file prefix")
-	flag.IntVar(&typeVal, "value", 0, "type name")
+	flag.IntVar(&typeVal, "v", 0, "type value")
 	flag.Parse()
 
 	// fname := strings.TrimSuffix(os.Getenv("GOFILE"), ".go")

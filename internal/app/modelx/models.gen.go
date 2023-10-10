@@ -8,13 +8,12 @@ import (
 	"time"
 
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Earmark struct {
 	ID           int32            `db:"id" json:"id"`
-	RefID        refid.RefID      `db:"ref_id" json:"ref_id"`
+	RefID        EarmarkRefID     `db:"ref_id" json:"ref_id"`
 	EventItemID  int32            `db:"event_item_id" json:"event_item_id"`
 	UserID       int32            `db:"user_id" json:"user_id"`
 	Note         string           `db:"note" json:"note"`
@@ -24,7 +23,7 @@ type Earmark struct {
 
 type Event struct {
 	ID            int32         `db:"id" json:"id"`
-	RefID         refid.RefID   `db:"ref_id" json:"ref_id"`
+	RefID         EventRefID    `db:"ref_id" json:"ref_id"`
 	UserID        int32         `db:"user_id" json:"user_id"`
 	Name          string        `db:"name" json:"name"`
 	Description   string        `db:"description" json:"description"`
@@ -36,12 +35,12 @@ type Event struct {
 }
 
 type EventItem struct {
-	ID           int32       `db:"id" json:"id"`
-	RefID        refid.RefID `db:"ref_id" json:"ref_id"`
-	EventID      int32       `db:"event_id" json:"event_id"`
-	Description  string      `db:"description" json:"description"`
-	Created      time.Time   `db:"created" json:"created"`
-	LastModified time.Time   `db:"last_modified" json:"last_modified"`
+	ID           int32          `db:"id" json:"id"`
+	RefID        EventItemRefID `db:"ref_id" json:"ref_id"`
+	EventID      int32          `db:"event_id" json:"event_id"`
+	Description  string         `db:"description" json:"description"`
+	Created      time.Time      `db:"created" json:"created"`
+	LastModified time.Time      `db:"last_modified" json:"last_modified"`
 }
 
 type Favorite struct {
@@ -52,24 +51,24 @@ type Favorite struct {
 }
 
 type User struct {
-	ID           int32       `db:"id" json:"id"`
-	RefID        refid.RefID `db:"ref_id" json:"ref_id"`
-	Email        string      `db:"email" json:"email"`
-	Name         string      `db:"name" json:"name"`
-	PwHash       []byte      `db:"pwhash" json:"-"`
-	Created      time.Time   `db:"created" json:"created"`
-	LastModified time.Time   `db:"last_modified" json:"last_modified"`
-	Verified     bool        `db:"verified" json:"verified"`
+	ID           int32     `db:"id" json:"id"`
+	RefID        UserRefID `db:"ref_id" json:"ref_id"`
+	Email        string    `db:"email" json:"email"`
+	Name         string    `db:"name" json:"name"`
+	PwHash       []byte    `db:"pwhash" json:"-"`
+	Created      time.Time `db:"created" json:"created"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
+	Verified     bool      `db:"verified" json:"verified"`
 }
 
 type UserPwReset struct {
-	RefID   refid.RefID `db:"ref_id" json:"ref_id"`
-	UserID  int32       `db:"user_id" json:"user_id"`
-	Created time.Time   `db:"created" json:"created"`
+	RefID   UserPwResetRefID `db:"ref_id" json:"ref_id"`
+	UserID  int32            `db:"user_id" json:"user_id"`
+	Created time.Time        `db:"created" json:"created"`
 }
 
 type UserVerify struct {
-	RefID   refid.RefID `db:"ref_id" json:"ref_id"`
+	RefID   VerifyRefID `db:"ref_id" json:"ref_id"`
 	UserID  int32       `db:"user_id" json:"user_id"`
 	Created time.Time   `db:"created" json:"created"`
 }
