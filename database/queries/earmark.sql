@@ -24,7 +24,7 @@ WHERE id = $1;
 SELECT * FROM earmark_
 WHERE ref_id = $1;
 
--- name: GetEarmarkByEventItem :many
+-- name: GetEarmarkByEventItem :one
 SELECT * FROM earmark_
 WHERE event_item_id = $1;
 

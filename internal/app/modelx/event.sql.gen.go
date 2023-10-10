@@ -33,7 +33,7 @@ type CreateEventParams struct {
 	StartTimeTz   TimeZone   `db:"start_time_tz" json:"start_time_tz"`
 }
 
-func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
+func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (*Event, error) {
 	row := q.db.QueryRow(ctx, createEvent,
 		arg.UserID,
 		arg.RefID,
@@ -56,7 +56,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.LastModified,
 		&i.ItemSortOrder,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteEvent = `-- name: DeleteEvent :exec
@@ -75,7 +75,7 @@ WHERE id = $1
 `
 
 // @sqlc-vet-disable
-func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
+func (q *Queries) GetEventById(ctx context.Context, id int32) (*Event, error) {
 	row := q.db.QueryRow(ctx, getEventById, id)
 	var i Event
 	err := row.Scan(
@@ -90,7 +90,7 @@ func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
 		&i.LastModified,
 		&i.ItemSortOrder,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEventByRefId = `-- name: GetEventByRefId :one
@@ -98,7 +98,7 @@ SELECT id, ref_id, user_id, name, description, start_time, start_time_tz, create
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEventByRefId(ctx context.Context, refID EventRefID) (Event, error) {
+func (q *Queries) GetEventByRefId(ctx context.Context, refID EventRefID) (*Event, error) {
 	row := q.db.QueryRow(ctx, getEventByRefId, refID)
 	var i Event
 	err := row.Scan(
@@ -113,7 +113,7 @@ func (q *Queries) GetEventByRefId(ctx context.Context, refID EventRefID) (Event,
 		&i.LastModified,
 		&i.ItemSortOrder,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEventCountByUser = `-- name: GetEventCountByUser :one
@@ -134,13 +134,13 @@ WHERE id = ANY($1::int[])
 `
 
 // @sqlc-vet-disable
-func (q *Queries) GetEventsByIds(ctx context.Context, ids []int32) ([]Event, error) {
+func (q *Queries) GetEventsByIds(ctx context.Context, ids []int32) ([]*Event, error) {
 	rows, err := q.db.Query(ctx, getEventsByIds, ids)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	items := []*Event{}
 	for rows.Next() {
 		var i Event
 		if err := rows.Scan(
@@ -157,7 +157,7 @@ func (q *Queries) GetEventsByIds(ctx context.Context, ids []int32) ([]Event, err
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -172,13 +172,13 @@ WHERE
 ORDER BY start_time DESC, id DESC
 `
 
-func (q *Queries) GetEventsByUserId(ctx context.Context, userID int32) ([]Event, error) {
+func (q *Queries) GetEventsByUserId(ctx context.Context, userID int32) ([]*Event, error) {
 	rows, err := q.db.Query(ctx, getEventsByUserId, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	items := []*Event{}
 	for rows.Next() {
 		var i Event
 		if err := rows.Scan(
@@ -195,7 +195,7 @@ func (q *Queries) GetEventsByUserId(ctx context.Context, userID int32) ([]Event,
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -220,13 +220,13 @@ type GetEventsByUserPaginatedParams struct {
 	Offset int32 `db:"offset" json:"offset"`
 }
 
-func (q *Queries) GetEventsByUserPaginated(ctx context.Context, arg GetEventsByUserPaginatedParams) ([]Event, error) {
+func (q *Queries) GetEventsByUserPaginated(ctx context.Context, arg GetEventsByUserPaginatedParams) ([]*Event, error) {
 	rows, err := q.db.Query(ctx, getEventsByUserPaginated, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	items := []*Event{}
 	for rows.Next() {
 		var i Event
 		if err := rows.Scan(
@@ -243,7 +243,7 @@ func (q *Queries) GetEventsByUserPaginated(ctx context.Context, arg GetEventsByU
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -269,13 +269,13 @@ type GetEventsComingSoonByUserPaginatedParams struct {
 	Offset int32 `db:"offset" json:"offset"`
 }
 
-func (q *Queries) GetEventsComingSoonByUserPaginated(ctx context.Context, arg GetEventsComingSoonByUserPaginatedParams) ([]Event, error) {
+func (q *Queries) GetEventsComingSoonByUserPaginated(ctx context.Context, arg GetEventsComingSoonByUserPaginatedParams) ([]*Event, error) {
 	rows, err := q.db.Query(ctx, getEventsComingSoonByUserPaginated, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	items := []*Event{}
 	for rows.Next() {
 		var i Event
 		if err := rows.Scan(
@@ -292,7 +292,7 @@ func (q *Queries) GetEventsComingSoonByUserPaginated(ctx context.Context, arg Ge
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -312,8 +312,8 @@ WHERE id = $6
 `
 
 type UpdateEventParams struct {
-	Name          pgtype.Text        `db:"name" json:"name"`
-	Description   pgtype.Text        `db:"description" json:"description"`
+	Name          *string            `db:"name" json:"name"`
+	Description   *string            `db:"description" json:"description"`
 	ItemSortOrder []int32            `db:"item_sort_order" json:"item_sort_order"`
 	StartTime     pgtype.Timestamptz `db:"start_time" json:"start_time"`
 	StartTimeTz   TimeZone           `db:"start_time_tz" json:"start_time_tz"`

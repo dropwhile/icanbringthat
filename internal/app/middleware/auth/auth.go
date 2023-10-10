@@ -9,14 +9,14 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/session"
 )
 
 type mwContextKey string
 
-func UserFromContext(ctx context.Context) (*model.User, error) {
-	v, ok := ContextGet[*model.User](ctx, "user")
+func UserFromContext(ctx context.Context) (*modelx.User, error) {
+	v, ok := ContextGet[*modelx.User](ctx, "user")
 	if !ok {
 		return nil, fmt.Errorf("bad context value for user")
 	}
@@ -38,13 +38,14 @@ func IsLoggedIn(ctx context.Context) bool {
 	return ok && v
 }
 
-func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+func Load(db modelx.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+	query := modelx.New(db)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			if sessMgr.Exists(r.Context(), "user-id") {
-				userId := sessMgr.Get(r.Context(), "user-id").(int)
-				user, err := model.GetUserById(r.Context(), db, userId)
+				userID := sessMgr.Get(r.Context(), "user-id").(int32)
+				user, err := query.GetUserById(r.Context(), userID)
 				if err != nil {
 					log.Err(err).Msg("authorization failure")
 					http.Error(w, "authorization failure", http.StatusInternalServerError)

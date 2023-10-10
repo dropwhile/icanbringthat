@@ -29,28 +29,28 @@ func (p *Page) String() string {
 }
 
 type Paginator struct {
-	Pages     [][]int
-	ShowNear  int
-	ShowStart int
-	ShowEnd   int
+	Pages     [][]int64
+	ShowNear  int64
+	ShowStart int64
+	ShowEnd   int64
 }
 
-func NewPaginator(showNear, showStart, showEnd int) *Paginator {
+func NewPaginator(showNear, showStart, showEnd int64) *Paginator {
 	return &Paginator{
-		Pages:     make([][]int, 0),
+		Pages:     make([][]int64, 0),
 		ShowNear:  showNear,
 		ShowStart: showStart,
 		ShowEnd:   showEnd,
 	}
 }
 
-func (p *Paginator) AddPage(start, end int) *Paginator {
-	p.Pages = append(p.Pages, []int{start, end})
+func (p *Paginator) AddPage(start, end int64) *Paginator {
+	p.Pages = append(p.Pages, []int64{start, end})
 	return p
 }
 
-func (p *Paginator) AddPages(size, step int) *Paginator {
-	for i := 0; i < size; i++ {
+func (p *Paginator) AddPages(size, step int64) *Paginator {
+	for i := int64(0); i < size; i++ {
 		if i%step == 0 {
 			p.AddPage(i+1, i+step)
 		}
@@ -58,11 +58,11 @@ func (p *Paginator) AddPages(size, step int) *Paginator {
 	return p
 }
 
-func (p *Paginator) Paginate(current int) []*Page {
+func (p *Paginator) Paginate(current int64) []*Page {
 	out := make([]*Page, 0)
-	max := len(p.Pages)
+	max := int64(len(p.Pages))
 	prevWasDot := false
-	for i := 0; i < max; i++ {
+	for i := int64(0); i < max; i++ {
 		pg := &Page{display: "..."}
 		if i == current-1 {
 			pg.IsCurrent = true
@@ -85,27 +85,27 @@ func (p *Paginator) Paginate(current int) []*Page {
 }
 
 type PaginationResult struct {
-	Start   int
-	Stop    int
-	Size    int
+	Start   int64
+	Stop    int64
+	Size    int64
 	HasPrev bool
 	HasNext bool
 	Pages   []*Page
 }
 
 type PgInput struct {
-	Max     int
-	Step    int
-	Current int
+	Max     int64
+	Step    int64
+	Current int64
 	// baseurl to work around some funky issues with browser pushstate
 	BaseUrl string
 }
 
-func NewPgInput(max, step, current int, baseUrl string) *PgInput {
+func NewPgInput(max, step, current int64, baseUrl string) *PgInput {
 	return &PgInput{max, step, current, baseUrl}
 }
 
-func CalculateMaxPageNum(size, step int) int {
+func CalculateMaxPageNum(size, step int64) int64 {
 	maxPage := size / step
 	if size%step != 0 {
 		maxPage++

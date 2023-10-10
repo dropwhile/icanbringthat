@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util/htmx"
 )
 
@@ -25,13 +25,13 @@ func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := modelx.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	event, err := x.Query.GetEventByRefId(ctx, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
@@ -43,10 +43,10 @@ func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int32("user.Id", user.ID).
+			Int32("event.UserId", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -83,19 +83,19 @@ func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := modelx.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := modelx.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	event, err := x.Query.GetEventByRefId(ctx, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event")
@@ -107,16 +107,16 @@ func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int32("user.Id", user.ID).
+			Int32("event.UserId", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
+	eventItem, err := x.Query.GetEventItemByRefId(ctx, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for event item")
@@ -160,14 +160,14 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := modelx.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	event, err := x.Query.GetEventByRefId(ctx, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for event")
@@ -179,10 +179,10 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int32("user.Id", user.ID).
+			Int32("event.UserId", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -201,7 +201,7 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = model.NewEventItem(ctx, x.Db, event.Id, description)
+	_, err = x.Query.NewEventItem(ctx, event.ID, description)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -221,19 +221,19 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := modelx.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := modelx.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	event, err := x.Query.GetEventByRefId(ctx, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		x.Error(w, "not found", http.StatusNotFound)
@@ -244,16 +244,16 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int32("user.Id", user.ID).
+			Int32("event.UserId", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
+	eventItem, err := x.Query.GetEventItemByRefId(ctx, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		x.Error(w, "not found", http.StatusNotFound)
@@ -264,11 +264,11 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if eventItem.EventId != event.Id {
+	if eventItem.EventID != event.ID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.Id", event.Id).
-			Int("eventItem.EventId", eventItem.EventId).
+			Int32("user.Id", user.ID).
+			Int32("event.Id", event.ID).
+			Int32("eventItem.EventId", eventItem.EventID).
 			Msg("eventItem.EventId and event.Id mismatch")
 		http.Error(w, "not found", http.StatusNotFound)
 		return
@@ -276,17 +276,17 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	// check if earmark exists, and is marked by someone else
 	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, x.Db, eventItem)
+	earmark, err := x.Query.GetEarmarkByEventItem(ctx, eventItem.ID)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	case err == nil:
-		if earmark.UserId != user.Id {
+		if earmark.UserID != user.ID {
 			log.Info().
-				Int("user.Id", user.Id).
-				Int("earmark.UserId", earmark.UserId).
+				Int32("user.Id", user.ID).
+				Int32("earmark.UserId", earmark.UserID).
 				Msg("user id mismatch")
 			http.Error(w, "earmarked by other user - access denied", http.StatusForbidden)
 			return
@@ -307,7 +307,7 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventItem.Description = description
-	err = eventItem.Save(ctx, x.Db)
+	err = x.Query.UpdateEventItem(ctx, description, eventItem.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -333,19 +333,19 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := modelx.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		http.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := modelx.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		http.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
+	event, err := x.Query.GetEventByRefId(ctx, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
@@ -356,16 +356,16 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int32("user.Id", user.ID).
+			Int32("event.UserId", event.UserID).
 			Msg("user id mismatch")
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
+	eventItem, err := x.Query.GetEventItemByRefId(ctx, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		http.Error(w, "not found", http.StatusNotFound)
@@ -376,17 +376,17 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if eventItem.EventId != event.Id {
+	if eventItem.EventID != event.ID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.Id", event.Id).
-			Int("eventItem.EventId", eventItem.EventId).
+			Int32("user.Id", user.ID).
+			Int32("event.Id", event.ID).
+			Int32("eventItem.EventId", eventItem.EventID).
 			Msg("eventItem.EventId and event.Id mismatch")
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
-	err = eventItem.Delete(ctx, x.Db)
+	err = x.Query.DeleteEventItem(ctx, eventItem.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)

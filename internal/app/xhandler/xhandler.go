@@ -9,14 +9,15 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
 
 type XHandler struct {
-	Db      model.PgxHandle
+	Db      modelx.PgxHandle
+	Query   *modelx.Queries
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 	Mailer  util.MailSender

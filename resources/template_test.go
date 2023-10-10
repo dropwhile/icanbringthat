@@ -11,10 +11,10 @@ func TestPagination(t *testing.T) {
 	t.Parallel()
 
 	expected := []struct {
-		numPages    int
-		pageSize    int
-		currentPage int
-		eIsCurrent  int
+		numPages    int64
+		pageSize    int64
+		currentPage int64
+		eIsCurrent  int64
 		output      []string
 	}{
 		{
@@ -120,7 +120,7 @@ func TestPagination(t *testing.T) {
 		output := make([]string, 0)
 		for i, pg := range pages {
 			output = append(output, pg.String())
-			if i+1 == v.eIsCurrent {
+			if int64(i)+1 == v.eIsCurrent {
 				assert.Equal(t, pg.IsCurrent, true,
 					"page %d unexpectedly not IsCurrent for current=%d", i+1, v.currentPage,
 				)

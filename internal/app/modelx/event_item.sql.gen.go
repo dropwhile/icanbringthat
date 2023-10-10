@@ -25,7 +25,7 @@ type CreateEventItemParams struct {
 	Description string         `db:"description" json:"description"`
 }
 
-func (q *Queries) CreateEventItem(ctx context.Context, arg CreateEventItemParams) (EventItem, error) {
+func (q *Queries) CreateEventItem(ctx context.Context, arg CreateEventItemParams) (*EventItem, error) {
 	row := q.db.QueryRow(ctx, createEventItem, arg.RefID, arg.EventID, arg.Description)
 	var i EventItem
 	err := row.Scan(
@@ -36,7 +36,7 @@ func (q *Queries) CreateEventItem(ctx context.Context, arg CreateEventItemParams
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteEventItem = `-- name: DeleteEventItem :exec
@@ -54,7 +54,7 @@ SELECT id, ref_id, event_id, description, created, last_modified FROM event_item
 WHERE id = $1
 `
 
-func (q *Queries) GetEventItemById(ctx context.Context, id int32) (EventItem, error) {
+func (q *Queries) GetEventItemById(ctx context.Context, id int32) (*EventItem, error) {
 	row := q.db.QueryRow(ctx, getEventItemById, id)
 	var i EventItem
 	err := row.Scan(
@@ -65,7 +65,7 @@ func (q *Queries) GetEventItemById(ctx context.Context, id int32) (EventItem, er
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEventItemByRefId = `-- name: GetEventItemByRefId :one
@@ -73,7 +73,7 @@ SELECT id, ref_id, event_id, description, created, last_modified FROM event_item
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEventItemByRefId(ctx context.Context, refID EventItemRefID) (EventItem, error) {
+func (q *Queries) GetEventItemByRefId(ctx context.Context, refID EventItemRefID) (*EventItem, error) {
 	row := q.db.QueryRow(ctx, getEventItemByRefId, refID)
 	var i EventItem
 	err := row.Scan(
@@ -84,7 +84,7 @@ func (q *Queries) GetEventItemByRefId(ctx context.Context, refID EventItemRefID)
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEventItemsByEvent = `-- name: GetEventItemsByEvent :many
@@ -95,13 +95,13 @@ ORDER BY
     id DESC
 `
 
-func (q *Queries) GetEventItemsByEvent(ctx context.Context, eventID int32) ([]EventItem, error) {
+func (q *Queries) GetEventItemsByEvent(ctx context.Context, eventID int32) ([]*EventItem, error) {
 	rows, err := q.db.Query(ctx, getEventItemsByEvent, eventID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EventItem
+	items := []*EventItem{}
 	for rows.Next() {
 		var i EventItem
 		if err := rows.Scan(
@@ -114,7 +114,7 @@ func (q *Queries) GetEventItemsByEvent(ctx context.Context, eventID int32) ([]Ev
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

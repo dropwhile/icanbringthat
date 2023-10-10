@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 )
 
 func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
@@ -22,32 +22,36 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user, 10, 0)
+	events, err := x.Query.GetEventsComingSoonByUserPaginated(ctx, modelx.GetEventsComingSoonByUserPaginatedParams{
+		UserID: user.ID,
+		Limit:  10,
+		Offset: 0,
+	})
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for events")
-		events = []*model.Event{}
+		events = []*modelx.Event{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user)
+	eventCount, err := x.Query.GetEventCountByUser(ctx, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user)
+	earmarkCount, err := x.Query.GetEarmarkCountByUser(ctx, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
+	favoriteCount, err := x.Query.GetFavoriteCountByUser(ctx, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

@@ -16,11 +16,11 @@ INSERT INTO user_verify_ (
 VALUES ( $1, $2) RETURNING ref_id, user_id, created
 `
 
-func (q *Queries) CreateUserVerify(ctx context.Context, refID VerifyRefID, userID int32) (UserVerify, error) {
+func (q *Queries) CreateUserVerify(ctx context.Context, refID VerifyRefID, userID int32) (*UserVerify, error) {
 	row := q.db.QueryRow(ctx, createUserVerify, refID, userID)
 	var i UserVerify
 	err := row.Scan(&i.RefID, &i.UserID, &i.Created)
-	return i, err
+	return &i, err
 }
 
 const deleteUserVerify = `-- name: DeleteUserVerify :exec
@@ -38,9 +38,9 @@ SELECT ref_id, user_id, created FROM user_verify_
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetUserVerifyByRefID(ctx context.Context, refID VerifyRefID) (UserVerify, error) {
+func (q *Queries) GetUserVerifyByRefID(ctx context.Context, refID VerifyRefID) (*UserVerify, error) {
 	row := q.db.QueryRow(ctx, getUserVerifyByRefID, refID)
 	var i UserVerify
 	err := row.Scan(&i.RefID, &i.UserID, &i.Created)
-	return i, err
+	return &i, err
 }

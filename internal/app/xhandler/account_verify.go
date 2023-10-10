@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
@@ -27,7 +27,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	}
 
 	// generate a verifier
-	uv, err := model.NewUserVerify(ctx, x.Db, user)
+	uv, err := x.Query.NewUserVerify(ctx, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -111,13 +111,13 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	verifyRefID, err := model.VerifyRefIDT.Parse(refIdStr)
+	verifyRefID, err := modelx.ParseVerifyRefID(refIdStr)
 	if err != nil {
 		x.Error(w, "bad verify-ref-id", http.StatusNotFound)
 		return
 	}
 
-	verifier, err := model.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
+	verifier, err := x.Query.GetUserVerifyByRefID(ctx, verifyRefID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no verifier match")
 		x.Error(w, "bad data", http.StatusNotFound)
@@ -132,13 +132,15 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	user.Verified = true
 	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := user.Save(ctx, tx)
+		innerErr := x.Query.WithTx(tx).UpdateUser(
+			ctx, modelx.UpdateUserParams{Verified: &user.Verified},
+		)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error saving user")
 			return innerErr
 		}
 
-		innerErr = verifier.Delete(ctx, tx)
+		innerErr = x.Query.DeleteUserVerify(ctx, verifyRefID)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error cleaning up verifier token")
 			return innerErr

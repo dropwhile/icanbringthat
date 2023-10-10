@@ -4,11 +4,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/app/xhandler"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
@@ -32,7 +33,7 @@ func (api *API) OnClose(f func()) {
 }
 
 func New(
-	db *model.DB,
+	db *pgxpool.Pool,
 	tpl resources.TemplateMap,
 	mailer *util.Mailer,
 	hmacKey, csrfKey []byte,
@@ -40,8 +41,9 @@ func New(
 ) *API {
 	zh := &xhandler.XHandler{
 		Db:      db,
+		Query:   modelx.New(db),
 		Tpl:     tpl,
-		SessMgr: session.NewDBSessionManager(db.GetPool()),
+		SessMgr: session.NewDBSessionManager(db),
 		Mailer:  mailer,
 		Hmac:    util.NewHmac(hmacKey),
 	}

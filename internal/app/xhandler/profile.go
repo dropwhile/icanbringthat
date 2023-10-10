@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/modelx"
 )
 
@@ -28,12 +27,12 @@ func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	selfView := false
-	var profileUser *model.User
+	var profileUser *modelx.User
 	if user.RefID == profileUserRefID {
 		selfView = true
 		profileUser = user
 	} else {
-		profileUser, err = model.GetUserByRefID(ctx, x.Db, profileUserRefID)
+		profileUser, err = x.Query.GetUserByRefID(ctx, profileUserRefID)
 		if err != nil {
 			x.Error(w, "user not found", http.StatusNotFound)
 			return

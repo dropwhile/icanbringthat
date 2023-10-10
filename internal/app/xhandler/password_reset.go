@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
@@ -79,14 +79,14 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
+	refId, err := modelx.ParseUserPwResetRefID(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refId)
+	upw, err := x.Query.GetUserPWResetByRefID(ctx, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.Error(w, "bad data", http.StatusNotFound)
@@ -99,7 +99,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = model.GetUserById(ctx, x.Db, upw.UserId)
+	_, err = x.Query.GetUserById(ctx, upw.UserID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -144,7 +144,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 	// don't leak existence of user. if email doens't match,
 	// behave like we sent a reset anyway...
 	doFake := false
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
+	user, err := x.Query.GetUserByEmail(ctx, email)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no user found")
@@ -161,7 +161,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 
 	if !doFake {
 		// generate a upw
-		upw, err := model.NewUserPWReset(ctx, x.Db, user)
+		upw, err := x.Query.NewUserPWReset(ctx, user.ID)
 		if err != nil {
 			log.Info().Err(err).Msg("db error")
 			x.Error(w, "db error", http.StatusInternalServerError)
@@ -254,14 +254,14 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
+	refId, err := modelx.ParseUserPwResetRefID(refIdStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refId)
+	upw, err := x.Query.GetUserPWResetByRefID(ctx, refId)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -274,7 +274,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.GetUserById(ctx, x.Db, upw.UserId)
+	user, err := x.Query.GetUserById(ctx, upw.UserID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -289,13 +289,15 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := user.Save(ctx, tx)
+		innerErr := x.Query.WithTx(tx).UpdateUser(
+			ctx, modelx.UpdateUserParams{PwHash: user.PwHash},
+		)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error saving user")
 			return innerErr
 		}
 
-		innerErr = upw.Delete(ctx, tx)
+		innerErr = x.Query.WithTx(tx).DeleteUserPWReset(ctx, upw.RefID)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error cleaning up pw reset token")
 			return innerErr
@@ -317,7 +319,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

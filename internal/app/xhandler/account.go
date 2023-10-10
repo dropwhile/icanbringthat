@@ -7,7 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +97,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.NewUser(ctx, x.Db, email, name, []byte(passwd))
+	user, err := x.Query.NewUser(ctx, email, name, []byte(passwd))
 	if err != nil {
 		log.Error().Err(err).Msg("error adding user")
 		x.Error(w, "error adding user", http.StatusBadRequest)
@@ -113,7 +114,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	x.SessMgr.FlashAppend(ctx, "success", "Account created. You are now logged in.")
 
 	target := "/dashboard"
@@ -142,11 +143,12 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	changes := false
 	warnings := make([]string, 0)
 	successMsgs := make([]string, 0)
+	userParams := modelx.UpdateUserParams{}
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
-		user.Email = email
-		user.Verified = false
+		*(userParams.Email) = email
+		*(userParams.Verified) = false
 		changes = true
 		successMsgs = append(successMsgs, "Email update successfull")
 	} else if email == user.Email {
@@ -155,7 +157,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 
 	name := r.PostFormValue("name")
 	if name != "" && name != user.Name {
-		user.Name = name
+		*(userParams.Name) = name
 		changes = true
 		successMsgs = append(successMsgs, "Name update successfull")
 	} else if name == user.Name {
@@ -172,12 +174,13 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			if ok, err := user.CheckPass(ctx, []byte(oldPasswd)); err != nil || !ok {
 				warnings = append(warnings, "Old Password invalid")
 			} else {
-				err = user.SetPass(ctx, []byte(newPasswd))
+				pwhash, err := util.HashPW([]byte(newPasswd))
 				if err != nil {
 					log.Error().Err(err).Msg("error setting user password")
 					x.Error(w, "error updating user", http.StatusInternalServerError)
 					return
 				}
+				userParams.PwHash = pwhash
 				successMsgs = append(successMsgs, "Password update successfull")
 				changes = true
 			}
@@ -185,7 +188,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = user.Save(ctx, x.Db)
+		err = x.Query.UpdateUser(ctx, userParams)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
 			x.Error(w, "error updating user", http.StatusInternalServerError)
@@ -209,7 +212,7 @@ func (x *XHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = user.Delete(ctx, x.Db)
+	err = x.Query.DeleteUser(ctx, user.ID)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

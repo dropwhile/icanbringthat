@@ -26,7 +26,7 @@ type CreateEarmarkParams struct {
 	Note        string       `db:"note" json:"note"`
 }
 
-func (q *Queries) CreateEarmark(ctx context.Context, arg CreateEarmarkParams) (Earmark, error) {
+func (q *Queries) CreateEarmark(ctx context.Context, arg CreateEarmarkParams) (*Earmark, error) {
 	row := q.db.QueryRow(ctx, createEarmark,
 		arg.RefID,
 		arg.EventItemID,
@@ -43,7 +43,7 @@ func (q *Queries) CreateEarmark(ctx context.Context, arg CreateEarmarkParams) (E
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteEarmark = `-- name: DeleteEarmark :exec
@@ -56,37 +56,24 @@ func (q *Queries) DeleteEarmark(ctx context.Context, id int32) error {
 	return err
 }
 
-const getEarmarkByEventItem = `-- name: GetEarmarkByEventItem :many
+const getEarmarkByEventItem = `-- name: GetEarmarkByEventItem :one
 SELECT id, ref_id, event_item_id, user_id, note, created, last_modified FROM earmark_
 WHERE event_item_id = $1
 `
 
-func (q *Queries) GetEarmarkByEventItem(ctx context.Context, eventItemID int32) ([]Earmark, error) {
-	rows, err := q.db.Query(ctx, getEarmarkByEventItem, eventItemID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Earmark
-	for rows.Next() {
-		var i Earmark
-		if err := rows.Scan(
-			&i.ID,
-			&i.RefID,
-			&i.EventItemID,
-			&i.UserID,
-			&i.Note,
-			&i.Created,
-			&i.LastModified,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetEarmarkByEventItem(ctx context.Context, eventItemID int32) (*Earmark, error) {
+	row := q.db.QueryRow(ctx, getEarmarkByEventItem, eventItemID)
+	var i Earmark
+	err := row.Scan(
+		&i.ID,
+		&i.RefID,
+		&i.EventItemID,
+		&i.UserID,
+		&i.Note,
+		&i.Created,
+		&i.LastModified,
+	)
+	return &i, err
 }
 
 const getEarmarkById = `-- name: GetEarmarkById :one
@@ -94,7 +81,7 @@ SELECT id, ref_id, event_item_id, user_id, note, created, last_modified FROM ear
 WHERE id = $1
 `
 
-func (q *Queries) GetEarmarkById(ctx context.Context, id int32) (Earmark, error) {
+func (q *Queries) GetEarmarkById(ctx context.Context, id int32) (*Earmark, error) {
 	row := q.db.QueryRow(ctx, getEarmarkById, id)
 	var i Earmark
 	err := row.Scan(
@@ -106,7 +93,7 @@ func (q *Queries) GetEarmarkById(ctx context.Context, id int32) (Earmark, error)
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEarmarkByRefID = `-- name: GetEarmarkByRefID :one
@@ -114,7 +101,7 @@ SELECT id, ref_id, event_item_id, user_id, note, created, last_modified FROM ear
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetEarmarkByRefID(ctx context.Context, refID EarmarkRefID) (Earmark, error) {
+func (q *Queries) GetEarmarkByRefID(ctx context.Context, refID EarmarkRefID) (*Earmark, error) {
 	row := q.db.QueryRow(ctx, getEarmarkByRefID, refID)
 	var i Earmark
 	err := row.Scan(
@@ -126,7 +113,7 @@ func (q *Queries) GetEarmarkByRefID(ctx context.Context, refID EarmarkRefID) (Ea
 		&i.Created,
 		&i.LastModified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getEarmarkCountByUser = `-- name: GetEarmarkCountByUser :one
@@ -150,13 +137,13 @@ WHERE
     event_item_.event_id = $1
 `
 
-func (q *Queries) GetEarmarksByEvent(ctx context.Context, eventID int32) ([]Earmark, error) {
+func (q *Queries) GetEarmarksByEvent(ctx context.Context, eventID int32) ([]*Earmark, error) {
 	rows, err := q.db.Query(ctx, getEarmarksByEvent, eventID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Earmark
+	items := []*Earmark{}
 	for rows.Next() {
 		var i Earmark
 		if err := rows.Scan(
@@ -170,7 +157,7 @@ func (q *Queries) GetEarmarksByEvent(ctx context.Context, eventID int32) ([]Earm
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -187,13 +174,13 @@ ORDER BY
     id DESC
 `
 
-func (q *Queries) GetEarmarksByUserId(ctx context.Context, userID int32) ([]Earmark, error) {
+func (q *Queries) GetEarmarksByUserId(ctx context.Context, userID int32) ([]*Earmark, error) {
 	rows, err := q.db.Query(ctx, getEarmarksByUserId, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Earmark
+	items := []*Earmark{}
 	for rows.Next() {
 		var i Earmark
 		if err := rows.Scan(
@@ -207,7 +194,7 @@ func (q *Queries) GetEarmarksByUserId(ctx context.Context, userID int32) ([]Earm
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -231,13 +218,13 @@ type GetEarmarksByUserPaginatedParams struct {
 	Offset int32 `db:"offset" json:"offset"`
 }
 
-func (q *Queries) GetEarmarksByUserPaginated(ctx context.Context, arg GetEarmarksByUserPaginatedParams) ([]Earmark, error) {
+func (q *Queries) GetEarmarksByUserPaginated(ctx context.Context, arg GetEarmarksByUserPaginatedParams) ([]*Earmark, error) {
 	rows, err := q.db.Query(ctx, getEarmarksByUserPaginated, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Earmark
+	items := []*Earmark{}
 	for rows.Next() {
 		var i Earmark
 		if err := rows.Scan(
@@ -251,7 +238,7 @@ func (q *Queries) GetEarmarksByUserPaginated(ctx context.Context, arg GetEarmark
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 )
 
 func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +63,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find user...
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
+	user, err := x.Query.GetUserByEmail(ctx, email)
 	if err != nil || user == nil {
 		log.Debug().Err(err).Msg("invalid credentials: no user match")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
@@ -89,7 +88,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
 		target = r.FormValue("next")

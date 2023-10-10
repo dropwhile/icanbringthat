@@ -7,8 +7,6 @@ package modelx
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -28,7 +26,7 @@ type CreateUserParams struct {
 	PwHash []byte    `db:"pwhash" json:"-"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.RefID,
 		arg.Email,
@@ -46,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.LastModified,
 		&i.Verified,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteUser = `-- name: DeleteUser :exec
@@ -64,7 +62,7 @@ SELECT id, ref_id, email, name, pwhash, created, last_modified, verified FROM us
 WHERE email = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
@@ -77,7 +75,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.LastModified,
 		&i.Verified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserById = `-- name: GetUserById :one
@@ -85,7 +83,7 @@ SELECT id, ref_id, email, name, pwhash, created, last_modified, verified FROM us
 WHERE id = $1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, id int32) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
@@ -98,7 +96,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 		&i.LastModified,
 		&i.Verified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserByRefID = `-- name: GetUserByRefID :one
@@ -106,7 +104,7 @@ SELECT id, ref_id, email, name, pwhash, created, last_modified, verified FROM us
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetUserByRefID(ctx context.Context, refID UserRefID) (User, error) {
+func (q *Queries) GetUserByRefID(ctx context.Context, refID UserRefID) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByRefID, refID)
 	var i User
 	err := row.Scan(
@@ -119,7 +117,7 @@ func (q *Queries) GetUserByRefID(ctx context.Context, refID UserRefID) (User, er
 		&i.LastModified,
 		&i.Verified,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUsersByIds = `-- name: GetUsersByIds :many
@@ -127,13 +125,13 @@ SELECT id, ref_id, email, name, pwhash, created, last_modified, verified FROM us
 WHERE id = ANY($1::int[])
 `
 
-func (q *Queries) GetUsersByIds(ctx context.Context, ids []int32) ([]User, error) {
+func (q *Queries) GetUsersByIds(ctx context.Context, ids []int32) ([]*User, error) {
 	rows, err := q.db.Query(ctx, getUsersByIds, ids)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []*User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -148,7 +146,7 @@ func (q *Queries) GetUsersByIds(ctx context.Context, ids []int32) ([]User, error
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -167,11 +165,11 @@ WHERE id = $5
 `
 
 type UpdateUserParams struct {
-	Email    pgtype.Text `db:"email" json:"email"`
-	Name     pgtype.Text `db:"name" json:"name"`
-	PwHash   []byte      `db:"pwhash" json:"-"`
-	Verified pgtype.Bool `db:"verified" json:"verified"`
-	ID       int32       `db:"id" json:"id"`
+	Email    *string `db:"email" json:"email"`
+	Name     *string `db:"name" json:"name"`
+	PwHash   []byte  `db:"pwhash" json:"-"`
+	Verified *bool   `db:"verified" json:"verified"`
+	ID       int32   `db:"id" json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {

@@ -16,11 +16,11 @@ INSERT INTO user_pw_reset_ (
 VALUES ($1, $2) RETURNING ref_id, user_id, created
 `
 
-func (q *Queries) CreateUserPWReset(ctx context.Context, refID UserPwResetRefID, userID int32) (UserPwReset, error) {
+func (q *Queries) CreateUserPWReset(ctx context.Context, refID UserPwResetRefID, userID int32) (*UserPwReset, error) {
 	row := q.db.QueryRow(ctx, createUserPWReset, refID, userID)
 	var i UserPwReset
 	err := row.Scan(&i.RefID, &i.UserID, &i.Created)
-	return i, err
+	return &i, err
 }
 
 const deleteUserPWReset = `-- name: DeleteUserPWReset :exec
@@ -38,9 +38,9 @@ SELECT ref_id, user_id, created FROM user_pw_reset_
 WHERE ref_id = $1
 `
 
-func (q *Queries) GetUserPWResetByRefID(ctx context.Context, refID UserPwResetRefID) (UserPwReset, error) {
+func (q *Queries) GetUserPWResetByRefID(ctx context.Context, refID UserPwResetRefID) (*UserPwReset, error) {
 	row := q.db.QueryRow(ctx, getUserPWResetByRefID, refID)
 	var i UserPwReset
 	err := row.Scan(&i.RefID, &i.UserID, &i.Created)
-	return i, err
+	return &i, err
 }

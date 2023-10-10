@@ -17,7 +17,7 @@ VALUES ($1, $2)
 RETURNING id, user_id, event_id, created
 `
 
-func (q *Queries) CreateFavorite(ctx context.Context, userID int32, eventID int32) (Favorite, error) {
+func (q *Queries) CreateFavorite(ctx context.Context, userID int32, eventID int32) (*Favorite, error) {
 	row := q.db.QueryRow(ctx, createFavorite, userID, eventID)
 	var i Favorite
 	err := row.Scan(
@@ -26,7 +26,7 @@ func (q *Queries) CreateFavorite(ctx context.Context, userID int32, eventID int3
 		&i.EventID,
 		&i.Created,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteFavorite = `-- name: DeleteFavorite :exec
@@ -45,7 +45,7 @@ WHERE id = $1
 `
 
 // @sqlc-vet-disable
-func (q *Queries) GetFavoriteById(ctx context.Context, id int32) (Favorite, error) {
+func (q *Queries) GetFavoriteById(ctx context.Context, id int32) (*Favorite, error) {
 	row := q.db.QueryRow(ctx, getFavoriteById, id)
 	var i Favorite
 	err := row.Scan(
@@ -54,7 +54,7 @@ func (q *Queries) GetFavoriteById(ctx context.Context, id int32) (Favorite, erro
 		&i.EventID,
 		&i.Created,
 	)
-	return i, err
+	return &i, err
 }
 
 const getFavoriteByUserEvent = `-- name: GetFavoriteByUserEvent :one
@@ -65,7 +65,7 @@ WHERE
 `
 
 // @sqlc-vet-disable
-func (q *Queries) GetFavoriteByUserEvent(ctx context.Context, userID int32, eventID int32) (Favorite, error) {
+func (q *Queries) GetFavoriteByUserEvent(ctx context.Context, userID int32, eventID int32) (*Favorite, error) {
 	row := q.db.QueryRow(ctx, getFavoriteByUserEvent, userID, eventID)
 	var i Favorite
 	err := row.Scan(
@@ -74,7 +74,7 @@ func (q *Queries) GetFavoriteByUserEvent(ctx context.Context, userID int32, even
 		&i.EventID,
 		&i.Created,
 	)
-	return i, err
+	return &i, err
 }
 
 const getFavoriteCountByUser = `-- name: GetFavoriteCountByUser :one
@@ -97,13 +97,13 @@ ORDER BY
     id DESC
 `
 
-func (q *Queries) GetFavoritesByEventId(ctx context.Context, eventID int32) ([]Favorite, error) {
+func (q *Queries) GetFavoritesByEventId(ctx context.Context, eventID int32) ([]*Favorite, error) {
 	rows, err := q.db.Query(ctx, getFavoritesByEventId, eventID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Favorite
+	items := []*Favorite{}
 	for rows.Next() {
 		var i Favorite
 		if err := rows.Scan(
@@ -114,7 +114,7 @@ func (q *Queries) GetFavoritesByEventId(ctx context.Context, eventID int32) ([]F
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -130,13 +130,13 @@ ORDER BY
     id DESC
 `
 
-func (q *Queries) GetFavoritesByUserId(ctx context.Context, userID int32) ([]Favorite, error) {
+func (q *Queries) GetFavoritesByUserId(ctx context.Context, userID int32) ([]*Favorite, error) {
 	rows, err := q.db.Query(ctx, getFavoritesByUserId, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Favorite
+	items := []*Favorite{}
 	for rows.Next() {
 		var i Favorite
 		if err := rows.Scan(
@@ -147,7 +147,7 @@ func (q *Queries) GetFavoritesByUserId(ctx context.Context, userID int32) ([]Fav
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -174,13 +174,13 @@ type GetFavoritesByUserPaginatedParams struct {
 	Offset int32 `db:"offset" json:"offset"`
 }
 
-func (q *Queries) GetFavoritesByUserPaginated(ctx context.Context, arg GetFavoritesByUserPaginatedParams) ([]Favorite, error) {
+func (q *Queries) GetFavoritesByUserPaginated(ctx context.Context, arg GetFavoritesByUserPaginatedParams) ([]*Favorite, error) {
 	rows, err := q.db.Query(ctx, getFavoritesByUserPaginated, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Favorite
+	items := []*Favorite{}
 	for rows.Next() {
 		var i Favorite
 		if err := rows.Scan(
@@ -191,7 +191,7 @@ func (q *Queries) GetFavoritesByUserPaginated(ctx context.Context, arg GetFavori
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

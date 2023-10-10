@@ -14,7 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/api"
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -61,11 +61,11 @@ func main() {
 	//--------------------//
 
 	// setup db pool & models
-	db, err := model.SetupFromDsn(config.DatabaseDSN)
+	dbpool, err := modelx.DsnToPool(config.DatabaseDSN)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
-	defer db.Close()
+	defer dbpool.Close()
 
 	// configure mailer
 	mailer := util.NewMailer(
@@ -78,7 +78,7 @@ func main() {
 
 	// routing/handlers
 	r := api.New(
-		db, templates, mailer,
+		dbpool, templates, mailer,
 		config.HMACKeyBytes,
 		config.CSRFKeyBytes,
 		config.Production,
