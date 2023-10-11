@@ -66,7 +66,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 			x.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
-		e, err := ei.GetEvent(ctx, x.Db)
+		e, err := model.GetEventByID(ctx, x.Db, ei.EventID)
 		// if no rows, or other db error, honk
 		if err != nil {
 			log.Info().Err(err).Msg("db error")

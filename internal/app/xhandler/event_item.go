@@ -307,7 +307,7 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventItem.Description = description
-	err = eventItem.Save(ctx, x.Db)
+	err = model.UpdateEventItem(ctx, x.Db, eventItem.ID, eventItem.Description)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -386,7 +386,7 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = eventItem.Delete(ctx, x.Db)
+	err = model.DeleteEventItem(ctx, x.Db, eventItem.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)
