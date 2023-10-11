@@ -24,55 +24,74 @@ type Event struct {
 	Items         []*EventItem `db:"-"`
 }
 
-func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
-	if e.RefID.IsNil() {
-		e.RefID = refid.Must(NewEventRefID())
-	}
-	if e.ItemSortOrder == nil {
-		e.ItemSortOrder = []int{}
-	}
-	q := `INSERT INTO event_ (user_id, ref_id, name, description, item_sort_order, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`
-	res, err := QueryOneTx[Event](ctx, db, q, e.UserID, e.RefID, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTz)
-	if err != nil {
-		return err
-	}
-	e.ID = res.ID
-	e.RefID = res.RefID
-	e.Created = res.Created
-	e.LastModified = res.LastModified
-	e.ItemSortOrder = res.ItemSortOrder
-	return nil
+func NewEvent(ctx context.Context, db PgxHandle,
+	userID int, name, description string,
+	startTime time.Time,
+	startTimeTz *TimeZone,
+) (*Event, error) {
+	refID := refid.Must(NewEventRefID())
+	itemSortOrder := []int{}
+	return CreateEvent(
+		ctx, db,
+		refID, userID,
+		name, description,
+		itemSortOrder,
+		startTime, startTimeTz,
+	)
 }
 
-func (e *Event) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE event_ SET name = $1, description = $2, item_sort_order = $3, start_time = $4, start_time_tz = $5 WHERE id = $6`
-	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTz, e.ID)
+func CreateEvent(ctx context.Context, db PgxHandle,
+	refID EventRefID,
+	userID int, name, description string,
+	itemSortOrder []int,
+	startTime time.Time,
+	startTimeTz *TimeZone,
+) (*Event, error) {
+	q := `
+		INSERT INTO event_ (
+			ref_id, user_id, name, description,
+			item_sort_order, start_time, start_time_tz
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING *`
+	return QueryOneTx[Event](
+		ctx, db, q, refID,
+		userID, name, description,
+		itemSortOrder, startTime, startTimeTz,
+	)
 }
 
-func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
+func UpdateEvent(ctx context.Context, db PgxHandle,
+	eventID int, name, description string,
+	itemSortOrder []int,
+	startTime time.Time,
+	startTimeTz *TimeZone,
+) error {
+	q := `
+		UPDATE event_
+		SET
+			name = $1,
+			description = $2,
+			item_sort_order = $3,
+			start_time = $4,
+			start_time_tz = $5
+		WHERE id = $6`
+	return ExecTx[Event](
+		ctx, db, q,
+		name, description,
+		itemSortOrder,
+		startTime, startTimeTz,
+		eventID)
+}
+
+func DeleteEvent(ctx context.Context, db PgxHandle, eventID int) error {
 	q := `DELETE FROM event_ WHERE id = $1`
-	return ExecTx[Event](ctx, db, q, e.ID)
+	return ExecTx[Event](ctx, db, q, eventID)
 }
 
-func NewEvent(ctx context.Context, db PgxHandle, userID int, name, description string, startTime time.Time, startTimeTz *TimeZone) (*Event, error) {
-	event := &Event{
-		Name:          name,
-		UserID:        userID,
-		Description:   description,
-		ItemSortOrder: []int{},
-		StartTime:     startTime,
-		StartTimeTz:   startTimeTz,
-	}
-	err := event.Insert(ctx, db)
-	if err != nil {
-		return nil, err
-	}
-	return event, nil
-}
-
-func GetEventByID(ctx context.Context, db PgxHandle, id int) (*Event, error) {
+func GetEventByID(ctx context.Context, db PgxHandle, eventID int) (*Event, error) {
 	q := `SELECT * FROM event_ WHERE id = $1`
-	return QueryOne[Event](ctx, db, q, id)
+	return QueryOne[Event](ctx, db, q, eventID)
 }
 
 func GetEventsByIDs(ctx context.Context, db PgxHandle, eventIDs []int) ([]*Event, error) {
@@ -86,16 +105,35 @@ func GetEventByRefID(ctx context.Context, db PgxHandle, refID EventRefID) (*Even
 }
 
 func GetEventsByUser(ctx context.Context, db PgxHandle, user *User) ([]*Event, error) {
-	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY start_time DESC, id DESC`
+	q := `
+		SELECT * FROM event_
+		WHERE
+			event_.user_id = $1
+		ORDER BY
+			start_time DESC,
+			id DESC`
 	return Query[Event](ctx, db, q, user.ID)
 }
 
-func GetEventsByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Event, error) {
-	q := `SELECT * FROM event_ WHERE event_.user_id = $1 ORDER BY start_time DESC, id DESC LIMIT $2 OFFSET $3`
+func GetEventsByUserPaginated(
+	ctx context.Context, db PgxHandle,
+	user *User, limit, offset int,
+) ([]*Event, error) {
+	q := `
+		SELECT * FROM event_
+		WHERE
+			event_.user_id = $1
+		ORDER BY
+			start_time DESC,
+			id DESC
+		LIMIT $2 OFFSET $3`
 	return Query[Event](ctx, db, q, user.ID, limit, offset)
 }
 
-func GetEventsComingSoonByUserPaginated(ctx context.Context, db PgxHandle, user *User, limit, offset int) ([]*Event, error) {
+func GetEventsComingSoonByUserPaginated(
+	ctx context.Context, db PgxHandle,
+	user *User, limit, offset int,
+) ([]*Event, error) {
 	q := `
 		SELECT *
 		FROM event_

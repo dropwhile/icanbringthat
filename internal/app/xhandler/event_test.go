@@ -68,9 +68,9 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
-		mock.ExpectQuery("^INSERT INTO event_ ").
+		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(
-				event.UserID, model.EventRefIDMatcher{}, event.Name, event.Description, pgxmock.AnyArg(),
+				model.EventRefIDMatcher{}, event.UserID, event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
@@ -245,9 +245,9 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
-		mock.ExpectQuery("^INSERT INTO event_ ").
+		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(
-				event.UserID, model.EventRefIDMatcher{}, event.Name, event.Description, pgxmock.AnyArg(),
+				model.EventRefIDMatcher{}, event.UserID, event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()

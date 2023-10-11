@@ -439,7 +439,12 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		event.Description = description
 	}
 
-	err = event.Save(ctx, x.Db)
+	err = model.UpdateEvent(
+		ctx, x.Db, event.ID,
+		event.Name, event.Description,
+		event.ItemSortOrder,
+		event.StartTime, event.StartTimeTz,
+	)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "error updating event", http.StatusInternalServerError)
@@ -508,7 +513,12 @@ func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request
 		}
 	}
 	event.ItemSortOrder = util.Uniq(order)
-	err = event.Save(ctx, x.Db)
+	err = model.UpdateEvent(
+		ctx, x.Db, event.ID,
+		event.Name, event.Description,
+		event.ItemSortOrder,
+		event.StartTime, event.StartTimeTz,
+	)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "error updating event", http.StatusInternalServerError)
@@ -554,7 +564,7 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = event.Delete(ctx, x.Db)
+	err = model.DeleteEvent(ctx, x.Db, event.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
