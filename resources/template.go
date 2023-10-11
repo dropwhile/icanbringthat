@@ -14,6 +14,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/dropwhile/icbt/internal/app/model"
 )
 
 //go:embed templates
@@ -121,15 +123,8 @@ var templateFuncMap = template.FuncMap{
 	"formatTS": func(t time.Time) string {
 		return t.UTC().Format("2006-01-02T15:04Z07:00")
 	},
-	"formatTSLocal": func(t time.Time, zone string) string {
-		loc, err := time.LoadLocation(zone)
-		if err != nil {
-			log.Info().Err(err).
-				Str("zone", zone).
-				Msg("error loading loc from zone")
-			return t.UTC().Format("2006-01-02T15:04")
-		}
-		return t.In(loc).Format("2006-01-02T15:04")
+	"formatTSLocal": func(t time.Time, zone *model.TimeZone) string {
+		return t.In(zone.Location).Format("2006-01-02T15:04")
 	},
 	"formatDateTime": func(t time.Time) string {
 		return t.Format("2006-01-02 15:04 MST")
