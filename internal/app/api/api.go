@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -32,16 +33,16 @@ func (api *API) OnClose(f func()) {
 }
 
 func New(
-	db *model.DB,
+	db *pgxpool.Pool,
 	tpl resources.TemplateMap,
 	mailer *util.Mailer,
 	hmacKey, csrfKey []byte,
 	isProd bool,
 ) *API {
 	zh := &xhandler.XHandler{
-		Db:      db,
+		Db:      model.SetupFromDbPool(db),
 		Tpl:     tpl,
-		SessMgr: session.NewDBSessionManager(db.GetPool()),
+		SessMgr: session.NewDBSessionManager(db),
 		Mailer:  mailer,
 		Hmac:    util.NewHmac(hmacKey),
 	}

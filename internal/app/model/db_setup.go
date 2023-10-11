@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func dsnToPool(dbDSN string) (*pgxpool.Pool, error) {
+func SetupDBPool(dbDSN string) (*pgxpool.Pool, error) {
 	if zerolog.GlobalLevel() != zerolog.TraceLevel {
 		return pgxpool.New(context.Background(), dbDSN)
 	}
@@ -26,14 +26,6 @@ func dsnToPool(dbDSN string) (*pgxpool.Pool, error) {
 	return pgxpool.NewWithConfig(context.Background(), config)
 }
 
-func SetupFromDsn(dbDSN string) (*DB, error) {
-	dbpool, err := dsnToPool(dbDSN)
-	if err != nil {
-		return nil, err
-	}
-	return &DB{dbpool}, err
-}
-
-func SetupFromDb(pool *pgxpool.Pool) *DB {
+func SetupFromDbPool(pool *pgxpool.Pool) *DB {
 	return &DB{pool}
 }

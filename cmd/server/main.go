@@ -60,12 +60,12 @@ func main() {
 	// configure services //
 	//--------------------//
 
-	// setup db pool & models
-	db, err := model.SetupFromDsn(config.DatabaseDSN)
+	// setup dbpool pool & models
+	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
-	defer db.Close()
+	defer dbpool.Close()
 
 	// configure mailer
 	mailer := util.NewMailer(
@@ -78,7 +78,7 @@ func main() {
 
 	// routing/handlers
 	r := api.New(
-		db, templates, mailer,
+		dbpool, templates, mailer,
 		config.HMACKeyBytes,
 		config.CSRFKeyBytes,
 		config.Production,
