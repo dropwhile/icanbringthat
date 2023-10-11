@@ -93,7 +93,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if upw.IsExpired() {
+	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
 		log.Debug().Err(err).Msg("token expired")
 		x.Error(w, "token expired", http.StatusNotFound)
 		return
@@ -268,7 +268,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if upw.IsExpired() {
+	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
 		log.Debug().Err(err).Msg("token expired")
 		x.Error(w, "token expired", http.StatusBadRequest)
 		return

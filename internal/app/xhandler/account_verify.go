@@ -124,7 +124,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if verifier.IsExpired() {
+	if model.IsExpired(verifier.RefID, model.UserVerifyExpiry) {
 		log.Debug().Err(err).Msg("verifier is expired")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return

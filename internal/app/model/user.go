@@ -39,7 +39,9 @@ func CheckPass(ctx context.Context, user *User, rawPass []byte) (bool, error) {
 	return ok, nil
 }
 
-func NewUser(ctx context.Context, db PgxHandle, email, name string, rawPass []byte) (*User, error) {
+func NewUser(ctx context.Context, db PgxHandle,
+	email, name string, rawPass []byte,
+) (*User, error) {
 	refID := refid.Must(NewUserRefID())
 	pwHash, err := util.HashPW([]byte(rawPass))
 	if err != nil {
@@ -52,7 +54,9 @@ func NewUser(ctx context.Context, db PgxHandle, email, name string, rawPass []by
 	return user, nil
 }
 
-func CreateUser(ctx context.Context, db PgxHandle, refID UserRefID, email, name string, pwHash []byte) (*User, error) {
+func CreateUser(ctx context.Context, db PgxHandle,
+	refID UserRefID, email, name string, pwHash []byte,
+) (*User, error) {
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
 	res, err := QueryOneTx[User](ctx, db, q, refID, email, name, pwHash)
 	if err != nil {
@@ -61,19 +65,21 @@ func CreateUser(ctx context.Context, db PgxHandle, refID UserRefID, email, name 
 	return res, nil
 }
 
-func UpdateUser(ctx context.Context, db PgxHandle, email, name string, pwHash []byte, verified bool, userID int) error {
+func UpdateUser(ctx context.Context, db PgxHandle,
+	email, name string, pwHash []byte, verified bool, userID int,
+) error {
 	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3, verified = $4 WHERE id = $5`
 	return ExecTx[User](ctx, db, q, email, name, pwHash, verified, userID)
 }
 
-func DeleteUser(ctx context.Context, db PgxHandle, id int) error {
+func DeleteUser(ctx context.Context, db PgxHandle, userID int) error {
 	q := `DELETE FROM user_ WHERE id = $1`
-	return ExecTx[User](ctx, db, q, id)
+	return ExecTx[User](ctx, db, q, userID)
 }
 
-func GetUserByID(ctx context.Context, db PgxHandle, id int) (*User, error) {
+func GetUserByID(ctx context.Context, db PgxHandle, userID int) (*User, error) {
 	q := `SELECT * FROM user_ WHERE id = $1`
-	return QueryOne[User](ctx, db, q, id)
+	return QueryOne[User](ctx, db, q, userID)
 }
 
 func GetUserByRefID(ctx context.Context, db PgxHandle, refID UserRefID) (*User, error) {

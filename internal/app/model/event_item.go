@@ -30,7 +30,12 @@ func NewEventItem(ctx context.Context, db PgxHandle,
 func CreateEventItem(ctx context.Context, db PgxHandle,
 	refID EventItemRefID, eventID int, description string,
 ) (*EventItem, error) {
-	q := `INSERT INTO event_item_ (ref_id, event_id, description) VALUES ($1, $2, $3) RETURNING *`
+	q := `
+		INSERT INTO event_item_ (
+			ref_id, event_id, description
+		)
+		VALUES ($1, $2, $3)
+		RETURNING *`
 	return QueryOneTx[EventItem](ctx, db, q, refID, eventID, description)
 }
 
@@ -65,6 +70,11 @@ func GetEventItemByRefID(ctx context.Context, db PgxHandle,
 func GetEventItemsByEvent(ctx context.Context, db PgxHandle,
 	event *Event,
 ) ([]*EventItem, error) {
-	q := `SELECT * FROM event_item_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
+	q := `
+		SELECT * FROM event_item_
+		WHERE event_id = $1
+		ORDER BY
+			created DESC,
+			id DESC`
 	return Query[EventItem](ctx, db, q, event.ID)
 }

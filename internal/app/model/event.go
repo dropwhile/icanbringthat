@@ -84,27 +84,37 @@ func UpdateEvent(ctx context.Context, db PgxHandle,
 		eventID)
 }
 
-func DeleteEvent(ctx context.Context, db PgxHandle, eventID int) error {
+func DeleteEvent(ctx context.Context, db PgxHandle,
+	eventID int,
+) error {
 	q := `DELETE FROM event_ WHERE id = $1`
 	return ExecTx[Event](ctx, db, q, eventID)
 }
 
-func GetEventByID(ctx context.Context, db PgxHandle, eventID int) (*Event, error) {
+func GetEventByID(ctx context.Context, db PgxHandle,
+	eventID int,
+) (*Event, error) {
 	q := `SELECT * FROM event_ WHERE id = $1`
 	return QueryOne[Event](ctx, db, q, eventID)
 }
 
-func GetEventsByIDs(ctx context.Context, db PgxHandle, eventIDs []int) ([]*Event, error) {
+func GetEventsByIDs(ctx context.Context, db PgxHandle,
+	eventIDs []int,
+) ([]*Event, error) {
 	q := `SELECT * FROM event_ WHERE id = ANY($1)`
 	return Query[Event](ctx, db, q, eventIDs)
 }
 
-func GetEventByRefID(ctx context.Context, db PgxHandle, refID EventRefID) (*Event, error) {
+func GetEventByRefID(ctx context.Context, db PgxHandle,
+	refID EventRefID,
+) (*Event, error) {
 	q := `SELECT * FROM event_ WHERE ref_id = $1`
 	return QueryOne[Event](ctx, db, q, refID)
 }
 
-func GetEventsByUser(ctx context.Context, db PgxHandle, user *User) ([]*Event, error) {
+func GetEventsByUser(ctx context.Context, db PgxHandle,
+	user *User,
+) ([]*Event, error) {
 	q := `
 		SELECT * FROM event_
 		WHERE
@@ -147,7 +157,9 @@ func GetEventsComingSoonByUserPaginated(
 	return Query[Event](ctx, db, q, user.ID, limit, offset)
 }
 
-func GetEventCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
+func GetEventCountByUser(ctx context.Context, db PgxHandle,
+	user *User,
+) (int, error) {
 	q := `SELECT count(*) FROM event_ WHERE user_id = $1`
 	var count int = 0
 	err := pgxscan.Get(ctx, db, &count, q, user.ID)
