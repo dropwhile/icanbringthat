@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
-	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
 //go:generate go run ../../../cmd/refidgen -t Event -v 2
@@ -161,7 +160,5 @@ func GetEventCountByUser(ctx context.Context, db PgxHandle,
 	user *User,
 ) (int, error) {
 	q := `SELECT count(*) FROM event_ WHERE user_id = $1`
-	var count int = 0
-	err := pgxscan.Get(ctx, db, &count, q, user.ID)
-	return count, err
+	return Get[int](ctx, db, q, user.ID)
 }

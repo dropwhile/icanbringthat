@@ -3,8 +3,6 @@ package model
 import (
 	"context"
 	"time"
-
-	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
 type Favorite struct {
@@ -75,9 +73,7 @@ func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
 	user *User,
 ) (int, error) {
 	q := `SELECT count(*) FROM favorite_ WHERE user_id = $1`
-	var count int = 0
-	err := pgxscan.Get(ctx, db, &count, q, user.ID)
-	return count, err
+	return Get[int](ctx, db, q, user.ID)
 }
 
 func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle,
