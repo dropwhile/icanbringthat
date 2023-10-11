@@ -354,7 +354,7 @@ func (x *XHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.NewEvent(ctx, x.Db, user.ID, name, description, startTime, loc.String())
+	event, err := model.NewEvent(ctx, x.Db, user.ID, name, description, startTime, &model.TimeZone{Location: loc})
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "error creating event", http.StatusInternalServerError)
@@ -429,7 +429,7 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		event.StartTime = startTime
-		event.StartTimeTZ = loc.String()
+		event.StartTimeTz = &model.TimeZone{Location: loc}
 	}
 
 	if name != "" {

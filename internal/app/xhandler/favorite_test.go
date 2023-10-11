@@ -39,7 +39,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -64,7 +64,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
 			AddRow(33, user.ID, event.ID, ts)
@@ -195,7 +195,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
@@ -241,7 +241,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -266,7 +266,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
 			AddRow(33, user.ID, event.ID, ts)
@@ -368,7 +368,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, user.ID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
@@ -403,7 +403,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
 			AddRow(33, user.ID, event.ID, ts)

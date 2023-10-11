@@ -246,7 +246,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -275,7 +275,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		}).
 		AddRow(
 			event.ID, event.RefID, event.UserID, event.Name, event.Description,
-			event.StartTime, event.StartTimeTZ, ts, ts,
+			event.StartTime, event.StartTimeTz, ts, ts,
 		)
 	eventItemRows := pgxmock.NewRows(
 		[]string{
@@ -304,7 +304,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			}).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -544,7 +544,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			}).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(
 			[]string{

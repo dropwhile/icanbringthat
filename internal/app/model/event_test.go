@@ -22,22 +22,23 @@ func TestEventInsert(t *testing.T) {
 
 	refID := tstEventRefID
 	ts := tstTs
+	tz := Must(ParseTimeZone("Etc/UTC"))
 	rows := pgxmock.NewRows(
 		[]string{
 			"id", "ref_id", "user_id", "name", "description", "start_time",
 			"start_time_tz", "created", "last_modified",
 		}).
-		AddRow(1, refID, 1, "some name", "some desc", ts, "Etc/UTC", ts, ts)
+		AddRow(1, refID, 1, "some name", "some desc", ts, tz, ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
-		WithArgs(1, EventRefIDMatcher{}, "some name", "some desc", []int{}, ts, "Etc/UTC").
+		WithArgs(1, EventRefIDMatcher{}, "some name", "some desc", []int{}, ts, tz).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
 
-	event, err := NewEvent(ctx, mock, 1, "some name", "some desc", ts, "Etc/UTC")
+	event, err := NewEvent(ctx, mock, 1, "some name", "some desc", ts, tz)
 	assert.NilError(t, err)
 
 	assert.Check(t, event.RefID.HasTag(2))
@@ -48,7 +49,7 @@ func TestEventInsert(t *testing.T) {
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  tz,
 		Created:      ts,
 		LastModified: ts,
 	})
@@ -70,10 +71,11 @@ func TestEventSave(t *testing.T) {
 
 	refID := tstEventRefID
 	ts := tstTs
+	tz := Must(ParseTimeZone("Etc/UTC"))
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_ (.+)*").
-		WithArgs("some name", "some desc", []int{1, 2, 3}, ts, "Etc/UTC", 1).
+		WithArgs("some name", "some desc", []int{1, 2, 3}, ts, tz, 1).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -87,7 +89,7 @@ func TestEventSave(t *testing.T) {
 		Description:   "some desc",
 		ItemSortOrder: []int{1, 2, 3},
 		StartTime:     ts,
-		StartTimeTZ:   "Etc/UTC",
+		StartTimeTz:   tz,
 		Created:       ts,
 		LastModified:  ts,
 	}

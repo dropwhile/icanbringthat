@@ -17,7 +17,7 @@ type Event struct {
 	Name          string
 	Description   string
 	StartTime     time.Time `db:"start_time"`
-	StartTimeTZ   string    `db:"start_time_tz"`
+	StartTimeTz   *TimeZone `db:"start_time_tz"`
 	ItemSortOrder []int     `db:"item_sort_order"`
 	Created       time.Time
 	LastModified  time.Time    `db:"last_modified"`
@@ -32,7 +32,7 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 		e.ItemSortOrder = []int{}
 	}
 	q := `INSERT INTO event_ (user_id, ref_id, name, description, item_sort_order, start_time, start_time_tz) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`
-	res, err := QueryOneTx[Event](ctx, db, q, e.UserID, e.RefID, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTZ)
+	res, err := QueryOneTx[Event](ctx, db, q, e.UserID, e.RefID, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTz)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 
 func (e *Event) Save(ctx context.Context, db PgxHandle) error {
 	q := `UPDATE event_ SET name = $1, description = $2, item_sort_order = $3, start_time = $4, start_time_tz = $5 WHERE id = $6`
-	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTZ, e.ID)
+	return ExecTx[Event](ctx, db, q, e.Name, e.Description, e.ItemSortOrder, e.StartTime, e.StartTimeTz, e.ID)
 }
 
 func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
@@ -54,14 +54,14 @@ func (e *Event) Delete(ctx context.Context, db PgxHandle) error {
 	return ExecTx[Event](ctx, db, q, e.ID)
 }
 
-func NewEvent(ctx context.Context, db PgxHandle, userID int, name, description string, startTime time.Time, startTimeTZ string) (*Event, error) {
+func NewEvent(ctx context.Context, db PgxHandle, userID int, name, description string, startTime time.Time, startTimeTz *TimeZone) (*Event, error) {
 	event := &Event{
 		Name:          name,
 		UserID:        userID,
 		Description:   description,
 		ItemSortOrder: []int{},
 		StartTime:     startTime,
-		StartTimeTZ:   startTimeTZ,
+		StartTimeTz:   startTimeTz,
 	}
 	err := event.Insert(ctx, db)
 	if err != nil {

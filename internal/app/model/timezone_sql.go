@@ -11,8 +11,12 @@ type TimeZone struct {
 }
 
 // Value implements the driver.Valuer interface.
-func (tz *TimeZone) Value() (driver.Value, error) {
+func (tz TimeZone) Value() (driver.Value, error) {
 	return tz.Location.String(), nil
+}
+
+func (tz TimeZone) Equal(other TimeZone) bool {
+	return tz.String() == other.String()
 }
 
 // Scan implements the sql.Scanner interface.
@@ -28,4 +32,12 @@ func (tz *TimeZone) Scan(src interface{}) error {
 	}
 
 	return fmt.Errorf("refid: cannot convert %T to RefID", src)
+}
+
+func ParseTimeZone(tz string) (*TimeZone, error) {
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return nil, err
+	}
+	return &TimeZone{loc}, nil
 }

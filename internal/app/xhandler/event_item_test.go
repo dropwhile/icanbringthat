@@ -39,7 +39,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -66,7 +66,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -179,7 +179,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -217,7 +217,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -270,7 +270,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -309,7 +309,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -433,7 +433,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -475,7 +475,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -514,7 +514,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -569,7 +569,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -624,7 +624,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -686,7 +686,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -713,7 +713,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
@@ -850,7 +850,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -890,7 +890,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -927,7 +927,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTZ, ts, ts,
+				event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(

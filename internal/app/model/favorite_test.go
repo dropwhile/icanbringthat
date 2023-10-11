@@ -181,7 +181,7 @@ func TestFavoriteGetByEvent(t *testing.T) {
 		Name:          "some name",
 		Description:   "some desc",
 		StartTime:     time.Time{},
-		StartTimeTZ:   "Etc/UTC",
+		StartTimeTz:   Must(ParseTimeZone("Etc/UTC")),
 		ItemSortOrder: []int{},
 		Created:       ts,
 		LastModified:  ts,
@@ -233,7 +233,7 @@ func TestFavoriteGetByUserEvent(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTZ:  "Etc/UTC",
+		StartTimeTz:  Must(ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}

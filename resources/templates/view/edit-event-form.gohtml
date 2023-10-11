@@ -35,7 +35,7 @@
           <input
             class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
             type="datetime-local"
-            value="{{ formatTSLocal .event.StartTime .event.StartTimeTZ}}"
+            value="{{ formatTSLocal .event.StartTime .event.StartTimeTz}}"
             name="when"
             required
             >
@@ -46,7 +46,7 @@
               name="timezone"
               class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
               required
-              _="on load set my.value to '{{.event.StartTimeTZ}}'"
+              _="on load set my.value to '{{.event.StartTimeTz}}'"
           >
               <option value="Etc/GMT+12">(GMT-12:00) International Date Line West</option>
               <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
