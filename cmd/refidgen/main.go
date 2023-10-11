@@ -131,7 +131,7 @@ func main() {
 	flag.IntVar(&typeVal, "v", 0, "type value")
 	flag.Parse()
 
-	// fname := strings.TrimSuffix(os.Getenv("GOFILE"), ".go")
+	fname := strings.TrimSuffix(os.Getenv("GOFILE"), ".go")
 	pkg := os.Getenv("GOPACKAGE")
 
 	if prefix == "" {
@@ -146,7 +146,7 @@ func main() {
 		log.Fatal("Param value is required")
 	}
 
-	output = fmt.Sprintf("%s_refid%s", strings.ToLower(prefix), suffix)
+	output = fmt.Sprintf("%s_refid%s", fname, suffix)
 	fmt.Printf("generating %s\n", path.Base(output))
 
 	t, err := template.New("fileTemplate").Parse(strings.TrimLeft(tplText, "\n"))
