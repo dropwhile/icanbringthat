@@ -2,20 +2,19 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dropwhile/refid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EarmarkRefIDT = refid.Tagger(4)
+//go:generate go run ../../../cmd/refidgen -t Earmark -v 4
 
 type Earmark struct {
 	ID           int
-	RefID        refid.RefID `db:"ref_id"`
-	EventItemID  int         `db:"event_item_id"`
-	UserID       int         `db:"user_id"`
+	RefID        EarmarkRefID `db:"ref_id"`
+	EventItemID  int          `db:"event_item_id"`
+	UserID       int          `db:"user_id"`
 	Note         string
 	Created      time.Time
 	LastModified time.Time  `db:"last_modified"`
@@ -25,7 +24,7 @@ type Earmark struct {
 
 func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
 	if em.RefID.IsNil() {
-		em.RefID = refid.Must(EarmarkRefIDT.New())
+		em.RefID = refid.Must(NewEarmarkRefID())
 	}
 	q := `INSERT INTO earmark_ (ref_id, event_item_id, user_id, note) VALUES ($1, $2, $3, $4) RETURNING *`
 	res, err := QueryOneTx[Earmark](ctx, db, q, em.RefID, em.EventItemID, em.UserID, em.Note)
@@ -75,14 +74,7 @@ func GetEarmarkByID(ctx context.Context, db PgxHandle, id int) (*Earmark, error)
 	return QueryOne[Earmark](ctx, db, q, id)
 }
 
-func GetEarmarkByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*Earmark, error) {
-	if !EarmarkRefIDT.HasCorrectTag(refID) {
-		err := fmt.Errorf(
-			"bad refid type: got %d expected %d",
-			refID.Tag(), EarmarkRefIDT.Tag(),
-		)
-		return nil, err
-	}
+func GetEarmarkByRefID(ctx context.Context, db PgxHandle, refID EarmarkRefID) (*Earmark, error) {
 	q := `SELECT * FROM earmark_ WHERE ref_id = $1`
 	return QueryOne[Earmark](ctx, db, q, refID)
 }

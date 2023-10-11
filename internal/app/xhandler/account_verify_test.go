@@ -37,7 +37,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	}
 
 	uv := &model.UserVerify{
-		RefID:   refid.Must(model.VerifyRefIDT.New()),
+		RefID:   refid.Must(model.NewUserVerifyRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -66,7 +66,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
-			WithArgs(model.VerifyRefIDT.AnyMatcher(), user.ID).
+			WithArgs(model.UserVerifyRefIDMatcher{}, user.ID).
 			WillReturnRows(uvRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -116,7 +116,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	}
 
 	uv := &model.UserVerify{
-		RefID:   refid.Must(model.VerifyRefIDT.New()),
+		RefID:   refid.Must(model.NewUserVerifyRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -242,7 +242,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.EventItemRefIDT.New())
+		refID := refid.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
@@ -312,7 +312,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	t.Run("verify is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refID := refid.Must(model.VerifyRefIDT.New())
+		refID := refid.Must(model.NewUserVerifyRefID())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refID.SetTime(rfts)
 		ctx := context.TODO()
@@ -339,7 +339,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
-			WithArgs(model.VerifyRefIDT.AnyMatcher()).
+			WithArgs(model.UserVerifyRefIDMatcher{}).
 			WillReturnRows(pwrRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)

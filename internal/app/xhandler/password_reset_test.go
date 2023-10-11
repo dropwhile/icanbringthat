@@ -38,7 +38,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
+		RefID:   refid.Must(model.NewUserPWResetRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -243,7 +243,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.EventItemRefIDT.New())
+		refID := refid.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
@@ -366,7 +366,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset upw is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refID := refid.Must(model.UserPWResetRefIDT.New())
+		refID := refid.Must(model.NewUserPWResetRefID())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refID.SetTime(rfts)
 		ctx := context.TODO()
@@ -388,7 +388,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(model.UserPWResetRefIDT.AnyMatcher()).
+			WithArgs(model.UserPWResetRefIDMatcher{}).
 			WillReturnRows(pwrRows)
 
 		data := url.Values{
@@ -503,7 +503,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
+		RefID:   refid.Must(model.NewUserPWResetRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -533,7 +533,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 			WillReturnRows(userRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-			WithArgs(model.UserPWResetRefIDT.AnyMatcher(), user.ID).
+			WithArgs(model.UserPWResetRefIDMatcher{}, user.ID).
 			WillReturnRows(upwRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()

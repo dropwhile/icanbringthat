@@ -18,14 +18,14 @@ func TestUserPWResetInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(ParseUserPWResetRefID("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
 		AddRow(refID, 1)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-		WithArgs(UserPWResetRefIDT.AnyMatcher(), 1).
+		WithArgs(UserPWResetRefIDMatcher{}, 1).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -63,7 +63,7 @@ func TestUserPWResetDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(ParseUserPWResetRefID("065f77rd5400b4dk0p20b37n7r"))
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
 		WithArgs(refID).
@@ -94,7 +94,7 @@ func TestUserPWResetGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(ParseUserPWResetRefID("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
 		AddRow(refID, 1)

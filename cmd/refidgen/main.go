@@ -146,7 +146,7 @@ func main() {
 		log.Fatal("Param value is required")
 	}
 
-	output = fmt.Sprintf("refid_%s%s", strings.ToLower(prefix), suffix)
+	output = fmt.Sprintf("%s_refid%s", strings.ToLower(prefix), suffix)
 	fmt.Printf("generating %s\n", path.Base(output))
 
 	t, err := template.New("fileTemplate").Parse(strings.TrimLeft(tplText, "\n"))

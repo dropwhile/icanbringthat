@@ -2,19 +2,18 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dropwhile/refid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
 
-var EventRefIDT = refid.Tagger(2)
+//go:generate go run ../../../cmd/refidgen -t Event -v 2
 
 type Event struct {
 	ID            int
-	RefID         refid.RefID `db:"ref_id"`
-	UserID        int         `db:"user_id"`
+	RefID         EventRefID `db:"ref_id"`
+	UserID        int        `db:"user_id"`
 	Name          string
 	Description   string
 	StartTime     time.Time `db:"start_time"`
@@ -27,7 +26,7 @@ type Event struct {
 
 func (e *Event) Insert(ctx context.Context, db PgxHandle) error {
 	if e.RefID.IsNil() {
-		e.RefID = refid.Must(EventRefIDT.New())
+		e.RefID = refid.Must(NewEventRefID())
 	}
 	if e.ItemSortOrder == nil {
 		e.ItemSortOrder = []int{}
@@ -81,14 +80,7 @@ func GetEventsByIDs(ctx context.Context, db PgxHandle, eventIDs []int) ([]*Event
 	return Query[Event](ctx, db, q, eventIDs)
 }
 
-func GetEventByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*Event, error) {
-	if !EventRefIDT.HasCorrectTag(refID) {
-		err := fmt.Errorf(
-			"bad refid type: got %d expected %d",
-			refID.Tag(), EventRefIDT.Tag(),
-		)
-		return nil, err
-	}
+func GetEventByRefID(ctx context.Context, db PgxHandle, refID EventRefID) (*Event, error) {
 	q := `SELECT * FROM event_ WHERE ref_id = $1`
 	return QueryOne[Event](ctx, db, q, refID)
 }

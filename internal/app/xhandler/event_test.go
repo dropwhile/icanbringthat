@@ -35,7 +35,7 @@ func TestHandler_Event_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -70,7 +70,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserID, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				event.UserID, model.EventRefIDMatcher{}, event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
@@ -247,7 +247,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserID, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				event.UserID, model.EventRefIDMatcher{}, event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
@@ -328,7 +328,7 @@ func TestHandler_Event_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            1,
-		RefID:         refid.Must(model.EventRefIDT.New()),
+		RefID:         refid.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -411,7 +411,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.EarmarkRefIDT.New()).String())
+		rctx.URLParams.Add("eRefID", refid.Must(model.NewEarmarkRefID()).String())
 
 		data := url.Values{
 			"name":        {event.Name},
@@ -914,7 +914,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            1,
-		RefID:         refid.Must(model.EventRefIDT.New()),
+		RefID:         refid.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -989,7 +989,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.EarmarkRefIDT.New()).String())
+		rctx.URLParams.Add("eRefID", refid.Must(model.NewEarmarkRefID()).String())
 
 		data := url.Values{
 			"sortOrder": {"1", "3", "2"},
@@ -1220,7 +1220,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -1287,7 +1287,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.EventItemRefIDT.New()).String())
+		rctx.URLParams.Add("eRefID", refid.Must(model.NewEventItemRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

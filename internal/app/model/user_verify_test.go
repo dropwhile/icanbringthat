@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstRefIDUserVerify = refid.Must(refid.Parse("065h0vbe7450c8ks641me3ny9c"))
+var tstRefIDUserVerify = refid.Must(ParseUserVerifyRefID("065h0vbe7450c8ks641me3ny9c"))
 
 func TestUserVerifyUserInsert(t *testing.T) {
 	t.Parallel()
@@ -26,7 +26,7 @@ func TestUserVerifyUserInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
-		WithArgs(VerifyRefIDT.AnyMatcher(), 1).
+		WithArgs(UserVerifyRefIDMatcher{}, 1).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -34,7 +34,7 @@ func TestUserVerifyUserInsert(t *testing.T) {
 
 	user := &User{
 		ID:     1,
-		RefID:  tstUserRefID,
+		RefID:  refid.Must(NewUserRefID()),
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -99,7 +99,7 @@ func TestUserVerifyUserGetByRefID(t *testing.T) {
 		AddRow(tstRefIDUserVerify, 1)
 
 	mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
-		WithArgs(VerifyRefIDT.AnyMatcher()).
+		WithArgs(UserVerifyRefIDMatcher{}).
 		WillReturnRows(rows)
 
 	upw, err := GetUserVerifyByRefID(ctx, mock, tstRefIDUserVerify)

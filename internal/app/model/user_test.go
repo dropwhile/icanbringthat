@@ -11,7 +11,7 @@ import (
 
 var (
 	columns      = []string{"id", "ref_id", "email", "name", "pwhash"}
-	tstUserRefID = refid.Must(refid.Parse("065f77c7jht024dzak7wc6k7xc"))
+	tstUserRefID = refid.Must(ParseUserRefID("065f77c7jht024dzak7wc6k7xc"))
 )
 
 func TestUserSetPassword(t *testing.T) {
@@ -93,7 +93,7 @@ func TestUserInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_ (.+)*").
-		WithArgs(UserRefIDT.AnyMatcher(), "user1@example.com", "j rando", pgxmock.AnyArg()).
+		WithArgs(UserRefIDMatcher{}, "user1@example.com", "j rando", pgxmock.AnyArg()).
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used

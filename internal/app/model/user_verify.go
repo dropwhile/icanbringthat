@@ -2,17 +2,16 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dropwhile/refid"
 )
 
-var VerifyRefIDT = refid.Tagger(6)
+//go:generate go run ../../../cmd/refidgen -t UserVerify -v 6
 
 type UserVerify struct {
-	RefID   refid.RefID `db:"ref_id"`
-	UserID  int         `db:"user_id"`
+	RefID   UserVerifyRefID `db:"ref_id"`
+	UserID  int             `db:"user_id"`
 	Created time.Time
 }
 
@@ -22,7 +21,7 @@ func (uv *UserVerify) IsExpired() bool {
 
 func (uv *UserVerify) Insert(ctx context.Context, db PgxHandle) error {
 	if uv.RefID.IsNil() {
-		uv.RefID = refid.Must(VerifyRefIDT.New())
+		uv.RefID = refid.Must(NewUserVerifyRefID())
 	}
 	q := `INSERT INTO user_verify_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
 	res, err := QueryOneTx[UserVerify](ctx, db, q, uv.RefID, uv.UserID)
@@ -49,14 +48,7 @@ func NewUserVerify(ctx context.Context, db PgxHandle, user *User) (*UserVerify, 
 	return uv, nil
 }
 
-func GetUserVerifyByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*UserVerify, error) {
-	if !VerifyRefIDT.HasCorrectTag(refID) {
-		err := fmt.Errorf(
-			"bad refid type: got %d expected %d",
-			refID.Tag(), VerifyRefIDT.Tag(),
-		)
-		return nil, err
-	}
+func GetUserVerifyByRefID(ctx context.Context, db PgxHandle, refID UserVerifyRefID) (*UserVerify, error) {
 	q := `SELECT * FROM user_verify_ WHERE ref_id = $1`
 	return QueryOne[UserVerify](ctx, db, q, refID)
 }

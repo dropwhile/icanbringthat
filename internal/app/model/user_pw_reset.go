@@ -2,17 +2,16 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dropwhile/refid"
 )
 
-var UserPWResetRefIDT = refid.Tagger(5)
+//go:generate go run ../../../cmd/refidgen -t UserPWReset -v 5
 
 type UserPWReset struct {
-	RefID   refid.RefID `db:"ref_id"`
-	UserID  int         `db:"user_id"`
+	RefID   UserPWResetRefID `db:"ref_id"`
+	UserID  int              `db:"user_id"`
 	Created time.Time
 }
 
@@ -22,7 +21,7 @@ func (upw *UserPWReset) IsExpired() bool {
 
 func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
 	if upw.RefID.IsNil() {
-		upw.RefID = refid.Must(UserPWResetRefIDT.New())
+		upw.RefID = refid.Must(NewUserPWResetRefID())
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
 	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefID, upw.UserID)
@@ -49,14 +48,7 @@ func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset
 	return upw, nil
 }
 
-func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*UserPWReset, error) {
-	if !UserPWResetRefIDT.HasCorrectTag(refID) {
-		err := fmt.Errorf(
-			"bad refid type: got %d expected %d",
-			refID.Tag(), UserPWResetRefIDT.Tag(),
-		)
-		return nil, err
-	}
+func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refID UserPWResetRefID) (*UserPWReset, error) {
 	q := `SELECT * FROM user_pw_reset_ WHERE ref_id = $1`
 	return QueryOne[UserPWReset](ctx, db, q, refID)
 }

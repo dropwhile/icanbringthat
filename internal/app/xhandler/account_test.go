@@ -453,7 +453,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(model.UserRefIDMatcher{}, "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -555,7 +555,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(model.UserRefIDT.AnyMatcher(), "user@example.com", "user", pgxmock.AnyArg()).
+			WithArgs(model.UserRefIDMatcher{}, "user@example.com", "user", pgxmock.AnyArg()).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()
 		mock.ExpectRollback()

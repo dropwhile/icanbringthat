@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEventRefID = refid.Must(refid.Parse("065f77p96rp05pze29y74wx7q8"))
+var tstEventRefID = refid.Must(ParseEventRefID("065f77p96rp05pze29y74wx7q8"))
 
 func TestEventInsert(t *testing.T) {
 	t.Parallel()
@@ -31,7 +31,7 @@ func TestEventInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
-		WithArgs(1, EventRefIDT.AnyMatcher(), "some name", "some desc", []int{}, ts, "Etc/UTC").
+		WithArgs(1, EventRefIDMatcher{}, "some name", "some desc", []int{}, ts, "Etc/UTC").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -240,7 +240,7 @@ func TestEventsGetByUser(t *testing.T) {
 
 	user := &User{
 		ID:     1,
-		RefID:  refID,
+		RefID:  refid.Must(NewUserRefID()),
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),

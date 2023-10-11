@@ -10,11 +10,11 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-var UserRefIDT = refid.Tagger(1)
+//go:generate go run ../../../cmd/refidgen -t User -v 1
 
 type User struct {
 	ID           int
-	RefID        refid.RefID `db:"ref_id"`
+	RefID        UserRefID `db:"ref_id"`
 	Email        string
 	Name         string `db:"name"`
 	PWHash       []byte `db:"pwhash"`
@@ -42,7 +42,7 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 
 func (user *User) Insert(ctx context.Context, db PgxHandle) error {
 	if user.RefID.IsNil() {
-		user.RefID = refid.Must(UserRefIDT.New())
+		user.RefID = refid.Must(NewUserRefID())
 	}
 	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
 	res, err := QueryOneTx[User](ctx, db, q, user.RefID, user.Email, user.Name, user.PWHash)
@@ -87,14 +87,7 @@ func GetUserByID(ctx context.Context, db PgxHandle, id int) (*User, error) {
 	return QueryOne[User](ctx, db, q, id)
 }
 
-func GetUserByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*User, error) {
-	if !UserRefIDT.HasCorrectTag(refID) {
-		err := fmt.Errorf(
-			"bad refid type: got %d expected %d",
-			refID.Tag(), UserRefIDT.Tag(),
-		)
-		return nil, err
-	}
+func GetUserByRefID(ctx context.Context, db PgxHandle, refID UserRefID) (*User, error) {
 	q := `SELECT * FROM user_ WHERE ref_id = $1`
 	return QueryOne[User](ctx, db, q, refID)
 }

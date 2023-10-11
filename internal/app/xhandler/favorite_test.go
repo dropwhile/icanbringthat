@@ -34,7 +34,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -132,7 +132,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.EventRefIDT.New())
+		refID := refid.Must(model.NewEventRefID())
 		rctx.URLParams.Add("eRefID", refID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ ").
@@ -163,7 +163,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.EventItemRefIDT.New())
+		refID := refid.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("eRefID", refID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
@@ -236,7 +236,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       2,
 		Name:         "event",
 		Description:  "description",
@@ -337,7 +337,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.EventItemRefIDT.New()).String())
+		rctx.URLParams.Add("eRefID", refid.Must(model.NewEventItemRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

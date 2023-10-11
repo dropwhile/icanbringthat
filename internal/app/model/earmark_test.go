@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEarmarkRefID = refid.Must(refid.Parse("065f77gsvzv092fr8x100fdx0c"))
+var tstEarmarkRefID = refid.Must(ParseEarmarkRefID("065f77gsvzv092fr8x100fdx0c"))
 
 func TestEarmarkInsert(t *testing.T) {
 	t.Parallel()
@@ -28,7 +28,7 @@ func TestEarmarkInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO earmark_ (.+)*").
-		WithArgs(EarmarkRefIDT.AnyMatcher(), 1, 1, "some note").
+		WithArgs(EarmarkRefIDMatcher{}, 1, 1, "some note").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -227,7 +227,7 @@ func TestEarmarkGetEventItem(t *testing.T) {
 
 	eventItem := &EventItem{
 		ID:          1,
-		RefID:       refID,
+		RefID:       refid.Must(NewEventItemRefID()),
 		EventID:     1,
 		Description: "some desc",
 	}

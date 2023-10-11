@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-var tstEventItemRefID = refid.Must(refid.Parse("065f77kvj03069yhn864xhzq4r"))
+var tstEventItemRefID = refid.Must(ParseEventItemRefID("065f77kvj03069yhn864xhzq4r"))
 
 func TestEventItemInsert(t *testing.T) {
 	t.Parallel()
@@ -28,7 +28,7 @@ func TestEventItemInsert(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_item_ (.+)*").
-		WithArgs(EventItemRefIDT.AnyMatcher(), 1, "some desc").
+		WithArgs(EventItemRefIDMatcher{}, 1, "some desc").
 		WillReturnRows(rows)
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -210,7 +210,7 @@ func TestEventItemGetByEvent(t *testing.T) {
 
 	event := &Event{
 		ID:           1,
-		RefID:        refID,
+		RefID:        refid.Must(NewEventRefID()),
 		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",

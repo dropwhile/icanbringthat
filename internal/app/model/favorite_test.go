@@ -228,7 +228,7 @@ func TestFavoriteGetByUserEvent(t *testing.T) {
 	}
 	event := &Event{
 		ID:           1,
-		RefID:        refid.Must(EventRefIDT.New()),
+		RefID:        refid.Must(NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",

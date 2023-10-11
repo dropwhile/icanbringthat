@@ -34,7 +34,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -45,7 +45,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.EventItemRefIDT.New()),
+		RefID:        refid.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -88,7 +88,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(model.EventItemRefIDT.AnyMatcher(), eventItem.EventID, "some description").
+			WithArgs(model.EventItemRefIDMatcher{}, eventItem.EventID, "some description").
 			WillReturnRows(eventItemRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -265,7 +265,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -276,7 +276,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.EventItemRefIDT.New()),
+		RefID:        refid.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -284,7 +284,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.EarmarkRefIDT.New()),
+		RefID:        refid.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",
@@ -681,7 +681,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -692,7 +692,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.EventItemRefIDT.New()),
+		RefID:        refid.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,

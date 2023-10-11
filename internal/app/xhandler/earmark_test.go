@@ -22,7 +22,7 @@ import (
 func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.EarmarkRefIDT.New())
+	refID := refid.Must(model.NewEarmarkRefID())
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
@@ -143,7 +143,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID = refid.Must(model.EarmarkRefIDT.New())
+		refID = refid.Must(model.NewEarmarkRefID())
 		rctx.URLParams.Add("mRefID", refID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
@@ -174,7 +174,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID = refid.Must(model.EventRefIDT.New())
+		refID = refid.Must(model.NewEventRefID())
 		rctx.URLParams.Add("mRefID", refID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
@@ -242,7 +242,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.EventRefIDT.New()),
+		RefID:        refid.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -253,7 +253,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.EventItemRefIDT.New()),
+		RefID:        refid.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -261,7 +261,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.EarmarkRefIDT.New()),
+		RefID:        refid.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",
@@ -328,7 +328,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO earmark_").
-			WithArgs(model.EarmarkRefIDT.AnyMatcher(), earmark.EventItemID, earmark.UserID, "some note").
+			WithArgs(model.EarmarkRefIDMatcher{}, earmark.EventItemID, earmark.UserID, "some note").
 			WillReturnRows(earmarkRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
