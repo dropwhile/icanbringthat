@@ -8,9 +8,9 @@ import (
 )
 
 type Favorite struct {
-	Id      int
-	UserId  int `db:"user_id"`
-	EventId int `db:"event_id"`
+	ID      int
+	UserID  int `db:"user_id"`
+	EventID int `db:"event_id"`
 	Created time.Time
 	User    *User  `db:"-"`
 	Event   *Event `db:"-"`
@@ -18,22 +18,22 @@ type Favorite struct {
 
 func (fav *Favorite) Insert(ctx context.Context, db PgxHandle) error {
 	q := `INSERT INTO favorite_ (user_id, event_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[Favorite](ctx, db, q, fav.UserId, fav.EventId)
+	res, err := QueryOneTx[Favorite](ctx, db, q, fav.UserID, fav.EventID)
 	if err != nil {
 		return err
 	}
-	fav.Id = res.Id
+	fav.ID = res.ID
 	fav.Created = res.Created
 	return nil
 }
 
 func (fav *Favorite) Delete(ctx context.Context, db PgxHandle) error {
 	q := `DELETE FROM favorite_ WHERE id = $1`
-	return ExecTx[Favorite](ctx, db, q, fav.Id)
+	return ExecTx[Favorite](ctx, db, q, fav.ID)
 }
 
 func (fav *Favorite) GetEvent(ctx context.Context, db PgxHandle) (*Event, error) {
-	event, err := GetEventById(ctx, db, fav.EventId)
+	event, err := GetEventByID(ctx, db, fav.EventID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +43,12 @@ func (fav *Favorite) GetEvent(ctx context.Context, db PgxHandle) (*Event, error)
 func NewFavorite(
 	ctx context.Context,
 	db PgxHandle,
-	userId int,
-	eventId int,
+	userID int,
+	eventID int,
 ) (*Favorite, error) {
 	favorite := &Favorite{
-		UserId:  userId,
-		EventId: eventId,
+		UserID:  userID,
+		EventID: eventID,
 	}
 	err := favorite.Insert(ctx, db)
 	if err != nil {
@@ -57,30 +57,30 @@ func NewFavorite(
 	return favorite, nil
 }
 
-func GetFavoriteById(ctx context.Context, db PgxHandle, id int) (*Favorite, error) {
+func GetFavoriteByID(ctx context.Context, db PgxHandle, id int) (*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE id = $1`
 	return QueryOne[Favorite](ctx, db, q, id)
 }
 
 func GetFavoritesByUser(ctx context.Context, db PgxHandle, user *User) ([]*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE user_id = $1 ORDER BY created DESC,id DESC`
-	return Query[Favorite](ctx, db, q, user.Id)
+	return Query[Favorite](ctx, db, q, user.ID)
 }
 
 func GetFavoritesByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
-	return Query[Favorite](ctx, db, q, event.Id)
+	return Query[Favorite](ctx, db, q, event.ID)
 }
 
 func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle, user *User, event *Event) (*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE user_id = $1 AND event_id = $2 ORDER BY created DESC,id DESC`
-	return QueryOne[Favorite](ctx, db, q, user.Id, event.Id)
+	return QueryOne[Favorite](ctx, db, q, user.ID, event.ID)
 }
 
 func GetFavoriteCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
 	q := `SELECT count(*) FROM favorite_ WHERE user_id = $1`
 	var count int = 0
-	err := pgxscan.Get(ctx, db, &count, q, user.Id)
+	err := pgxscan.Get(ctx, db, &count, q, user.ID)
 	return count, err
 }
 
@@ -97,5 +97,5 @@ func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle, user *User, 
 		event_.id DESC
 	LIMIT $2 OFFSET $3
 	`
-	return Query[Favorite](ctx, db, q, user.Id, limit, offset)
+	return Query[Favorite](ctx, db, q, user.ID, limit, offset)
 }

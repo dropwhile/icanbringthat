@@ -27,7 +27,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -39,7 +39,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 	pwr := &model.UserPWReset{
 		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
-		UserId:  user.Id,
+		UserID:  user.ID,
 		Created: ts,
 	}
 
@@ -50,9 +50,9 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -73,14 +73,14 @@ func TestHandler_ResetPassword(t *testing.T) {
 			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
-			WithArgs(user.Id).
+			WithArgs(user.ID).
 			WillReturnRows(userRows)
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -110,8 +110,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 		response := rr.Result()
 		util.MustReadAll(response.Body)
 
-		userId := handler.SessMgr.GetInt(ctx, "user-id")
-		assert.Assert(t, userId == user.Id)
+		userID := handler.SessMgr.GetInt(ctx, "user-id")
+		assert.Assert(t, userID == user.ID)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -243,11 +243,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := refid.Must(model.EventItemRefIDT.New())
-		rctx.URLParams.Add("upwRefID", refId.String())
+		refID := refid.Must(model.EventItemRefIDT.New())
+		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(refId.String()))
+		macBytes := handler.Hmac.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
@@ -319,7 +319,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -340,7 +340,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
-			WithArgs(user.Id).
+			WithArgs(user.ID).
 			WillReturnError(pgx.ErrNoRows)
 
 		data := url.Values{
@@ -366,25 +366,25 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset upw is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refId := refid.Must(model.UserPWResetRefIDT.New())
+		refID := refid.Must(model.UserPWResetRefIDT.New())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
-		refId.SetTime(rfts)
+		refID.SetTime(rfts)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", refId.String())
+		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(refId.String()))
+		macBytes := handler.Hmac.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := util.Base32EncodeToString(macBytes)
 
 		rctx.URLParams.Add("hmac", macStr)
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(refId, pwr.UserId, pwr.Created)
+			AddRow(refID, pwr.UserID, pwr.Created)
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
@@ -415,9 +415,9 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserId, pwr.Created)
+			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -438,14 +438,14 @@ func TestHandler_ResetPassword(t *testing.T) {
 			WithArgs(pwr.RefID).
 			WillReturnRows(pwrRows)
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
-			WithArgs(user.Id).
+			WithArgs(user.ID).
 			WillReturnRows(userRows)
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -476,8 +476,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 		response := rr.Result()
 		util.MustReadAll(response.Body)
 
-		userId := handler.SessMgr.GetInt(ctx, "user-id")
-		assert.Assert(t, userId == 0)
+		userID := handler.SessMgr.GetInt(ctx, "user-id")
+		assert.Assert(t, userID == 0)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusInternalServerError)
@@ -492,7 +492,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -504,7 +504,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 
 	pwr := &model.UserPWReset{
 		RefID:   refid.Must(model.UserPWResetRefIDT.New()),
-		UserId:  user.Id,
+		UserID:  user.ID,
 		Created: ts,
 	}
 
@@ -516,9 +516,9 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		t.Parallel()
 
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.Id, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
 		upwRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserId, ts)
+			AddRow(pwr.RefID, pwr.UserID, ts)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -533,7 +533,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 			WillReturnRows(userRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-			WithArgs(model.UserPWResetRefIDT.AnyMatcher(), user.Id).
+			WithArgs(model.UserPWResetRefIDT.AnyMatcher(), user.ID).
 			WillReturnRows(upwRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -554,10 +554,10 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Password reset url: http://example.com/forgot-password/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rId := refid.Must(model.UserPWResetRefIDT.Parse(refParts[0]))
+		rID := refid.Must(model.UserPWResetRefIDT.Parse(refParts[0]))
 		hmacBytes, err := util.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
-		assert.Assert(t, handler.Hmac.Validate([]byte(rId.String()), hmacBytes))
+		assert.Assert(t, handler.Hmac.Validate([]byte(rID.String()), hmacBytes))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)

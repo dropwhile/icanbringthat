@@ -20,11 +20,11 @@ func TestEarmarkInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-		AddRow(1, refId, 1, 1, "some note", ts, ts)
+		AddRow(1, refID, 1, 1, "some note", ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO earmark_ (.+)*").
@@ -39,10 +39,10 @@ func TestEarmarkInsert(t *testing.T) {
 	assert.Check(t, earmark.RefID.HasTag(4))
 
 	assert.DeepEqual(t, earmark, &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
@@ -63,7 +63,7 @@ func TestEarmarkSave(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -75,10 +75,10 @@ func TestEarmarkSave(t *testing.T) {
 	mock.ExpectRollback()
 
 	earmark := &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
@@ -101,7 +101,7 @@ func TestEarmarkDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -113,10 +113,10 @@ func TestEarmarkDelete(t *testing.T) {
 	mock.ExpectRollback()
 
 	earmark := &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
@@ -130,7 +130,7 @@ func TestEarmarkDelete(t *testing.T) {
 	}
 }
 
-func TestEarmarkGetById(t *testing.T) {
+func TestEarmarkGetByID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -139,24 +139,24 @@ func TestEarmarkGetById(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-		AddRow(1, refId, 1, 1, "some note", ts, ts)
+		AddRow(1, refID, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	earmark, err := GetEarmarkById(ctx, mock, 1)
+	earmark, err := GetEarmarkByID(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
@@ -177,24 +177,24 @@ func TestEarmarkGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-		AddRow(1, refId, 1, 1, "some note", ts, ts)
+		AddRow(1, refID, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
-		WithArgs(refId).
+		WithArgs(refID).
 		WillReturnRows(rows)
 
-	earmark, err := GetEarmarkByRefID(ctx, mock, refId)
+	earmark, err := GetEarmarkByRefID(ctx, mock, refID)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,
@@ -215,30 +215,30 @@ func TestEarmarkGetEventItem(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEarmarkRefID
+	refID := tstEarmarkRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-		AddRow(1, refId, 1, 1, "some note", ts, ts)
+		AddRow(1, refID, 1, 1, "some note", ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM earmark_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
 	eventItem := &EventItem{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	}
 	earmark, err := GetEarmarkByEventItem(ctx, mock, eventItem)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, earmark, &Earmark{
-		Id:           1,
-		RefID:        refId,
-		EventItemId:  1,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       1,
 		Note:         "some note",
 		Created:      ts,
 		LastModified: ts,

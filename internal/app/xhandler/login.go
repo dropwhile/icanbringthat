@@ -89,7 +89,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
 		target = r.FormValue("next")

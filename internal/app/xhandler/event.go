@@ -103,13 +103,13 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refId)
+	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -121,7 +121,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	owner := user.Id == event.UserId
+	owner := user.ID == event.UserID
 
 	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event)
 	switch {
@@ -142,7 +142,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		sortedList := make([]*model.EventItem, len(event.ItemSortOrder))
 		unsortedList := make([]*model.EventItem, 0)
 		for j := range eventItems {
-			if idx, ok := sortSet[eventItems[j].Id]; ok && idx < eventItemLen {
+			if idx, ok := sortSet[eventItems[j].ID]; ok && idx < eventItemLen {
 				sortedList[idx] = eventItems[j]
 			} else {
 				unsortedList = append(unsortedList, eventItems[j])
@@ -168,20 +168,20 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// earmarks
 	eventItemsMap := make(map[int]*model.EventItem)
 	for i := range eventItems {
-		eventItemsMap[eventItems[i].Id] = eventItems[i]
+		eventItemsMap[eventItems[i].ID] = eventItems[i]
 	}
 
-	userIdsMap := make(map[int]struct{})
+	userIDsMap := make(map[int]struct{})
 	for i := range earmarks {
-		if ei, ok := eventItemsMap[earmarks[i].EventItemId]; ok {
+		if ei, ok := eventItemsMap[earmarks[i].EventItemID]; ok {
 			ei.Earmark = earmarks[i]
-			userIdsMap[earmarks[i].UserId] = struct{}{}
+			userIDsMap[earmarks[i].UserID] = struct{}{}
 		}
 	}
 
 	// now get the list of usrs ids and fetch the associated users
-	userIds := util.Keys(userIdsMap)
-	earmarkUsers, err := model.GetUsersByIds(ctx, x.Db, userIds)
+	userIDs := util.Keys(userIDsMap)
+	earmarkUsers, err := model.GetUsersByIDs(ctx, x.Db, userIDs)
 	if err != nil {
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
@@ -190,10 +190,10 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// now associate the users with the earmarks
 	earmarkUsersMap := make(map[int]*model.User)
 	for i := range earmarkUsers {
-		earmarkUsersMap[earmarkUsers[i].Id] = earmarkUsers[i]
+		earmarkUsersMap[earmarkUsers[i].ID] = earmarkUsers[i]
 	}
 	for i := range earmarks {
-		if uu, ok := earmarkUsersMap[earmarks[i].UserId]; ok {
+		if uu, ok := earmarkUsersMap[earmarks[i].UserID]; ok {
 			earmarks[i].User = uu
 		}
 	}
@@ -270,13 +270,13 @@ func (x *XHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refId)
+	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -288,7 +288,7 @@ func (x *XHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
@@ -354,7 +354,7 @@ func (x *XHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.NewEvent(ctx, x.Db, user.Id, name, description, startTime, loc.String())
+	event, err := model.NewEvent(ctx, x.Db, user.ID, name, description, startTime, loc.String())
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "error creating event", http.StatusInternalServerError)
@@ -373,13 +373,13 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refId)
+	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		x.Error(w, "not found", http.StatusNotFound)
@@ -390,7 +390,7 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
@@ -475,10 +475,10 @@ func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -528,13 +528,13 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refId)
+	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		x.Error(w, "not found", http.StatusNotFound)
@@ -545,10 +545,10 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return

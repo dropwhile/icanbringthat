@@ -21,12 +21,12 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.UserRefIDT.New())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
-		Id:           1,
-		RefID:        refId,
+		ID:           1,
+		RefID:        refID,
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       pwhash,
@@ -84,7 +84,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
-			WithArgs("user2@example.com", user.Name, user.PWHash, user.Verified, user.Id).
+			WithArgs("user2@example.com", user.Name, user.PWHash, user.Verified, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		// hidden rollback after commit due to beginfunc being used
@@ -126,8 +126,8 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		user := &model.User{
-			Id:           1,
-			RefID:        refId,
+			ID:           1,
+			RefID:        refID,
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,
@@ -174,7 +174,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
-			WithArgs(user.Email, "user2", user.PWHash, user.Verified, user.Id).
+			WithArgs(user.Email, "user2", user.PWHash, user.Verified, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		// hidden rollback after commit due to beginfunc being used
@@ -341,7 +341,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// due to argon2 salting in the user.SetPass call, so just use Any instead.
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		// hidden rollback after commit due to beginfunc being used
@@ -386,11 +386,11 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.UserRefIDT.New())
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
-		RefID:        refId,
+		ID:           1,
+		RefID:        refID,
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -405,7 +405,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	// due to argon2 salting in the user.SetPass call, so just use Any instead.
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_ (.+)").
-		WithArgs(user.Id).
+		WithArgs(user.ID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
@@ -584,7 +584,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		pwhash, _ := util.HashPW([]byte("00x00"))
 		user := &model.User{
-			Id:           1,
+			ID:           1,
 			RefID:        refid.Must(model.UserRefIDT.New()),
 			Email:        "user@example.com",
 			Name:         "user",

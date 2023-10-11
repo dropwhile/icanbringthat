@@ -43,10 +43,10 @@ func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -107,10 +107,10 @@ func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -179,10 +179,10 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -201,7 +201,7 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = model.NewEventItem(ctx, x.Db, event.Id, description)
+	_, err = model.NewEventItem(ctx, x.Db, event.ID, description)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -244,10 +244,10 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -264,12 +264,12 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if eventItem.EventId != event.Id {
+	if eventItem.EventID != event.ID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.Id", event.Id).
-			Int("eventItem.EventId", eventItem.EventId).
-			Msg("eventItem.EventId and event.Id mismatch")
+			Int("user.ID", user.ID).
+			Int("event.ID", event.ID).
+			Int("eventItem.EventID", eventItem.EventID).
+			Msg("eventItem.EventID and event.ID mismatch")
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
@@ -283,10 +283,10 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	case err == nil:
-		if earmark.UserId != user.Id {
+		if earmark.UserID != user.ID {
 			log.Info().
-				Int("user.Id", user.Id).
-				Int("earmark.UserId", earmark.UserId).
+				Int("user.ID", user.ID).
+				Int("earmark.UserID", earmark.UserID).
 				Msg("user id mismatch")
 			http.Error(w, "earmarked by other user - access denied", http.StatusForbidden)
 			return
@@ -356,10 +356,10 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != event.UserId {
+	if user.ID != event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -376,12 +376,12 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if eventItem.EventId != event.Id {
+	if eventItem.EventID != event.ID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.Id", event.Id).
-			Int("eventItem.EventId", eventItem.EventId).
-			Msg("eventItem.EventId and event.Id mismatch")
+			Int("user.ID", user.ID).
+			Int("event.ID", event.ID).
+			Int("eventItem.EventID", eventItem.EventID).
+			Msg("eventItem.EventID and event.ID mismatch")
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}

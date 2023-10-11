@@ -24,7 +24,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -33,9 +33,9 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -63,17 +63,17 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.Id, event.Id, ts)
+			AddRow(33, user.ID, event.ID, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.Id, event.Id).
+			WithArgs(user.ID, event.ID).
 			WillReturnRows(favoriteRows)
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM favorite_").
@@ -132,11 +132,11 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := refid.Must(model.EventRefIDT.New())
-		rctx.URLParams.Add("eRefID", refId.String())
+		refID := refid.Must(model.EventRefIDT.New())
+		rctx.URLParams.Add("eRefID", refID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ ").
-			WithArgs(refId).
+			WithArgs(refID).
 			WillReturnError(pgx.ErrNoRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
@@ -163,8 +163,8 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := refid.Must(model.EventItemRefIDT.New())
-		rctx.URLParams.Add("eRefID", refId.String())
+		refID := refid.Must(model.EventItemRefIDT.New())
+		rctx.URLParams.Add("eRefID", refID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		rr := httptest.NewRecorder()
@@ -194,7 +194,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -202,7 +202,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.Id, event.Id).
+			WithArgs(user.ID, event.ID).
 			WillReturnError(pgx.ErrNoRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
@@ -226,7 +226,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -235,9 +235,9 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       2,
+		UserID:       2,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -265,21 +265,21 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.Id, event.Id, ts)
+			AddRow(33, user.ID, event.ID, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.Id, event.Id).
+			WithArgs(user.ID, event.ID).
 			WillReturnError(pgx.ErrNoRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO favorite_").
-			WithArgs(user.Id, event.Id).
+			WithArgs(user.ID, event.ID).
 			WillReturnRows(favoriteRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -367,7 +367,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, user.Id, event.Name, event.Description,
+				event.ID, event.RefID, user.ID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
@@ -402,17 +402,17 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.Id, event.Id, ts)
+			AddRow(33, user.ID, event.ID, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.Id, event.Id).
+			WithArgs(user.ID, event.ID).
 			WillReturnRows(favoriteRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)

@@ -57,8 +57,8 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "upwRefID")
-	if hmacStr == "" || refIdStr == "" {
+	refIDStr := chi.URLParam(r, "upwRefID")
+	if hmacStr == "" || refIDStr == "" {
 		log.Debug().Msg("missing url query data")
 		x.Error(w, "not found", http.StatusNotFound)
 		return
@@ -72,21 +72,21 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIdStr), hmacBytes) {
+	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
+	refID, err := model.UserPWResetRefIDT.Parse(refIDStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refId)
+	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.Error(w, "bad data", http.StatusNotFound)
@@ -99,7 +99,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = model.GetUserById(ctx, x.Db, upw.UserId)
+	_, err = model.GetUserByID(ctx, x.Db, upw.UserID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -112,7 +112,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
-		"refId":          refIdStr,
+		"refID":          refIDStr,
 		"hmac":           hmacStr,
 	}
 	// render user profile view
@@ -224,8 +224,8 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "upwRefID")
-	if hmacStr == "" || refIdStr == "" {
+	refIDStr := chi.URLParam(r, "upwRefID")
+	if hmacStr == "" || refIDStr == "" {
 		log.Debug().Msg("missing url query data")
 		x.Error(w, "not found", http.StatusNotFound)
 		return
@@ -247,21 +247,21 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIdStr), hmacBytes) {
+	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refId, err := model.UserPWResetRefIDT.Parse(refIdStr)
+	refID, err := model.UserPWResetRefIDT.Parse(refIDStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusBadRequest)
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refId)
+	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -274,7 +274,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.GetUserById(ctx, x.Db, upw.UserId)
+	user, err := model.GetUserByID(ctx, x.Db, upw.UserID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.Error(w, "bad data", http.StatusBadRequest)
@@ -317,7 +317,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

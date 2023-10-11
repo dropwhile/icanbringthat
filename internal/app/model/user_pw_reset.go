@@ -12,7 +12,7 @@ var UserPWResetRefIDT = refid.Tagger(5)
 
 type UserPWReset struct {
 	RefID   refid.RefID `db:"ref_id"`
-	UserId  int         `db:"user_id"`
+	UserID  int         `db:"user_id"`
 	Created time.Time
 }
 
@@ -25,7 +25,7 @@ func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
 		upw.RefID = refid.Must(UserPWResetRefIDT.New())
 	}
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefID, upw.UserId)
+	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefID, upw.UserID)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (upw *UserPWReset) Delete(ctx context.Context, db PgxHandle) error {
 
 func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset, error) {
 	upw := &UserPWReset{
-		UserId: user.Id,
+		UserID: user.ID,
 	}
 	err := upw.Insert(ctx, db)
 	if err != nil {
@@ -49,14 +49,14 @@ func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset
 	return upw, nil
 }
 
-func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*UserPWReset, error) {
-	if !UserPWResetRefIDT.HasCorrectTag(refId) {
+func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*UserPWReset, error) {
+	if !UserPWResetRefIDT.HasCorrectTag(refID) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), UserPWResetRefIDT.Tag(),
+			refID.Tag(), UserPWResetRefIDT.Tag(),
 		)
 		return nil, err
 	}
 	q := `SELECT * FROM user_pw_reset_ WHERE ref_id = $1`
-	return QueryOne[UserPWReset](ctx, db, q, refId)
+	return QueryOne[UserPWReset](ctx, db, q, refID)
 }

@@ -33,7 +33,7 @@ func TestUserVerifyUserInsert(t *testing.T) {
 	mock.ExpectRollback()
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
@@ -46,7 +46,7 @@ func TestUserVerifyUserInsert(t *testing.T) {
 	assert.Check(t, upw.RefID.HasTag(6))
 	assert.DeepEqual(t, upw, &UserVerify{
 		RefID:  tstRefIDUserVerify,
-		UserId: 1,
+		UserID: 1,
 	})
 
 	// we make sure that all expectations were met
@@ -74,7 +74,7 @@ func TestUserVerifyUserDelete(t *testing.T) {
 
 	upw := &UserVerify{
 		RefID:  tstRefIDUserVerify,
-		UserId: 1,
+		UserID: 1,
 	}
 	err = upw.Delete(ctx, mock)
 	assert.NilError(t, err)
@@ -107,7 +107,7 @@ func TestUserVerifyUserGetByRefID(t *testing.T) {
 
 	assert.DeepEqual(t, upw, &UserVerify{
 		RefID:  tstRefIDUserVerify,
-		UserId: 1,
+		UserID: 1,
 	})
 
 	// we make sure that all expectations were met

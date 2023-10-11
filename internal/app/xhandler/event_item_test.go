@@ -24,7 +24,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -33,9 +33,9 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -44,9 +44,9 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		LastModified: ts,
 	}
 	eventItem := &model.EventItem{
-		Id:           2,
+		ID:           2,
 		RefID:        refid.Must(model.EventItemRefIDT.New()),
-		EventId:      event.Id,
+		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
 		LastModified: ts,
@@ -65,12 +65,12 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
+				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
 				ts, ts,
 			)
 
@@ -88,7 +88,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(model.EventItemRefIDT.AnyMatcher(), eventItem.EventId, "some description").
+			WithArgs(model.EventItemRefIDT.AnyMatcher(), eventItem.EventID, "some description").
 			WillReturnRows(eventItemRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -178,7 +178,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -216,7 +216,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -255,7 +255,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -264,9 +264,9 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -275,18 +275,18 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		LastModified: ts,
 	}
 	eventItem := &model.EventItem{
-		Id:           2,
+		ID:           2,
 		RefID:        refid.Must(model.EventItemRefIDT.New()),
-		EventId:      event.Id,
+		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
 		LastModified: ts,
 	}
 	earmark := &model.Earmark{
-		Id:           3,
+		ID:           3,
 		RefID:        refid.Must(model.EarmarkRefIDT.New()),
-		EventItemId:  eventItem.Id,
-		UserId:       user.Id,
+		EventItemID:  eventItem.ID,
+		UserID:       user.ID,
 		Note:         "nothing",
 		Created:      ts,
 		LastModified: ts,
@@ -308,17 +308,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
+				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefID, earmark.EventItemId, earmark.UserId,
+				earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
 				earmark.Note, ts, ts,
 			)
 
@@ -338,12 +338,12 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.Id).
+			WithArgs(eventItem.ID).
 			WillReturnRows(earmarkRows)
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_item_").
-			WithArgs("new description", eventItem.Id).
+			WithArgs("new description", eventItem.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -432,7 +432,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -474,7 +474,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -513,17 +513,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
+				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefID, earmark.EventItemId, 33,
+				earmark.ID, earmark.RefID, earmark.EventItemID, 33,
 				earmark.Note, ts, ts,
 			)
 
@@ -543,7 +543,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.Id).
+			WithArgs(eventItem.ID).
 			WillReturnRows(earmarkRows)
 
 		data := url.Values{"description": {"new description"}}
@@ -568,17 +568,17 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
+				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
 				ts, ts,
 			)
 		earmarkRows := pgxmock.NewRows(earmarkColumns).
 			AddRow(
-				earmark.Id, earmark.RefID, earmark.EventItemId, earmark.UserId,
+				earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
 				earmark.Note, ts, ts,
 			)
 
@@ -598,7 +598,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.Id).
+			WithArgs(eventItem.ID).
 			WillReturnRows(earmarkRows)
 
 		data := url.Values{"descriptionxxxx": {"new description"}}
@@ -623,12 +623,12 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, 33, eventItem.Description,
+				eventItem.ID, eventItem.RefID, 33, eventItem.Description,
 				ts, ts,
 			)
 
@@ -671,7 +671,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -680,9 +680,9 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -691,9 +691,9 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 	eventItem := &model.EventItem{
-		Id:           2,
+		ID:           2,
 		RefID:        refid.Must(model.EventItemRefIDT.New()),
-		EventId:      event.Id,
+		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
 		LastModified: ts,
@@ -712,12 +712,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, eventItem.EventId, eventItem.Description,
+				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
 				ts, ts,
 			)
 
@@ -739,7 +739,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^DELETE FROM event_item_").
-			WithArgs(eventItem.Id).
+			WithArgs(eventItem.ID).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -849,7 +849,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -889,7 +889,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -926,12 +926,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
-				eventItem.Id, eventItem.RefID, 33, eventItem.Description,
+				eventItem.ID, eventItem.RefID, 33, eventItem.Description,
 				ts, ts,
 			)
 

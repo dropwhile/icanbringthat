@@ -11,9 +11,9 @@ import (
 var EventItemRefIDT = refid.Tagger(3)
 
 type EventItem struct {
-	Id           int
+	ID           int
 	RefID        refid.RefID `db:"ref_id"`
-	EventId      int         `db:"event_id"`
+	EventID      int         `db:"event_id"`
 	Description  string
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
@@ -26,11 +26,11 @@ func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {
 		ei.RefID = refid.Must(EventItemRefIDT.New())
 	}
 	q := `INSERT INTO event_item_ (ref_id, event_id, description) VALUES ($1, $2, $3) RETURNING *`
-	res, err := QueryOneTx[EventItem](ctx, db, q, ei.RefID, ei.EventId, ei.Description)
+	res, err := QueryOneTx[EventItem](ctx, db, q, ei.RefID, ei.EventID, ei.Description)
 	if err != nil {
 		return err
 	}
-	ei.Id = res.Id
+	ei.ID = res.ID
 	ei.RefID = res.RefID
 	ei.Created = res.Created
 	ei.LastModified = res.LastModified
@@ -39,16 +39,16 @@ func (ei *EventItem) Insert(ctx context.Context, db PgxHandle) error {
 
 func (ei *EventItem) Save(ctx context.Context, db PgxHandle) error {
 	q := `UPDATE event_item_ SET description = $1 WHERE id = $2`
-	return ExecTx[EventItem](ctx, db, q, ei.Description, ei.Id)
+	return ExecTx[EventItem](ctx, db, q, ei.Description, ei.ID)
 }
 
 func (ei *EventItem) Delete(ctx context.Context, db PgxHandle) error {
 	q := `DELETE FROM event_item_ WHERE id = $1`
-	return ExecTx[EventItem](ctx, db, q, ei.Id)
+	return ExecTx[EventItem](ctx, db, q, ei.ID)
 }
 
 func (ei *EventItem) GetEvent(ctx context.Context, db PgxHandle) (*Event, error) {
-	event, err := GetEventById(ctx, db, ei.EventId)
+	event, err := GetEventByID(ctx, db, ei.EventID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +58,11 @@ func (ei *EventItem) GetEvent(ctx context.Context, db PgxHandle) (*Event, error)
 func NewEventItem(
 	ctx context.Context,
 	db PgxHandle,
-	eventId int,
+	eventID int,
 	description string,
 ) (*EventItem, error) {
 	eventItem := &EventItem{
-		EventId:     eventId,
+		EventID:     eventID,
 		Description: description,
 	}
 	err := eventItem.Insert(ctx, db)
@@ -72,24 +72,24 @@ func NewEventItem(
 	return eventItem, nil
 }
 
-func GetEventItemById(ctx context.Context, db PgxHandle, id int) (*EventItem, error) {
+func GetEventItemByID(ctx context.Context, db PgxHandle, id int) (*EventItem, error) {
 	q := `SELECT * FROM event_item_ WHERE id = $1`
 	return QueryOne[EventItem](ctx, db, q, id)
 }
 
-func GetEventItemByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*EventItem, error) {
-	if !EventItemRefIDT.HasCorrectTag(refId) {
+func GetEventItemByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*EventItem, error) {
+	if !EventItemRefIDT.HasCorrectTag(refID) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), EventItemRefIDT.Tag(),
+			refID.Tag(), EventItemRefIDT.Tag(),
 		)
 		return nil, err
 	}
 	q := `SELECT * FROM event_item_ WHERE ref_id = $1`
-	return QueryOne[EventItem](ctx, db, q, refId)
+	return QueryOne[EventItem](ctx, db, q, refID)
 }
 
 func GetEventItemsByEvent(ctx context.Context, db PgxHandle, event *Event) ([]*EventItem, error) {
 	q := `SELECT * FROM event_item_ WHERE event_id = $1 ORDER BY created DESC,id DESC`
-	return Query[EventItem](ctx, db, q, event.Id)
+	return Query[EventItem](ctx, db, q, event.ID)
 }

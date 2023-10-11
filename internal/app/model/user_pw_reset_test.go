@@ -18,10 +18,10 @@ func TestUserPWResetInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
-		AddRow(refId, 1)
+		AddRow(refID, 1)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
@@ -32,7 +32,7 @@ func TestUserPWResetInsert(t *testing.T) {
 	mock.ExpectRollback()
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
@@ -44,8 +44,8 @@ func TestUserPWResetInsert(t *testing.T) {
 
 	assert.Check(t, upw.RefID.HasTag(5))
 	assert.DeepEqual(t, upw, &UserPWReset{
-		RefID:  refId,
-		UserId: 1,
+		RefID:  refID,
+		UserID: 1,
 	})
 
 	// we make sure that all expectations were met
@@ -63,18 +63,18 @@ func TestUserPWResetDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM user_pw_reset_ (.+)").
-		WithArgs(refId).
+		WithArgs(refID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	mock.ExpectCommit()
 	// hidden rollback after commit due to beginfunc being used
 	mock.ExpectRollback()
 
 	upw := &UserPWReset{
-		RefID:  refId,
-		UserId: 1,
+		RefID:  refID,
+		UserID: 1,
 	}
 	err = upw.Delete(ctx, mock)
 	assert.NilError(t, err)
@@ -94,21 +94,21 @@ func TestUserPWResetGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
+	refID := refid.Must(refid.Parse("065f77rd5400b4dk0p20b37n7r"))
 	columns := []string{"ref_id", "user_id"}
 	rows := pgxmock.NewRows(columns).
-		AddRow(refId, 1)
+		AddRow(refID, 1)
 
 	mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-		WithArgs(refId).
+		WithArgs(refID).
 		WillReturnRows(rows)
 
-	upw, err := GetUserPWResetByRefID(ctx, mock, refId)
+	upw, err := GetUserPWResetByRefID(ctx, mock, refID)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, upw, &UserPWReset{
-		RefID:  refId,
-		UserId: 1,
+		RefID:  refID,
+		UserID: 1,
 	})
 
 	// we make sure that all expectations were met

@@ -57,14 +57,14 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventIds := make([]int, 0)
+	eventIDs := make([]int, 0)
 	favoritesMap := make(map[int]*model.Favorite)
 	for i := range favorites {
-		eventIds = append(eventIds, favorites[i].EventId)
-		favoritesMap[favorites[i].EventId] = favorites[i]
+		eventIDs = append(eventIDs, favorites[i].EventID)
+		favoritesMap[favorites[i].EventID] = favorites[i]
 	}
 
-	events, err := model.GetEventsByIds(ctx, x.Db, eventIds)
+	events, err := model.GetEventsByIDs(ctx, x.Db, eventIDs)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -73,7 +73,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 
 	for i := range events {
 		event := events[i]
-		if fav, ok := favoritesMap[event.Id]; ok {
+		if fav, ok := favoritesMap[event.ID]; ok {
 			fav.Event = event
 		}
 	}
@@ -128,10 +128,10 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// can't favorite your own event
-	if user.Id == event.UserId {
+	if user.ID == event.UserID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.UserId", event.UserId).
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
 			Msg("user id match")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
@@ -150,7 +150,7 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = model.NewFavorite(ctx, x.Db, user.Id, event.Id)
+	_, err = model.NewFavorite(ctx, x.Db, user.ID, event.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

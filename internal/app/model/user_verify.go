@@ -12,7 +12,7 @@ var VerifyRefIDT = refid.Tagger(6)
 
 type UserVerify struct {
 	RefID   refid.RefID `db:"ref_id"`
-	UserId  int         `db:"user_id"`
+	UserID  int         `db:"user_id"`
 	Created time.Time
 }
 
@@ -25,7 +25,7 @@ func (uv *UserVerify) Insert(ctx context.Context, db PgxHandle) error {
 		uv.RefID = refid.Must(VerifyRefIDT.New())
 	}
 	q := `INSERT INTO user_verify_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[UserVerify](ctx, db, q, uv.RefID, uv.UserId)
+	res, err := QueryOneTx[UserVerify](ctx, db, q, uv.RefID, uv.UserID)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (uv *UserVerify) Delete(ctx context.Context, db PgxHandle) error {
 
 func NewUserVerify(ctx context.Context, db PgxHandle, user *User) (*UserVerify, error) {
 	uv := &UserVerify{
-		UserId: user.Id,
+		UserID: user.ID,
 	}
 	err := uv.Insert(ctx, db)
 	if err != nil {
@@ -49,14 +49,14 @@ func NewUserVerify(ctx context.Context, db PgxHandle, user *User) (*UserVerify, 
 	return uv, nil
 }
 
-func GetUserVerifyByRefID(ctx context.Context, db PgxHandle, refId refid.RefID) (*UserVerify, error) {
-	if !VerifyRefIDT.HasCorrectTag(refId) {
+func GetUserVerifyByRefID(ctx context.Context, db PgxHandle, refID refid.RefID) (*UserVerify, error) {
+	if !VerifyRefIDT.HasCorrectTag(refID) {
 		err := fmt.Errorf(
 			"bad refid type: got %d expected %d",
-			refId.Tag(), VerifyRefIDT.Tag(),
+			refID.Tag(), VerifyRefIDT.Tag(),
 		)
 		return nil, err
 	}
 	q := `SELECT * FROM user_verify_ WHERE ref_id = $1`
-	return QueryOne[UserVerify](ctx, db, q, refId)
+	return QueryOne[UserVerify](ctx, db, q, refID)
 }

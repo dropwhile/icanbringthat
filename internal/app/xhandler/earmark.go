@@ -214,12 +214,12 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if eventItem.EventId != event.Id {
+	if eventItem.EventID != event.ID {
 		log.Info().
-			Int("user.Id", user.Id).
-			Int("event.Id", event.Id).
-			Int("eventItem.EventId", eventItem.EventId).
-			Msg("eventItem.EventId and event.Id mismatch")
+			Int("user.ID", user.ID).
+			Int("event.ID", event.ID).
+			Int("eventItem.EventID", eventItem.EventID).
+			Msg("eventItem.EventID and event.ID mismatch")
 		x.Error(w, "not found", http.StatusNotFound)
 		return
 	}
@@ -248,7 +248,7 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// ok for note to be empty
 	note := r.FormValue("note")
 
-	_, err = model.NewEarmark(ctx, x.Db, eventItem.Id, user.Id, note)
+	_, err = model.NewEarmark(ctx, x.Db, eventItem.ID, user.ID, note)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -274,14 +274,14 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refId, err := model.EarmarkRefIDT.Parse(chi.URLParam(r, "mRefID"))
+	refID, err := model.EarmarkRefIDT.Parse(chi.URLParam(r, "mRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad earmark ref-id")
 		x.Error(w, "bad earmark ref-id", http.StatusNotFound)
 		return
 	}
 
-	earmark, err := model.GetEarmarkByRefID(ctx, x.Db, refId)
+	earmark, err := model.GetEarmarkByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		x.Error(w, "not found", http.StatusNotFound)
@@ -292,7 +292,7 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Id != earmark.UserId {
+	if user.ID != earmark.UserID {
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}

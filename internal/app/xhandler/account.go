@@ -113,7 +113,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.Id)
+	x.SessMgr.Put(r.Context(), "user-id", user.ID)
 	x.SessMgr.FlashAppend(ctx, "success", "Account created. You are now logged in.")
 
 	target := "/dashboard"

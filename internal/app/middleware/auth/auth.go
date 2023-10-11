@@ -43,8 +43,8 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			if sessMgr.Exists(r.Context(), "user-id") {
-				userId := sessMgr.Get(r.Context(), "user-id").(int)
-				user, err := model.GetUserById(r.Context(), db, userId)
+				userID := sessMgr.Get(r.Context(), "user-id").(int)
+				user, err := model.GetUserByID(r.Context(), db, userID)
 				if err != nil {
 					log.Err(err).Msg("authorization failure")
 					http.Error(w, "authorization failure", http.StatusInternalServerError)

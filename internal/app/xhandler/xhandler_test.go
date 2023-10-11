@@ -114,21 +114,21 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *XHandler) string {
 	t.Helper()
 
-	userId := 1
+	userID := 1
 	ts := tstTs
 
 	mux.Get("/dummy", func(w http.ResponseWriter, r *http.Request) {
 		err := x.SessMgr.RenewToken(r.Context())
 		assert.NilError(t, err)
 		// add data to session
-		x.SessMgr.Put(r.Context(), "user-id", userId)
+		x.SessMgr.Put(r.Context(), "user-id", userID)
 		w.WriteHeader(http.StatusOK)
 	})
 
-	refId := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.UserRefIDT.New())
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
-		AddRow(userId, refId, "user@example.com", "user", []byte("00x00"), ts, ts)
+		AddRow(userID, refID, "user@example.com", "user", []byte("00x00"), ts, ts)
 
 	// mock.ExpectBegin()
 	mock.ExpectQuery("^SELECT (.+) FROM user_").

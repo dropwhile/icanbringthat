@@ -37,9 +37,9 @@ func TestFavoriteInsert(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, favorite, &Favorite{
-		Id:      1,
-		UserId:  1,
-		EventId: 1,
+		ID:      1,
+		UserID:  1,
+		EventID: 1,
 		Created: ts,
 	})
 
@@ -69,9 +69,9 @@ func TestFavoriteDelete(t *testing.T) {
 	mock.ExpectRollback()
 
 	favorite := &Favorite{
-		Id:      1,
-		UserId:  1,
-		EventId: 1,
+		ID:      1,
+		UserID:  1,
+		EventID: 1,
 		Created: ts,
 	}
 	err = favorite.Delete(ctx, mock)
@@ -83,7 +83,7 @@ func TestFavoriteDelete(t *testing.T) {
 	}
 }
 
-func TestFavoriteGetById(t *testing.T) {
+func TestFavoriteGetByID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -100,13 +100,13 @@ func TestFavoriteGetById(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	favorite, err := GetFavoriteById(ctx, mock, 1)
+	favorite, err := GetFavoriteByID(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, favorite, &Favorite{
-		Id:      1,
-		UserId:  1,
-		EventId: 1,
+		ID:      1,
+		UserID:  1,
+		EventID: 1,
 		Created: ts,
 	})
 
@@ -134,7 +134,7 @@ func TestFavoriteGetByUser(t *testing.T) {
 		WillReturnRows(rows)
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
@@ -144,9 +144,9 @@ func TestFavoriteGetByUser(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, favorites, []*Favorite{{
-		Id:      1,
-		UserId:  user.Id,
-		EventId: 1,
+		ID:      1,
+		UserID:  user.ID,
+		EventID: 1,
 		Created: ts,
 	}})
 
@@ -165,7 +165,7 @@ func TestFavoriteGetByEvent(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(favoriteColumns).
 		AddRow(1, 1, 1, ts)
@@ -175,9 +175,9 @@ func TestFavoriteGetByEvent(t *testing.T) {
 		WillReturnRows(rows)
 
 	event := &Event{
-		Id:            1,
-		RefID:         refId,
-		UserId:        1,
+		ID:            1,
+		RefID:         refID,
+		UserID:        1,
 		Name:          "some name",
 		Description:   "some desc",
 		StartTime:     time.Time{},
@@ -190,9 +190,9 @@ func TestFavoriteGetByEvent(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, favorites, []*Favorite{{
-		Id:      1,
-		UserId:  1,
-		EventId: event.Id,
+		ID:      1,
+		UserID:  1,
+		EventID: event.ID,
 		Created: ts,
 	}})
 
@@ -220,16 +220,16 @@ func TestFavoriteGetByUserEvent(t *testing.T) {
 		WillReturnRows(rows)
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
 	}
 	event := &Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -241,9 +241,9 @@ func TestFavoriteGetByUserEvent(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, favorite, &Favorite{
-		Id:      1,
-		UserId:  1,
-		EventId: 1,
+		ID:      1,
+		UserID:  1,
+		EventID: 1,
 		Created: ts,
 	})
 
@@ -270,7 +270,7 @@ func TestFavoriteCountByUser(t *testing.T) {
 		WillReturnRows(rows)
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
@@ -307,7 +307,7 @@ func TestFavoriteGetByUserPaginated(t *testing.T) {
 		WillReturnRows(rows)
 
 	user := &User{
-		Id:     1,
+		ID:     1,
 		RefID:  tstUserRefID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
@@ -318,21 +318,21 @@ func TestFavoriteGetByUserPaginated(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, favorites, []*Favorite{
 		{
-			Id:      1,
-			UserId:  1,
-			EventId: 1,
+			ID:      1,
+			UserID:  1,
+			EventID: 1,
 			Created: ts,
 		},
 		{
-			Id:      2,
-			UserId:  1,
-			EventId: 2,
+			ID:      2,
+			UserID:  1,
+			EventID: 2,
 			Created: ts,
 		},
 		{
-			Id:      3,
-			UserId:  1,
-			EventId: 3,
+			ID:      3,
+			UserID:  1,
+			EventID: 3,
 			Created: ts,
 		},
 	})

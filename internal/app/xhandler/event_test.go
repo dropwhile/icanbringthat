@@ -25,7 +25,7 @@ func TestHandler_Event_Create(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -34,9 +34,9 @@ func TestHandler_Event_Create(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -55,7 +55,7 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -70,7 +70,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				event.UserID, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
@@ -232,7 +232,7 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -247,7 +247,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_ ").
 			WithArgs(
-				event.UserId, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
+				event.UserID, model.EventRefIDT.AnyMatcher(), event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
@@ -318,7 +318,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -327,9 +327,9 @@ func TestHandler_Event_Update(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:            1,
+		ID:            1,
 		RefID:         refid.Must(model.EventRefIDT.New()),
-		UserId:        user.Id,
+		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
 		ItemSortOrder: []int{},
@@ -349,7 +349,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -370,7 +370,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -477,7 +477,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -520,7 +520,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -541,7 +541,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -575,7 +575,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -596,7 +596,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -630,7 +630,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -651,7 +651,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -686,7 +686,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -726,7 +726,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -766,7 +766,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -806,7 +806,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -827,7 +827,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, pgxmock.AnyArg(),
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -862,7 +862,7 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -904,7 +904,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -913,9 +913,9 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:            1,
+		ID:            1,
 		RefID:         refid.Must(model.EventRefIDT.New()),
-		UserId:        user.Id,
+		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
 		ItemSortOrder: []int{1, 2, 3},
@@ -935,7 +935,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -956,7 +956,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 			WithArgs(
 				event.Name, event.Description, []int{1, 3, 2},
 				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTZ,
-				event.Id).
+				event.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -1049,7 +1049,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -1089,7 +1089,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -1129,7 +1129,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -1169,7 +1169,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.ItemSortOrder, event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -1210,7 +1210,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.UserRefIDT.New()),
 		Email:        "user@example.com",
 		Name:         "user",
@@ -1219,9 +1219,9 @@ func TestHandler_Event_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 	event := &model.Event{
-		Id:           1,
+		ID:           1,
 		RefID:        refid.Must(model.EventRefIDT.New()),
-		UserId:       user.Id,
+		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
@@ -1240,7 +1240,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, event.UserId, event.Name, event.Description,
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 
@@ -1258,7 +1258,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^DELETE FROM event_ ").
-			WithArgs(event.Id).
+			WithArgs(event.ID).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -1339,7 +1339,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
-				event.Id, event.RefID, 33, event.Name, event.Description,
+				event.ID, event.RefID, 33, event.Name, event.Description,
 				event.StartTime, event.StartTimeTZ, ts, ts,
 			)
 

@@ -89,8 +89,8 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hmacStr := chi.URLParam(r, "hmac")
-	refIdStr := chi.URLParam(r, "uvRefID")
-	if hmacStr == "" || refIdStr == "" {
+	refIDStr := chi.URLParam(r, "uvRefID")
+	if hmacStr == "" || refIDStr == "" {
 		log.Debug().Msg("missing url query data")
 		x.Error(w, "not found", http.StatusNotFound)
 		return
@@ -104,14 +104,14 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIdStr), hmacBytes) {
+	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return
 	}
 
 	// hmac checks out. ok to parse refid now.
-	verifyRefID, err := model.VerifyRefIDT.Parse(refIdStr)
+	verifyRefID, err := model.VerifyRefIDT.Parse(refIDStr)
 	if err != nil {
 		x.Error(w, "bad verify-ref-id", http.StatusNotFound)
 		return

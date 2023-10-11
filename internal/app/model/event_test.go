@@ -20,14 +20,14 @@ func TestEventInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{
 			"id", "ref_id", "user_id", "name", "description", "start_time",
 			"start_time_tz", "created", "last_modified",
 		}).
-		AddRow(1, refId, 1, "some name", "some desc", ts, "Etc/UTC", ts, ts)
+		AddRow(1, refID, 1, "some name", "some desc", ts, "Etc/UTC", ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_ (.+)*").
@@ -42,9 +42,9 @@ func TestEventInsert(t *testing.T) {
 
 	assert.Check(t, event.RefID.HasTag(2))
 	assert.DeepEqual(t, event, &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
@@ -68,7 +68,7 @@ func TestEventSave(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -80,9 +80,9 @@ func TestEventSave(t *testing.T) {
 	mock.ExpectRollback()
 
 	event := &Event{
-		Id:            1,
-		RefID:         refId,
-		UserId:        1,
+		ID:            1,
+		RefID:         refID,
+		UserID:        1,
 		Name:          "some name",
 		Description:   "some desc",
 		ItemSortOrder: []int{1, 2, 3},
@@ -109,7 +109,7 @@ func TestEventDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 
 	mock.ExpectBegin()
@@ -121,9 +121,9 @@ func TestEventDelete(t *testing.T) {
 	mock.ExpectRollback()
 
 	event := &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
@@ -139,7 +139,7 @@ func TestEventDelete(t *testing.T) {
 	}
 }
 
-func TestEventGetById(t *testing.T) {
+func TestEventGetByID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -148,23 +148,23 @@ func TestEventGetById(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
-		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
+		AddRow(1, refID, 1, "some name", "some desc", ts, ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	event, err := GetEventById(ctx, mock, 1)
+	event, err := GetEventByID(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, event, &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
@@ -187,23 +187,23 @@ func TestEventGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
-		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
+		AddRow(1, refID, 1, "some name", "some desc", ts, ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_ *").
-		WithArgs(refId).
+		WithArgs(refID).
 		WillReturnRows(rows)
 
-	event, err := GetEventByRefID(ctx, mock, refId)
+	event, err := GetEventByRefID(ctx, mock, refID)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, event, &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
@@ -228,19 +228,19 @@ func TestEventsGetByUser(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventRefID
+	refID := tstEventRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "user_id", "name", "description", "start_time", "created", "last_modified"}).
-		AddRow(1, refId, 1, "some name", "some desc", ts, ts, ts)
+		AddRow(1, refID, 1, "some name", "some desc", ts, ts, ts)
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
 	user := &User{
-		Id:     1,
-		RefID:  refId,
+		ID:     1,
+		RefID:  refID,
 		Email:  "user1@example.com",
 		Name:   "j rando",
 		PWHash: []byte("000x000"),
@@ -249,9 +249,9 @@ func TestEventsGetByUser(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, events, []*Event{{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,

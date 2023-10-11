@@ -20,11 +20,11 @@ func TestEventItemInsert(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description", "created", "last_modified"}).
-		AddRow(1, refId, 1, "some desc", ts, ts)
+		AddRow(1, refID, 1, "some desc", ts, ts)
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("^INSERT INTO event_item_ (.+)*").
@@ -39,9 +39,9 @@ func TestEventItemInsert(t *testing.T) {
 
 	assert.Check(t, eventItem.RefID.HasTag(3))
 	assert.DeepEqual(t, eventItem, &EventItem{
-		Id:           1,
-		RefID:        refId,
-		EventId:      1,
+		ID:           1,
+		RefID:        refID,
+		EventID:      1,
 		Description:  "some desc",
 		Created:      ts,
 		LastModified: ts,
@@ -62,7 +62,7 @@ func TestEventItemSave(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^UPDATE event_item_ (.+)*").
@@ -73,9 +73,9 @@ func TestEventItemSave(t *testing.T) {
 	mock.ExpectRollback()
 
 	eventItem := &EventItem{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	}
 	err = eventItem.Save(ctx, mock)
@@ -96,7 +96,7 @@ func TestEventItemDelete(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 
 	mock.ExpectBegin()
 	mock.ExpectExec("^DELETE FROM event_item_ (.+)*").
@@ -107,9 +107,9 @@ func TestEventItemDelete(t *testing.T) {
 	mock.ExpectRollback()
 
 	eventItem := &EventItem{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	}
 	err = eventItem.Delete(ctx, mock)
@@ -121,7 +121,7 @@ func TestEventItemDelete(t *testing.T) {
 	}
 }
 
-func TestEventItemGetById(t *testing.T) {
+func TestEventItemGetByID(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	mock, err := pgxmock.NewConn()
@@ -130,22 +130,22 @@ func TestEventItemGetById(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
-		AddRow(1, refId, 1, "some desc")
+		AddRow(1, refID, 1, "some desc")
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_item_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	eventItem, err := GetEventItemById(ctx, mock, 1)
+	eventItem, err := GetEventItemByID(ctx, mock, 1)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItem, &EventItem{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	})
 
@@ -164,22 +164,22 @@ func TestEventItemGetByRefID(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
-		AddRow(1, refId, 1, "some desc")
+		AddRow(1, refID, 1, "some desc")
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_item_ *").
-		WithArgs(refId).
+		WithArgs(refID).
 		WillReturnRows(rows)
 
-	eventItem, err := GetEventItemByRefID(ctx, mock, refId)
+	eventItem, err := GetEventItemByRefID(ctx, mock, refID)
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItem, &EventItem{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	})
 
@@ -198,20 +198,20 @@ func TestEventItemGetByEvent(t *testing.T) {
 	}
 	t.Cleanup(func() { mock.Close(ctx) })
 
-	refId := tstEventItemRefID
+	refID := tstEventItemRefID
 	ts := tstTs
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "event_id", "description"}).
-		AddRow(1, refId, 1, "some desc")
+		AddRow(1, refID, 1, "some desc")
 
 	mock.ExpectQuery("^SELECT (.+) FROM event_item_ *").
 		WithArgs(1).
 		WillReturnRows(rows)
 
 	event := &Event{
-		Id:           1,
-		RefID:        refId,
-		UserId:       1,
+		ID:           1,
+		RefID:        refID,
+		UserID:       1,
 		Name:         "some name",
 		Description:  "some desc",
 		StartTime:    ts,
@@ -222,9 +222,9 @@ func TestEventItemGetByEvent(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, eventItems, []*EventItem{{
-		Id:          1,
-		RefID:       refId,
-		EventId:     1,
+		ID:          1,
+		RefID:       refID,
+		EventID:     1,
 		Description: "some desc",
 	}})
 
