@@ -40,7 +40,6 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
 			if v > 1 {
 				pageNum = min(((earmarkCount / 10) + 1), int(v))
-				fmt.Println(pageNum)
 			}
 		}
 	}
