@@ -209,7 +209,7 @@ func (x *XHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = user.Delete(ctx, x.Db)
+	err = model.DeleteUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

@@ -40,46 +40,40 @@ func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
 	return ok, nil
 }
 
-func (user *User) Insert(ctx context.Context, db PgxHandle) error {
-	if user.RefID.IsNil() {
-		user.RefID = refid.Must(NewUserRefID())
-	}
-	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryOneTx[User](ctx, db, q, user.RefID, user.Email, user.Name, user.PWHash)
-	if err != nil {
-		return err
-	}
-	user.ID = res.ID
-	user.RefID = res.RefID
-	user.Created = res.Created
-	user.LastModified = res.LastModified
-	return nil
-}
-
 func (user *User) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3, verified = $4 WHERE id = $5`
-	return ExecTx[User](ctx, db, q, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
-}
-
-func (user *User) Delete(ctx context.Context, db PgxHandle) error {
-	q := `DELETE FROM user_ WHERE id = $1`
-	return ExecTx[User](ctx, db, q, user.ID)
+	return UpdateUser(ctx, db, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
 }
 
 func NewUser(ctx context.Context, db PgxHandle, email, name string, rawPass []byte) (*User, error) {
-	user := &User{
-		Email: email,
-		Name:  name,
-	}
-	err := user.SetPass(ctx, rawPass)
+	refID := refid.Must(NewUserRefID())
+	pwHash, err := util.HashPW([]byte(rawPass))
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}
-	err = user.Insert(ctx, db)
+	user, err := CreateUser(ctx, db, refID, email, name, pwHash)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
+}
+
+func CreateUser(ctx context.Context, db PgxHandle, refID UserRefID, email, name string, pwHash []byte) (*User, error) {
+	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
+	res, err := QueryOneTx[User](ctx, db, q, refID, email, name, pwHash)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func UpdateUser(ctx context.Context, db PgxHandle, email, name string, pwHash []byte, verified bool, userID int) error {
+	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3, verified = $4 WHERE id = $5`
+	return ExecTx[User](ctx, db, q, email, name, pwHash, verified, userID)
+}
+
+func DeleteUser(ctx context.Context, db PgxHandle, userID int) error {
+	q := `DELETE FROM user_ WHERE id = $1`
+	return ExecTx[User](ctx, db, q, userID)
 }
 
 func GetUserByID(ctx context.Context, db PgxHandle, id int) (*User, error) {
