@@ -150,7 +150,7 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = model.NewFavorite(ctx, x.Db, user.ID, event.ID)
+	_, err = model.CreateFavorite(ctx, x.Db, user.ID, event.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -212,7 +212,7 @@ func (x *XHandler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = favorite.Delete(ctx, x.Db)
+	err = model.DeleteFavorite(ctx, x.Db, favorite.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		http.Error(w, "db error", http.StatusInternalServerError)

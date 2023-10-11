@@ -19,33 +19,19 @@ func (upw *UserPWReset) IsExpired() bool {
 	return upw.RefID.Time().Add(30 * time.Minute).Before(time.Now())
 }
 
-func (upw *UserPWReset) Insert(ctx context.Context, db PgxHandle) error {
-	if upw.RefID.IsNil() {
-		upw.RefID = refid.Must(NewUserPWResetRefID())
-	}
+func NewUserPWReset(ctx context.Context, db PgxHandle, userID int) (*UserPWReset, error) {
+	refID := refid.Must(NewUserPWResetRefID())
+	return CreateUserPWReset(ctx, db, refID, userID)
+}
+
+func CreateUserPWReset(ctx context.Context, db PgxHandle, refID UserPWResetRefID, userID int) (*UserPWReset, error) {
 	q := `INSERT INTO user_pw_reset_ (ref_id, user_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[UserPWReset](ctx, db, q, upw.RefID, upw.UserID)
-	if err != nil {
-		return err
-	}
-	upw.RefID = res.RefID
-	return nil
+	return QueryOneTx[UserPWReset](ctx, db, q, refID, userID)
 }
 
-func (upw *UserPWReset) Delete(ctx context.Context, db PgxHandle) error {
+func DeleteUserPWReset(ctx context.Context, db PgxHandle, refID UserPWResetRefID) error {
 	q := `DELETE FROM user_pw_reset_ WHERE ref_id = $1`
-	return ExecTx[UserPWReset](ctx, db, q, upw.RefID)
-}
-
-func NewUserPWReset(ctx context.Context, db PgxHandle, user *User) (*UserPWReset, error) {
-	upw := &UserPWReset{
-		UserID: user.ID,
-	}
-	err := upw.Insert(ctx, db)
-	if err != nil {
-		return nil, err
-	}
-	return upw, nil
+	return ExecTx[UserPWReset](ctx, db, q, refID)
 }
 
 func GetUserPWResetByRefID(ctx context.Context, db PgxHandle, refID UserPWResetRefID) (*UserPWReset, error) {

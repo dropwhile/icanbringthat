@@ -16,40 +16,14 @@ type Favorite struct {
 	Event   *Event `db:"-"`
 }
 
-func (fav *Favorite) Insert(ctx context.Context, db PgxHandle) error {
+func CreateFavorite(ctx context.Context, db PgxHandle, userID int, eventID int) (*Favorite, error) {
 	q := `INSERT INTO favorite_ (user_id, event_id) VALUES ($1, $2) RETURNING *`
-	res, err := QueryOneTx[Favorite](ctx, db, q, fav.UserID, fav.EventID)
-	if err != nil {
-		return err
-	}
-	fav.ID = res.ID
-	fav.Created = res.Created
-	return nil
+	return QueryOneTx[Favorite](ctx, db, q, userID, eventID)
 }
 
-func (fav *Favorite) Delete(ctx context.Context, db PgxHandle) error {
+func DeleteFavorite(ctx context.Context, db PgxHandle, id int) error {
 	q := `DELETE FROM favorite_ WHERE id = $1`
-	return ExecTx[Favorite](ctx, db, q, fav.ID)
-}
-
-func (fav *Favorite) GetEvent(ctx context.Context, db PgxHandle) (*Event, error) {
-	event, err := GetEventByID(ctx, db, fav.EventID)
-	if err != nil {
-		return nil, err
-	}
-	return event, nil
-}
-
-func NewFavorite(ctx context.Context, db PgxHandle, userID int, eventID int) (*Favorite, error) {
-	favorite := &Favorite{
-		UserID:  userID,
-		EventID: eventID,
-	}
-	err := favorite.Insert(ctx, db)
-	if err != nil {
-		return nil, err
-	}
-	return favorite, nil
+	return ExecTx[Favorite](ctx, db, q, id)
 }
 
 func GetFavoriteByID(ctx context.Context, db PgxHandle, favID int) (*Favorite, error) {

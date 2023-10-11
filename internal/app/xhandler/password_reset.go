@@ -161,7 +161,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 
 	if !doFake {
 		// generate a upw
-		upw, err := model.NewUserPWReset(ctx, x.Db, user)
+		upw, err := model.NewUserPWReset(ctx, x.Db, user.ID)
 		if err != nil {
 			log.Info().Err(err).Msg("db error")
 			x.Error(w, "db error", http.StatusInternalServerError)
@@ -295,7 +295,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 			return innerErr
 		}
 
-		innerErr = upw.Delete(ctx, tx)
+		innerErr = model.DeleteUserPWReset(ctx, tx, upw.RefID)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error cleaning up pw reset token")
 			return innerErr
