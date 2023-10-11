@@ -169,7 +169,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			warnings = append(warnings, "New Password and Confirm Password do not match")
 		} else {
 			oldPasswd := r.PostFormValue("old_password")
-			if ok, err := model.CheckPass(ctx, user, []byte(oldPasswd)); err != nil || !ok {
+			if ok, err := model.CheckPass(ctx, user.PWHash, []byte(oldPasswd)); err != nil || !ok {
 				warnings = append(warnings, "Old Password invalid")
 			} else {
 				pwhash, err := model.HashPass(ctx, []byte(newPasswd))

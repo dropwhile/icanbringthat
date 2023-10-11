@@ -31,8 +31,8 @@ func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
 	return pwHash, nil
 }
 
-func CheckPass(ctx context.Context, user *User, rawPass []byte) (bool, error) {
-	ok, err := util.CheckPWHash(user.PWHash, rawPass)
+func CheckPass(ctx context.Context, pwHash []byte, rawPass []byte) (bool, error) {
+	ok, err := util.CheckPWHash(pwHash, rawPass)
 	if err != nil {
 		return false, fmt.Errorf("error when comparing pass")
 	}
