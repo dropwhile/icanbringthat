@@ -281,15 +281,16 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = user.SetPass(ctx, []byte(newPasswd))
+	pwHash, err := model.HashPass(ctx, []byte(newPasswd))
 	if err != nil {
 		log.Debug().Err(err).Msg("error updating password")
 		x.Error(w, "error updating user password", http.StatusInternalServerError)
 		return
 	}
+	user.PWHash = pwHash
 
 	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := user.Save(ctx, tx)
+		innerErr := model.UpdateUser(ctx, tx, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error saving user")
 			return innerErr

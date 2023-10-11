@@ -72,7 +72,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// validate credentials...
-	ok, err := user.CheckPass(ctx, []byte(passwd))
+	ok, err := model.CheckPass(ctx, user, []byte(passwd))
 	if err != nil || !ok {
 		log.Debug().Err(err).Msg("invalid credentials: pass check fail")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")

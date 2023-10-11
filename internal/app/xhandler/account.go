@@ -169,15 +169,16 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			warnings = append(warnings, "New Password and Confirm Password do not match")
 		} else {
 			oldPasswd := r.PostFormValue("old_password")
-			if ok, err := user.CheckPass(ctx, []byte(oldPasswd)); err != nil || !ok {
+			if ok, err := model.CheckPass(ctx, user, []byte(oldPasswd)); err != nil || !ok {
 				warnings = append(warnings, "Old Password invalid")
 			} else {
-				err = user.SetPass(ctx, []byte(newPasswd))
+				pwhash, err := model.HashPass(ctx, []byte(newPasswd))
 				if err != nil {
 					log.Error().Err(err).Msg("error setting user password")
 					x.Error(w, "error updating user", http.StatusInternalServerError)
 					return
 				}
+				user.PWHash = pwhash
 				successMsgs = append(successMsgs, "Password update successfull")
 				changes = true
 			}
@@ -185,7 +186,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = user.Save(ctx, x.Db)
+		err = model.UpdateUser(ctx, x.Db, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
 			x.Error(w, "error updating user", http.StatusInternalServerError)

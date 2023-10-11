@@ -23,25 +23,20 @@ type User struct {
 	LastModified time.Time `db:"last_modified"`
 }
 
-func (user *User) SetPass(ctx context.Context, rawPass []byte) error {
+func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
 	pwHash, err := util.HashPW([]byte(rawPass))
 	if err != nil {
-		return fmt.Errorf("error hashing pw: %w", err)
+		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}
-	user.PWHash = pwHash
-	return nil
+	return pwHash, nil
 }
 
-func (user *User) CheckPass(ctx context.Context, rawPass []byte) (bool, error) {
+func CheckPass(ctx context.Context, user *User, rawPass []byte) (bool, error) {
 	ok, err := util.CheckPWHash(user.PWHash, rawPass)
 	if err != nil {
 		return false, fmt.Errorf("error when comparing pass")
 	}
 	return ok, nil
-}
-
-func (user *User) Save(ctx context.Context, db PgxHandle) error {
-	return UpdateUser(ctx, db, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
 }
 
 func NewUser(ctx context.Context, db PgxHandle, email, name string, rawPass []byte) (*User, error) {
