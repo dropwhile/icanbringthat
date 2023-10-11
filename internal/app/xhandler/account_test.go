@@ -14,7 +14,6 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -126,12 +125,12 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
-		user := &model.User{
-			Id:           1,
+		user := &modelx.User{
+			ID:           1,
 			RefID:        refId,
 			Email:        "user@example.com",
 			Name:         "user",
-			PWHash:       pwhash,
+			PwHash:       pwhash,
 			Created:      ts,
 			LastModified: ts,
 		}
@@ -173,13 +172,10 @@ func TestHandler_Account_Update(t *testing.T) {
 		u := *user
 		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
-		mock.ExpectBegin()
-		mock.ExpectExec("^UPDATE user_ SET (.+)").
-			WithArgs(user.Email, "user2", user.PwHash, user.Verified, user.ID).
+		var empty *string
+		mock.ExpectExec("UPDATE user_ SET (.+)").
+			WithArgs(empty, "user2", user.PwHash, nil, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-		mock.ExpectCommit()
-		// hidden rollback after commit due to beginfunc being used
-		mock.ExpectRollback()
 
 		data := url.Values{"name": {"user2"}}
 
@@ -402,15 +398,9 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx, _ = handler.SessMgr.Load(ctx, "")
 	ctx = auth.ContextSet(ctx, "user", user)
 
-	// note: can't pregenerate an expected pwhash to fulfill the sql query,
-	// due to argon2 salting in the user.SetPass call, so just use Any instead.
-	mock.ExpectBegin()
-	mock.ExpectExec("^DELETE FROM user_ (.+)").
+	mock.ExpectExec("DELETE FROM user_ (.+)").
 		WithArgs(user.ID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
-	mock.ExpectCommit()
-	// hidden rollback after commit due to beginfunc being used
-	mock.ExpectRollback()
 
 	req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/account", nil)
 	rr := httptest.NewRecorder()
@@ -584,12 +574,12 @@ func TestHandler_Account_Create(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 
 		pwhash, _ := util.HashPW([]byte("00x00"))
-		user := &model.User{
-			Id:           1,
+		user := &modelx.User{
+			ID:           1,
 			RefID:        refid.Must(modelx.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
-			PWHash:       pwhash,
+			PwHash:       pwhash,
 			Created:      tstTs,
 			LastModified: tstTs,
 		}

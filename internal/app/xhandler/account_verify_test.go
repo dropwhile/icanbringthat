@@ -17,7 +17,6 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/modelx"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -26,20 +25,20 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	t.Parallel()
 
 	ts := tstTs
-	user := &model.User{
-		Id:           1,
+	user := &modelx.User{
+		ID:           1,
 		RefID:        refid.Must(modelx.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
-		PWHash:       []byte("00x00"),
+		PwHash:       []byte("00x00"),
 		Verified:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
 
-	uv := &model.UserVerify{
-		RefID:   refid.Must(model.VerifyRefIDT.New()),
-		UserId:  user.Id,
+	uv := &modelx.UserVerify{
+		RefID:   refid.Must(modelx.NewVerifyRefID()),
+		UserID:  user.ID,
 		Created: ts,
 	}
 
@@ -50,7 +49,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		t.Parallel()
 
 		uvRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserId, ts)
+			AddRow(uv.RefID, uv.UserID, ts)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -67,7 +66,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
-			WithArgs(model.VerifyRefIDT.AnyMatcher(), user.Id).
+			WithArgs(modelx.VerifyRefIDMatcher{}, user.ID).
 			WillReturnRows(uvRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -86,7 +85,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Account Verification url: http://example.com/verify/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rId := refid.Must(model.VerifyRefIDT.Parse(refParts[0]))
+		rId := refid.Must(modelx.ParseVerifyRefID(refParts[0]))
 		hmacBytes, err := util.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
 		assert.Assert(t, handler.Hmac.Validate([]byte(rId.String()), hmacBytes))
@@ -105,20 +104,20 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	t.Parallel()
 
 	ts := tstTs
-	user := &model.User{
-		Id:           1,
+	user := &modelx.User{
+		ID:           1,
 		RefID:        refid.Must(modelx.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
-		PWHash:       []byte("00x00"),
+		PwHash:       []byte("00x00"),
 		Verified:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
 
-	uv := &model.UserVerify{
-		RefID:   refid.Must(model.VerifyRefIDT.New()),
-		UserId:  user.Id,
+	uv := &modelx.UserVerify{
+		RefID:   refid.Must(modelx.NewVerifyRefID()),
+		UserID:  user.ID,
 		Created: ts,
 	}
 
@@ -128,7 +127,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		t.Parallel()
 
 		uvRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserId, uv.Created)
+			AddRow(uv.RefID, uv.UserID, uv.Created)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -158,7 +157,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), true, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), true, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -243,7 +242,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refId := refid.Must(model.EventItemRefIDT.New())
+		refId := refid.Must(modelx.NewEventItemRefID())
 		rctx.URLParams.Add("uvRefID", refId.String())
 
 		// generate hmac
@@ -313,7 +312,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	t.Run("verify is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refId := refid.Must(model.VerifyRefIDT.New())
+		refId := refid.Must(modelx.NewVerifyRefID())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refId.SetTime(rfts)
 		ctx := context.TODO()
@@ -336,11 +335,11 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("hmac", macStr)
 
 		pwrRows := pgxmock.NewRows(uvColumns).
-			AddRow(refId, uv.UserId, uv.Created)
+			AddRow(refId, uv.UserID, uv.Created)
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
-			WithArgs(model.VerifyRefIDT.AnyMatcher()).
+			WithArgs(modelx.VerifyRefIDMatcher{}).
 			WillReturnRows(pwrRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
@@ -362,7 +361,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		t.Parallel()
 
 		pwrRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserId, uv.Created)
+			AddRow(uv.RefID, uv.UserID, uv.Created)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -392,7 +391,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), true, user.Id).
+			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), true, user.ID).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()

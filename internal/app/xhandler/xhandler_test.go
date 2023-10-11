@@ -100,6 +100,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &XHandler{
 		Db:      mock,
+		Query:   modelx.New(mock),
 		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewMemorySessionManager(),
 		Mailer:  &TestMailer{make([]*util.Mail, 0)},

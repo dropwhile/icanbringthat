@@ -147,8 +147,8 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
-		*(userParams.Email) = email
-		*(userParams.Verified) = false
+		userParams.Email = &email
+		userParams.Verified = func() *bool { b := false; return &b }()
 		changes = true
 		successMsgs = append(successMsgs, "Email update successfull")
 	} else if email == user.Email {
@@ -157,7 +157,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 
 	name := r.PostFormValue("name")
 	if name != "" && name != user.Name {
-		*(userParams.Name) = name
+		userParams.Name = &name
 		changes = true
 		successMsgs = append(successMsgs, "Name update successfull")
 	} else if name == user.Name {
