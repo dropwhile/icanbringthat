@@ -71,9 +71,9 @@ func UpdateUser(ctx context.Context, db PgxHandle, email, name string, pwHash []
 	return ExecTx[User](ctx, db, q, email, name, pwHash, verified, userID)
 }
 
-func DeleteUser(ctx context.Context, db PgxHandle, userID int) error {
+func DeleteUser(ctx context.Context, db PgxHandle, id int) error {
 	q := `DELETE FROM user_ WHERE id = $1`
-	return ExecTx[User](ctx, db, q, userID)
+	return ExecTx[User](ctx, db, q, id)
 }
 
 func GetUserByID(ctx context.Context, db PgxHandle, id int) (*User, error) {

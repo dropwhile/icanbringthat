@@ -40,12 +40,7 @@ func (fav *Favorite) GetEvent(ctx context.Context, db PgxHandle) (*Event, error)
 	return event, nil
 }
 
-func NewFavorite(
-	ctx context.Context,
-	db PgxHandle,
-	userID int,
-	eventID int,
-) (*Favorite, error) {
+func NewFavorite(ctx context.Context, db PgxHandle, userID int, eventID int) (*Favorite, error) {
 	favorite := &Favorite{
 		UserID:  userID,
 		EventID: eventID,
@@ -57,9 +52,9 @@ func NewFavorite(
 	return favorite, nil
 }
 
-func GetFavoriteByID(ctx context.Context, db PgxHandle, id int) (*Favorite, error) {
+func GetFavoriteByID(ctx context.Context, db PgxHandle, favID int) (*Favorite, error) {
 	q := `SELECT * FROM favorite_ WHERE id = $1`
-	return QueryOne[Favorite](ctx, db, q, id)
+	return QueryOne[Favorite](ctx, db, q, favID)
 }
 
 func GetFavoritesByUser(ctx context.Context, db PgxHandle, user *User) ([]*Favorite, error) {

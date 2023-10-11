@@ -138,7 +138,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 			return innerErr
 		}
 
-		innerErr = verifier.Delete(ctx, tx)
+		innerErr = model.DeleteUserVerify(ctx, x.Db, verifier.RefID)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error cleaning up verifier token")
 			return innerErr
