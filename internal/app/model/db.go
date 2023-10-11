@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -30,7 +29,7 @@ func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interfa
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		log.Info().Err(err).Msg("db query error")
-		return *new(T), fmt.Errorf("failed query: %w", err)
+		return *new(T), err
 	}
 	// note: collectonerow closes rows
 	return pgx.CollectOneRow(rows, pgx.RowTo[T])
@@ -40,7 +39,7 @@ func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...in
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		log.Info().Err(err).Msg("db query error")
-		return nil, fmt.Errorf("failed query: %w", err)
+		return nil, err
 	}
 	// note: collectonerow closes rows
 	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
@@ -50,7 +49,7 @@ func Query[T any](ctx context.Context, db PgxHandle, query string, args ...inter
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		log.Info().Err(err).Msg("db query error")
-		return nil, fmt.Errorf("failed query: %w", err)
+		return nil, err
 	}
 	// note: collectrows closes rows
 	return pgx.CollectRows(rows, pgx.RowToAddrOfStructByNameLax[T])
@@ -64,7 +63,7 @@ func QueryOneTx[T any](ctx context.Context, db PgxHandle, query string, args ...
 		return err
 	})
 	if err != nil {
-		log.Info().Err(err).Msg("DB Error")
+		log.Info().Err(err).Msg("db tx error")
 	}
 	return t, err
 }
@@ -77,14 +76,15 @@ func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...int
 		return err
 	})
 	if err != nil {
-		return nil, err
+		log.Info().Err(err).Msg("db tx error")
 	}
-	return t, nil
+	return t, err
 }
 
 func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
 	commandTag, err := db.Exec(ctx, query, args...)
 	if err != nil {
+		log.Info().Err(err).Msg("db exec error")
 		return err
 	}
 	if commandTag.RowsAffected() != 1 {
@@ -95,15 +95,10 @@ func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interf
 
 func ExecTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
-		commandTag, err := tx.Exec(ctx, query, args...)
-		if err != nil {
-			log.Info().Err(err).Msg("DB Error")
-			return err
-		}
-		if commandTag.RowsAffected() != 1 {
-			return errors.New("no rows affected")
-		}
-		return nil
+		return Exec[T](ctx, tx, query, args...)
 	})
+	if err != nil {
+		log.Info().Err(err).Msg("db tx error")
+	}
 	return err
 }
