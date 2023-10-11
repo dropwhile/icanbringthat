@@ -22,51 +22,31 @@ type Earmark struct {
 	User         *User      `db:"-"`
 }
 
-func (em *Earmark) Insert(ctx context.Context, db PgxHandle) error {
-	if em.RefID.IsNil() {
-		em.RefID = refid.Must(NewEarmarkRefID())
-	}
-	q := `INSERT INTO earmark_ (ref_id, event_item_id, user_id, note) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryOneTx[Earmark](ctx, db, q, em.RefID, em.EventItemID, em.UserID, em.Note)
-	if err != nil {
-		return err
-	}
-	em.ID = res.ID
-	em.RefID = res.RefID
-	em.Created = res.Created
-	em.LastModified = res.LastModified
-	return nil
-}
-
-func (em *Earmark) Save(ctx context.Context, db PgxHandle) error {
-	q := `UPDATE earmark_ SET note = $1 WHERE id = $2`
-	return ExecTx[Earmark](ctx, db, q, em.Note, em.ID)
-}
-
-func (em *Earmark) Delete(ctx context.Context, db PgxHandle) error {
-	q := `DELETE FROM earmark_ WHERE id = $1`
-	return ExecTx[Earmark](ctx, db, q, em.ID)
-}
-
-func (em *Earmark) GetEventItem(ctx context.Context, db PgxHandle) (*EventItem, error) {
-	eventItem, err := GetEventItemByID(ctx, db, em.EventItemID)
-	if err != nil {
-		return nil, err
-	}
-	return eventItem, nil
-}
-
 func NewEarmark(ctx context.Context, db PgxHandle, eventItemID, userID int, note string) (*Earmark, error) {
-	earmark := &Earmark{
-		EventItemID: eventItemID,
-		UserID:      userID,
-		Note:        note,
-	}
-	err := earmark.Insert(ctx, db)
-	if err != nil {
-		return nil, err
-	}
-	return earmark, nil
+	refID := refid.Must(NewEarmarkRefID())
+	return CreateEarmark(ctx, db, refID, eventItemID, userID, note)
+}
+
+func CreateEarmark(ctx context.Context, db PgxHandle,
+	refID EarmarkRefID, eventItemID int, userID int, note string,
+) (*Earmark, error) {
+	q := `
+		INSERT INTO earmark_ (
+			ref_id, event_item_id, user_id, note
+		)
+		VALUES ($1, $2, $3, $4)
+		RETURNING *`
+	return QueryOneTx[Earmark](ctx, db, q, refID, eventItemID, userID, note)
+}
+
+func UpdateEarmark(ctx context.Context, db PgxHandle, earmarkID int, note string) error {
+	q := `UPDATE earmark_ SET note = $1 WHERE id = $2`
+	return ExecTx[Earmark](ctx, db, q, note, earmarkID)
+}
+
+func DeleteEarmark(ctx context.Context, db PgxHandle, earmarkID int) error {
+	q := `DELETE FROM earmark_ WHERE id = $1`
+	return ExecTx[Earmark](ctx, db, q, earmarkID)
 }
 
 func GetEarmarkByID(ctx context.Context, db PgxHandle, id int) (*Earmark, error) {

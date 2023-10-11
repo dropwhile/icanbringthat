@@ -56,8 +56,8 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, em := range earmarks {
-		ei, err := em.GetEventItem(ctx, x.Db)
+	for i := range earmarks {
+		ei, err := model.GetEventItemByID(ctx, x.Db, earmarks[i].EventItemID)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			continue
@@ -296,7 +296,7 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = earmark.Delete(ctx, x.Db)
+	err = model.DeleteEarmark(ctx, x.Db, earmark.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
