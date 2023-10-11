@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS event_ (
     user_id integer NOT NULL,
     name text NOT NULL,
     description text NOT NULL,
-    start_time timestamptz,
-    start_time_tz varchar(255) DEFAULT 'Etc/UTC',
+    start_time timestamptz NOT NULL,
+    start_time_tz varchar(255) NOT NULL DEFAULT 'Etc/UTC',
     created timestamp NOT NULL DEFAULT timezone('utc', now()),
     last_modified timestamp NOT NULL DEFAULT timezone('utc', now()),
     CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES user_(id) ON DELETE CASCADE
