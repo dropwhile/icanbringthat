@@ -111,7 +111,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	verifyRefID, err := model.VerifyRefIDT.Parse(refIDStr)
+	verifyRefID, err := model.ParseUserVerifyRefID(refIDStr)
 	if err != nil {
 		x.Error(w, "bad verify-ref-id", http.StatusNotFound)
 		return

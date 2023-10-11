@@ -108,13 +108,13 @@ func (x *XHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := model.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
 		return
@@ -176,14 +176,14 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
 	}
 
-	eventItemRefID, err := model.EventItemRefIDT.Parse(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := model.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad eventitem ref-id")
 		x.Error(w, "bad eventitem-ref-id", http.StatusNotFound)
@@ -274,7 +274,7 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.EarmarkRefIDT.Parse(chi.URLParam(r, "mRefID"))
+	refID, err := model.ParseEarmarkRefID(chi.URLParam(r, "mRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad earmark ref-id")
 		x.Error(w, "bad earmark ref-id", http.StatusNotFound)

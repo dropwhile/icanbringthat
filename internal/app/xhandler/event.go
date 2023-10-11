@@ -103,7 +103,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
@@ -270,7 +270,7 @@ func (x *XHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
@@ -373,7 +373,7 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return
@@ -458,7 +458,7 @@ func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	eventRefID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event-ref-id", http.StatusNotFound)
 		return
@@ -528,7 +528,7 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.EventRefIDT.Parse(chi.URLParam(r, "eRefID"))
+	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.Error(w, "bad event ref-id", http.StatusNotFound)
 		return

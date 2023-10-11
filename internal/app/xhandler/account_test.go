@@ -21,7 +21,7 @@ import (
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -386,7 +386,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refID := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
@@ -448,7 +448,7 @@ func TestHandler_Account_Create(t *testing.T) {
 			[]string{
 				"id", "ref_id", "email", "pwhash", "created", "last_modified",
 			}).AddRow(
-			1, refid.Must(model.UserRefIDT.New()), "user@example.com", pwhash, tstTs, tstTs,
+			1, refid.Must(model.NewUserRefID()), "user@example.com", pwhash, tstTs, tstTs,
 		)
 
 		mock.ExpectBegin()
@@ -585,7 +585,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		pwhash, _ := util.HashPW([]byte("00x00"))
 		user := &model.User{
 			ID:           1,
-			RefID:        refid.Must(model.UserRefIDT.New()),
+			RefID:        refid.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       pwhash,

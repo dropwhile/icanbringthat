@@ -27,7 +27,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -85,7 +85,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Account Verification url: http://example.com/verify/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rID := refid.Must(model.VerifyRefIDT.Parse(refParts[0]))
+		rID := refid.Must(model.ParseUserVerifyRefID(refParts[0]))
 		hmacBytes, err := util.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
 		assert.Assert(t, handler.Hmac.Validate([]byte(rID.String()), hmacBytes))
@@ -106,7 +106,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),

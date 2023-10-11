@@ -28,7 +28,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -493,7 +493,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.UserRefIDT.New()),
+		RefID:        refid.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -554,7 +554,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Password reset url: http://example.com/forgot-password/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rID := refid.Must(model.UserPWResetRefIDT.Parse(refParts[0]))
+		rID := refid.Must(model.ParseUserPWResetRefID(refParts[0]))
 		hmacBytes, err := util.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
 		assert.Assert(t, handler.Hmac.Validate([]byte(rID.String()), hmacBytes))

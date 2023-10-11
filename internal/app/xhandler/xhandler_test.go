@@ -125,7 +125,7 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *
 		w.WriteHeader(http.StatusOK)
 	})
 
-	refID := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.NewUserRefID())
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
 		AddRow(userID, refID, "user@example.com", "user", []byte("00x00"), ts, ts)

@@ -20,7 +20,7 @@ func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	profileUserRefID, err := model.UserRefIDT.Parse(chi.URLParam(r, "uRefID"))
+	profileUserRefID, err := model.ParseUserRefID(chi.URLParam(r, "uRefID"))
 	if err != nil {
 		x.Error(w, "bad user ref-id", http.StatusNotFound)
 		return

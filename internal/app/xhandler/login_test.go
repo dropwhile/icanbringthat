@@ -22,7 +22,7 @@ import (
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 
@@ -128,7 +128,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	ctx := context.TODO()
 	mock, _, handler := SetupHandler(t, ctx)
 
-	refID := refid.Must(model.UserRefIDT.New())
+	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := util.HashPW([]byte("00x00"))
 	rows := pgxmock.NewRows(

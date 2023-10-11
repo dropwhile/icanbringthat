@@ -79,7 +79,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refID, err := model.UserPWResetRefIDT.Parse(refIDStr)
+	refID, err := model.ParseUserPWResetRefID(refIDStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusNotFound)
@@ -254,7 +254,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refID, err := model.UserPWResetRefIDT.Parse(refIDStr)
+	refID, err := model.ParseUserPWResetRefID(refIDStr)
 	if err != nil {
 		log.Info().Err(err).Msg("bad refid")
 		x.Error(w, "bad data", http.StatusBadRequest)
