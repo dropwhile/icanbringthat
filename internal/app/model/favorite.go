@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type Favorite struct {
@@ -17,8 +19,16 @@ type Favorite struct {
 func CreateFavorite(ctx context.Context, db PgxHandle,
 	userID int, eventID int,
 ) (*Favorite, error) {
-	q := `INSERT INTO favorite_ (user_id, event_id) VALUES ($1, $2) RETURNING *`
-	return QueryOneTx[Favorite](ctx, db, q, userID, eventID)
+	q := `
+		INSERT INTO favorite_ (
+			user_id, event_id
+		)
+		VALUES (
+			@userID, @eventID
+		)
+		RETURNING *`
+	args := pgx.NamedArgs{"userID": userID, "eventID": eventID}
+	return QueryOneTx[Favorite](ctx, db, q, args)
 }
 
 func DeleteFavorite(ctx context.Context, db PgxHandle, favID int) error {
@@ -31,42 +41,19 @@ func GetFavoriteByID(ctx context.Context, db PgxHandle, favID int) (*Favorite, e
 	return QueryOne[Favorite](ctx, db, q, favID)
 }
 
-func GetFavoritesByUser(ctx context.Context, db PgxHandle,
-	user *User,
-) ([]*Favorite, error) {
-	q := `
-		SELECT * FROM favorite_
-		WHERE user_id = $1
-		ORDER BY
-			created DESC,
-			id DESC`
-	return Query[Favorite](ctx, db, q, user.ID)
-}
-
-func GetFavoritesByEvent(ctx context.Context, db PgxHandle,
-	event *Event,
-) ([]*Favorite, error) {
-	q := `
-		SELECT * FROM favorite_
-		WHERE event_id = $1
-		ORDER BY
-			created DESC,
-			id DESC`
-	return Query[Favorite](ctx, db, q, event.ID)
-}
-
 func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle,
-	user *User, event *Event,
+	userID int, eventID int,
 ) (*Favorite, error) {
 	q := `
 		SELECT * FROM favorite_
 		WHERE
-			user_id = $1 AND
-			event_id = $2
+			user_id = @userID AND
+			event_id = @eventID
 		ORDER BY
 			created DESC,
 			id DESC`
-	return QueryOne[Favorite](ctx, db, q, user.ID, event.ID)
+	args := pgx.NamedArgs{"userID": userID, "eventID": eventID}
+	return QueryOne[Favorite](ctx, db, q, args)
 }
 
 func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
@@ -77,19 +64,23 @@ func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
 }
 
 func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle,
-	user *User, limit, offset int,
+	userID int, limit, offset int,
 ) ([]*Favorite, error) {
 	q := `
-	SELECT 
-		favorite_.*
+	SELECT favorite_.*
 	FROM favorite_ 
 	JOIN event_ ON
 		favorite_.event_id = event_.id
-	WHERE favorite_.user_id = $1 
+	WHERE favorite_.user_id = @userID 
 	ORDER BY 
 		event_.start_time DESC,
 		event_.id DESC
-	LIMIT $2 OFFSET $3
+	LIMIT @limit OFFSET @offset
 	`
-	return Query[Favorite](ctx, db, q, user.ID, limit, offset)
+	args := pgx.NamedArgs{
+		"userID": userID,
+		"limit":  limit,
+		"offset": offset,
+	}
+	return Query[Favorite](ctx, db, q, userID, limit, args)
 }

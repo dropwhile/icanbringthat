@@ -29,7 +29,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user)
+	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -48,7 +48,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetEventsByUserPaginated(ctx, x.Db, user, 10, offset*10)
+	events, err := model.GetEventsByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -152,7 +152,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	event.Items = eventItems
 
-	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event)
+	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no rows for earmarks")
@@ -199,7 +199,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	has_favorite := false
-	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user, event)
+	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		has_favorite = false

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:generate go run ../../../cmd/refidgen -t UserPWReset -v 5
@@ -31,9 +32,10 @@ func CreateUserPWReset(ctx context.Context, db PgxHandle,
 		INSERT INTO user_pw_reset_ (
 			ref_id, user_id
 		)
-		VALUES ($1, $2)
+		VALUES (@refID, @userID)
 		RETURNING *`
-	return QueryOneTx[UserPWReset](ctx, db, q, refID, userID)
+	args := pgx.NamedArgs{"refID": refID, "userID": userID}
+	return QueryOneTx[UserPWReset](ctx, db, q, args)
 }
 
 func DeleteUserPWReset(ctx context.Context, db PgxHandle,

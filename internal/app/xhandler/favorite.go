@@ -46,7 +46,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	favorites, err := model.GetFavoritesByUserPaginated(ctx, x.Db, user, 10, offset*10)
+	favorites, err := model.GetFavoritesByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -138,7 +138,7 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already exists
-	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user, event)
+	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("db error")
@@ -200,7 +200,7 @@ func (x *XHandler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favorite, err := model.GetFavoriteByUserEvent(ctx, x.Db, user, event)
+	favorite, err := model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Msg("favorite not found")

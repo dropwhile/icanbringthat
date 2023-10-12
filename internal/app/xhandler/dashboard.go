@@ -22,7 +22,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user, 10, 0)
+	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user.ID, 10, 0)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Msg("no rows for events")
@@ -33,7 +33,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user)
+	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

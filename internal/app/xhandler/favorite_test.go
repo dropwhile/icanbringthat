@@ -73,7 +73,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.ID, event.ID).
+			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnRows(favoriteRows)
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM favorite_").
@@ -202,7 +202,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.ID, event.ID).
+			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnError(pgx.ErrNoRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
@@ -275,11 +275,11 @@ func TestHandler_Favorite_Add(t *testing.T) {
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.ID, event.ID).
+			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnError(pgx.ErrNoRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO favorite_").
-			WithArgs(user.ID, event.ID).
+			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnRows(favoriteRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -412,7 +412,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(user.ID, event.ID).
+			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnRows(favoriteRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)

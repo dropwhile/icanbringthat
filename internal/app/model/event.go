@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:generate go run ../../../cmd/refidgen -t Event -v 2
@@ -51,13 +52,21 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 			ref_id, user_id, name, description,
 			item_sort_order, start_time, start_time_tz
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		VALUES (
+			@refID, @userID, @name, 
+			@description, @itemSortOrder,
+			@startTime, @startTimeTz
+		)
 		RETURNING *`
-	return QueryOneTx[Event](
-		ctx, db, q, refID,
-		userID, name, description,
-		itemSortOrder, startTime, startTimeTz,
-	)
+	args := pgx.NamedArgs{
+		"refID":       refID,
+		"userID":      userID,
+		"name":        name,
+		"description": description,
+		"startTime":   startTime,
+		"startTimeTz": startTimeTz,
+	}
+	return QueryOneTx[Event](ctx, db, q, args)
 }
 
 func UpdateEvent(ctx context.Context, db PgxHandle,
@@ -69,18 +78,21 @@ func UpdateEvent(ctx context.Context, db PgxHandle,
 	q := `
 		UPDATE event_
 		SET
-			name = $1,
-			description = $2,
-			item_sort_order = $3,
-			start_time = $4,
-			start_time_tz = $5
-		WHERE id = $6`
-	return ExecTx[Event](
-		ctx, db, q,
-		name, description,
-		itemSortOrder,
-		startTime, startTimeTz,
-		eventID)
+			name = @name,
+			description = @description,
+			item_sort_order = @itemSortOrder,
+			start_time = @startTime,
+			start_time_tz = @startTimeTz
+		WHERE id = @eventID`
+	args := pgx.NamedArgs{
+		"name":          name,
+		"description":   description,
+		"itemSortOrder": itemSortOrder,
+		"startTime":     startTime,
+		"startTimeTz":   startTimeTz,
+		"eventID":       eventID,
+	}
+	return ExecTx[Event](ctx, db, q, args)
 }
 
 func DeleteEvent(ctx context.Context, db PgxHandle,
@@ -111,54 +123,51 @@ func GetEventByRefID(ctx context.Context, db PgxHandle,
 	return QueryOne[Event](ctx, db, q, refID)
 }
 
-func GetEventsByUser(ctx context.Context, db PgxHandle,
-	user *User,
-) ([]*Event, error) {
-	q := `
-		SELECT * FROM event_
-		WHERE
-			event_.user_id = $1
-		ORDER BY
-			start_time DESC,
-			id DESC`
-	return Query[Event](ctx, db, q, user.ID)
-}
-
 func GetEventsByUserPaginated(
 	ctx context.Context, db PgxHandle,
-	user *User, limit, offset int,
+	userID int, limit, offset int,
 ) ([]*Event, error) {
 	q := `
 		SELECT * FROM event_
 		WHERE
-			event_.user_id = $1
+			event_.user_id = @userID
 		ORDER BY
 			start_time DESC,
 			id DESC
-		LIMIT $2 OFFSET $3`
-	return Query[Event](ctx, db, q, user.ID, limit, offset)
+		LIMIT @limit OFFSET @offset`
+	args := pgx.NamedArgs{
+		"userID": userID,
+		"limit":  limit,
+		"offset": offset,
+	}
+	return Query[Event](ctx, db, q, args)
 }
 
 func GetEventsComingSoonByUserPaginated(
 	ctx context.Context, db PgxHandle,
-	user *User, limit, offset int,
+	userID int, limit, offset int,
 ) ([]*Event, error) {
 	q := `
 		SELECT *
 		FROM event_
 		WHERE
-			event_.user_id = $1 AND
+			event_.user_id = @userID AND
 			start_time > CURRENT_TIMESTAMP(0)
 		ORDER BY 
 			start_time ASC,
 			id ASC
-		LIMIT $2 OFFSET $3`
-	return Query[Event](ctx, db, q, user.ID, limit, offset)
+		LIMIT @limit OFFSET @offset`
+	args := pgx.NamedArgs{
+		"userID": userID,
+		"limit":  limit,
+		"offset": offset,
+	}
+	return Query[Event](ctx, db, q, args)
 }
 
 func GetEventCountByUser(ctx context.Context, db PgxHandle,
-	user *User,
+	userID int,
 ) (int, error) {
 	q := `SELECT count(*) FROM event_ WHERE user_id = $1`
-	return Get[int](ctx, db, q, user.ID)
+	return Get[int](ctx, db, q, userID)
 }

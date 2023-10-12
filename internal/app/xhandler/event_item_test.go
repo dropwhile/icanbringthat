@@ -88,7 +88,11 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(model.EventItemRefIDMatcher{}, eventItem.EventID, "some description").
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"refID":       model.EventItemRefIDMatcher{},
+				"eventID":     eventItem.EventID,
+				"description": "some description",
+			})).
 			WillReturnRows(eventItemRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -343,7 +347,10 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_item_").
-			WithArgs("new description", eventItem.ID).
+			WithArgs(pgx.NamedArgs{
+				"description": "new description",
+				"eventItemID": eventItem.ID,
+			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()

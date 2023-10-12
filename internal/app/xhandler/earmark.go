@@ -45,7 +45,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	earmarks, err := model.GetEarmarksByUserPaginated(ctx, x.Db, user, 10, offset)
+	earmarks, err := model.GetEarmarksByUserPaginated(ctx, x.Db, user.ID, 10, offset)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no earmarks")
@@ -224,7 +224,7 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make sure no earmark exists yet
-	_, err = model.GetEarmarkByEventItem(ctx, x.Db, eventItem)
+	_, err = model.GetEarmarkByEventItem(ctx, x.Db, eventItem.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		// good. this is what we want

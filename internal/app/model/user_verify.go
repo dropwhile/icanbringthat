@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:generate go run ../../../cmd/refidgen -t UserVerify -v 6
@@ -31,13 +32,10 @@ func CreateUserVerify(ctx context.Context, db PgxHandle,
 		INSERT INTO user_verify_ (
 			ref_id, user_id
 		)
-		VALUES ($1, $2)
+		VALUES (@refID, @userID)
 		RETURNING *`
-	res, err := QueryOneTx[UserVerify](ctx, db, q, refID, userID)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	args := pgx.NamedArgs{"refID": refID, "userID": userID}
+	return QueryOneTx[UserVerify](ctx, db, q, args)
 }
 
 func DeleteUserVerify(ctx context.Context, db PgxHandle,

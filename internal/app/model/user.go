@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -31,7 +32,9 @@ func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
 	return pwHash, nil
 }
 
-func CheckPass(ctx context.Context, pwHash []byte, rawPass []byte) (bool, error) {
+func CheckPass(ctx context.Context,
+	pwHash []byte, rawPass []byte,
+) (bool, error) {
 	ok, err := util.CheckPWHash(pwHash, rawPass)
 	if err != nil {
 		return false, fmt.Errorf("error when comparing pass")
@@ -57,8 +60,21 @@ func NewUser(ctx context.Context, db PgxHandle,
 func CreateUser(ctx context.Context, db PgxHandle,
 	refID UserRefID, email, name string, pwHash []byte,
 ) (*User, error) {
-	q := `INSERT INTO user_ (ref_id, email, name, pwhash) VALUES ($1, $2, $3, $4) RETURNING *`
-	res, err := QueryOneTx[User](ctx, db, q, refID, email, name, pwHash)
+	q := `
+		INSERT INTO user_ (
+			ref_id, email, name, pwhash
+		)
+		VALUES (
+			@refID, @email, @name, @pwHash
+		)
+		RETURNING *`
+	args := pgx.NamedArgs{
+		"refID":  refID,
+		"email":  email,
+		"name":   name,
+		"pwHash": pwHash,
+	}
+	res, err := QueryOneTx[User](ctx, db, q, args)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +84,22 @@ func CreateUser(ctx context.Context, db PgxHandle,
 func UpdateUser(ctx context.Context, db PgxHandle,
 	email, name string, pwHash []byte, verified bool, userID int,
 ) error {
-	q := `UPDATE user_ SET email = $1, name = $2, pwhash = $3, verified = $4 WHERE id = $5`
-	return ExecTx[User](ctx, db, q, email, name, pwHash, verified, userID)
+	q := `
+		UPDATE user_
+		SET
+			email = @email,
+			name = @name,
+			pwhash = @pwHash,
+			verified = @verified
+		WHERE id = @userID`
+	args := pgx.NamedArgs{
+		"email":    email,
+		"name":     name,
+		"pwHash":   pwHash,
+		"verified": verified,
+		"userID":   userID,
+	}
+	return ExecTx[User](ctx, db, q, args)
 }
 
 func DeleteUser(ctx context.Context, db PgxHandle, userID int) error {
@@ -77,22 +107,30 @@ func DeleteUser(ctx context.Context, db PgxHandle, userID int) error {
 	return ExecTx[User](ctx, db, q, userID)
 }
 
-func GetUserByID(ctx context.Context, db PgxHandle, userID int) (*User, error) {
+func GetUserByID(ctx context.Context, db PgxHandle,
+	userID int,
+) (*User, error) {
 	q := `SELECT * FROM user_ WHERE id = $1`
 	return QueryOne[User](ctx, db, q, userID)
 }
 
-func GetUserByRefID(ctx context.Context, db PgxHandle, refID UserRefID) (*User, error) {
+func GetUserByRefID(ctx context.Context, db PgxHandle,
+	refID UserRefID,
+) (*User, error) {
 	q := `SELECT * FROM user_ WHERE ref_id = $1`
 	return QueryOne[User](ctx, db, q, refID)
 }
 
-func GetUserByEmail(ctx context.Context, db PgxHandle, email string) (*User, error) {
+func GetUserByEmail(ctx context.Context, db PgxHandle,
+	email string,
+) (*User, error) {
 	q := `SELECT * FROM user_ WHERE email = $1`
 	return QueryOne[User](ctx, db, q, email)
 }
 
-func GetUsersByIDs(ctx context.Context, db PgxHandle, userIDs []int) ([]*User, error) {
+func GetUsersByIDs(ctx context.Context, db PgxHandle,
+	userIDs []int,
+) ([]*User, error) {
 	q := `SELECT * FROM user_ WHERE id = ANY($1)`
 	return Query[User](ctx, db, q, userIDs)
 }

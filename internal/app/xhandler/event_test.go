@@ -69,9 +69,14 @@ func TestHandler_Event_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
-			WithArgs(
-				model.EventRefIDMatcher{}, event.UserID, event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"refID":       model.EventRefIDMatcher{},
+				"userID":      event.UserID,
+				"name":        event.Name,
+				"description": event.Description,
+				"startTime":   CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz": event.StartTimeTz,
+			})).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -246,9 +251,14 @@ func TestHandler_Event_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
-			WithArgs(
-				model.EventRefIDMatcher{}, event.UserID, event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"refID":       model.EventRefIDMatcher{},
+				"userID":      event.UserID,
+				"name":        event.Name,
+				"description": event.Description,
+				"startTime":   CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz": event.StartTimeTz,
+			})).
 			WillReturnRows(eventRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -367,10 +377,14 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -538,10 +552,14 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -593,10 +611,14 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -648,10 +670,14 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -824,10 +850,14 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, pgxmock.AnyArg(),
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -953,10 +983,14 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
-			WithArgs(
-				event.Name, event.Description, []int{1, 3, 2},
-				CloseTimeMatcher{event.StartTime, time.Minute}, event.StartTimeTz,
-				event.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": []int{1, 3, 2},
+				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTimeTz":   event.StartTimeTz,
+				"eventID":       event.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()

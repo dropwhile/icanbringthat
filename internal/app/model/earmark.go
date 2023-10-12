@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:generate go run ../../../cmd/refidgen -t Earmark -v 4
@@ -35,9 +36,15 @@ func CreateEarmark(ctx context.Context, db PgxHandle,
 		INSERT INTO earmark_ (
 			ref_id, event_item_id, user_id, note
 		)
-		VALUES ($1, $2, $3, $4)
+		VALUES (@refID, @eventItemID, @userID, @note)
 		RETURNING *`
-	return QueryOneTx[Earmark](ctx, db, q, refID, eventItemID, userID, note)
+	args := pgx.NamedArgs{
+		"refID":       refID,
+		"eventItemID": eventItemID,
+		"userID":      userID,
+		"note":        note,
+	}
+	return QueryOneTx[Earmark](ctx, db, q, args)
 }
 
 func UpdateEarmark(ctx context.Context, db PgxHandle,
@@ -69,26 +76,14 @@ func GetEarmarkByRefID(ctx context.Context, db PgxHandle,
 }
 
 func GetEarmarkByEventItem(ctx context.Context, db PgxHandle,
-	eventItem *EventItem,
+	eventItemID int,
 ) (*Earmark, error) {
 	q := `SELECT * FROM earmark_ WHERE event_item_id = $1`
-	return QueryOne[Earmark](ctx, db, q, eventItem.ID)
-}
-
-func GetEarmarksByUser(ctx context.Context, db PgxHandle,
-	user *User,
-) ([]*Earmark, error) {
-	q := `
-		SELECT * FROM earmark_
-		WHERE user_id = $1
-		ORDER BY
-			created DESC,
-			id DESC`
-	return Query[Earmark](ctx, db, q, user.ID)
+	return QueryOne[Earmark](ctx, db, q, eventItemID)
 }
 
 func GetEarmarksByEvent(ctx context.Context, db PgxHandle,
-	event *Event,
+	eventID int,
 ) ([]*Earmark, error) {
 	q := `
 		SELECT earmark_.*
@@ -98,41 +93,31 @@ func GetEarmarksByEvent(ctx context.Context, db PgxHandle,
 		WHERE 
 			event_item_.event_id = $1
 	`
-	return Query[Earmark](ctx, db, q, event.ID)
-}
-
-func GetEarmarksWithEventsByUser(ctx context.Context, db PgxHandle,
-	user *User,
-) ([]*Earmark, error) {
-	q := `
-		SELECT *
-		FROM earmark_
-		JOIN event_ ON
-			event_.id = earmark_.id 
-		WHERE 
-			user_id = $1
-		ORDER BY
-			created DESC,
-			id DESC
-	`
-	return Query[Earmark](ctx, db, q, user.ID)
+	return Query[Earmark](ctx, db, q, eventID)
 }
 
 func GetEarmarksByUserPaginated(ctx context.Context, db PgxHandle,
-	user *User, limit, offset int,
+	userID int, limit, offset int,
 ) ([]*Earmark, error) {
 	q := `
 		SELECT * FROM earmark_
 		WHERE
-			earmark_.user_id = $1
+			earmark_.user_id = @userID
 		ORDER BY
 			created DESC,
 			id DESC
-		LIMIT $2 OFFSET $3`
-	return Query[Earmark](ctx, db, q, user.ID, limit, offset)
+		LIMIT @limit OFFSET @offset`
+	args := pgx.NamedArgs{
+		"userID": userID,
+		"limit":  limit,
+		"offset": offset,
+	}
+	return Query[Earmark](ctx, db, q, args)
 }
 
-func GetEarmarkCountByUser(ctx context.Context, db PgxHandle, user *User) (int, error) {
+func GetEarmarkCountByUser(ctx context.Context, db PgxHandle,
+	user *User,
+) (int, error) {
 	q := `SELECT count(*) FROM earmark_ WHERE user_id = $1`
 	return Get[int](ctx, db, q, user.ID)
 }

@@ -80,7 +80,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"email":    user.Email,
+				"name":     user.Name,
+				"pwHash":   pgxmock.AnyArg(),
+				"verified": user.Verified,
+				"userID":   user.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -445,7 +451,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(user.Email, user.Name, pgxmock.AnyArg(), user.Verified, user.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"email":    user.Email,
+				"name":     user.Name,
+				"pwHash":   pgxmock.AnyArg(),
+				"verified": user.Verified,
+				"userID":   user.ID,
+			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -533,7 +545,10 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 			WillReturnRows(userRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
-			WithArgs(model.UserPWResetRefIDMatcher{}, user.ID).
+			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+				"refID":  model.UserPWResetRefIDMatcher{},
+				"userID": user.ID,
+			})).
 			WillReturnRows(upwRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()

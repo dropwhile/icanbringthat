@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:generate go run ../../../cmd/refidgen -t EventItem -v 3
@@ -34,16 +35,28 @@ func CreateEventItem(ctx context.Context, db PgxHandle,
 		INSERT INTO event_item_ (
 			ref_id, event_id, description
 		)
-		VALUES ($1, $2, $3)
+		VALUES (@refID, @eventID, @description)
 		RETURNING *`
-	return QueryOneTx[EventItem](ctx, db, q, refID, eventID, description)
+	args := pgx.NamedArgs{
+		"refID":       refID,
+		"eventID":     eventID,
+		"description": description,
+	}
+	return QueryOneTx[EventItem](ctx, db, q, args)
 }
 
 func UpdateEventItem(ctx context.Context, db PgxHandle,
 	eventItemID int, description string,
 ) error {
-	q := `UPDATE event_item_ SET description = $1 WHERE id = $2`
-	return ExecTx[EventItem](ctx, db, q, description, eventItemID)
+	q := `
+		UPDATE event_item_
+		SET description = @description
+		WHERE id = @eventItemID`
+	args := pgx.NamedArgs{
+		"description": description,
+		"eventItemID": eventItemID,
+	}
+	return ExecTx[EventItem](ctx, db, q, args)
 }
 
 func DeleteEventItem(ctx context.Context, db PgxHandle,

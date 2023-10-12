@@ -276,7 +276,7 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	// check if earmark exists, and is marked by someone else
 	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, x.Db, eventItem)
+	earmark, err := model.GetEarmarkByEventItem(ctx, x.Db, eventItem.ID)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("db error")
