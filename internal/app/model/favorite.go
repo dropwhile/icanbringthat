@@ -82,5 +82,5 @@ func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle,
 		"limit":  limit,
 		"offset": offset,
 	}
-	return Query[Favorite](ctx, db, q, userID, limit, args)
+	return Query[Favorite](ctx, db, q, args)
 }
