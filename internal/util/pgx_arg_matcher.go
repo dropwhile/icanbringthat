@@ -10,21 +10,18 @@ import (
 
 type pgxNamedArgsArgument struct {
 	args pgx.NamedArgs
-	keys []string
 }
 
 func NewPgxNamedArgsMatcher(args pgx.NamedArgs) pgxmock.Argument {
-	keys := Keys(args)
-	slices.Sort(keys)
-	return pgxNamedArgsArgument{args, keys}
+	return pgxNamedArgsArgument{args}
 }
 
 func (a pgxNamedArgsArgument) Match(x interface{}) bool {
+	keys := KeysSorted(a.args)
 	if namedArgs, ok := x.(pgx.NamedArgs); ok {
 		// match all keys
-		nk := Keys(namedArgs)
-		slices.Sort(nk)
-		if !slices.Equal(nk, a.keys) {
+		nk := KeysSorted(namedArgs)
+		if !slices.Equal(nk, keys) {
 			return false
 		}
 		// match all values

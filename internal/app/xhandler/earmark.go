@@ -13,6 +13,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -56,6 +57,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eaDict := make([]map[string]interface{}, 0)
 	for i := range earmarks {
 		ei, err := model.GetEventItemByID(ctx, x.Db, earmarks[i].EventItemID)
 		switch {
@@ -73,13 +75,16 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 			x.Error(w, "db error", http.StatusInternalServerError)
 			return
 		}
-		ei.Event = e
-		earmarks[i].EventItem = ei
+		eiDict := util.StructToMap(ei)
+		eiDict["Event"] = util.StructToMap(e)
+		emDict := util.StructToMap(earmarks[i])
+		emDict["EventItem"] = eiDict
+		eaDict = append(eaDict, emDict)
 	}
 
 	tplVars := map[string]any{
 		"user":           user,
-		"earmarks":       earmarks,
+		"earmarks":       eaDict,
 		"earmarkCount":   earmarkCount,
 		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",

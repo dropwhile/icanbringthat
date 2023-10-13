@@ -141,6 +141,7 @@
   </h4>
   <div class="w-full overflow-hidden rounded-lg shadow-xs">
     <div class="w-full overflow-x-auto">
+      {{ if .owner }}
       <div
         class="sortable"
         hx-post="/events/{{.event.RefID}}/sort"
@@ -151,6 +152,9 @@
         hx-swap="none"
         hx-disinherit="*"
         >
+      {{ else }}
+      <div>
+      {{ end }}
         <table class="w-full whitespace-no-wrap table-auto">
           <thead>
             <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
@@ -392,12 +396,14 @@
                 {{end}}
               </td>
               <td>
+                {{ if $.owner }}
                 <div class="tooltip">
                   <span class="tooltiptext text-center" style="top: -60%; right: 160%;">Click and drag to sort rows</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sort-handle align-middle">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                   </svg>
                 </div>
+                {{ end }}
               </td>
             </tr>
           {{end}}

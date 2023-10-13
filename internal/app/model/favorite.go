@@ -12,8 +12,6 @@ type Favorite struct {
 	UserID  int `db:"user_id"`
 	EventID int `db:"event_id"`
 	Created time.Time
-	User    *User  `db:"-"`
-	Event   *Event `db:"-"`
 }
 
 func CreateFavorite(ctx context.Context, db PgxHandle,

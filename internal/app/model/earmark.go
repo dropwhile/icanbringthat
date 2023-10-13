@@ -17,9 +17,7 @@ type Earmark struct {
 	UserID       int          `db:"user_id"`
 	Note         string
 	Created      time.Time
-	LastModified time.Time  `db:"last_modified"`
-	EventItem    *EventItem `db:"-"`
-	User         *User      `db:"-"`
+	LastModified time.Time `db:"last_modified"`
 }
 
 func NewEarmark(ctx context.Context, db PgxHandle,

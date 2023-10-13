@@ -17,8 +17,6 @@ type EventItem struct {
 	Description  string
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
-	Event        *Event    `db:"-"`
-	Earmark      *Earmark  `db:"-"`
 }
 
 func NewEventItem(ctx context.Context, db PgxHandle,

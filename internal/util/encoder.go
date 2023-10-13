@@ -1,6 +1,9 @@
 package util
 
-import "encoding/base32"
+import (
+	"encoding/base32"
+	"reflect"
+)
 
 var (
 	Alphabet         = "0123456789abcdefghjkmnpqrstvwxyz"
@@ -13,4 +16,20 @@ func Base32EncodeToString(src []byte) string {
 
 func Base32DecodeString(src string) ([]byte, error) {
 	return WordSafeEncoding.DecodeString(src)
+}
+
+func StructToMap(s interface{}) map[string]interface{} {
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = reflect.Indirect(reflect.ValueOf(s))
+	}
+	values := make(map[string]interface{}, v.NumField())
+
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).CanInterface() {
+			values[v.Type().Field(i).Name] = v.Field(i).Interface()
+		}
+	}
+
+	return values
 }

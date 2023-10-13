@@ -121,6 +121,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventDict := util.StructToMap(event)
 	owner := user.ID == event.UserID
 
 	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event)
@@ -135,6 +136,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// sort if needed
+	itemsList := make([]map[string]interface{}, 0)
 	if len(event.ItemSortOrder) > 0 {
 		log.Debug().Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).Msg("sorting")
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
@@ -150,7 +152,9 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		}
 		eventItems = append(unsortedList, sortedList...)
 	}
-	event.Items = eventItems
+	for i := range eventItems {
+		itemsList = append(itemsList, util.StructToMap(eventItems[i]))
+	}
 
 	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event.ID)
 	switch {
@@ -166,17 +170,11 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// associate earmarks and event items
 	// and also collect the user ids associated with
 	// earmarks
-	eventItemsMap := make(map[int]*model.EventItem)
-	for i := range eventItems {
-		eventItemsMap[eventItems[i].ID] = eventItems[i]
-	}
-
+	earmarksMap := make(map[int]*model.Earmark)
 	userIDsMap := make(map[int]struct{})
 	for i := range earmarks {
-		if ei, ok := eventItemsMap[earmarks[i].EventItemID]; ok {
-			ei.Earmark = earmarks[i]
-			userIDsMap[earmarks[i].UserID] = struct{}{}
-		}
+		earmarksMap[earmarks[i].EventItemID] = earmarks[i]
+		userIDsMap[earmarks[i].UserID] = struct{}{}
 	}
 
 	// now get the list of usrs ids and fetch the associated users
@@ -192,11 +190,19 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	for i := range earmarkUsers {
 		earmarkUsersMap[earmarkUsers[i].ID] = earmarkUsers[i]
 	}
-	for i := range earmarks {
-		if uu, ok := earmarkUsersMap[earmarks[i].UserID]; ok {
-			earmarks[i].User = uu
+
+	for i := range eventItems {
+		eid := eventItems[i].ID
+		if earmark, ok := earmarksMap[eid]; ok {
+			eaMap := util.StructToMap(earmark)
+			if uu, ok := earmarkUsersMap[earmark.UserID]; ok {
+				eaMap["User"] = util.StructToMap(uu)
+			}
+			itemsList[i]["Earmark"] = eaMap
 		}
 	}
+
+	eventDict["Items"] = itemsList
 
 	has_favorite := false
 	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
@@ -214,7 +220,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	tplVars := map[string]any{
 		"user":           user,
 		"owner":          owner,
-		"event":          event,
+		"event":          eventDict,
 		"favorite":       has_favorite,
 		"title":          "Event Details",
 		"nav":            "show-event",

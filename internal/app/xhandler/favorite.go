@@ -13,6 +13,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -58,10 +59,10 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventIDs := make([]int, 0)
-	favoritesMap := make(map[int]*model.Favorite)
+	favoritesMap := make(map[int]int)
 	for i := range favorites {
 		eventIDs = append(eventIDs, favorites[i].EventID)
-		favoritesMap[favorites[i].EventID] = favorites[i]
+		favoritesMap[favorites[i].EventID] = i
 	}
 
 	events, err := model.GetEventsByIDs(ctx, x.Db, eventIDs)
@@ -71,16 +72,20 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	faves := make([]map[string]interface{}, 0)
+	for i := range favorites {
+		faves = append(faves, util.StructToMap(favorites[i]))
+	}
 	for i := range events {
 		event := events[i]
-		if fav, ok := favoritesMap[event.ID]; ok {
-			fav.Event = event
+		if favIdx, ok := favoritesMap[event.ID]; ok {
+			faves[favIdx]["Event"] = util.StructToMap(event)
 		}
 	}
 
 	tplVars := map[string]any{
 		"user":           user,
-		"favorites":      favorites,
+		"favorites":      faves,
 		"favoriteCount":  favoriteCount,
 		"pgInput":        resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":          "My Favorites",
