@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"time"
 
@@ -59,29 +60,36 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i := range events {
-		items, err := model.GetEventItemsByEvent(ctx, x.Db, events[i].ID)
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			log.Info().Err(err).Msg("no rows for event items")
-			items = []*model.EventItem{}
-		case err != nil:
-			log.Info().Err(err).Msg("db error")
-			x.Error(w, "db error", http.StatusInternalServerError)
-			return
-		}
-		events[i].Items = items
+	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
+		return e.ID
+	})
+	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event items")
+		eventItemCounts = []*model.EventItemCount{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
 	}
 
+	eventItemCountsMap := util.ToMapIndexedByFunc(
+		eventItemCounts,
+		func(eic *model.EventItemCount) (int, int) {
+			return eic.EventID, eic.Count
+		})
+
 	tplVars := map[string]any{
-		"user":           user,
-		"events":         events,
-		"eventCount":     eventCount,
-		"pgInput":        resources.NewPgInput(eventCount, 10, pageNum, "/events"),
-		"title":          "My Events",
-		"nav":            "events",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":            user,
+		"events":          events,
+		"eventItemCounts": eventItemCountsMap,
+		"eventCount":      eventCount,
+		"pgInput":         resources.NewPgInput(eventCount, 10, pageNum, "/events"),
+		"title":           "My Events",
+		"nav":             "events",
+		csrf.TemplateTag:  csrf.TemplateField(r),
+		"csrfToken":       csrf.Token(r),
 	}
 
 	// render user profile view
@@ -121,7 +129,6 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventDict := util.StructToMap(event)
 	owner := user.ID == event.UserID
 
 	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event.ID)
@@ -136,9 +143,10 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// sort if needed
-	itemsList := make([]map[string]interface{}, 0)
 	if len(event.ItemSortOrder) > 0 {
-		log.Debug().Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).Msg("sorting")
+		log.Debug().
+			Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).
+			Msg("sorting")
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
 		eventItemLen := len(eventItems)
 		sortedList := make([]*model.EventItem, len(event.ItemSortOrder))
@@ -151,9 +159,6 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		eventItems = append(unsortedList, sortedList...)
-	}
-	for i := range eventItems {
-		itemsList = append(itemsList, util.StructToMap(eventItems[i]))
 	}
 
 	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event.ID)
@@ -170,40 +175,18 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// associate earmarks and event items
 	// and also collect the user ids associated with
 	// earmarks
-	earmarksMap := make(map[int]*model.Earmark)
-	userIDsMap := make(map[int]struct{})
-	for i := range earmarks {
-		earmarksMap[earmarks[i].EventItemID] = earmarks[i]
-		userIDsMap[earmarks[i].UserID] = struct{}{}
-	}
+	userIDs := util.ToListByFunc(earmarks, func(e *model.Earmark) int {
+		return e.UserID
+	})
+	userIDs = util.Uniq(userIDs)
+	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	userIDs := util.Keys(userIDsMap)
 	earmarkUsers, err := model.GetUsersByIDs(ctx, x.Db, userIDs)
 	if err != nil {
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
-
-	// now associate the users with the earmarks
-	earmarkUsersMap := make(map[int]*model.User)
-	for i := range earmarkUsers {
-		earmarkUsersMap[earmarkUsers[i].ID] = earmarkUsers[i]
-	}
-
-	for i := range eventItems {
-		eid := eventItems[i].ID
-		if earmark, ok := earmarksMap[eid]; ok {
-			eaMap := util.StructToMap(earmark)
-			if uu, ok := earmarkUsersMap[earmark.UserID]; ok {
-				eaMap["User"] = util.StructToMap(uu)
-			}
-			itemsList[i]["Earmark"] = eaMap
-		}
-	}
-
-	eventDict["Items"] = itemsList
-
 	has_favorite := false
 	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
@@ -217,15 +200,26 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		has_favorite = true
 	}
 
+	earmarksMap := util.ToMapIndexedByFunc(earmarks,
+		func(em *model.Earmark) (int, *model.Earmark) { return em.EventItemID, em },
+	)
+
+	earmarkUsersMap := util.ToMapIndexedByFunc(earmarkUsers,
+		func(u *model.User) (int, *model.User) { return u.ID, u },
+	)
+
 	tplVars := map[string]any{
-		"user":           user,
-		"owner":          owner,
-		"event":          eventDict,
-		"favorite":       has_favorite,
-		"title":          "Event Details",
-		"nav":            "show-event",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":            user,
+		"owner":           owner,
+		"event":           event,
+		"eventItems":      eventItems,
+		"earmarksMap":     earmarksMap,
+		"earmarkUsersMap": earmarkUsersMap,
+		"favorite":        has_favorite,
+		"title":           "Event Details",
+		"nav":             "show-event",
+		csrf.TemplateTag:  csrf.TemplateField(r),
+		"csrfToken":       csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -360,7 +354,8 @@ func (x *XHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.NewEvent(ctx, x.Db, user.ID, name, description, startTime, &model.TimeZone{Location: loc})
+	event, err := model.NewEvent(ctx, x.Db,
+		user.ID, name, description, startTime, &model.TimeZone{Location: loc})
 	if err != nil {
 		log.Debug().Err(err).Msg("db error")
 		x.Error(w, "error creating event", http.StatusInternalServerError)

@@ -20,8 +20,7 @@ type Event struct {
 	StartTimeTz   *TimeZone `db:"start_time_tz"`
 	ItemSortOrder []int     `db:"item_sort_order"`
 	Created       time.Time
-	LastModified  time.Time    `db:"last_modified"`
-	Items         []*EventItem `db:"-"`
+	LastModified  time.Time `db:"last_modified"`
 }
 
 func NewEvent(ctx context.Context, db PgxHandle,

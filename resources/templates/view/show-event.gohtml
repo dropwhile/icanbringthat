@@ -169,7 +169,7 @@
             class="sortable bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
             hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
           >
-          {{ range .event.Items }}
+          {{ range .eventItems }}
             <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
               <td class="px-4 py-3">
                 <input type="hidden" name="sortOrder" value="{{.ID}}"/>
@@ -183,25 +183,29 @@
               </td>
               <td class="px-4 py-3">
                 <div class="text-sm" >
-                  {{if .Earmark }}
-                    {{if eq .Earmark.UserID $.user.ID}}
+                  {{with (index $.earmarksMap .ID )}}
+                    {{if eq .UserID $.user.ID}}
                       you!
-                    {{else if .Earmark.User}}
-                      {{.Earmark.User.Name}}
                     {{else}}
-                      User .Earmark.UserID
+                      {{with (index $.earmarkUsersMap .UserID )}}
+                        {{.Name}}
+                      {{ else }}
+                        User .UserID
+                      {{end}}
                     {{end}}
                   {{end}}
                 </div>
               </td>
               <td class="px-4 py-3">
                 <div class="text-sm" >
-                  {{if .Earmark}}{{.Earmark.Note}}{{end}}
+                  {{with (index $.earmarksMap .ID )}}
+                    {{.Note}}
+                  {{end}}
                 </div>
               </td>
               <td class="text-sm text-center" style="width:8rem">
-                {{if .Earmark }}
-                  {{if and .Earmark (eq .Earmark.UserID $.user.ID)}}
+                {{with (index $.earmarksMap .ID )}}
+                  {{if (eq .UserID $.user.ID)}}
                     <!-- viewer owns earmark -->
                     <div class="tooltip">
                       <div
@@ -213,7 +217,7 @@
                           class="flex items-center justify-between px-2 py-2 text-sm font-medium text-green-600 rounded-lg dark:text-green-400 focus:outline-none focus:shadow-outline-gray"
                           style="padding-right: 0.25rem; padding-left: 0.25rem;"
                           aria-label="Unmark"
-                          hx-delete="/earmarks/{{.Earmark.RefID}}"
+                          hx-delete="/earmarks/{{.RefID}}"
                           hx-confirm="Are you sure?"
                           hx-trigger="click throttle:1s"
                           hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
@@ -251,7 +255,7 @@
                         </button>
                       </div>
                     </div>
-                  {{else if and .Earmark (ne .Earmark.UserID $.user.ID)}}
+                  {{else}}
                     <!-- someone else owns earmark -->
                     <div class="tooltip" hx-boost="false">
                       <div
@@ -311,7 +315,8 @@
                 {{if eq $.event.UserID $.user.ID}}
                   <!-- change button -->
                   <!-- if earmarked by someone else, can't change it.. only delete it -->
-                  {{if and .Earmark (ne .Earmark.UserID $.user.ID)}}
+                  {{$earmark := (index $.earmarksMap .ID )}}
+                  {{if and $earmark (ne $earmark.UserID $.user.ID)}}
                     <div class="tooltip" hx-boost="false">
                       <!-- not editable event item -->
                       <div

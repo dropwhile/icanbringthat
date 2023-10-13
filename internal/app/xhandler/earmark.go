@@ -85,12 +85,17 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventsMap := util.ToMapIndexedByFunc(events,
+		func(v *model.Event) (int, *model.Event) { return v.ID, v })
+	eventItemsMap := util.ToMapIndexedByFunc(eventItems,
+		func(v *model.EventItem) (int, *model.EventItem) { return v.ID, v })
+
 	tplVars := map[string]any{
 		"user":           user,
 		"earmarks":       earmarks,
 		"earmarkCount":   earmarkCount,
-		"events":         util.ToMapIndexedByFunc(events, func(v *model.Event) int { return v.ID }),
-		"eventItems":     util.ToMapIndexedByFunc(eventItems, func(v *model.EventItem) int { return v.ID }),
+		"events":         eventsMap,
+		"eventItems":     eventItemsMap,
 		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",

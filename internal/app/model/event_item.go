@@ -96,3 +96,25 @@ func GetEventItemsByEvent(ctx context.Context, db PgxHandle,
 			id DESC`
 	return Query[EventItem](ctx, db, q, eventID)
 }
+
+type EventItemCount struct {
+	EventID int `db:"event_id"`
+	Count   int
+}
+
+func GetEventItemsCountByEventIDs(ctx context.Context, db PgxHandle,
+	eventIDs []int,
+) ([]*EventItemCount, error) {
+	q := `
+	SELECT
+		e.id as event_id,
+		count(ei.id)
+	FROM event_ e
+	LEFT JOIN event_item_ ei ON
+		e.id = ei.event_id
+	WHERE
+		e.id = ANY ($1)
+	GROUP BY e.id
+	ORDER BY e.id`
+	return Query[EventItemCount](ctx, db, q, eventIDs)
+}
