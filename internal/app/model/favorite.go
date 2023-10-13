@@ -61,13 +61,13 @@ func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
 	return Get[int](ctx, db, q, user.ID)
 }
 
-func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle,
+func GetFavoriteEventsByUserPaginated(ctx context.Context, db PgxHandle,
 	userID int, limit, offset int,
-) ([]*Favorite, error) {
+) ([]*Event, error) {
 	q := `
-	SELECT favorite_.*
-	FROM favorite_ 
-	JOIN event_ ON
+	SELECT event_.*
+	FROM event_ 
+	JOIN favorite_ ON
 		favorite_.event_id = event_.id
 	WHERE favorite_.user_id = @userID 
 	ORDER BY 
@@ -80,5 +80,5 @@ func GetFavoritesByUserPaginated(ctx context.Context, db PgxHandle,
 		"limit":  limit,
 		"offset": offset,
 	}
-	return Query[Favorite](ctx, db, q, args)
+	return Query[Event](ctx, db, q, args)
 }

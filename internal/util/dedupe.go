@@ -29,3 +29,21 @@ func ToSetIndexed[T comparable](sliceList []T) map[T]int {
 	}
 	return keys
 }
+
+func ToMapIndexedByFunc[T comparable, V comparable](sliceList []T, keyFunc func(T) V) map[V]T {
+	out := make(map[V]T, len(sliceList))
+	for i := range sliceList {
+		mapKey := keyFunc(sliceList[i])
+		out[mapKey] = sliceList[i]
+	}
+	return out
+}
+
+func ToListByFunc[T comparable, V comparable](sliceList []T, keyFunc func(T) V) []V {
+	out := make([]V, 0)
+	for i := range sliceList {
+		mapKey := keyFunc(sliceList[i])
+		out = append(out, mapKey)
+	}
+	return out
+}

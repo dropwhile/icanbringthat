@@ -55,13 +55,13 @@
           class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
           hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
         >
-        {{ range .favorites }}
+        {{ range .events }}
           <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <a href="/events/{{.Event.RefID }}">
-                    <p class="font-semibold">{{.Event.Name}}</p>
+                  <a href="/events/{{.RefID }}">
+                    <p class="font-semibold">{{.Name}}</p>
                   </a>
                 </div>
               </div>
@@ -71,7 +71,7 @@
               x-data="{date: new Date($el.innerText)}"
               x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
             >
-              {{.Event.StartTime | formatTS}}
+              {{.StartTime | formatTS}}
             </td>
             <td class="px-4 text-sm text-center" style="width:9rem">
               <div class="tooltip">
@@ -83,7 +83,7 @@
                   onmouseout="outFunc(this)"
                 >
                   <span class="tooltiptext">Copy Link to clipboard</span>
-                  <span hidden class="eventlink">/events/{{.Event.RefID}}</span>
+                  <span hidden class="eventlink">/events/{{.RefID}}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -110,7 +110,7 @@
                   class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                   style="padding-right: 0.25rem; padding-left: 0.25rem;"
                   aria-label="Unfavorite this Event"
-                  hx-delete="/events/{{.Event.RefID}}/favorite"
+                  hx-delete="/events/{{.RefID}}/favorite"
                   hx-confirm="Are you sure?"
                   hx-trigger="click throttle:1s"
                   hx-target="closest tr"

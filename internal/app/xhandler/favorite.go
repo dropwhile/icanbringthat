@@ -13,7 +13,6 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -47,45 +46,20 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	favorites, err := model.GetFavoritesByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
+	events, err := model.GetFavoriteEventsByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event")
-		favorites = []*model.Favorite{}
+		log.Debug().Err(err).Msg("no rows for favorite events")
+		events = []*model.Event{}
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
-	eventIDs := make([]int, 0)
-	favoritesMap := make(map[int]int)
-	for i := range favorites {
-		eventIDs = append(eventIDs, favorites[i].EventID)
-		favoritesMap[favorites[i].EventID] = i
-	}
-
-	events, err := model.GetEventsByIDs(ctx, x.Db, eventIDs)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	faves := make([]map[string]interface{}, 0)
-	for i := range favorites {
-		faves = append(faves, util.StructToMap(favorites[i]))
-	}
-	for i := range events {
-		event := events[i]
-		if favIdx, ok := favoritesMap[event.ID]; ok {
-			faves[favIdx]["Event"] = util.StructToMap(event)
-		}
-	}
-
 	tplVars := map[string]any{
 		"user":           user,
-		"favorites":      faves,
+		"events":         events,
 		"favoriteCount":  favoriteCount,
 		"pgInput":        resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":          "My Favorites",
