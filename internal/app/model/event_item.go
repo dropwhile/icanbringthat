@@ -71,6 +71,13 @@ func GetEventItemByID(ctx context.Context, db PgxHandle,
 	return QueryOne[EventItem](ctx, db, q, eventItemID)
 }
 
+func GetEventItemsByIDs(ctx context.Context, db PgxHandle,
+	eventItemIDs []int,
+) ([]*EventItem, error) {
+	q := `SELECT * FROM event_item_ WHERE id = ANY($1)`
+	return Query[EventItem](ctx, db, q, eventItemIDs)
+}
+
 func GetEventItemByRefID(ctx context.Context, db PgxHandle,
 	refID EventItemRefID,
 ) (*EventItem, error) {
@@ -79,7 +86,7 @@ func GetEventItemByRefID(ctx context.Context, db PgxHandle,
 }
 
 func GetEventItemsByEvent(ctx context.Context, db PgxHandle,
-	event *Event,
+	eventID int,
 ) ([]*EventItem, error) {
 	q := `
 		SELECT * FROM event_item_
@@ -87,5 +94,5 @@ func GetEventItemsByEvent(ctx context.Context, db PgxHandle,
 		ORDER BY
 			created DESC,
 			id DESC`
-	return Query[EventItem](ctx, db, q, event.ID)
+	return Query[EventItem](ctx, db, q, eventID)
 }

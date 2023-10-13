@@ -57,35 +57,40 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eaDict := make([]map[string]interface{}, 0)
-	for i := range earmarks {
-		ei, err := model.GetEventItemByID(ctx, x.Db, earmarks[i].EventItemID)
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			continue
-		case err != nil:
-			log.Info().Err(err).Msg("db error")
-			x.Error(w, "db error", http.StatusInternalServerError)
-			return
-		}
-		e, err := model.GetEventByID(ctx, x.Db, ei.EventID)
-		// if no rows, or other db error, honk
-		if err != nil {
-			log.Info().Err(err).Msg("db error")
-			x.Error(w, "db error", http.StatusInternalServerError)
-			return
-		}
-		eiDict := util.StructToMap(ei)
-		eiDict["Event"] = util.StructToMap(e)
-		emDict := util.StructToMap(earmarks[i])
-		emDict["EventItem"] = eiDict
-		eaDict = append(eaDict, emDict)
+	eventItemIDs := util.ToListByFunc(earmarks, func(em *model.Earmark) int {
+		return em.EventItemID
+	})
+	eventItems, err := model.GetEventItemsByIDs(ctx, x.Db, eventItemIDs)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no event items")
+		eventItems = []*model.EventItem{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventIDs := util.ToListByFunc(eventItems, func(e *model.EventItem) int {
+		return e.EventID
+	})
+	events, err := model.GetEventsByIDs(ctx, x.Db, eventIDs)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no events")
+		events = []*model.Event{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
 	}
 
 	tplVars := map[string]any{
 		"user":           user,
-		"earmarks":       eaDict,
+		"earmarks":       earmarks,
 		"earmarkCount":   earmarkCount,
+		"events":         util.ToMapIndexedByFunc(events, func(v *model.Event) int { return v.ID }),
+		"eventItems":     util.ToMapIndexedByFunc(eventItems, func(v *model.EventItem) int { return v.ID }),
 		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",

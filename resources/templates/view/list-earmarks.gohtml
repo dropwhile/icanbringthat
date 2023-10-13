@@ -58,19 +58,21 @@
           hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
         >
         {{ range .earmarks }}
+          {{ $eventItem := (index $.eventItems .EventItemID )}}
+          {{ $event := (index $.events $eventItem.EventID )}}
           <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <p class="font-semibold">{{.EventItem.Description}}</p>
+                  <p class="font-semibold">{{$eventItem.Description}}</p>
                 </div>
               </div>
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <a href="/events/{{.EventItem.Event.RefID }}">
-                    <p class="font-semibold">{{.EventItem.Event.Name}}</p>
+                  <a href="/events/{{$event.RefID }}">
+                    <p class="font-semibold">{{$event.Name}}</p>
                   </a>
                 </div>
               </div>
@@ -87,7 +89,7 @@
               x-data="{date: new Date($el.innerText)}"
               x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
             >
-              {{.EventItem.Event.StartTime | formatTS}}
+              {{$event.StartTime | formatTS}}
             </td>
             <td class="px-3 text-sm text-center" style="width:9rem">
               <div class="tooltip" hx-boost="false">

@@ -60,7 +60,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range events {
-		items, err := model.GetEventItemsByEvent(ctx, x.Db, events[i])
+		items, err := model.GetEventItemsByEvent(ctx, x.Db, events[i].ID)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			log.Info().Err(err).Msg("no rows for event items")
@@ -124,7 +124,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	eventDict := util.StructToMap(event)
 	owner := user.ID == event.UserID
 
-	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event)
+	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event items")
