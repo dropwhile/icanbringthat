@@ -1,13 +1,9 @@
 {{ define "main" }}
   <!-- Account Details -->
-  <h4
-    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
-  >
+  <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Account
   </h4>
-  <div
-    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl"
-  >
+  <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
     {{if not .user.Verified }}
     <form method="post" action="/verify">
       <label class="block mb-4 text-sm">
@@ -196,8 +192,8 @@
       </div>
     </form>
     <script>
-      var password = document.getElementByID("password")
-      var confirm_password = document.getElementByID("confirm_password");
+      var password = document.getElementById("password")
+      var confirm_password = document.getElementById("confirm_password");
 
       function validatePassword(){
         if(password.value != confirm_password.value) {

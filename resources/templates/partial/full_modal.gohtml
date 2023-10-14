@@ -28,7 +28,8 @@
       @click.away="showModal = false"
       @htmx:after-swap="showModal = true"
       @htmx:before-swap="if(!$event.detail.xhr.response) { showModal = false; $event.detail.shouldSwap = false;}"
-      class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl"
+      class="w-full px-6 py-4 bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl"
+      style="max-height: 100%; overflow-y: auto;"
       role="dialog"
       id="modal"
     >

@@ -83,6 +83,7 @@ func New(
 		r.Group(func(r chi.Router) {
 			r.Use(auth.Require)
 			r.Use(middleware.NoCache)
+			r.Get("/about", zh.ShowAbout)
 			// acccount/settings
 			r.Get("/settings", zh.ShowSettings)
 			r.Post("/settings", zh.UpdateSettings)
