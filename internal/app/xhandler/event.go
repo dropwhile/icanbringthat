@@ -144,7 +144,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	// sort if needed
 	if len(event.ItemSortOrder) > 0 {
-		log.Debug().
+		log.Trace().
 			Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).
 			Msg("sorting")
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
