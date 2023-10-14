@@ -21,6 +21,7 @@
             autocomplete="off"
             autofocus
             required
+            onfocus="this.setSelectionRange(0,this.value.length);"
           ></input>
         </label>
         {{ .csrfField }}
