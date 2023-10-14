@@ -58,12 +58,13 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 		)
 		RETURNING *`
 	args := pgx.NamedArgs{
-		"refID":       refID,
-		"userID":      userID,
-		"name":        name,
-		"description": description,
-		"startTime":   startTime,
-		"startTimeTz": startTimeTz,
+		"refID":         refID,
+		"userID":        userID,
+		"name":          name,
+		"description":   description,
+		"itemSortOrder": itemSortOrder,
+		"startTime":     startTime,
+		"startTimeTz":   startTimeTz,
 	}
 	return QueryOneTx[Event](ctx, db, q, args)
 }
