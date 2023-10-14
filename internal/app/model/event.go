@@ -29,12 +29,10 @@ func NewEvent(ctx context.Context, db PgxHandle,
 	startTimeTz *TimeZone,
 ) (*Event, error) {
 	refID := refid.Must(NewEventRefID())
-	itemSortOrder := []int{}
 	return CreateEvent(
 		ctx, db,
 		refID, userID,
 		name, description,
-		itemSortOrder,
 		startTime, startTimeTz,
 	)
 }
@@ -42,29 +40,26 @@ func NewEvent(ctx context.Context, db PgxHandle,
 func CreateEvent(ctx context.Context, db PgxHandle,
 	refID EventRefID,
 	userID int, name, description string,
-	itemSortOrder []int,
 	startTime time.Time,
 	startTimeTz *TimeZone,
 ) (*Event, error) {
 	q := `
 		INSERT INTO event_ (
 			ref_id, user_id, name, description,
-			item_sort_order, start_time, start_time_tz
+			start_time, start_time_tz
 		)
 		VALUES (
-			@refID, @userID, @name, 
-			@description, @itemSortOrder,
+			@refID, @userID, @name, @description,
 			@startTime, @startTimeTz
 		)
 		RETURNING *`
 	args := pgx.NamedArgs{
-		"refID":         refID,
-		"userID":        userID,
-		"name":          name,
-		"description":   description,
-		"itemSortOrder": itemSortOrder,
-		"startTime":     startTime,
-		"startTimeTz":   startTimeTz,
+		"refID":       refID,
+		"userID":      userID,
+		"name":        name,
+		"description": description,
+		"startTime":   startTime,
+		"startTimeTz": startTimeTz,
 	}
 	return QueryOneTx[Event](ctx, db, q, args)
 }
