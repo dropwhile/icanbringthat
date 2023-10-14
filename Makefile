@@ -138,6 +138,11 @@ migrate:
 	@echo ">> running migrations..."
 	@goose up
 
+.PHONY: cloc
+cloc:
+	@echo ">> counting stuff..."
+	@cloc -v 2 --force-lang=HTML,gohtml --fullpath --not-match-d resources/static/ .
+
 .PHONY: dev-db-create
 dev-db-create:
 	@echo ">> starting dev postgres..."
