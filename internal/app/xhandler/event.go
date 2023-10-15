@@ -324,6 +324,11 @@ func (x *XHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !user.Verified {
+		x.Error(w, "Account must be verified before event creation is allowed.", http.StatusForbidden)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
 		x.Error(w, err.Error(), http.StatusBadRequest)

@@ -13,6 +13,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/util/htmx"
 )
 
 func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
@@ -73,8 +74,12 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 
 	_ = user
 	x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml)
-
 	x.SessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Refresh", "true")
+		w.WriteHeader(200)
+		return
+	}
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 

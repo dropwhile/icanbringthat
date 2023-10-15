@@ -8,6 +8,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util/htmx"
 )
 
 func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
@@ -222,6 +223,10 @@ func (x *XHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		// not a fatal error (do not return 500 to user), since the user deleted
 		// sucessfully already. just log the oddity
 		log.Error().Err(err).Msg("error destroying session")
+	}
+	if htmx.Hx(r).Request() {
+		x.SessMgr.FlashAppend(ctx, "success", "Account deleted. Sorry to see you go.")
+		w.Header().Add("HX-Location", "/login")
 	}
 	w.WriteHeader(200)
 }

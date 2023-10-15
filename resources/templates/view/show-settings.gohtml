@@ -32,7 +32,7 @@
           </button>
         </div>
         <span class="text-xs text-gray-600 dark:text-gray-400">
-          Note: Email notifications will not be sent until account is verified.
+          Note: Event notification emails will not be sent until account is verified.
         </span>
       </label>
       {{ .csrfField }}
@@ -225,7 +225,7 @@
     <br>
     <button
       class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"      
-      hx-confirm="Are you sure? This is not a reversable operation."
+      hx-boost="true"
       hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-delete="/settings"
         _="on htmx:confirm(issueRequest)

@@ -140,6 +140,7 @@
       </li>
     </ul>
     <div class="px-6 my-6">
+      {{if .user.Verified }}
       <button
         class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
         hx-get="/events/add"
@@ -150,6 +151,32 @@
         Create Event
         <span class="ml-2" aria-hidden="true">+</span>
       </button>
+      {{else}}
+      <button
+        class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+        hx-post="/verify"
+        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+        _="on htmx:confirm(issueRequest)
+          halt the event
+          call Swal.fire({
+            title: 'Account not yet verified',
+            html: 'Your account must be verified before the<br>' +
+                  'creation of new events is allowed.' +
+                  '<br><br>' +
+                  'Would you like to send the email<br>' +
+                  'account verification link now?' 
+            ,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Send Verification Email'})
+          if result.isConfirmed issueRequest()"
+        >
+        Create Event
+        <span class="ml-2" aria-hidden="true">+</span>
+      </button>
+      {{end}}
     </div>
   </div>
 {{end}}
