@@ -190,6 +190,11 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !user.Verified {
+		x.Error(w, "Account must be verified before earmarking is allowed.", http.StatusForbidden)
+		return
+	}
+
 	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")

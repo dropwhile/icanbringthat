@@ -280,6 +280,31 @@
                 {{else}}
                   <!-- no earmark yet -->
                   <div class="tooltip" hx-boost="false">
+                    {{if not $.user.Verified}}
+                    <button
+                      class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                      style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                      aria-label="Earmark"
+                      hx-post="/verify"
+                      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+                      _="on htmx:confirm(issueRequest)
+                        halt the event
+                        call Swal.fire({
+                          title: 'Account not yet verified',
+                          html: 'Your account must be verified before<br>' +
+                                'earmarking an item is allowed.' +
+                                '<br><br>' +
+                                'Would you like to send the account<br>' +
+                                'verification email now?' 
+                          ,
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonColor: '#3085d6',
+                          cancelButtonColor: '#d33',
+                          confirmButtonText: 'Send Verification Email'})
+                        if result.isConfirmed issueRequest()"
+                      >
+                    {{else}}
                     <button
                       class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                       style="padding-right: 0.25rem; padding-left: 0.25rem;"
@@ -289,6 +314,7 @@
                       hx-select="#form" 
                       hx-trigger="click"
                     >
+                    {{end}}
                       <span class="tooltiptext text-center">I can bring that!</span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
