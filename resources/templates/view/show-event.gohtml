@@ -280,7 +280,7 @@
                 {{else}}
                   <!-- no earmark yet -->
                   <div class="tooltip" hx-boost="false">
-                    {{if not $.user.Verified}}
+                    {{if and (not $.owner) (not $.user.Verified) }}
                     <button
                       class="flex items-center justify-between px-2 py-2 text-sm font-medium text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                       style="padding-right: 0.25rem; padding-left: 0.25rem;"

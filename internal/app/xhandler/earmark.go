@@ -190,11 +190,6 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !user.Verified {
-		x.Error(w, "Account must be verified before earmarking is allowed.", http.StatusForbidden)
-		return
-	}
-
 	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		log.Debug().Err(err).Msg("bad event ref-id")
@@ -218,6 +213,13 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	// non-owner must be verified before earmarking.
+	// it is fine for owner to self-earmark though
+	if !user.Verified && event.UserID != user.ID {
+		x.Error(w, "Account must be verified before earmarking is allowed.", http.StatusForbidden)
 		return
 	}
 
