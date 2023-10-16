@@ -30,6 +30,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -236,6 +237,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -587,6 +589,59 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create earmark user not verified", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:           33,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     false,
+			Created:      ts,
+			LastModified: ts,
+		}
+
+		eventRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "user_id", "name", "description",
+				"start_time", "start_time_tz", "created", "last_modified",
+			}).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				event.StartTime, event.StartTimeTz, ts, ts,
+			)
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{"note": {"some note"}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateEarmark(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

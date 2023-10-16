@@ -30,6 +30,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -293,6 +294,49 @@ func TestHandler_Event_Create(t *testing.T) {
 	t.Run("create bad time", func(t *testing.T) {
 		t.Parallel()
 
+		user := &model.User{
+			ID:           1,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     false,
+			Created:      ts,
+			LastModified: ts,
+		}
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+
+		data := url.Values{
+			"name":        {event.Name},
+			"description": {event.Description},
+			"when":        {event.StartTime.Format("2006-01-02T15:04")},
+			"timezone":    {event.StartTimeTz.String()},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateEvent(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create user not validated", func(t *testing.T) {
+		t.Parallel()
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -333,6 +377,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -939,6 +984,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -1249,6 +1295,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
+		Verified:     true,
 		Created:      ts,
 		LastModified: ts,
 	}
