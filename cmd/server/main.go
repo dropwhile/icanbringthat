@@ -93,7 +93,7 @@ func main() {
 	r.Get("/robots.txt", resources.ServeSingle(staticFS, "robots.txt"))
 
 	server := &http.Server{
-		Addr:              config.ListenHostPort,
+		Addr:              config.Listen,
 		Handler:           r,
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      5 * time.Second,
@@ -117,7 +117,7 @@ func main() {
 
 	// listen
 	log.Info().Msg("starting up...")
-	log.Info().Msgf("listening: %s", config.ListenHostPort)
+	log.Info().Msgf("listening: %s", config.Listen)
 	log.Info().Msgf("server version: %s", ServerVersion)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal().Err(err).Msg("HTTP server error")

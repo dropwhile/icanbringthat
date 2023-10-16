@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/caarlos0/env/v9"
 	"github.com/rs/zerolog"
@@ -12,23 +13,23 @@ import (
 )
 
 type Config struct {
-	LogFormat      string        `env:"LOG_FORMAT" envDefault:"json"`
-	LogLevel       zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
-	Production     bool          `env:"PRODUCTION" envDefault:"true"`
-	ListenHostPort string        `env:"LISTEN_HOST_PORT" envDefault:"127.0.0.1:8000"`
-	TemplateDir    string        `env:"TPL_DIR" envDefault:"embed"`
-	StaticDir      string        `env:"STATIC_DIR" envDefault:"embed"`
-	DatabaseDSN    string        `env:"DB_DSN,required"`
-	RPID           string        `env:"RP_ID,required"`
-	RPOrigins      []string      `env:"RP_ORIGINS,required"`
-	SMTPHostname   string        `env:"SMTP_HOSTNAME,required"`
-	SMTPHost       string        `env:"SMTP_HOST" envDefault:"$SMTP_HOSTNAME"`
-	SMTPPort       int           `env:"SMTP_PORT,required"`
-	SMTPUser       string        `env:"SMTP_USER,required"`
-	SMTPPass       string        `env:"SMTP_PASS,required"`
-	HMACKey        string        `env:"HMAC_KEY,required"`
-	CSRFKeyBytes   []byte
-	HMACKeyBytes   []byte
+	LogFormat    string        `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel     zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	Production   bool          `env:"PRODUCTION" envDefault:"true"`
+	Listen       string        `env:"LISTEN" envDefault:"127.0.0.1:8000"`
+	TemplateDir  string        `env:"TPL_DIR" envDefault:"embed"`
+	StaticDir    string        `env:"STATIC_DIR" envDefault:"embed"`
+	DatabaseDSN  string        `env:"DB_DSN,required"`
+	RPID         string        `env:"RP_ID,required"`
+	RPOrigins    []string      `env:"RP_ORIGINS,required"`
+	SMTPHostname string        `env:"SMTP_HOSTNAME,required"`
+	SMTPHost     string        `env:"SMTP_HOST" envDefault:"$SMTP_HOSTNAME"`
+	SMTPPort     int           `env:"SMTP_PORT,required"`
+	SMTPUser     string        `env:"SMTP_USER,required"`
+	SMTPPass     string        `env:"SMTP_PASS,required"`
+	HMACKey      string        `env:"HMAC_KEY,required"`
+	CSRFKeyBytes []byte
+	HMACKeyBytes []byte
 }
 
 func ParseConfig() (*Config, error) {
@@ -39,6 +40,14 @@ func ParseConfig() (*Config, error) {
 	//----------------//
 	if err := env.Parse(config); err != nil {
 		return config, err
+	}
+
+	if !strings.Contains(config.Listen, ":") {
+		if strings.Contains(config.Listen, ".") {
+			config.Listen = strings.Join([]string{config.Listen, "8000"}, ":")
+		} else {
+			config.Listen = strings.Join([]string{"127.0.0.1", config.Listen}, ":")
+		}
 	}
 
 	tplDir := path.Clean(config.TemplateDir)
