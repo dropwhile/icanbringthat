@@ -6,29 +6,29 @@ import (
 	"os"
 	"path"
 
-	"github.com/kelseyhightower/envconfig"
+	"github.com/caarlos0/env/v9"
 	"github.com/rs/zerolog"
 	"golang.org/x/crypto/pbkdf2"
 )
 
 type Config struct {
-	LogFormat      string        `split_words:"true" default:"json"`
-	LogLevel       zerolog.Level `split_words:"true" default:"info"`
-	Production     bool          `split_words:"true" default:"true"`
-	ListenHostPort string        `split_words:"true" default:"127.0.0.1:8000"`
-	TemplateDir    string        `split_words:"true" default:"embed" envconfig:"tpl_dir"`
-	StaticDir      string        `split_words:"true" default:"embed"`
-	DatabaseDSN    string        `split_words:"true" required:"true" envconfig:"db_dsn"`
-	RPID           string        `split_words:"true" required:"true" envconfig:"rp_id"`
-	RPOrigins      []string      `split_words:"true" required:"true" envconfig:"rp_origins"`
-	HMACKey        string        `split_words:"true" required:"true" envconfig:"hmac_key"`
-	CSRFKeyBytes   []byte        `ignored:"true"` // do these manually
-	HMACKeyBytes   []byte        `ignored:"true"` // do these manually
-	SMTPHostname   string        `split_words:"true" required:"true" envconfig:"smtp_hostname"`
-	SMTPHost       string        `split_words:"true" envconfig:"smtp_host"`
-	SMTPPort       int           `split_words:"true" required:"true" envconfig:"smtp_port"`
-	SMTPUser       string        `split_words:"true" required:"true" envconfig:"smtp_user"`
-	SMTPPass       string        `split_words:"true" required:"true" envconfig:"smtp_pass"`
+	LogFormat      string        `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel       zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	Production     bool          `env:"PRODUCTION" envDefault:"true"`
+	ListenHostPort string        `env:"LISTEN_HOST_PORT" envDefault:"127.0.0.1:8000"`
+	TemplateDir    string        `env:"TPL_DIR" envDefault:"embed"`
+	StaticDir      string        `env:"STATIC_DIR" envDefault:"embed"`
+	DatabaseDSN    string        `env:"DB_DSN,required"`
+	RPID           string        `env:"RP_ID,required"`
+	RPOrigins      []string      `env:"RP_ORIGINS,required"`
+	HMACKey        string        `env:"HMAC_KEY,required"`
+	CSRFKeyBytes   []byte
+	HMACKeyBytes   []byte
+	SMTPHostname   string `env:"SMTP_HOSTNAME,required"`
+	SMTPHost       string `env:"SMTP_HOST" envDefault:"$SMTP_HOSTNAME"`
+	SMTPPort       int    `env:"SMTP_PORT,required"`
+	SMTPUser       string `env:"SMTP_USER,required"`
+	SMTPPass       string `env:"SMTP_PASS,required"`
 }
 
 func ParseConfig() (*Config, error) {
@@ -37,8 +37,7 @@ func ParseConfig() (*Config, error) {
 	//----------------//
 	// parse env vars //
 	//----------------//
-	err := envconfig.Process("", config)
-	if err != nil {
+	if err := env.Parse(config); err != nil {
 		return config, err
 	}
 
