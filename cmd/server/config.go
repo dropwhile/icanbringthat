@@ -5,28 +5,30 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/pbkdf2"
 )
 
 type Config struct {
-	LogFormat      string
-	LogLevel       zerolog.Level
-	Production     bool
-	ListenHostPort string
-	TemplateDir    string
-	StaticDir      string
-	DatabaseDSN    string
-	CSRFKeyBytes   []byte
-	HMACKeyBytes   []byte
-	SMTPHostname   string
-	SMTPHost       string
-	SMTPPort       int
-	SMTPUser       string
-	SMTPPass       string
+	LogFormat      string        `split_words:"true" default:"json"`
+	LogLevel       zerolog.Level `split_words:"true" default:"info"`
+	Production     bool          `split_words:"true" default:"true"`
+	ListenHostPort string        `split_words:"true" default:"127.0.0.1:8000"`
+	TemplateDir    string        `split_words:"true" default:"embed" envconfig:"tpl_dir"`
+	StaticDir      string        `split_words:"true" default:"embed"`
+	DatabaseDSN    string        `split_words:"true" required:"true" envconfig:"db_dsn"`
+	RPID           string        `split_words:"true" required:"true" envconfig:"rp_id"`
+	RPOrigins      []string      `split_words:"true" required:"true" envconfig:"rp_origins"`
+	HMACKey        string        `split_words:"true" required:"true" envconfig:"hmac_key"`
+	CSRFKeyBytes   []byte        `ignored:"true"` // do these manually
+	HMACKeyBytes   []byte        `ignored:"true"` // do these manually
+	SMTPHostname   string        `split_words:"true" required:"true" envconfig:"smtp_hostname"`
+	SMTPHost       string        `split_words:"true" envconfig:"smtp_host"`
+	SMTPPort       int           `split_words:"true" required:"true" envconfig:"smtp_port"`
+	SMTPUser       string        `split_words:"true" required:"true" envconfig:"smtp_user"`
+	SMTPPass       string        `split_words:"true" required:"true" envconfig:"smtp_pass"`
 }
 
 func ParseConfig() (*Config, error) {
@@ -35,49 +37,12 @@ func ParseConfig() (*Config, error) {
 	//----------------//
 	// parse env vars //
 	//----------------//
-
-	// log format
-	viper.MustBindEnv("LOG_FORMAT")
-	viper.SetDefault("LOG_FORMAT", "json")
-	config.LogFormat = viper.GetString("LOG_FORMAT")
-
-	// debug logging or not
-	viper.MustBindEnv("LOG_LEVEL")
-	viper.SetDefault("LOG_LEVEL", "info")
-	logLevel := viper.GetString("LOG_LEVEL")
-	switch strings.ToLower(logLevel) {
-	case "debug":
-		config.LogLevel = zerolog.DebugLevel
-	case "trace":
-		config.LogLevel = zerolog.TraceLevel
-	default:
-		config.LogLevel = zerolog.InfoLevel
+	err := envconfig.Process("", config)
+	if err != nil {
+		return config, err
 	}
 
-	// prod mode (secure cookies) or not
-	viper.MustBindEnv("PRODUCTION")
-	viper.SetDefault("PRODUCTION", "true")
-	config.Production = viper.GetBool("PRODUCTION")
-
-	// listen address/port
-	viper.MustBindEnv("BIND_ADDRESS")
-	viper.SetDefault("BIND_ADDRESS", "127.0.0.1")
-	viper.MustBindEnv("BIND_PORT")
-	viper.SetDefault("BIND_PORT", "8000")
-	listenAddr := viper.GetString("BIND_ADDRESS")
-	if listenAddr == "" {
-		return nil, fmt.Errorf("listen address not specified")
-	}
-	listenPort := viper.GetInt("BIND_PORT")
-	if listenPort == 0 {
-		return nil, fmt.Errorf("listen address not specified")
-	}
-	config.ListenHostPort = fmt.Sprintf("%s:%d", listenAddr, listenPort)
-
-	// load templates
-	viper.MustBindEnv("TPL_DIR")
-	viper.SetDefault("TPL_DIR", "embed")
-	tplDir := path.Clean(viper.GetString("TPL_DIR"))
+	tplDir := path.Clean(config.TemplateDir)
 	if tplDir != "embed" {
 		if tplDir == "" {
 			return nil, fmt.Errorf("template dir not specified")
@@ -89,10 +54,7 @@ func ParseConfig() (*Config, error) {
 	}
 	config.TemplateDir = tplDir
 
-	// static resources
-	viper.MustBindEnv("STATIC_DIR")
-	viper.SetDefault("STATIC_DIR", "embed")
-	staticDir := path.Clean(viper.GetString("STATIC_DIR"))
+	staticDir := path.Clean(config.StaticDir)
 	if staticDir != "embed" {
 		if staticDir == "" {
 			return nil, fmt.Errorf("static dir not specified")
@@ -104,17 +66,8 @@ func ParseConfig() (*Config, error) {
 	}
 	config.StaticDir = staticDir
 
-	// database
-	viper.MustBindEnv("DB_DSN")
-	dbDSN := viper.GetString("DB_DSN")
-	if dbDSN == "" {
-		return nil, fmt.Errorf("database connection info not supplied")
-	}
-	config.DatabaseDSN = dbDSN
-
 	// csrf Key
-	viper.MustBindEnv("HMAC_KEY")
-	keyInput := viper.GetString("HMAC_KEY")
+	keyInput := config.HMACKey
 	if keyInput == "" {
 		return nil, fmt.Errorf("hmac key not supplied")
 	}
@@ -136,42 +89,6 @@ func ParseConfig() (*Config, error) {
 		32,         // desired output size
 		sha256.New, // hash to use
 	)
-
-	// smtp stuff
-	viper.MustBindEnv("SMTP_HOSTNAME")
-	smtpHostname := viper.GetString("SMTP_HOSTNAME")
-	if smtpHostname == "" {
-		return nil, fmt.Errorf("smtp mail hostname not set")
-	}
-	config.SMTPHostname = smtpHostname
-
-	viper.MustBindEnv("SMTP_HOST")
-	smtpHost := viper.GetString("SMTP_HOST")
-	if smtpHost == "" {
-		smtpHost = smtpHostname
-	}
-	config.SMTPHost = smtpHost
-
-	viper.MustBindEnv("SMTP_PORT")
-	smtpPort := viper.GetInt("SMTP_PORT")
-	if smtpPort == 0 {
-		return nil, fmt.Errorf("smtp mail port not set")
-	}
-	config.SMTPPort = smtpPort
-
-	viper.MustBindEnv("SMTP_USER")
-	smtpUser := viper.GetString("SMTP_USER")
-	if smtpUser == "" {
-		return nil, fmt.Errorf("smtp mail username not set")
-	}
-	config.SMTPUser = smtpUser
-
-	viper.MustBindEnv("SMTP_PASS")
-	smtpPass := viper.GetString("SMTP_PASS")
-	if smtpPass == "" {
-		return nil, fmt.Errorf("smtp mail password not set")
-	}
-	config.SMTPPass = smtpPass
 
 	return config, nil
 }

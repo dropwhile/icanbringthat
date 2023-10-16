@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -16,11 +17,12 @@ import (
 )
 
 type XHandler struct {
-	Db      model.PgxHandle
-	Tpl     resources.TemplateMap
-	SessMgr *session.SessionMgr
-	Mailer  util.MailSender
-	Hmac    *util.Hmac
+	Db       model.PgxHandle
+	Tpl      resources.TemplateMap
+	SessMgr  *session.SessionMgr
+	Mailer   util.MailSender
+	Hmac     *util.Hmac
+	WebAuthN *webauthn.WebAuthn
 }
 
 func (x *XHandler) Template(name string) (*template.Template, error) {
