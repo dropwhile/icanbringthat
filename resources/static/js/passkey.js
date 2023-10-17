@@ -1,8 +1,5 @@
-import { startRegistration } from './simplewebauthn-browser-8.3.1.min.js';
-
 // Start registration when the user clicks a button
-const registerPasskey = async (el) => {
-    const csrfToken = el.dataset.csrf;
+async function registerPasskey(csrfToken) {
     // GET registration options from the endpoint that calls
     // @simplewebauthn/server -> generateRegistrationOptions()
     const resp = await fetch('/webauthn/register');
@@ -11,21 +8,21 @@ const registerPasskey = async (el) => {
     let attResp;
     try {
         // Pass the options to the authenticator and wait for a response
-        attResp = await startRegistration(respJ.publicKey);
+        attResp = await SimpleWebAuthnBrowser.startRegistration(respJ.publicKey);
     } catch (error) {
         // Some basic error handling
         if (error.name === 'InvalidStateError') {
-        Swal.fire({
-            icon: 'error', title: 'Oops...',
-            text: 'Error: Authenticator was probably already registered by user'
-        });
+            Swal.fire({
+                icon: 'error', title: 'Oops...',
+                text: 'Error: Authenticator was probably already registered by user'
+            });
         } else {
-        Swal.fire({
-            icon: 'error', title: 'Oops...',
-            text: 'Error: '+error
-        });
+            Swal.fire({
+                icon: 'error', title: 'Oops...',
+                text: 'Error: '+error
+            });
         }
-        throw error;
+        return;
     }
 
     const { value: keyname } = await Swal.fire({
@@ -35,9 +32,9 @@ const registerPasskey = async (el) => {
         inputValue: inputValue,
         showCancelButton: false,
         inputValidator: (value) => {
-        if (!value) {
-            return 'You need to write something!'
-        }
+            if (!value) {
+                return 'You need to write something!'
+            }
         }
     });
 
@@ -71,3 +68,5 @@ const registerPasskey = async (el) => {
         });
     }
 };
+
+window.registerPasskey = registerPasskey
