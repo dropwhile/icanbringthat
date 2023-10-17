@@ -82,6 +82,7 @@ func main() {
 		config.HMACKeyBytes,
 		config.CSRFKeyBytes,
 		config.Production,
+		config.BaseURL,
 	)
 	defer r.Close()
 

@@ -1,12 +1,12 @@
 package xhandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
 	"net/http"
 
-	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -17,12 +17,13 @@ import (
 )
 
 type XHandler struct {
-	Db       model.PgxHandle
-	Tpl      resources.TemplateMap
-	SessMgr  *session.SessionMgr
-	Mailer   util.MailSender
-	Hmac     *util.Hmac
-	WebAuthN *webauthn.WebAuthn
+	Db      model.PgxHandle
+	Tpl     resources.TemplateMap
+	SessMgr *session.SessionMgr
+	Mailer  util.MailSender
+	Hmac    *util.Hmac
+	BaseURL string
+	IsProd  bool
 }
 
 func (x *XHandler) Template(name string) (*template.Template, error) {
@@ -82,7 +83,7 @@ func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
 	err := x.TemplateExecute(w, "error-page.gohtml", map[string]any{
-		"ErrorCode":   404,
+		"ErrorCode":   code,
 		"ErrorStatus": statusMsg,
 		"title":       fmt.Sprintf("%d - %s", code, statusMsg),
 	})
@@ -92,4 +93,16 @@ func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 		fmt.Fprintln(w, statusMsg)
 		return
 	}
+}
+
+func (x *XHandler) Json(w http.ResponseWriter, code int, payload interface{}) {
+	response, err := json.Marshal(payload)
+	if err != nil {
+		log.Info().Err(err).Msg("json encoding error")
+		x.Error(w, "encoding error", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
 }

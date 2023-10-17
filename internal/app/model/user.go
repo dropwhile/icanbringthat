@@ -20,6 +20,7 @@ type User struct {
 	Name         string `db:"name"`
 	PWHash       []byte `db:"pwhash"`
 	Verified     bool
+	WebAuthn     bool
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
 }

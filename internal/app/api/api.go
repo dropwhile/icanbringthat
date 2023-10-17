@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strings"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
@@ -36,27 +38,19 @@ func New(
 	db *pgxpool.Pool,
 	tpl resources.TemplateMap,
 	mailer *util.Mailer,
-	hmacKey, csrfKey []byte,
+	hmacKey []byte,
+	csrfKey []byte,
 	isProd bool,
+	baseURL string,
 ) *API {
-	/*
-		wconfig := &webauthn.Config{
-			RPDisplayName: "ICanBringThat", // Display Name for your site
-			RPID: "go-webauthn.local", // Generally the FQDN for your site
-			RPOrigins: []string{"https://login.go-webauthn.local"}, // The origin URLs allowed for WebAuthn requests
-		}
-
-		if webAuthn, err = webauthn.New(wconfig); err != nil {
-			fmt.Println(err)
-		}
-	*/
-
 	zh := &xhandler.XHandler{
 		Db:      model.SetupFromDbPool(db),
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db),
 		Mailer:  mailer,
 		Hmac:    util.NewHmac(hmacKey),
+		BaseURL: strings.TrimSuffix(baseURL, "/"),
+		IsProd:  isProd,
 	}
 
 	api := &API{Mux: chi.NewRouter(), handler: zh}
@@ -133,6 +127,9 @@ func New(
 			// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
 			r.Post("/verify", zh.SendVerificationEmail)
 			r.Get("/verify/{uvRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.VerifyEmail)
+			// webauthn
+			r.Get("/webauthn/register", zh.WebAuthnBeginRegistration)
+			r.Post("/webauthn/register", zh.WebAuthnFinishRegistration)
 		})
 
 		// Public routes
@@ -141,6 +138,8 @@ func New(
 			// login
 			r.Post("/login", zh.Login)
 			r.Get("/login", zh.ShowLoginForm)
+			r.Get("/webauthn/login", zh.WebAuthnBeginLogin)
+			r.Post("/webauthn/login", zh.WebAuthnFinishLogin)
 			// forgot password
 			r.Get("/forgot-password", zh.ShowForgotPasswordForm)
 			r.Post("/forgot-password", zh.SendResetPasswordEmail)
