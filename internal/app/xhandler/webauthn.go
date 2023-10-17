@@ -76,6 +76,14 @@ func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Requ
 
 	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
+	// exclude any existing credentials so the user can't accidentally
+	// reregister the same device twice
+	credentials := authNUser.WebAuthnCredentials()
+	excludeList := make([]protocol.CredentialDescriptor, 0, len(credentials))
+	for _, cred := range credentials {
+		excludeList = append(excludeList, cred.Descriptor())
+	}
+
 	authSelect := protocol.AuthenticatorSelection{
 		// We want computer or phone as authenticator device. Another
 		// option would be to require an USB Security Key for example.
@@ -100,6 +108,7 @@ func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Requ
 		authNUser,
 		webauthn.WithAuthenticatorSelection(authSelect),
 		webauthn.WithConveyancePreference(conveyancePref),
+		webauthn.WithExclusions(excludeList),
 	)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
@@ -113,7 +122,7 @@ func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Requ
 		x.Error(w, "webauthn error", http.StatusInternalServerError)
 		return
 	}
-	x.SessMgr.Put(ctx, "webauthn-session-register", val)
+	x.SessMgr.Put(ctx, "webauthn-session:register", val)
 	x.Json(w, http.StatusOK, options)
 }
 
@@ -136,8 +145,15 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 
 	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
+	keyName := r.FormValue("key_name")
+	if keyName == "" {
+		log.Debug().Msg("missing param data")
+		x.Error(w, "Missing param data", http.StatusBadRequest)
+		return
+	}
+
 	var sessionData webauthn.SessionData
-	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session-register").([]byte)
+	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:register").([]byte)
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
 		x.Error(w, "bad session data", http.StatusBadRequest)
@@ -150,7 +166,7 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
 		return
 	}
-	if err := authNUser.AddCredential(credential); err != nil {
+	if err := authNUser.AddCredential(keyName, credential); err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn registration")
 		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
 		return
@@ -208,7 +224,7 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		x.Error(w, "webauthn error", http.StatusInternalServerError)
 		return
 	}
-	x.SessMgr.Put(ctx, "webauthn-session-login", val)
+	x.SessMgr.Put(ctx, "webauthn-session:login", val)
 	x.Json(w, http.StatusOK, options)
 }
 
@@ -248,7 +264,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
 	var sessionData webauthn.SessionData
-	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session-login").([]byte)
+	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:login").([]byte)
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
 		x.Error(w, "bad session data", http.StatusBadRequest)

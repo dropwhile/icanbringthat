@@ -11,27 +11,32 @@ import (
 
 type UserCredential struct {
 	ID         int
-	UserID     int `db:"user_id"`
+	UserID     int    `db:"user_id"`
+	KeyName    string `db:"key_name"`
 	Created    time.Time
 	Credential []byte
 }
 
 func NewUserCredential(ctx context.Context, db PgxHandle,
-	userID int, credential []byte,
+	userID int, keyName string, credential []byte,
 ) (*UserCredential, error) {
-	return CreateUserCredential(ctx, db, userID, credential)
+	return CreateUserCredential(ctx, db, userID, keyName, credential)
 }
 
 func CreateUserCredential(ctx context.Context, db PgxHandle,
-	userID int, credential []byte,
+	userID int, keyName string, credential []byte,
 ) (*UserCredential, error) {
 	q := `
 		INSERT INTO user_webauthn_ (
-			user_id, credential
+			user_id, key_name, credential
 		)
-		VALUES (@userID, @credential)
+		VALUES (@userID, @keyName, @credential)
 		RETURNING *`
-	args := pgx.NamedArgs{"userID": userID, "credential": credential}
+	args := pgx.NamedArgs{
+		"userID":     userID,
+		"credential": credential,
+		"keyName":    keyName,
+	}
 	return QueryOneTx[UserCredential](ctx, db, q, args)
 }
 

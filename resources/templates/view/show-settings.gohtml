@@ -236,7 +236,7 @@
         // Reset success/error messages
         elemSuccess.innerHTML = '';
         elemError.innerHTML = '';
-    
+
         // GET registration options from the endpoint that calls
         // @simplewebauthn/server -> generateRegistrationOptions()
         const resp = await fetch('/webauthn/register');
@@ -256,17 +256,33 @@
     
           throw error;
         }
+
+        const { value: keyname } = await Swal.fire({
+          title: 'Enter a name for this key',
+          input: 'text',
+          inputLabel: 'Key Name',
+          inputValue: inputValue,
+          showCancelButton: false,
+          inputValidator: (value) => {
+            if (!value) {
+              return 'You need to write something!'
+            }
+          }
+        });
     
         // POST the response to the endpoint that calls
         // @simplewebauthn/server -> verifyRegistrationResponse()
-        const verificationResp = await fetch('/webauthn/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken,
-          },
-          body: JSON.stringify(attResp),
-        });
+        const verificationResp = await fetch(
+          '/webauthn/register?' + new URLSearchParams({key_name: keyname}).toString(),
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken,
+            },
+            body: JSON.stringify(attResp),
+          }
+        );
     
         // Wait for the results of verification
         const verificationJSON = await verificationResp.json();

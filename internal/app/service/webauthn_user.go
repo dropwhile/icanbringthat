@@ -78,13 +78,13 @@ func (u *WebAuthnUser) WebAuthnIcon() string {
 	return ""
 }
 
-func (u *WebAuthnUser) AddCredential(credential *webauthn.Credential) error {
+func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Credential) error {
 	credBytes, err := json.Marshal(credential)
 	if err != nil {
 		log.Info().Err(err).Msg("error marshalling webauthn credential")
 		return err
 	}
-	_, err = model.NewUserCredential(context.Background(), u.db, u.ID, credBytes)
+	_, err = model.NewUserCredential(context.Background(), u.db, u.ID, keyName, credBytes)
 	if err != nil {
 		log.Info().Err(err).Msg("db error creating credential")
 		return err
