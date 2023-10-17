@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/rs/zerolog/log"
 
@@ -75,7 +76,31 @@ func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Requ
 
 	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
-	options, sessionData, err := authnInstance.BeginRegistration(authNUser)
+	authSelect := protocol.AuthenticatorSelection{
+		// We want computer or phone as authenticator device. Another
+		// option would be to require an USB Security Key for example.
+		AuthenticatorAttachment: protocol.AuthenticatorAttachment("platform"),
+		// This feature is also referred to as "Discoverable Credential" and it
+		// enables us to authenticate without a username, just by providing the
+		// passkey. Pretty convenient, but we don't support that yet.
+		RequireResidentKey: protocol.ResidentKeyNotRequired(),
+		// This triggers the Authenticator to ask for Face ID, Touch ID or a PIN
+		// whenever the new passkey is to be used. Your device decides which
+		// mechanism is active. We want multi-factor authentication!
+		UserVerification: protocol.VerificationPreferred,
+	}
+	// This determines if we want to receive so called attestation
+	// information. Think of it as a certificate about the capabilities of
+	// the Authenticator. You would be using that in a scenario with
+	// advanced security needs, e.g., in an online banking scenario. This is
+	// not the case here, so we switch it off.
+	conveyancePref := protocol.PreferNoAttestation
+
+	options, sessionData, err := authnInstance.BeginRegistration(
+		authNUser,
+		webauthn.WithAuthenticatorSelection(authSelect),
+		webauthn.WithConveyancePreference(conveyancePref),
+	)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Error(w, "webauthn error", http.StatusInternalServerError)
@@ -130,6 +155,8 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
 		return
 	}
+	resp := map[string]any{"verified": true}
+	x.Json(w, http.StatusOK, resp)
 }
 
 func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {

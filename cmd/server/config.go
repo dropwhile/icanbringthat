@@ -20,7 +20,7 @@ type Config struct {
 	TemplateDir  string        `env:"TPL_DIR" envDefault:"embed"`
 	StaticDir    string        `env:"STATIC_DIR" envDefault:"embed"`
 	DatabaseDSN  string        `env:"DB_DSN,required"`
-	BaseURL      string        `env:"BASE_URL" envDefault:"http://$LISTEN"`
+	BaseURL      string        `env:"BASE_URL,required"`
 	SMTPHostname string        `env:"SMTP_HOSTNAME,required"`
 	SMTPHost     string        `env:"SMTP_HOST" envDefault:"$SMTP_HOSTNAME"`
 	SMTPPort     int           `env:"SMTP_PORT,required"`
