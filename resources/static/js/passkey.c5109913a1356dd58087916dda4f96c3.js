@@ -1,5 +1,17 @@
 // Start registration when the user clicks a button
 async function registerPasskey(csrfToken) {
+    const { value: keyname } = await Swal.fire({
+        title: 'Enter a name for this key',
+        input: 'text',
+        inputLabel: 'Key Name',
+        showCancelButton: false,
+        inputValidator: (value) => {
+            if (!value) {
+                return 'You need to write something!'
+            }
+        }
+    });
+
     // GET registration options from the endpoint that calls
     // @simplewebauthn/server -> generateRegistrationOptions()
     const resp = await fetch('/webauthn/register');
@@ -24,19 +36,6 @@ async function registerPasskey(csrfToken) {
         }
         return;
     }
-
-    const { value: keyname } = await Swal.fire({
-        title: 'Enter a name for this key',
-        input: 'text',
-        inputLabel: 'Key Name',
-        inputValue: inputValue,
-        showCancelButton: false,
-        inputValidator: (value) => {
-            if (!value) {
-                return 'You need to write something!'
-            }
-        }
-    });
 
     // POST the response to the endpoint that calls
     // @simplewebauthn/server -> verifyRegistrationResponse()

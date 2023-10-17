@@ -1,9 +1,11 @@
 package xhandler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/csrf"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -50,9 +52,21 @@ func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	credentials, err := model.GetUserCredentialsByUser(ctx, x.Db, user.ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event items")
+		credentials = []*model.UserCredential{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	// parse user-id url param
 	tplVars := map[string]any{
 		"user":           user,
+		"credentials":    credentials,
 		"title":          "Settings",
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),

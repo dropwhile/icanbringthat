@@ -2,12 +2,15 @@ package xhandler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -294,4 +297,48 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
 	http.Redirect(w, r, target, http.StatusSeeOther)
+}
+
+func (x *XHandler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		log.Debug().Err(err).Msg("bad session data")
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	credentialRefID, err := model.ParseCredentialRefID(chi.URLParam(r, "cRefID"))
+	if err != nil {
+		x.Error(w, "bad credential-ref-id", http.StatusNotFound)
+		return
+	}
+
+	credential, err := model.GetUserCredentialByRefID(ctx, x.Db, credentialRefID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("credential not found")
+		x.Error(w, "credential not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if credential.UserID != user.ID {
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	err = model.DeleteUserCredential(ctx, x.Db, credential.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

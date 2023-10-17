@@ -4,15 +4,17 @@ import (
 	"context"
 	"time"
 
+	"github.com/dropwhile/refid"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t UserPWReset -v 5
+//go:generate go run ../../../cmd/refidgen -t Credential -v 7
 
 type UserCredential struct {
 	ID         int
-	UserID     int    `db:"user_id"`
-	KeyName    string `db:"key_name"`
+	RefID      CredentialRefID `db:"ref_id"`
+	UserID     int             `db:"user_id"`
+	KeyName    string          `db:"key_name"`
 	Created    time.Time
 	Credential []byte
 }
@@ -20,19 +22,21 @@ type UserCredential struct {
 func NewUserCredential(ctx context.Context, db PgxHandle,
 	userID int, keyName string, credential []byte,
 ) (*UserCredential, error) {
-	return CreateUserCredential(ctx, db, userID, keyName, credential)
+	refID := refid.Must(NewCredentialRefID())
+	return CreateUserCredential(ctx, db, refID, userID, keyName, credential)
 }
 
 func CreateUserCredential(ctx context.Context, db PgxHandle,
-	userID int, keyName string, credential []byte,
+	refID CredentialRefID, userID int, keyName string, credential []byte,
 ) (*UserCredential, error) {
 	q := `
 		INSERT INTO user_webauthn_ (
-			user_id, key_name, credential
+			ref_id, user_id, key_name, credential
 		)
-		VALUES (@userID, @keyName, @credential)
+		VALUES (@refID, @userID, @keyName, @credential)
 		RETURNING *`
 	args := pgx.NamedArgs{
+		"refID":      refID,
 		"userID":     userID,
 		"credential": credential,
 		"keyName":    keyName,
@@ -52,4 +56,11 @@ func GetUserCredentialsByUser(ctx context.Context, db PgxHandle,
 ) ([]*UserCredential, error) {
 	q := `SELECT * FROM user_webauthn_ WHERE user_id = $1`
 	return Query[UserCredential](ctx, db, q, userID)
+}
+
+func GetUserCredentialByRefID(ctx context.Context, db PgxHandle,
+	refID CredentialRefID,
+) (*UserCredential, error) {
+	q := `SELECT * FROM user_webauthn_ WHERE ref_id = $1`
+	return QueryOne[UserCredential](ctx, db, q, refID)
 }

@@ -130,6 +130,7 @@ func New(
 			// webauthn
 			r.Get("/webauthn/register", zh.WebAuthnBeginRegistration)
 			r.Post("/webauthn/register", zh.WebAuthnFinishRegistration)
+			r.Delete("/webauthn/key/{cRefID:[0-9a-z]+}", zh.DeleteWebAuthnKey)
 		})
 
 		// Public routes
