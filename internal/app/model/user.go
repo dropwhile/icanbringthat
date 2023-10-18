@@ -17,9 +17,10 @@ type User struct {
 	ID           int
 	RefID        UserRefID `db:"ref_id"`
 	Email        string
-	Name         string `db:"name"`
-	PWHash       []byte `db:"pwhash"`
+	Name         string
+	PWHash       []byte
 	Verified     bool
+	PWAuth       bool
 	WebAuthn     bool
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
@@ -63,10 +64,10 @@ func CreateUser(ctx context.Context, db PgxHandle,
 ) (*User, error) {
 	q := `
 		INSERT INTO user_ (
-			ref_id, email, name, pwhash
+			ref_id, email, name, pwhash, pwauth
 		)
 		VALUES (
-			@refID, @email, @name, @pwHash
+			@refID, @email, @name, @pwHash, @pwAuth
 		)
 		RETURNING *`
 	args := pgx.NamedArgs{
@@ -74,6 +75,7 @@ func CreateUser(ctx context.Context, db PgxHandle,
 		"email":  email,
 		"name":   name,
 		"pwHash": pwHash,
+		"pwAuth": true,
 	}
 	res, err := QueryOneTx[User](ctx, db, q, args)
 	if err != nil {
@@ -84,7 +86,7 @@ func CreateUser(ctx context.Context, db PgxHandle,
 
 func UpdateUser(ctx context.Context, db PgxHandle,
 	email, name string, pwHash []byte, verified bool,
-	webAuthn bool, userID int,
+	pwAuth bool, webAuthn bool, userID int,
 ) error {
 	q := `
 		UPDATE user_
@@ -93,6 +95,7 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 			name = @name,
 			pwhash = @pwHash,
 			verified = @verified,
+			pwauth = @pwAuth,
 			webauthn = @webAuthn
 		WHERE id = @userID`
 	args := pgx.NamedArgs{
@@ -100,6 +103,7 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 		"name":     name,
 		"pwHash":   pwHash,
 		"verified": verified,
+		"pwAuth":   pwAuth,
 		"webAuthn": webAuthn,
 		"userID":   userID,
 	}

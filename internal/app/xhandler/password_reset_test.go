@@ -33,6 +33,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		Name:         "user",
 		PWHash:       []byte("00x00"),
 		Verified:     false,
+		PWAuth:       true,
 		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
@@ -45,7 +46,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	}
 
 	pwColumns := []string{"ref_id", "user_id", "created"}
-	userColumns := []string{"id", "ref_id", "email", "name", "pwhash"}
+	userColumns := []string{"id", "ref_id", "email", "name", "pwhash", "pwauth"}
 
 	t.Run("pwreset", func(t *testing.T) {
 		t.Parallel()
@@ -53,7 +54,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		pwrRows := pgxmock.NewRows(pwColumns).
 			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -86,6 +87,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": user.Verified,
+				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			})).
@@ -425,7 +427,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		pwrRows := pgxmock.NewRows(pwColumns).
 			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -458,6 +460,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": user.Verified,
+				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			})).
@@ -513,6 +516,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		Name:         "user",
 		PWHash:       []byte("00x00"),
 		Verified:     false,
+		PWAuth:       true,
 		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
@@ -524,7 +528,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		Created: ts,
 	}
 
-	userColumns := []string{"id", "ref_id", "email", "name", "pwhash"}
+	userColumns := []string{"id", "ref_id", "email", "name", "pwhash", "pwauth"}
 	pwColumns := []string{"ref_id", "user_id", "created"}
 	passResetTpl := template.Must(template.New("").Parse(`{{.Subject}}: {{.PasswordResetUrl}}`))
 
@@ -532,7 +536,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		t.Parallel()
 
 		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash)
+			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
 		upwRows := pgxmock.NewRows(pwColumns).
 			AddRow(pwr.RefID, pwr.UserID, ts)
 

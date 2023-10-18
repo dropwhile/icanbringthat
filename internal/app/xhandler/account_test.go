@@ -32,6 +32,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		Name:         "user",
 		PWHash:       pwhash,
 		Verified:     false,
+		PWAuth:       true,
 		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
@@ -91,6 +92,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
+				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
@@ -188,6 +190,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     "user2",
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
+				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
@@ -362,6 +365,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": user.Verified,
+				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			})).
@@ -481,6 +485,7 @@ func TestHandler_Account_Create(t *testing.T) {
 				"email":  "user@example.com",
 				"name":   "user",
 				"pwHash": pgxmock.AnyArg(),
+				"pwAuth": true,
 			})).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
@@ -588,6 +593,7 @@ func TestHandler_Account_Create(t *testing.T) {
 				"email":  "user@example.com",
 				"name":   "user",
 				"pwHash": pgxmock.AnyArg(),
+				"pwAuth": true,
 			})).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()

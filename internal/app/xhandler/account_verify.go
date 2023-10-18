@@ -139,7 +139,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx,
 			user.Email, user.Name, user.PWHash,
-			user.Verified, user.WebAuthn, user.ID,
+			user.Verified, user.PWAuth, user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
 			log.Debug().Err(innerErr).Msg("inner db error saving user")
