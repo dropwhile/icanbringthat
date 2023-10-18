@@ -122,7 +122,9 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		log.Debug().Str("body", string(out)).Msg("response")
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusBadRequest)
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/login",
+			"handler returned wrong redirect")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

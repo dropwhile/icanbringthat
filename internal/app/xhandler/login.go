@@ -83,8 +83,8 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	if user.PWAuth {
 		if passwd == "" {
-			log.Debug().Msg("missing form data")
-			x.Error(w, "Missing form data", http.StatusBadRequest)
+			x.SessMgr.FlashAppend(ctx, "error", "Password is required")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 

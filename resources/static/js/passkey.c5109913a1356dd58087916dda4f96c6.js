@@ -94,7 +94,8 @@ async function authPasskey(csrfToken) {
     let asseResp;
     try {
       // Pass the options to the authenticator and wait for a response
-      asseResp = await SimpleWebAuthnBrowser.startAuthentication(respJ.publicKey);
+      asseResp = await SimpleWebAuthnBrowser.startAuthentication(
+        respJ.publicKey, true);
     } catch (error) {
       Swal.fire({
           icon: 'error', title: 'Oops...',

@@ -134,12 +134,12 @@
     </form>
   </div>
 
-  <!-- Password -->
   <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Authentication
   </h4>
   {{block "authblock" .}}
   <div id="authblock" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+    <!-- Password -->
     <div class="mb-1 flex justify-between items-center align-middle">
       <div class="font-semibold text-gray-600 dark:text-gray-300">
         Password Auth
@@ -276,6 +276,8 @@
     {{end}}
 
     <hr class="mt-4 mb-4">
+
+    <!-- Password -->
     <div class="mb-2 flex justify-between items-center align-middle">
       <div class="flex items-center align-middle font-semibold text-gray-600 dark:text-gray-300">
         Passkey Auth
