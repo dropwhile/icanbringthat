@@ -150,38 +150,38 @@
         hx-boost="false"
         hx-disinherit="*"
         >
-        {{if .user.WebAuthn}}
-        <span class="tooltiptext">Enable password auth</span>
-        {{else}}
+        {{if .user.PWAuth}}
         <span class="tooltiptext">Disable password auth</span>
+        {{else}}
+        <span class="tooltiptext">Enable password auth</span>
         {{end}}
         <form>
           <input
             class="apple-switch align-middle"
             type="checkbox"
-            name="enable_passauth"
+            name="auth_passauth"
             hx-post="/settings/auth"
             hx-select="#authblock"
             hx-target="#authblock"
             hx-swap="outerHTML"
             hx-select-oob="#flashes_modal"
-            hx-include="[name='enable_passauth']"
-            hx-params="enable_passauth"
-            {{if not .user.WebAuthn}}
+            hx-include="[name='auth_passauth']"
+            hx-params="auth_passauth"
+            {{if .user.PWAuth}}
               checked
               _="
                 on htmx:confirm(issueRequest)
                   halt the event
-                  if {{len .credentials }} is less than or equal to 0
+                  if {{if or (eq (len .credentials) 0) (not .user.WebAuthn)}}true{{else}}false{{end}}
                     make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
                       called notyf
-                    call notyf.error('Must have a passkey registered before disabling password auth')
+                    call notyf.error('Must have a passkey registered and enabled before disabling password auth')
                     set my.checked to true
                   else
                     call Swal.fire({
                       icon: 'info',
                       title: 'Confirm',
-                      text:'Disabling password authentication means only passkey auth will be usable',
+                      text:'Disabling password authentication means only passkey auth will be used',
                       showCancelButton: true
                     })
                     if result.isConfirmed
@@ -205,11 +205,11 @@
                 end"
             {{end}}
             />
-          <input type="hidden" name="enable_passauth" value="off"/>
+          <input type="hidden" name="auth_passauth" value="off"/>
         </form>
       </div>
     </div>
-    {{if not .user.WebAuthn}}
+    {{if .user.PWAuth}}
     <form method="post" action="/settings">
       <!-- Invalid input -->
       <label class="block mb-4 text-sm">
@@ -287,37 +287,37 @@
         hx-disinherit="*"
         >
         {{if .user.WebAuthn}}
-        <span class="tooltiptext">Enable passkey auth</span>
-        {{else}}
         <span class="tooltiptext">Disable passkey auth</span>
+        {{else}}
+        <span class="tooltiptext">Enable passkey auth</span>
         {{end}}
         <form>
           <input
             class="apple-switch align-middle"
             type="checkbox"
-            name="enable_passkeys"
+            name="auth_passkeys"
             hx-post="/settings/auth"
             hx-select="#authblock"
             hx-target="#authblock"
             hx-swap="outerHTML"
             hx-select-oob="#flashes_modal"
-            hx-include="[name='enable_passkeys']"
-            hx-params="enable_passkeys"
-            {{if not .user.WebAuthn}}
+            hx-include="[name='auth_passkeys']"
+            hx-params="auth_passkeys"
+            {{if .user.WebAuthn}}
               checked
               _="
                 on htmx:confirm(issueRequest)
                   halt the event
-                  if {{len .credentials }} is less than or equal to 0
+                  if {{if (not .user.PWAuth)}}true{{else}}false{{end}}
                     make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
                       called notyf
-                    call notyf.error('Must have a passkey registered before disabling password auth')
+                    call notyf.error('Cannot disable passkey auth without enabling password auth')
                     set my.checked to true
                   else
                     call Swal.fire({
-                      icon: 'info',
+                      icon: 'question',
                       title: 'Confirm',
-                      text:'Disabling password authentication means only passkey auth will be usable',
+                      text:'Are you sure you want to disable passkeys?',
                       showCancelButton: true
                     })
                     if result.isConfirmed
@@ -331,17 +331,28 @@
               _="
                 on htmx:confirm(issueRequest)
                   halt the event
-                  call Swal.fire({
-                    icon: 'question',
-                    title: 'Confirm',
-                    text:'Are you sure you want to enable password authentication?',
-                    showCancelButton: true
-                  })
-                  if result.isConfirmed issueRequest()
+                  if {{if (eq (len .credentials) 0)}}true{{else}}false{{end}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Must have at least one passkey registered before enabling passkey auth')
+                    set my.checked to false
+                  else
+                    call Swal.fire({
+                      icon: 'question',
+                      title: 'Confirm',
+                      text: 'Enable passkey auth?',
+                      showCancelButton: true
+                    })
+                    if result.isConfirmed
+                      issueRequest()
+                    else
+                      set my.checked to false
+                    end
+                  end
                 end"
             {{end}}
             />
-          <input type="hidden" name="enable_passkeys" value="off"/>
+          <input type="hidden" name="auth_passkeys" value="off"/>
         </form>
       </div>
     </div>
@@ -374,7 +385,7 @@
                     style="padding-right: 0.25rem; padding-left: 0.25rem;"
                     aria-hidden="true"
                   >
-                    <span class="tooltiptext">Can't remove final passkey with password auth disabled</span>
+                    <span class="tooltiptext">Can't remove final passkey with passkey auth enabled</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>

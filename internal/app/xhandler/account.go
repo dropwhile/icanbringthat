@@ -233,25 +233,76 @@ func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	enablePassauth := r.PostFormValue("enable_passauth")
-	if enablePassauth == "" {
-		log.Debug().Msg("missing form data")
+	changes := false
+	authPW := r.PostFormValue("auth_passauth")
+	authPK := r.PostFormValue("auth_passkeys")
+
+	if authPW == "" && authPK == "" {
+		log.Debug().Msg("bad form data")
 		x.Error(w, "bad form data", http.StatusBadRequest)
 		return
 	}
 
-	changes := false
-	switch enablePassauth {
+	// ensure we have at least one passkey first
+	pkCount, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	hasPasskeys := false
+	if pkCount > 0 {
+		hasPasskeys = true
+	}
+
+	switch authPW {
 	case "off":
-		if !user.WebAuthn {
+		if user.PWAuth {
+			if !user.WebAuthn {
+				x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable password auth without alternative auth enabled")
+				http.Redirect(w, r, "/settings", http.StatusSeeOther)
+				return
+			}
 			changes = true
-			user.WebAuthn = true
+			user.PWAuth = false
 		}
 	case "on":
+		if !user.PWAuth {
+			changes = true
+			user.PWAuth = true
+		}
+	case "":
+		// nothing
+	default:
+		log.Debug().Msg("bad form data")
+		x.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+
+	switch authPK {
+	case "off":
 		if user.WebAuthn {
+			if !user.PWAuth {
+				x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable passkey auth without alternative auth enabled")
+				http.Redirect(w, r, "/settings", http.StatusSeeOther)
+				return
+			}
 			changes = true
 			user.WebAuthn = false
 		}
+	case "on":
+		if !user.WebAuthn {
+			if !hasPasskeys {
+				x.SessMgr.FlashAppend(ctx, "error",
+					"Must have at least one passkey registered before enabling passkey auth")
+				http.Redirect(w, r, "/settings", http.StatusSeeOther)
+				return
+			}
+			changes = true
+			user.WebAuthn = true
+		}
+	case "":
+		// nothing
 	default:
 		log.Debug().Msg("bad form data")
 		x.Error(w, "bad form data", http.StatusBadRequest)
@@ -260,20 +311,6 @@ func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 
 	if !changes {
 		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
-		http.Redirect(w, r, "/settings", http.StatusSeeOther)
-		return
-	}
-
-	// check for credentials
-	count, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	if user.WebAuthn && count == 0 {
-		x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable password auth without any added passkeys")
 		http.Redirect(w, r, "/settings", http.StatusSeeOther)
 		return
 	}
