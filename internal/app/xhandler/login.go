@@ -8,6 +8,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 )
 
 func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +31,6 @@ func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	// err := h.Tpl.ExecuteTemplate(w, "login-form.gohtml", tplVars)
 	err = x.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
@@ -57,7 +57,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	email := r.PostFormValue("email")
 	passwd := r.PostFormValue("password")
 
-	if email == "" || passwd == "" {
+	if email == "" {
 		log.Debug().Msg("missing form data")
 		x.Error(w, "Missing form data", http.StatusBadRequest)
 		return
@@ -71,12 +71,35 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	// validate credentials...
-	ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
-	if err != nil || !ok {
-		log.Debug().Err(err).Msg("invalid credentials: pass check fail")
+
+	if !user.PWAuth && !user.WebAuthn {
+		// no valid auth flow
+		log.Warn().
+			Int("userID", user.ID).
+			Msg("invalid credentials: no valid auth flow")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	if user.PWAuth {
+		if passwd == "" {
+			log.Debug().Msg("missing form data")
+			x.Error(w, "Missing form data", http.StatusBadRequest)
+			return
+		}
+
+		// validate credentials...
+		ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
+		if err != nil || !ok {
+			log.Debug().Err(err).Msg("invalid credentials: pass check fail")
+			x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+	}
+	if user.WebAuthn {
+		x.SessMgr.Put(r.Context(), "webauthn-session:pre-login", user.ID)
+		http.Redirect(w, r, "/login/next", http.StatusSeeOther)
 		return
 	}
 
@@ -115,4 +138,65 @@ func (x *XHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	x.SessMgr.FlashAppend(ctx, "success", "Logout successful")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (x *XHandler) LoginNext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	_, err := auth.UserFromContext(ctx)
+	// already a logged in user
+	if err == nil {
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	userID := x.SessMgr.GetInt(ctx, "webauthn-session:pre-login")
+	if userID == 0 {
+		log.Debug().Msg("bad session data")
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	user, err := model.GetUserByID(ctx, x.Db, userID)
+	if err != nil || user == nil {
+		log.Debug().Err(err).Msg("invalid credentials: no user match")
+		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	credCount, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if credCount == 0 {
+		log.Debug().
+			Int("userID", userID).
+			Msg("invalid credentials: no webauthn creds available")
+		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	authNUser := service.WebAuthnUserFrom(x.Db, user)
+
+	tplVars := map[string]any{
+		"title":          "PasskeyAuth",
+		"user":           user,
+		"authnUser":      authNUser,
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		csrf.TemplateTag: csrf.TemplateField(r),
+		"csrfToken":      csrf.Token(r),
+	}
+	// render user profile view
+	w.Header().Set("content-type", "text/html")
+	err = x.TemplateExecute(w, "login-next.gohtml", tplVars)
+	if err != nil {
+		x.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
 }

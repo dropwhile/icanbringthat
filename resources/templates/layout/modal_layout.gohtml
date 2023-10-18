@@ -17,9 +17,11 @@
         {{- end}}
      </div>
     </div>
+    <div id="flashes_modal">
     {{with .flashes}}
       {{template "flashes_modal" .}}
     {{end}}
+    </div>
   </body>
 </html>
 {{- end}}

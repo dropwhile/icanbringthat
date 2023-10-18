@@ -189,17 +189,24 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := r.FormValue("email")
-	if email == "" {
-		log.Debug().Msg("missing param data")
-		x.Error(w, "Missing param data", http.StatusBadRequest)
+	userID := x.SessMgr.GetInt(ctx, "webauthn-session:pre-login")
+	if userID == 0 {
+		log.Debug().Msg("bad session data")
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
 	// find user...
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
+	user, err := model.GetUserByID(ctx, x.Db, userID)
 	if err != nil || user == nil {
-		log.Debug().Err(err).Msg("invalid credentials: no user match")
+		log.Debug().Err(err).Msg("user not found")
+		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	if !user.WebAuthn {
+		log.Debug().Msg("user found but webauthn disabled")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -242,14 +249,14 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := r.PostFormValue("email")
-	if email == "" {
-		log.Debug().Msg("missing param data")
-		x.Error(w, "Missing param data", http.StatusBadRequest)
+	userID := x.SessMgr.GetInt(ctx, "webauthn-session:pre-login")
+	if userID == 0 {
+		log.Debug().Msg("bad session data")
+		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
 	}
 
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
+	user, err := model.GetUserByID(ctx, x.Db, userID)
 	if err != nil || user == nil {
 		log.Debug().Err(err).Msg("invalid credentials: no user match")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")

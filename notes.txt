@@ -61,6 +61,9 @@
 *   templates:
     * go html/template
 
+*   environ parsing for settings (12 factor style):
+    https://github.com/caarlos0/env
+    
 ## other refs:
 
 *   template fragments:
@@ -99,4 +102,3 @@
 
 *   chi routing docs
     https://go-chi.io/
-

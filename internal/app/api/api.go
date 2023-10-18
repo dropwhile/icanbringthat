@@ -140,6 +140,7 @@ func New(
 			// login
 			r.Post("/login", zh.Login)
 			r.Get("/login", zh.ShowLoginForm)
+			r.Get("/login/next", zh.LoginNext)
 			r.Get("/webauthn/login", zh.WebAuthnBeginLogin)
 			r.Post("/webauthn/login", zh.WebAuthnFinishLogin)
 			// forgot password
