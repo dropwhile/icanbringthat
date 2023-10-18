@@ -162,6 +162,9 @@
           name="enable_passauth"
           hx-post="/settings/auth"
           hx-select="#authblock"
+          hx-target="#authblock"
+          hx-swap="outerHTML"
+          hx-select-oob="#flashes_modal"
           hx-include="[name='enable_passauth']"
           hx-params="enable_passauth"
           {{if not .user.WebAuthn}}
@@ -181,7 +184,11 @@
                     text:'Disabling password authentication means only passkey auth will be usable',
                     showCancelButton: true
                   })
-                  if result.isConfirmed issueRequest()
+                  if result.isConfirmed
+                    issueRequest()
+                  else
+                    set my.checked to true
+                  end
                 end
               end"
           {{else}}
@@ -204,6 +211,7 @@
     <div class="mb-2 font-semibold text-gray-600 dark:text-gray-300">
       Password Auth
     </div>
+    {{if not .user.WebAuthn}}
     <form method="post" action="/settings">
       <!-- Invalid input -->
       <label class="block mb-4 text-sm">
@@ -267,6 +275,7 @@
       password.onchange = validatePassword;
       confirm_password.onkeyup = validatePassword;
     </script>
+    {{end}}
 
     <hr class="mt-4 mb-4">
 
@@ -282,10 +291,11 @@
           <thead>
             <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
               <th class="px-4 py-3">Key Name</th>
-              <th class="px-4 py-3 text-center" style="width:9rem">Actions</th>
+              <th class="px-4 py-3 text-center" style="width:7rem">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+          {{ $credCount := len .credentials }}
           {{range .credentials}}
             <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
               <td class="px-4 py-3">
@@ -293,7 +303,21 @@
                   <p class="font-semibold">{{.KeyName}}</p>
                 </div>
               </td>
-              <td class="px-4 text-sm text-center" style="width:9rem">
+              <td class="px-4 text-sm text-center" style="width:7rem">
+                {{if and (eq $credCount 1) ($.user.WebAuthn) }}
+                <div class="tooltip">
+                  <div
+                    class="flex items-center justify-between px-2 py-2 text-sm font-medium text-gray-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                    style="padding-right: 0.25rem; padding-left: 0.25rem;"
+                    aria-hidden="true"
+                  >
+                    <span class="tooltiptext">Can't remove final passkey with password auth disabled</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
+                  </div>
+                </div>
+                {{else}}
                 <div
                   class="tooltip"
                   hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
@@ -326,6 +350,7 @@
                     </svg>
                   </button>
                 </div>
+                {{end}}
               </td>
             </tr>
             {{end}}

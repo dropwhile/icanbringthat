@@ -240,13 +240,51 @@ func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	changes := false
+	switch enablePassauth {
+	case "off":
+		if !user.WebAuthn {
+			changes = true
+			user.WebAuthn = true
+		}
+	case "on":
+		if user.WebAuthn {
+			changes = true
+			user.WebAuthn = false
+		}
+	default:
+		log.Debug().Msg("bad form data")
+		x.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+
+	if !changes {
+		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+		return
+	}
+
+	// check for credentials
+	count, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.WebAuthn && count == 0 {
+		x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable password auth without any added passkeys")
+		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+		return
+	}
+
 	err = model.UpdateUser(ctx, x.Db,
 		user.Email, user.Name, user.PWHash,
 		user.Verified, user.WebAuthn, user.ID,
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error updating user")
-		x.Error(w, "error updating user", http.StatusInternalServerError)
+		log.Error().Err(err).Msg("error updating user auth")
+		x.Error(w, "error updating user auth", http.StatusInternalServerError)
 		return
 	}
 

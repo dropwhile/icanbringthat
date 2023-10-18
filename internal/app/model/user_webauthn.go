@@ -64,3 +64,10 @@ func GetUserCredentialByRefID(ctx context.Context, db PgxHandle,
 	q := `SELECT * FROM user_webauthn_ WHERE ref_id = $1`
 	return QueryOne[UserCredential](ctx, db, q, refID)
 }
+
+func GetUserCredentialCountByUser(ctx context.Context, db PgxHandle,
+	userID int,
+) (int, error) {
+	q := `SELECT count(*) FROM user_webauthn_ WHERE user_id = $1`
+	return Get[int](ctx, db, q, userID)
+}

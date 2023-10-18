@@ -333,6 +333,19 @@ func (x *XHandler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	count, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if count == 1 && user.WebAuthn {
+		log.Debug().Msg("refusing to remove last passkey when password auth disabled")
+		x.Error(w, "pre-condition failed", http.StatusBadRequest)
+		return
+	}
+
 	err = model.DeleteUserCredential(ctx, x.Db, credential.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
