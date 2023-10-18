@@ -221,7 +221,15 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 
 	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
-	options, sessionData, err := authnInstance.BeginLogin(authNUser)
+	credentials := authNUser.WebAuthnCredentials()
+	allowList := make([]protocol.CredentialDescriptor, 0, len(credentials))
+	for _, cred := range credentials {
+		allowList = append(allowList, cred.Descriptor())
+	}
+	options, sessionData, err := authnInstance.BeginLogin(
+		authNUser,
+		webauthn.WithAllowedCredentials(allowList),
+	)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Error(w, "webauthn error", http.StatusBadRequest)
@@ -298,12 +306,9 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	// Then make the privilege-level change.
 	x.SessMgr.Put(r.Context(), "user-id", user.ID)
-	target := "/dashboard"
-	if r.PostFormValue("next") != "" {
-		target = r.FormValue("next")
-	}
 	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
-	http.Redirect(w, r, target, http.StatusSeeOther)
+	resp := map[string]any{"verified": true}
+	x.Json(w, http.StatusOK, resp)
 }
 
 func (x *XHandler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
