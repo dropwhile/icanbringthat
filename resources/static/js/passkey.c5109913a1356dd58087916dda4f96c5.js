@@ -12,6 +12,10 @@ async function registerPasskey(csrfToken) {
         }
     });
 
+    if (!keyname) {
+        return;
+    }
+
     // GET registration options from the endpoint that calls
     // @simplewebauthn/server -> generateRegistrationOptions()
     const resp = await fetch('/webauthn/register');

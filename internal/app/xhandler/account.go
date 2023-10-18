@@ -201,7 +201,10 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = model.UpdateUser(ctx, x.Db, user.Email, user.Name, user.PWHash, user.Verified, user.ID)
+		err = model.UpdateUser(ctx, x.Db,
+			user.Email, user.Name, user.PWHash,
+			user.Verified, user.WebAuthn, user.ID,
+		)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
 			x.Error(w, "error updating user", http.StatusInternalServerError)
@@ -211,6 +214,42 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	} else {
 		x.SessMgr.FlashAppend(ctx, "error", warnings...)
 	}
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+}
+
+func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form data")
+		x.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	enablePassauth := r.PostFormValue("enable_passauth")
+	if enablePassauth == "" {
+		log.Debug().Msg("missing form data")
+		x.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+
+	err = model.UpdateUser(ctx, x.Db,
+		user.Email, user.Name, user.PWHash,
+		user.Verified, user.WebAuthn, user.ID,
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("error updating user")
+		x.Error(w, "error updating user", http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 

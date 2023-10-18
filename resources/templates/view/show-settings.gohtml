@@ -138,7 +138,69 @@
   <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Authentication
   </h4>
-  <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  {{block "authblock" .}}
+  <div 
+    id="authblock"
+    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl"
+    >
+    <div
+      style="float:right;"
+      class="tooltip"
+      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+      hx-boost="false"
+      hx-disinherit="*"
+      >
+      {{if .user.WebAuthn}}
+      <span class="tooltiptext">Enable password auth</span>
+      {{else}}
+      <span class="tooltiptext">Disable password auth</span>
+      {{end}}
+      <form>
+        <input
+          class="apple-switch"
+          type="checkbox"
+          name="enable_passauth"
+          hx-post="/settings/auth"
+          hx-select="#authblock"
+          hx-include="[name='enable_passauth']"
+          hx-params="enable_passauth"
+          {{if not .user.WebAuthn}}
+            checked
+            _="
+              on htmx:confirm(issueRequest)
+                halt the event
+                if {{len .credentials }} is less than or equal to 0
+                  make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                    called notyf
+                  call notyf.error('Must have a passkey registered before disabling password auth')
+                  set my.checked to true
+                else
+                  call Swal.fire({
+                    icon: 'info',
+                    title: 'Confirm',
+                    text:'Disabling password authentication means only passkey auth will be usable',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed issueRequest()
+                end
+              end"
+          {{else}}
+            _="
+              on htmx:confirm(issueRequest)
+                halt the event
+                call Swal.fire({
+                  icon: 'question',
+                  title: 'Confirm',
+                  text:'Are you sure you want to enable password authentication?',
+                  showCancelButton: true
+                })
+                if result.isConfirmed issueRequest()
+              end"
+          {{end}}
+          />
+        <input type="hidden" name="enable_passauth" value="off"/>
+      </form>
+    </div>
     <div class="mb-2 font-semibold text-gray-600 dark:text-gray-300">
       Password Auth
     </div>
@@ -211,7 +273,10 @@
     <div class="mb-2 font-semibold text-gray-600 dark:text-gray-300">
       Passkey Auth
     </div>
-    <div class="w-full overflow-hidden rounded-lg shadow-xs">
+    <div 
+      id="passkeyauth"
+      class="w-full overflow-hidden rounded-lg shadow-xs"
+      >
       <div class="w-full overflow-x-auto">
         <table class="w-full whitespace-no-wrap table-auto">
           <thead>
@@ -273,12 +338,13 @@
         id="passkey-add" 
         data-csrf="{{ $.csrfToken }}"
         class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-        onclick="registerPasskey(this.dataset.csrf)"
+        _="on click call registerPasskey(my.dataset.csrf)"
         >
         Add Passkey 
       </button>
     </div>
   </div>
+  {{end}}
 
   <!-- Account deletion -->
   <h4

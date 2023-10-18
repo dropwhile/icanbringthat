@@ -93,6 +93,7 @@ func New(
 			// acccount/settings
 			r.Get("/settings", zh.ShowSettings)
 			r.Post("/settings", zh.UpdateSettings)
+			r.Post("/settings/auth", zh.UpdateAuthSettings)
 			r.Delete("/settings", zh.DeleteAccount)
 			// logout
 			r.Post("/logout", zh.Logout)

@@ -83,7 +83,8 @@ func CreateUser(ctx context.Context, db PgxHandle,
 }
 
 func UpdateUser(ctx context.Context, db PgxHandle,
-	email, name string, pwHash []byte, verified bool, userID int,
+	email, name string, pwHash []byte, verified bool,
+	webAuthn bool, userID int,
 ) error {
 	q := `
 		UPDATE user_
@@ -91,13 +92,15 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 			email = @email,
 			name = @name,
 			pwhash = @pwHash,
-			verified = @verified
+			verified = @verified,
+			webauthn = @webAuthn
 		WHERE id = @userID`
 	args := pgx.NamedArgs{
 		"email":    email,
 		"name":     name,
 		"pwHash":   pwHash,
 		"verified": verified,
+		"webAuthn": webAuthn,
 		"userID":   userID,
 	}
 	return ExecTx[User](ctx, db, q, args)

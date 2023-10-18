@@ -32,6 +32,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		Name:         "user",
 		PWHash:       pwhash,
 		Verified:     false,
+		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -90,6 +91,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
+				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -186,6 +188,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     "user2",
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
+				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -359,6 +362,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": user.Verified,
+				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))

@@ -32,6 +32,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		Name:         "user",
 		PWHash:       []byte("00x00"),
 		Verified:     false,
+		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -114,6 +115,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		Name:         "user",
 		PWHash:       []byte("00x00"),
 		Verified:     false,
+		WebAuthn:     false,
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -165,6 +167,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": true,
+				"webAuthn": false,
 				"userID":   user.ID,
 			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -405,6 +408,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": true,
+				"webAuthn": false,
 				"userID":   user.ID,
 			})).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
