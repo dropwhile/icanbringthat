@@ -3,6 +3,7 @@ package xhandler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5"
@@ -325,6 +326,83 @@ func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+}
+
+func (x *XHandler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		log.Debug().Err(err).Msg("error parsing form data")
+		x.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	changes := false
+	enableReminders := r.PostFormValue("enable_reminders")
+	notifThreshold := r.PostFormValue("notification_threshold")
+
+	switch enableReminders {
+	case "off":
+		if !user.Settings.DisableReminders {
+			changes = true
+			user.Settings.DisableReminders = true
+		}
+	case "on":
+		if user.Settings.DisableReminders {
+			changes = true
+			user.Settings.DisableReminders = false
+		}
+	case "":
+		// nothing
+	default:
+		x.SessMgr.FlashAppend(ctx, "error", "Bad value for reminders toggle")
+		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+		return
+	}
+
+	if notifThreshold != "" {
+		v, err := strconv.ParseUint(notifThreshold, 10, 8)
+		if err != nil {
+			x.SessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
+			http.Redirect(w, r, "/settings", http.StatusSeeOther)
+			return
+		}
+		val, err := model.ValidateReminderThresholdHours(v)
+		if err != nil {
+			x.SessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
+			http.Redirect(w, r, "/settings", http.StatusSeeOther)
+			return
+		}
+		if user.Settings.ReminderThresholdHours != val {
+			changes = true
+			user.Settings.ReminderThresholdHours = val
+		}
+	}
+
+	if !changes {
+		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+		return
+	}
+
+	err = model.UpdateUserSettings(ctx, x.Db,
+		&user.Settings, user.ID,
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("error updating user settings")
+		x.Error(w, "error updating user settings", http.StatusInternalServerError)
+		return
+	}
+
+	x.SessMgr.FlashAppend(ctx, "success", "update successful")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 

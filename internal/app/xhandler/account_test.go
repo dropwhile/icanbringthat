@@ -481,11 +481,12 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
-				"refID":  model.UserRefIDMatcher{},
-				"email":  "user@example.com",
-				"name":   "user",
-				"pwHash": pgxmock.AnyArg(),
-				"pwAuth": true,
+				"refID":    model.UserRefIDMatcher{},
+				"email":    "user@example.com",
+				"name":     "user",
+				"pwHash":   pgxmock.AnyArg(),
+				"pwAuth":   true,
+				"settings": pgxmock.AnyArg(),
 			})).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
@@ -589,11 +590,12 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
-				"refID":  model.UserRefIDMatcher{},
-				"email":  "user@example.com",
-				"name":   "user",
-				"pwHash": pgxmock.AnyArg(),
-				"pwAuth": true,
+				"refID":    model.UserRefIDMatcher{},
+				"email":    "user@example.com",
+				"name":     "user",
+				"pwHash":   pgxmock.AnyArg(),
+				"pwAuth":   true,
+				"settings": pgxmock.AnyArg(),
 			})).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()

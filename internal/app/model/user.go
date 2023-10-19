@@ -22,6 +22,7 @@ type User struct {
 	Verified     bool
 	PWAuth       bool
 	WebAuthn     bool
+	Settings     UserSettings
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
 }
@@ -64,18 +65,19 @@ func CreateUser(ctx context.Context, db PgxHandle,
 ) (*User, error) {
 	q := `
 		INSERT INTO user_ (
-			ref_id, email, name, pwhash, pwauth
+			ref_id, email, name, pwhash, pwauth, settings
 		)
 		VALUES (
-			@refID, @email, @name, @pwHash, @pwAuth
+			@refID, @email, @name, @pwHash, @pwAuth, @settings
 		)
 		RETURNING *`
 	args := pgx.NamedArgs{
-		"refID":  refID,
-		"email":  email,
-		"name":   name,
-		"pwHash": pwHash,
-		"pwAuth": true,
+		"refID":    refID,
+		"email":    email,
+		"name":     name,
+		"pwHash":   pwHash,
+		"pwAuth":   true,
+		"settings": NewUserPropertyMap(),
 	}
 	res, err := QueryOneTx[User](ctx, db, q, args)
 	if err != nil {
@@ -105,6 +107,21 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 		"verified": verified,
 		"pwAuth":   pwAuth,
 		"webAuthn": webAuthn,
+		"userID":   userID,
+	}
+	return ExecTx[User](ctx, db, q, args)
+}
+
+func UpdateUserSettings(ctx context.Context, db PgxHandle,
+	pm *UserSettings, userID int,
+) error {
+	q := `
+		UPDATE user_
+		SET
+			settings = @settings
+		WHERE id = @userID`
+	args := pgx.NamedArgs{
+		"settings": pm,
 		"userID":   userID,
 	}
 	return ExecTx[User](ctx, db, q, args)

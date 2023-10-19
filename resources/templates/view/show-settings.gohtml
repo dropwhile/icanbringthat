@@ -112,9 +112,7 @@
     <form method="post" action="/settings">
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Name</span>
-        <div
-          class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400"
-        >
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
           <input
             class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
             style="padding-left: 6rem;"
@@ -134,6 +132,92 @@
     </form>
   </div>
 
+  <!-- account settings -->
+  <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+    Notifications
+  </h4>
+  {{block "notification_settings" .}}
+  <div id="notification_settings" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+    <div class="mb-1 flex justify-between items-center align-middle">
+      <div class="font-semibold text-gray-600 dark:text-gray-300">
+        Reminders
+      </div>
+      {{ $enable_reminders := (not .user.Settings.DisableReminders) }}
+      <div
+        class="tooltip"
+        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+        hx-boost="false"
+        hx-disinherit="*"
+        >
+        {{if $enable_reminders }}
+        <span class="tooltiptext">Disable reminders</span>
+        {{else}}
+        <span class="tooltiptext">Enable reminders</span>
+        {{end}}
+        <form>
+          <input
+            class="apple-switch align-middle"
+            type="checkbox"
+            name="enable_reminders"
+            hx-post="/settings/reminders"
+            hx-select="#notification_settings"
+            hx-target="#notification_settings"
+            hx-swap="outerHTML"
+            hx-select-oob="#flashes_modal"
+            hx-include="[name='enable_reminders']"
+            hx-params="enable_reminders"
+            {{if $enable_reminders}}
+              checked
+              _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  call Swal.fire({
+                    icon: 'info',
+                    title: 'Confirm',
+                    text: 'Disable reminders?',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed
+                    issueRequest()
+                  else
+                    set my.checked to true
+                  end
+                end"
+            {{end}}
+            />
+          <input type="hidden" name="enable_reminders" value="off"/>
+        </form>
+      </div>
+    </div>
+    <form method="post" action="/settings/reminders">
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Event Reminder Threshold (Hours)</span>
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+          <input
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
+            type="number"
+            min="2"
+            max="168"
+            name="notification_threshold"
+            value="{{.user.Settings.ReminderThresholdHours}}"
+            required
+          >
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+            Update
+          </button>
+        </div>
+        <span class="text-xs text-gray-600 dark:text-gray-400">
+          How many hours before an Event (one of your own, or one with an item you have earmarked) to send a reminder email to you.
+          Default is 24 hours. Minimum is 2. Maximum is 168 (7 days).
+        </span>
+      </label>
+      {{ .csrfField }}
+    </form>
+  </div>
+  {{end}}
+
+  <!-- authentication settings -->
   <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Authentication
   </h4>

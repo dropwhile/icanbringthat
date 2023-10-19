@@ -94,6 +94,7 @@ func New(
 			r.Get("/settings", zh.ShowSettings)
 			r.Post("/settings", zh.UpdateSettings)
 			r.Post("/settings/auth", zh.UpdateAuthSettings)
+			r.Post("/settings/reminders", zh.UpdateRemindersSettings)
 			r.Delete("/settings", zh.DeleteAccount)
 			// logout
 			r.Post("/logout", zh.Logout)
