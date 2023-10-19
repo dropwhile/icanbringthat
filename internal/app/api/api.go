@@ -46,7 +46,7 @@ func New(
 	zh := &xhandler.XHandler{
 		Db:      model.SetupFromDbPool(db),
 		Tpl:     tpl,
-		SessMgr: session.NewDBSessionManager(db),
+		SessMgr: session.NewDBSessionManager(db, isProd),
 		Mailer:  mailer,
 		Hmac:    util.NewHmac(hmacKey),
 		BaseURL: strings.TrimSuffix(baseURL, "/"),

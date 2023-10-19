@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"os"
 	"path"
@@ -9,7 +8,7 @@ import (
 
 	"github.com/caarlos0/env/v9"
 	"github.com/rs/zerolog"
-	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/crypto/argon2"
 )
 
 type Config struct {
@@ -81,20 +80,22 @@ func ParseConfig() (*Config, error) {
 
 	// generate hmac key based on input, using pdkdf2 to stretch/shrink
 	// as needed to fit 32 byte key requirement
-	config.HMACKeyBytes = pbkdf2.Key(
+	config.HMACKeyBytes = argon2.IDKey(
 		[]byte(keyInput), // input
 		[]byte("i4L04cpiG6JebX5brY53sBBqCyX16IwbjagbMkytmQQ="), // salt
-		4096,       // iterations
-		32,         // desired output size
-		sha256.New, // hash to use
+		1,       // time
+		64*1024, // memory
+		4,       // threads
+		32,      // desired keylength
 	)
 	// continue stretching with pdkdf2 to generate a csrf key
-	config.CSRFKeyBytes = pbkdf2.Key(
+	config.CSRFKeyBytes = argon2.IDKey(
 		config.HMACKeyBytes, // input
 		[]byte("C/RWyRGBRXSCL5st5bFsPstuKQNDpRIix0vUlQ4QP80="), // salt
-		4096,       // iterations
-		32,         // desired output size
-		sha256.New, // hash to use
+		1,       // time
+		64*1024, // memory
+		4,       // threads
+		32,      // desired keylength
 	)
 
 	return config, nil

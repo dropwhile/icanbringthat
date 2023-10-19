@@ -15,7 +15,7 @@ import (
 func TestFlashPopAll(t *testing.T) {
 	t.Parallel()
 
-	sm := NewMemorySessionManager()
+	sm := NewMemorySessionManager(false)
 	t.Cleanup(sm.Close)
 
 	// Create a handler and wrap it using sessionManager.LoadAndSave
@@ -64,7 +64,7 @@ func TestFlashPopAll(t *testing.T) {
 func TestFlashPopOne(t *testing.T) {
 	t.Parallel()
 
-	sm := NewMemorySessionManager()
+	sm := NewMemorySessionManager(false)
 	t.Cleanup(sm.Close)
 
 	// Create a handler and wrap it using sessionManager.LoadAndSave

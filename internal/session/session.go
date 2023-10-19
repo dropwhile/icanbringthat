@@ -46,14 +46,16 @@ func (sm *SessionMgr) PopMap(ctx context.Context, key string) map[string][]strin
 	return value
 }
 
-func NewDBSessionManager(pool *pgxpool.Pool) *SessionMgr {
+func NewDBSessionManager(pool *pgxpool.Pool, secure bool) *SessionMgr {
 	manager := scs.New()
+	manager.Cookie.Secure = secure
 	manager.Store = pgxstore.New(pool)
 	return &SessionMgr{SessionManager: manager}
 }
 
-func NewMemorySessionManager() *SessionMgr {
+func NewMemorySessionManager(secure bool) *SessionMgr {
 	manager := scs.New()
+	manager.Cookie.Secure = secure
 	manager.Store = memstore.New()
 	return &SessionMgr{SessionManager: manager}
 }
