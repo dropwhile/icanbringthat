@@ -53,9 +53,9 @@ func NewDBSessionManager(pool *pgxpool.Pool, secure bool) *SessionMgr {
 	return &SessionMgr{SessionManager: manager}
 }
 
-func NewMemorySessionManager(secure bool) *SessionMgr {
+func NewTestSessionManager() *SessionMgr {
 	manager := scs.New()
-	manager.Cookie.Secure = secure
-	manager.Store = memstore.New()
+	manager.Cookie.Secure = false
+	manager.Store = memstore.NewWithCleanupInterval(0)
 	return &SessionMgr{SessionManager: manager}
 }
