@@ -128,7 +128,15 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap
 			Msg("email content")
 
 		subj := vars["Subject"].(string)
-		mailer.SendAsync("", []string{user.Email}, subj, messagePlain, messageHtml)
+		err = mailer.Send("", []string{user.Email}, subj, messagePlain, messageHtml)
+		if err != nil {
+			return fmt.Errorf("error sending email: %w", err)
+		}
+		_, err = model.CreateUserEventNotification(ctx, db, user.ID, event.ID)
+		if err != nil {
+			return fmt.Errorf("error updating database: %w", err)
+		}
+
 	}
 	return nil
 }

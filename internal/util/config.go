@@ -21,7 +21,7 @@ type Config struct {
 	DatabaseDSN  string        `env:"DB_DSN,required"`
 	BaseURL      string        `env:"BASE_URL,required"`
 	SMTPHostname string        `env:"SMTP_HOSTNAME,required"`
-	SMTPHost     string        `env:"SMTP_HOST" envDefault:"$SMTP_HOSTNAME"`
+	SMTPHost     string        `env:"SMTP_HOST,expand" envDefault:"$SMTP_HOSTNAME"`
 	SMTPPort     int           `env:"SMTP_PORT,required"`
 	SMTPUser     string        `env:"SMTP_USER,required"`
 	SMTPPass     string        `env:"SMTP_PASS,required"`

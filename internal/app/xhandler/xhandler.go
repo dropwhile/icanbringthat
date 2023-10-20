@@ -3,7 +3,6 @@ package xhandler
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 
@@ -26,7 +25,7 @@ type XHandler struct {
 	IsProd  bool
 }
 
-func (x *XHandler) Template(name string) (*template.Template, error) {
+func (x *XHandler) Template(name string) (resources.TemplateIf, error) {
 	return x.Tpl.Get(name)
 }
 

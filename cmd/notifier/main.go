@@ -79,8 +79,9 @@ func main() {
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	// timer
-	ticker := time.NewTicker(10 * time.Minute)
-	defer ticker.Stop()
+	timerInterval := 10 * time.Minute
+	timer := time.NewTimer(0)
+	defer timer.Stop()
 
 	var wg sync.WaitGroup
 	log.Info().Msg("starting up...")
@@ -88,24 +89,29 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		select {
-		case sig := <-signals:
-			switch sig {
-			case syscall.SIGTERM:
-				log.Info().Msg("Got kill signal.")
-				log.Info().Msg("Program will terminate now.")
-			case syscall.SIGINT:
-				log.Info().Msg("Got CTRL+C signal.")
-				log.Info().Msg("Program will terminate now.")
-			default:
-				log.Info().Stringer("signal", sig).Msg("Ignoring signal")
-			}
-		case <-ticker.C:
-			err := service.NotifyUsersPendingEvents(
-				dbpool, mailer, templates, config.BaseURL,
-			)
-			if err != nil {
-				log.Error().Err(err).Msg("error!!")
+		for {
+			select {
+			case sig := <-signals:
+				switch sig {
+				case syscall.SIGTERM:
+					log.Info().Msg("Got kill signal.")
+					log.Info().Msg("Program will terminate now.")
+					return
+				case syscall.SIGINT:
+					log.Info().Msg("Got CTRL+C signal.")
+					log.Info().Msg("Program will terminate now.")
+					return
+				default:
+					log.Info().Stringer("signal", sig).Msg("Ignoring signal")
+				}
+			case <-timer.C:
+				err := service.NotifyUsersPendingEvents(
+					dbpool, mailer, templates, config.BaseURL,
+				)
+				if err != nil {
+					log.Error().Err(err).Msg("error!!")
+				}
+				timer.Reset(timerInterval)
 			}
 		}
 	}()

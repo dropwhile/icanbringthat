@@ -3,12 +3,14 @@ package resources
 import (
 	"embed"
 	"fmt"
-	"html/template"
+	htmltemplate "html/template"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
+	txttemplate "text/template"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -115,7 +117,7 @@ func CalculateMaxPageNum(size, step int) int {
 	return maxPage
 }
 
-var templateFuncMap = template.FuncMap{
+var templateFuncMap = txttemplate.FuncMap{
 	"titlecase": cases.Title(language.English).String,
 	"lowercase": func(s fmt.Stringer) string {
 		return cases.Lower(language.English).String(s.String())
@@ -225,9 +227,15 @@ var templateFuncMap = template.FuncMap{
 	},
 }
 
-type TemplateMap map[string]*template.Template
+type (
+	TemplateIf interface {
+		Execute(wr io.Writer, data any) error
+		ExecuteTemplate(io.Writer, string, any) error
+	}
+	TemplateMap map[string]TemplateIf
+)
 
-func (tm *TemplateMap) Get(name string) (*template.Template, error) {
+func (tm *TemplateMap) Get(name string) (TemplateIf, error) {
 	if v, ok := (*tm)[name]; ok {
 		return v, nil
 	}
@@ -248,7 +256,7 @@ func ParseTemplates(templatesDir string) (TemplateMap, error) {
 		templateFS = os.DirFS(templatesDir)
 	}
 
-	nonViewTemplates, err := template.New("").Funcs(templateFuncMap).ParseFS(
+	nonViewHtmlTemplates, err := htmltemplate.New("").Funcs(templateFuncMap).ParseFS(
 		templateFS,
 		"layout/*.gohtml",
 		"partial/*.gohtml",
@@ -256,6 +264,18 @@ func ParseTemplates(templatesDir string) (TemplateMap, error) {
 	if err != nil {
 		return templates, err
 	}
+
+	/* currently no inheritance for plain templates, uncomment if/when needed
+	nonViewTxtTemplates, err := txttemplate.New("").Funcs(templateFuncMap).ParseFS(
+		templateFS,
+		"layout/*.gotxt",
+		"partial/*.gotxt",
+	)
+	if err != nil {
+		return templates, err
+	}
+	*/
+	nonViewTxtTemplates := txttemplate.New("").Funcs(templateFuncMap)
 
 	viewSub, err := fs.Sub(templateFS, "view")
 	if err != nil {
@@ -265,7 +285,21 @@ func ParseTemplates(templatesDir string) (TemplateMap, error) {
 	err = fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
 		if filepath.Ext(p) == ".gohtml" {
 			name := filepath.Base(p)
-			c, err := nonViewTemplates.Clone()
+			c, err := nonViewHtmlTemplates.Clone()
+			if err != nil {
+				return err
+			}
+			t, err := c.New(name).Funcs(templateFuncMap).ParseFS(
+				templateFS, fmt.Sprintf("view/%s", name),
+			)
+			if err != nil {
+				return err
+			}
+			templates[name] = t
+		}
+		if filepath.Ext(p) == ".gotxt" {
+			name := filepath.Base(p)
+			c, err := nonViewTxtTemplates.Clone()
 			if err != nil {
 				return err
 			}
