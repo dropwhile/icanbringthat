@@ -36,3 +36,25 @@ services:
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
 
+  notifier:
+    image: "icbt:latest"
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      #TPL_DIR: "embed"
+      #STATIC_DIR: "embed"
+      LOG_LEVEL: "debug"
+      LOG_FORMAT: "plain"
+      PRODUCTION: "true"
+      DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      HMAC_KEY: "ignore"
+      SMTP_HOSTNAME: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      GOOSE_MIGRATION_DIR: database/migrations
+    command: /app/notifier
+

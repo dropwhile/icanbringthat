@@ -18,7 +18,7 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 COPY --from=builder --link /go/bin/goose /app/goose
-COPY --from=builder --link /workdir/build/bin/server /app/server
+COPY --from=builder --link /workdir/build/bin/* /app/
 COPY --from=builder --link /workdir/database/migrations /app/database/migrations
 
 ENV DEBUG=false
