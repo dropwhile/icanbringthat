@@ -22,10 +22,11 @@ type Mail struct {
 }
 
 type Mailer struct {
-	hostname string
-	hostPort string
-	user     string
-	auth     smtp.Auth
+	hostname    string
+	hostPort    string
+	user        string
+	auth        smtp.Auth
+	defaultFrom string
 }
 
 type MailSender interface {
@@ -44,7 +45,7 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 	for k, v := range mail.ExtraHeaders {
 		buf.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
 	}
-	buf.WriteString(fmt.Sprintf("From: %s\r\n", mail.Sender))
+	buf.WriteString(fmt.Sprintf("From: ICanBringThat <%s>\r\n", mail.Sender))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(mail.To, ";")))
 	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", mail.Subject))
 	buf.WriteString("MIME-Version: 1.0\r\n")
@@ -77,7 +78,7 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 
 func (m *Mailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders MailHeader) error {
 	if from == "" {
-		from = m.user
+		from = m.defaultFrom
 	}
 	mail := &Mail{
 		Sender:       from,
@@ -99,12 +100,13 @@ func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtm
 	}()
 }
 
-func NewMailer(host string, port int, hostname, user, pass string) *Mailer {
+func NewMailer(host string, port int, hostname, user, pass string, defaultFrom string) *Mailer {
 	auth := smtp.PlainAuth("", user, pass, hostname)
 	return &Mailer{
-		hostname: hostname,
-		hostPort: strings.Join([]string{host, strconv.Itoa(port)}, ":"),
-		user:     user,
-		auth:     auth,
+		hostname:    hostname,
+		hostPort:    strings.Join([]string{host, strconv.Itoa(port)}, ":"),
+		user:        user,
+		auth:        auth,
+		defaultFrom: defaultFrom,
 	}
 }

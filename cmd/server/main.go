@@ -74,6 +74,7 @@ func main() {
 		config.SMTPHostname,
 		config.SMTPUser,
 		config.SMTPPass,
+		config.MailFrom,
 	)
 
 	// routing/handlers

@@ -25,6 +25,7 @@ type Config struct {
 	SMTPPort     int           `env:"SMTP_PORT,required"`
 	SMTPUser     string        `env:"SMTP_USER,required"`
 	SMTPPass     string        `env:"SMTP_PASS,required"`
+	MailFrom     string        `env:"MAIL_FROM,required"`
 	HMACKey      string        `env:"HMAC_KEY,required"`
 	CSRFKeyBytes []byte
 	HMACKeyBytes []byte

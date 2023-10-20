@@ -72,6 +72,7 @@ func main() {
 		config.SMTPHostname,
 		config.SMTPUser,
 		config.SMTPPass,
+		config.MailFrom,
 	)
 
 	// signals
