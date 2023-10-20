@@ -1,0 +1,11 @@
+This email is a reminder about {{if .owner}}one of your upcoming events{{else}}an upcoming event{{end}}.
+
+Name: {{.eventName}}
+Description: {{.eventDescription}}
+When: {{.eventWhen}}
+Link: {{.eventURL}}
+
+{{if .items}}
+You have earmarked the following items for this event:
+*   {{.Description}}
+{{end}}

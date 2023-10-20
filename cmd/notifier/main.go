@@ -1,20 +1,18 @@
 package main
 
 import (
-	"context"
 	_ "database/sql"
-	"errors"
-	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/dropwhile/icbt/internal/app/api"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -76,53 +74,42 @@ func main() {
 		config.SMTPPass,
 	)
 
-	// routing/handlers
-	r := api.New(
-		dbpool, templates, mailer,
-		config.HMACKeyBytes,
-		config.CSRFKeyBytes,
-		config.Production,
-		config.BaseURL,
-	)
-	defer r.Close()
+	// signals
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
-	// serve static files dir as /static/*
-	staticFS := resources.NewStaticFS(config.StaticDir)
-	r.Get("/static/*", resources.FileServer(staticFS, "/static"))
-	// some other single item static files
-	r.Get("/favicon.ico", resources.ServeSingle(staticFS, "img/favicon.ico"))
-	r.Get("/robots.txt", resources.ServeSingle(staticFS, "robots.txt"))
+	// timer
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
 
-	server := &http.Server{
-		Addr:              config.Listen,
-		Handler:           r,
-		ReadHeaderTimeout: 5 * time.Second,
-		WriteTimeout:      5 * time.Second,
-	}
+	var wg sync.WaitGroup
+	log.Info().Msg("starting up...")
 
-	// signal handling && graceful shutdown
-	idleConnsClosed := make(chan struct{})
+	wg.Add(1)
 	go func() {
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-		<-signals
-
-		// We received an interrupt signal, shut down.
-		log.Info().Msg("HTTP server shutting down...")
-		if err := server.Shutdown(context.Background()); err != nil {
-			// Error from closing listeners, or context timeout:
-			log.Error().Err(err).Msg("HTTP server shutdown error")
+		defer wg.Done()
+		select {
+		case sig := <-signals:
+			switch sig {
+			case syscall.SIGTERM:
+				log.Info().Msg("Got kill signal.")
+				log.Info().Msg("Program will terminate now.")
+			case syscall.SIGINT:
+				log.Info().Msg("Got CTRL+C signal.")
+				log.Info().Msg("Program will terminate now.")
+			default:
+				log.Info().Stringer("signal", sig).Msg("Ignoring signal")
+			}
+		case <-ticker.C:
+			err := service.NotifyUsersPendingEvents(
+				dbpool, mailer, templates, config.BaseURL,
+			)
+			if err != nil {
+				log.Error().Err(err).Msg("error!!")
+			}
 		}
-		close(idleConnsClosed)
 	}()
 
-	// listen
-	log.Info().Msg("starting up...")
-	log.Info().Msgf("listening: %s", config.Listen)
-	log.Info().Msgf("server version: %s", ServerVersion)
-	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal().Err(err).Msg("HTTP server error")
-	}
-
-	<-idleConnsClosed
+	// block
+	wg.Wait()
 }

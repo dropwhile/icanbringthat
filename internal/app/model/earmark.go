@@ -80,6 +80,13 @@ func GetEarmarkByEventItem(ctx context.Context, db PgxHandle,
 	return QueryOne[Earmark](ctx, db, q, eventItemID)
 }
 
+func GetEarmarksByEventItemIDs(ctx context.Context, db PgxHandle,
+	eventItemIDs []int,
+) ([]*Earmark, error) {
+	q := `SELECT * FROM earmark_ WHERE event_item_id = ANY($1)`
+	return Query[Earmark](ctx, db, q, eventItemIDs)
+}
+
 func GetEarmarksByEvent(ctx context.Context, db PgxHandle,
 	eventID int,
 ) ([]*Earmark, error) {
