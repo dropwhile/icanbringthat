@@ -5,7 +5,9 @@ Description: {{.eventDescription}}
 When: {{.eventWhen}}
 Link: {{.eventURL}}
 
-{{if .items}}
+{{if .items -}}
 You have earmarked the following items for this event:
+{{- end -}}
+{{- range .items}}
 *   {{.Description}}
-{{end}}
+{{- end }}

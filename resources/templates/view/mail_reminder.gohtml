@@ -6,18 +6,20 @@
     <title>{{.Subject}}</title>
   </head>
   <body>
-    <p>This email is a reminder about {{if .owner}}one of your upcoming events.{{else}}an upcoming event.{{end}}</p>
+    <p>This email is a reminder about {{if .owner}}one of your upcoming events{{else}}an upcoming event{{end}}.</p>
     <br>
     <p>Name: {{.eventName}}</p>
     <p>Description: {{.eventDescription}}</p>
     <p>When: {{.eventWhen}}</p>
     <p>Link: {{.eventURL}}</p>
     <br>
-    {{if .items}}
+    {{if .items -}}
     <p>You have earmarked the following items for this event:</p>
+    {{- end -}}
+    {{- range .items}}
     <ul>
         <li>{{.Description}}</li>
     </ul>
-    {{end}}
+    {{- end}}
   </body>
 </html>
