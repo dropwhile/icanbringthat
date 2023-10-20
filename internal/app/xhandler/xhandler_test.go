@@ -73,22 +73,23 @@ func (tm *TestMailer) SendRaw(mail *util.Mail) error {
 	return nil
 }
 
-func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string) error {
+func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders util.MailHeader) error {
 	if from == "" {
 		from = "user@example.com"
 	}
 	mail := &util.Mail{
-		Sender:    from,
-		To:        to,
-		Subject:   subject,
-		BodyPlain: bodyPlain,
-		BodyHtml:  bodyHtml,
+		Sender:       from,
+		To:           to,
+		ExtraHeaders: extraHeaders,
+		Subject:      subject,
+		BodyPlain:    bodyPlain,
+		BodyHtml:     bodyHtml,
 	}
 	return tm.SendRaw(mail)
 }
 
-func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string) {
-	tm.Send(from, to, subject, bodyPlain, bodyHtml)
+func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders util.MailHeader) {
+	tm.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 }
 
 func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *XHandler) {

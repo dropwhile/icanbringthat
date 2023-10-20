@@ -73,7 +73,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 		Msg("email content")
 
 	_ = user
-	x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml)
+	x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml, nil)
 	x.SessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
 	if htmx.Hx(r).Request() {
 		w.Header().Add("HX-Refresh", "true")

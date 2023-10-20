@@ -128,7 +128,11 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap
 			Msg("email content")
 
 		subj := vars["Subject"].(string)
-		err = mailer.Send("", []string{user.Email}, subj, messagePlain, messageHtml)
+		err = mailer.Send("", []string{user.Email},
+			subj, messagePlain, messageHtml,
+			util.MailHeader{
+				"X-PM-Message-Stream": "outbound",
+			})
 		if err != nil {
 			return fmt.Errorf("error sending email: %w", err)
 		}

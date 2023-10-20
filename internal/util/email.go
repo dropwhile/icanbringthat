@@ -10,12 +10,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type MailHeader map[string]string
+
 type Mail struct {
-	Sender    string
-	To        []string
-	Subject   string
-	BodyPlain string
-	BodyHtml  string
+	Sender       string
+	To           []string
+	Subject      string
+	BodyPlain    string
+	BodyHtml     string
+	ExtraHeaders MailHeader
 }
 
 type Mailer struct {
@@ -27,8 +30,8 @@ type Mailer struct {
 
 type MailSender interface {
 	SendRaw(*Mail) error
-	Send(string, []string, string, string, string) error
-	SendAsync(string, []string, string, string, string)
+	Send(string, []string, string, string, string, MailHeader) error
+	SendAsync(string, []string, string, string, string, MailHeader)
 }
 
 func (m *Mailer) SendRaw(mail *Mail) error {
@@ -38,6 +41,9 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 	var buf strings.Builder
 	boundary := refid.Must(refid.New())
 	// write headers, set up boundary
+	for k, v := range mail.ExtraHeaders {
+		buf.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
+	}
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", mail.Sender))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(mail.To, ";")))
 	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", mail.Subject))
@@ -69,23 +75,24 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 	return err
 }
 
-func (m *Mailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string) error {
+func (m *Mailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders MailHeader) error {
 	if from == "" {
 		from = m.user
 	}
 	mail := &Mail{
-		Sender:    from,
-		To:        to,
-		Subject:   subject,
-		BodyPlain: bodyPlain,
-		BodyHtml:  bodyHtml,
+		Sender:       from,
+		To:           to,
+		Subject:      subject,
+		BodyPlain:    bodyPlain,
+		BodyHtml:     bodyHtml,
+		ExtraHeaders: extraHeaders,
 	}
 	return m.SendRaw(mail)
 }
 
-func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string) {
+func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders MailHeader) {
 	go func() {
-		err := m.Send(from, to, subject, bodyPlain, bodyHtml)
+		err := m.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 		if err != nil {
 			log.Info().Err(err).Msg("error sending email")
 		}
