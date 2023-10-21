@@ -12,21 +12,22 @@ import (
 )
 
 type Config struct {
-	LogFormat    string        `env:"LOG_FORMAT" envDefault:"json"`
-	LogLevel     zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
-	Production   bool          `env:"PRODUCTION" envDefault:"true"`
-	Listen       string        `env:"LISTEN" envDefault:"127.0.0.1:8000"`
-	TemplateDir  string        `env:"TPL_DIR" envDefault:"embed"`
-	StaticDir    string        `env:"STATIC_DIR" envDefault:"embed"`
-	DatabaseDSN  string        `env:"DB_DSN,required"`
-	BaseURL      string        `env:"BASE_URL,required"`
-	SMTPHostname string        `env:"SMTP_HOSTNAME,required"`
-	SMTPHost     string        `env:"SMTP_HOST,expand" envDefault:"$SMTP_HOSTNAME"`
-	SMTPPort     int           `env:"SMTP_PORT,required"`
-	SMTPUser     string        `env:"SMTP_USER,required"`
-	SMTPPass     string        `env:"SMTP_PASS,required"`
-	MailFrom     string        `env:"MAIL_FROM,required"`
-	HMACKey      string        `env:"HMAC_KEY,required"`
+	LogFormat    string            `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel     zerolog.Level     `env:"LOG_LEVEL" envDefault:"info"`
+	Production   bool              `env:"PRODUCTION" envDefault:"true"`
+	Listen       string            `env:"LISTEN" envDefault:"127.0.0.1:8000"`
+	TemplateDir  string            `env:"TPL_DIR" envDefault:"embed"`
+	StaticDir    string            `env:"STATIC_DIR" envDefault:"embed"`
+	DatabaseDSN  string            `env:"DB_DSN,required"`
+	BaseURL      string            `env:"BASE_URL,required"`
+	SMTPHostname string            `env:"SMTP_HOSTNAME,required"`
+	SMTPHost     string            `env:"SMTP_HOST,expand" envDefault:"$SMTP_HOSTNAME"`
+	SMTPPort     int               `env:"SMTP_PORT,required"`
+	SMTPUser     string            `env:"SMTP_USER,required"`
+	SMTPPass     string            `env:"SMTP_PASS,required"`
+	MailFrom     string            `env:"MAIL_FROM,required"`
+	HMACKey      string            `env:"HMAC_KEY,required"`
+	WebhookCreds map[string]string `env:"WEBHOOK_CREDS"`
 	CSRFKeyBytes []byte
 	HMACKeyBytes []byte
 }

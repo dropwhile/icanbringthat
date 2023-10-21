@@ -84,6 +84,7 @@ func main() {
 		config.CSRFKeyBytes,
 		config.Production,
 		config.BaseURL,
+		config.WebhookCreds,
 	)
 	defer r.Close()
 

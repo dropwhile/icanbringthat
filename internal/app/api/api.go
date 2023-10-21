@@ -42,6 +42,7 @@ func New(
 	csrfKey []byte,
 	isProd bool,
 	baseURL string,
+	webhookCredentials map[string]string,
 ) *API {
 	zh := &xhandler.XHandler{
 		Db:      model.SetupFromDbPool(db),
@@ -158,6 +159,13 @@ func New(
 				})
 			}
 		})
+	})
+
+	// webhooks
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("simple", webhookCredentials))
+		r.Use(middleware.NoCache)
+		r.Post("/webhooks/pm", zh.PostmarkCallback)
 	})
 
 	return api
