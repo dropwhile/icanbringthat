@@ -140,9 +140,9 @@
   <div id="notification_settings" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
     <div class="mb-1 flex justify-between items-center align-middle">
       <div class="font-semibold text-gray-600 dark:text-gray-300">
-        Reminders
+        Send Email Reminders
       </div>
-      {{ $enable_reminders := (not .user.Settings.DisableReminders) }}
+      {{ $enable_reminders := .user.Settings.EnableReminders }}
       <div
         class="tooltip"
         hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
@@ -181,6 +181,19 @@
                     issueRequest()
                   else
                     set my.checked to true
+                  end
+                end"
+            {{else}}
+              _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if not {{.user.Verified}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Account must be verified before enabling reminder emails')
+                    set my.checked to false
+                  else
+                    issueRequest()
                   end
                 end"
             {{end}}

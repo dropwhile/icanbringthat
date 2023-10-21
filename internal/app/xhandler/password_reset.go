@@ -206,7 +206,12 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 			Msg("email content")
 
 		_ = user
-		x.Mailer.SendAsync("", []string{user.Email}, subject, messagePlain, messageHtml, nil)
+		x.Mailer.SendAsync("", []string{user.Email},
+			subject, messagePlain, messageHtml,
+			util.MailHeader{
+				"X-PM-Message-Stream": "outbound",
+			},
+		)
 	}
 
 	x.SessMgr.FlashAppend(ctx, "success", "Password reset email sent.")

@@ -38,7 +38,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap
 		}
 
 		// double check if user wants any reminders
-		if user.Settings.DisableReminders {
+		if !user.Settings.EnableReminders {
 			continue
 		}
 
@@ -131,8 +131,9 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap
 		err = mailer.Send("", []string{user.Email},
 			subj, messagePlain, messageHtml,
 			util.MailHeader{
-				"X-PM-Message-Stream": "outbound",
-			})
+				"X-PM-Message-Stream": "broadcast",
+			},
+		)
 		if err != nil {
 			return fmt.Errorf("error sending email: %w", err)
 		}

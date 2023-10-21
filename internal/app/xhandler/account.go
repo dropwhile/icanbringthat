@@ -351,14 +351,19 @@ func (x *XHandler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Reques
 
 	switch enableReminders {
 	case "off":
-		if !user.Settings.DisableReminders {
+		if user.Settings.EnableReminders {
 			changes = true
-			user.Settings.DisableReminders = true
+			user.Settings.EnableReminders = false
 		}
 	case "on":
-		if user.Settings.DisableReminders {
+		if !user.Settings.EnableReminders {
+			if !user.Verified {
+				x.SessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling reminder emails")
+				http.Redirect(w, r, "/settings", http.StatusSeeOther)
+				return
+			}
 			changes = true
-			user.Settings.DisableReminders = false
+			user.Settings.EnableReminders = true
 		}
 	case "":
 		// nothing

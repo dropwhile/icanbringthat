@@ -112,7 +112,7 @@ func GetUserEventNotificationNeeded(
 		WHERE
 			uen.user_id is NULL AND
 			u.verified = TRUE AND
-			(u.settings->>'disable_reminders')::boolean IS NOT TRUE
+			(u.settings->>'enable_reminders')::boolean = TRUE
 		GROUP BY (subt.user_id, subt.event_id, subt.when)
 	`
 	return Query[UserEventNotificationNeeded](ctx, db, q)

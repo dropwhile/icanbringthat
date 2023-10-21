@@ -23,7 +23,7 @@ type UserSettings struct {
 	ReminderThresholdHours uint8 `json:"reminder_threshold"`
 	// weird negative name here, so zero value defaults
 	// to enabling reminders
-	DisableReminders bool `json:"disable_reminders"`
+	EnableReminders bool `json:"enable_reminders"`
 }
 
 func (p UserSettings) Value() (driver.Value, error) {
