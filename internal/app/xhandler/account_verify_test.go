@@ -68,10 +68,10 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"refID":  model.UserVerifyRefIDMatcher{},
 				"userID": user.ID,
-			})).
+			}).
 			WillReturnRows(uvRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -164,7 +164,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"email":    user.Email,
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
@@ -172,7 +172,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"pwAuth":   true,
 				"webAuthn": false,
 				"userID":   user.ID,
-			})).
+			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()
@@ -406,7 +406,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// begin first inner tx for user update
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"email":    user.Email,
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
@@ -414,7 +414,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"pwAuth":   true,
 				"webAuthn": false,
 				"userID":   user.ID,
-			})).
+			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
 		mock.ExpectCommit()

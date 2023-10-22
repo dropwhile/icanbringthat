@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"golang.org/x/exp/constraints"
 )
@@ -65,4 +66,33 @@ func NewUserPropertyMap() *UserSettings {
 	return &UserSettings{
 		ReminderThresholdHours: DefaultReminderThresholdHours,
 	}
+}
+
+type UserSettingsMatcher struct {
+	expected UserSettings
+}
+
+func NewUserSettingsMatcher(expected UserSettings) UserSettingsMatcher {
+	return UserSettingsMatcher{expected}
+}
+
+func (m UserSettingsMatcher) Match(v interface{}) bool {
+	var settings UserSettings
+	var err error
+	switch x := v.(type) {
+	case UserSettings:
+		settings = x
+	case *UserSettings:
+		settings = *x
+	case string:
+		err = json.Unmarshal([]byte(x), &settings)
+	case []byte:
+		err = json.Unmarshal(x, &settings)
+	default:
+		return false
+	}
+	if err != nil {
+		return false
+	}
+	return reflect.DeepEqual(m.expected, settings)
 }

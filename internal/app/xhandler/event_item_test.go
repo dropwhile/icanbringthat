@@ -88,11 +88,11 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"refID":       model.EventItemRefIDMatcher{},
 				"eventID":     eventItem.EventID,
 				"description": "some description",
-			})).
+			}).
 			WillReturnRows(eventItemRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()

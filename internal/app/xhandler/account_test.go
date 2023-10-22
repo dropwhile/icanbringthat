@@ -360,7 +360,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// due to argon2 salting in the user.SetPass call, so just use Any instead.
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"email":    user.Email,
 				"name":     user.Name,
 				"pwHash":   pgxmock.AnyArg(),
@@ -368,7 +368,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"pwAuth":   user.PWAuth,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
-			})).
+			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		// hidden rollback after commit due to beginfunc being used
@@ -480,14 +480,14 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"refID":    model.UserRefIDMatcher{},
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),
 				"pwAuth":   true,
 				"settings": pgxmock.AnyArg(),
-			})).
+			}).
 			WillReturnRows(rows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -589,14 +589,14 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"refID":    model.UserRefIDMatcher{},
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),
 				"pwAuth":   true,
 				"settings": pgxmock.AnyArg(),
-			})).
+			}).
 			WillReturnError(fmt.Errorf("duplicate row"))
 		mock.ExpectRollback()
 		mock.ExpectRollback()

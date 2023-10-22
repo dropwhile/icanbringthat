@@ -329,12 +329,12 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO earmark_").
-			WithArgs(util.NewPgxNamedArgsMatcher(pgx.NamedArgs{
+			WithArgs(pgx.NamedArgs{
 				"refID":       model.EarmarkRefIDMatcher{},
 				"eventItemID": earmark.EventItemID,
 				"userID":      earmark.UserID,
 				"note":        "some note",
-			})).
+			}).
 			WillReturnRows(earmarkRows)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
