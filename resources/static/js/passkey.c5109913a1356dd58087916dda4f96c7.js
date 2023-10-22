@@ -18,13 +18,13 @@ async function registerPasskey(csrfToken) {
 
     // GET registration options from the endpoint that calls
     // @simplewebauthn/server -> generateRegistrationOptions()
-    const resp = await fetch('/webauthn/register');
-    const respJ = await resp.json();
+    const registerResp = await fetch('/webauthn/register');
+    const registerJSON = await registerResp.json();
 
     let attResp;
     try {
         // Pass the options to the authenticator and wait for a response
-        attResp = await SimpleWebAuthnBrowser.startRegistration(respJ.publicKey);
+        attResp = await SimpleWebAuthnBrowser.startRegistration(registerJSON.publicKey);
     } catch (error) {
         // Some basic error handling
         if (error.name === 'InvalidStateError') {
@@ -35,7 +35,7 @@ async function registerPasskey(csrfToken) {
         } else {
             Swal.fire({
                 icon: 'error', title: 'Oops...',
-                text: 'Error: '+error
+                text: 'Error: ' + error
             });
         }
         return;

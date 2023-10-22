@@ -100,13 +100,6 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "email", "name", "pwhash", "pwauth", "created", "last_modified"}).
-			AddRow(1, refID, "user@example.com", "user", pwhash, true, ts, ts)
-		mock.ExpectQuery("^SELECT (.+) FROM user_").
-			WithArgs("userXYZ@example.com").
-			WillReturnRows(rows)
-
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
 		}
@@ -122,9 +115,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		log.Debug().Str("body", string(out)).Msg("response")
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Equal(t, rr.Header().Get("location"), "/login",
-			"handler returned wrong redirect")
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

@@ -155,8 +155,9 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// if pw auth is disabled, do not send email either
-	if !user.PWAuth {
+	// if pw auth is disabled, behave the same as faking it
+	// (do not send email either)
+	if !doFake && !user.PWAuth {
 		doFake = true
 	}
 
