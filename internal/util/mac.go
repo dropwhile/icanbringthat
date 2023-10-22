@@ -6,6 +6,8 @@ import (
 	"github.com/zeebo/blake3"
 )
 
+// keyed MAC using blake3
+// similar to HMAC, but simpler and faster (while offering similar security)
 type MAC struct {
 	key []byte
 }
