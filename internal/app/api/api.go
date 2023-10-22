@@ -49,7 +49,7 @@ func New(
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db, isProd),
 		Mailer:  mailer,
-		Hmac:    util.NewHmac(hmacKey),
+		Hmac:    util.NewMAC(hmacKey),
 		BaseURL: strings.TrimSuffix(baseURL, "/"),
 		IsProd:  isProd,
 	}

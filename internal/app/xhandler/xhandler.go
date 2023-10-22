@@ -20,7 +20,7 @@ type XHandler struct {
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 	Mailer  util.MailSender
-	Hmac    *util.Hmac
+	Hmac    *util.MAC
 	BaseURL string
 	IsProd  bool
 }

@@ -104,7 +104,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewTestSessionManager(),
 		Mailer:  &TestMailer{make([]*util.Mail, 0)},
-		Hmac:    util.NewHmac([]byte("test-hmac-key")),
+		Hmac:    util.NewMAC([]byte("test-hmac-key")),
 	}
 	mux := chi.NewMux()
 	mux.Use(h.SessMgr.LoadAndSave)
