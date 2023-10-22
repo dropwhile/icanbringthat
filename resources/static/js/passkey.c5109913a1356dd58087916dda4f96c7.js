@@ -74,40 +74,43 @@ async function registerPasskey(csrfToken) {
 
 window.registerPasskey = registerPasskey
 
-async function authPasskey(csrfToken, discoverable=false, autofill=false) {
+async function authPasskey(csrfToken, autofill=false) {
+    const notyf = new Notyf({
+        ripple: false,
+        dismissible: true,
+        duration: 2500,
+        position: {
+          x: 'center',
+          y: 'top',
+        }
+    });
+
     if (!SimpleWebAuthnBrowser.browserSupportsWebAuthn()) {
-        Swal.fire({
-            icon: 'error',
-            title: 'This browser does not support passkeys',
-            showCancelButton: false,
-        }).then((result) => {
-            location.href = '/login';
-        });
+        notyf.error('This browser does not support passkeys.');
         return;
     }
 
     // GET authentication options from the endpoint that calls
     // @simplewebauthn/server -> generateAuthenticationOptions()
-    var loginUrl = '/webauthn/login';
-    if (discoverable) {
-        loginUrl += '?' + new URLSearchParams({disco: discoverable}).toString();
-    }
-    const resp = await fetch(loginUrl);
-    const respJ = await resp.json();
+    const loginResp = await fetch('/webauthn/login');
+    const loginJSON = await loginResp.json();
 
-    let asseResp;
+    if (!loginJSON) {
+        notyf.error('Oops. Something went wrong.');
+        return;
+    } else if (loginJSON.error) {
+        notyf.error(verificationJSON.error);
+        return;
+    }
+
+    let startAuthResp;
     try {
       // Pass the options to the authenticator and wait for a response
-      asseResp = await SimpleWebAuthnBrowser.startAuthentication(
-        respJ.publicKey, autofill);
+      startAuthResp = await SimpleWebAuthnBrowser.startAuthentication(
+        loginJSON.publicKey, autofill);
     } catch (error) {
-      Swal.fire({
-          icon: 'error', title: 'Oops...',
-          text: 'Error: '+error
-      }).then((result) => {
-          location.href = '/login';
-      });
-      return;
+        notyf.error('Error:' + error);
+        return;
     }
 
     // POST the response to the endpoint that calls
@@ -118,7 +121,7 @@ async function authPasskey(csrfToken, discoverable=false, autofill=false) {
             'Content-Type': 'application/json',
             'X-CSRF-Token': csrfToken,
         },
-        body: JSON.stringify(asseResp),
+        body: JSON.stringify(startAuthResp),
     });
 
     // Wait for the results of verification
@@ -127,20 +130,12 @@ async function authPasskey(csrfToken, discoverable=false, autofill=false) {
     // Show UI appropriate for the `verified` status
     if (verificationJSON && verificationJSON.verified) {
         location.href = "/dashboard";
-    } else if (verificationJSON.error) {
-      Swal.fire({
-          icon: 'error', title: 'Login Failed...',
-          text: verificationJSON.error
-      }).then((result) => {
-          location.href = '/login';
-      });
+    } else if (verificationJSON && verificationJSON.error) {
+        notyf.error(verificationJSON.error);
+        return;
     } else {
-      Swal.fire({
-          icon: 'error', title: 'Login Failed...',
-          text: "Oops. Something went wrong."
-      }).then((result) => {
-          location.href = '/login';
-      });
+        notyf.error('Oops. Something went wrong.');
+        return;
     }
 }
 

@@ -193,7 +193,9 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.Json(w, http.StatusInternalServerError,
+			map[string]any{"error": "Passkey login failed"},
+		)
 		return
 	}
 
@@ -203,14 +205,18 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	options, sessionData, err := authnInstance.BeginDiscoverableLogin(opts...)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusBadRequest)
+		x.Json(w, http.StatusBadRequest,
+			map[string]any{"error": "Passkey login failed"},
+		)
 		return
 	}
 
 	val, err := json.Marshal(sessionData)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.Json(w, http.StatusInternalServerError,
+			map[string]any{"error": "Passkey login failed"},
+		)
 		return
 	}
 	x.SessMgr.Put(ctx, "webauthn-session:login", val)
@@ -232,7 +238,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Json(w, http.StatusInternalServerError,
-			map[string]any{"error": "webauthn error"},
+			map[string]any{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -251,7 +257,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
 		x.Json(w, http.StatusForbidden,
-			map[string]any{"error": "webauthn login error"},
+			map[string]any{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -279,7 +285,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
 		x.Json(w, http.StatusForbidden,
-			map[string]any{"error": "passkey login failed"},
+			map[string]any{"error": "Passkey login failed"},
 		)
 		return
 	}
