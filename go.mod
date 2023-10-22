@@ -3,7 +3,7 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
-	github.com/alexedwards/scs/pgxstore v0.0.0-20230902070821-95fa2ac9d520
+	github.com/alexedwards/scs/pgxstore v0.0.0-20231021170855-dabd6a638486
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/dropwhile/refid v1.0.5
@@ -13,8 +13,9 @@ require (
 	github.com/gorilla/csrf v1.7.1
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.4.3
-	github.com/pashagolub/pgxmock/v3 v3.0.0
+	github.com/pashagolub/pgxmock/v3 v3.1.0
 	github.com/rs/zerolog v1.31.0
+	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.14.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/text v0.13.0
@@ -40,7 +41,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	github.com/zeebo/blake3 v0.2.3 // indirect
 	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )
