@@ -56,6 +56,7 @@ func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.W
 			// The origin URLs allowed for WebAuthn requests
 			RPOrigins: []string{siteURL.String()},
 		}
+		fmt.Printf("%#v\n", wconfig)
 		return webauthn.New(wconfig)
 	}
 }
@@ -189,29 +190,6 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := x.SessMgr.GetInt(ctx, "webauthn-session:pre-login")
-	if userID == 0 {
-		log.Debug().Msg("bad session data")
-		x.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	// find user...
-	user, err := model.GetUserByID(ctx, x.Db, userID)
-	if err != nil || user == nil {
-		log.Debug().Err(err).Msg("user not found")
-		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	if !user.WebAuthn {
-		log.Debug().Msg("user found but webauthn disabled")
-		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
@@ -219,17 +197,10 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authNUser := service.WebAuthnUserFrom(x.Db, user)
-
-	credentials := authNUser.WebAuthnCredentials()
-	allowList := make([]protocol.CredentialDescriptor, 0, len(credentials))
-	for _, cred := range credentials {
-		allowList = append(allowList, cred.Descriptor())
+	opts := []webauthn.LoginOption{
+		webauthn.WithUserVerification(protocol.VerificationPreferred),
 	}
-	options, sessionData, err := authnInstance.BeginLogin(
-		authNUser,
-		webauthn.WithAllowedCredentials(allowList),
-	)
+	options, sessionData, err := authnInstance.BeginDiscoverableLogin(opts...)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Error(w, "webauthn error", http.StatusBadRequest)
@@ -257,42 +228,59 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := x.SessMgr.GetInt(ctx, "webauthn-session:pre-login")
-	if userID == 0 {
-		log.Debug().Msg("bad session data")
-		x.Error(w, "bad session data", http.StatusBadRequest)
-		return
-	}
-
-	user, err := model.GetUserByID(ctx, x.Db, userID)
-	if err != nil || user == nil {
-		log.Debug().Err(err).Msg("invalid credentials: no user match")
-		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.Json(w, http.StatusInternalServerError,
+			map[string]any{"error": "webauthn error"},
+		)
 		return
 	}
-
-	authNUser := service.WebAuthnUserFrom(x.Db, user)
 
 	var sessionData webauthn.SessionData
 	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:login").([]byte)
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.Json(w, http.StatusBadRequest,
+			map[string]any{"error": "bad session data"},
+		)
 		return
 	}
 
-	_, err = authnInstance.FinishLogin(authNUser, sessionData, r)
+	parsedResponse, err := protocol.ParseCredentialRequestResponse(r)
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
-		x.Error(w, "webauthn login error", http.StatusForbidden)
+		x.Json(w, http.StatusForbidden,
+			map[string]any{"error": "webauthn login error"},
+		)
+		return
+	}
+
+	var userID int
+	handler := func(rawID, userHandle []byte) (webauthn.User, error) {
+		// rawID is the credentialID
+		// userHandler is user.WebauthnID
+		refID, err := model.UserRefIDFromBytes(userHandle)
+		if err != nil {
+			return nil, fmt.Errorf("bad user id: %w", err)
+		}
+		user, err := model.GetUserByRefID(ctx, x.Db, refID)
+		if err != nil || user == nil {
+			return nil, fmt.Errorf("could not find user: %w", err)
+		}
+		if !user.WebAuthn {
+			return nil, fmt.Errorf("user found but webauthn disabled")
+		}
+		userID = user.ID
+		authNUser := service.WebAuthnUserFrom(x.Db, user)
+		return authNUser, nil
+	}
+	_, err = authnInstance.ValidateDiscoverableLogin(handler, sessionData, parsedResponse)
+	if err != nil {
+		log.Info().Err(err).Msg("error finishing webauthn login")
+		x.Json(w, http.StatusForbidden,
+			map[string]any{"error": "passkey login failed"},
+		)
 		return
 	}
 
@@ -305,7 +293,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.ID)
+	x.SessMgr.Put(r.Context(), "user-id", userID)
 	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
 	resp := map[string]any{"verified": true}
 	x.Json(w, http.StatusOK, resp)

@@ -74,7 +74,7 @@ async function registerPasskey(csrfToken) {
 
 window.registerPasskey = registerPasskey
 
-async function authPasskey(csrfToken) {
+async function authPasskey(csrfToken, discoverable=false, autofill=false) {
     if (!SimpleWebAuthnBrowser.browserSupportsWebAuthn()) {
         Swal.fire({
             icon: 'error',
@@ -88,14 +88,18 @@ async function authPasskey(csrfToken) {
 
     // GET authentication options from the endpoint that calls
     // @simplewebauthn/server -> generateAuthenticationOptions()
-    const resp = await fetch('/webauthn/login');
+    var loginUrl = '/webauthn/login';
+    if (discoverable) {
+        loginUrl += '?' + new URLSearchParams({disco: discoverable}).toString();
+    }
+    const resp = await fetch(loginUrl);
     const respJ = await resp.json();
 
     let asseResp;
     try {
       // Pass the options to the authenticator and wait for a response
       asseResp = await SimpleWebAuthnBrowser.startAuthentication(
-        respJ.publicKey, true);
+        respJ.publicKey, autofill);
     } catch (error) {
       Swal.fire({
           icon: 'error', title: 'Oops...',
@@ -109,12 +113,12 @@ async function authPasskey(csrfToken) {
     // POST the response to the endpoint that calls
     // @simplewebauthn/server -> verifyAuthenticationResponse()
     const verificationResp = await fetch('/webauthn/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken,
-      },
-      body: JSON.stringify(asseResp),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken,
+        },
+        body: JSON.stringify(asseResp),
     });
 
     // Wait for the results of verification
@@ -123,14 +127,20 @@ async function authPasskey(csrfToken) {
     // Show UI appropriate for the `verified` status
     if (verificationJSON && verificationJSON.verified) {
         location.href = "/dashboard";
-    } else {
+    } else if (verificationJSON.error) {
       Swal.fire({
-          icon: 'error', title: 'Oops...',
-          text: 'Error: '+error
+          icon: 'error', title: 'Login Failed...',
+          text: verificationJSON.error
       }).then((result) => {
           location.href = '/login';
       });
-      return;
+    } else {
+      Swal.fire({
+          icon: 'error', title: 'Login Failed...',
+          text: "Oops. Something went wrong."
+      }).then((result) => {
+          location.href = '/login';
+      });
     }
 }
 

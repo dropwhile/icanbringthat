@@ -155,6 +155,11 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// if pw auth is disabled, do not send email either
+	if !user.PWAuth {
+		doFake = true
+	}
+
 	if doFake {
 		log.Info().Str("email", email).Msg("pretending to sent password reset email")
 	}
@@ -283,6 +288,13 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.Error(w, "bad data", http.StatusBadRequest)
+		return
+	}
+
+	// if pw auth is disabled, do not send email either
+	if !user.PWAuth {
+		log.Info().Msg("pw reset attempt but pw auth disabled")
+		x.Error(w, "Access Denied", http.StatusForbidden)
 		return
 	}
 

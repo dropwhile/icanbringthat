@@ -36,7 +36,7 @@ func (r *CredentialRefID) UnmarshalJSON(b []byte) error {
 }
 
 func (r *CredentialRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.RefID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -54,6 +54,12 @@ func ParseCredentialRefIDWithRequire(s string, reqs ...refid.Requirement) (Crede
 	reqs = append(reqs, refid.HasTag(tagValCredentialRefID))
 	v, err := refid.ParseWithRequire(s, reqs...)
 	return CredentialRefID{v}, err
+}
+
+func CredentialRefIDFromBytes(input []byte) (CredentialRefID, error) {
+	var r CredentialRefID
+	err := r.UnmarshalBinary(input)
+	return r, err
 }
 
 type NullCredentialRefID struct {

@@ -36,7 +36,7 @@ func (r *UserPWResetRefID) UnmarshalJSON(b []byte) error {
 }
 
 func (r *UserPWResetRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.RefID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -54,6 +54,12 @@ func ParseUserPWResetRefIDWithRequire(s string, reqs ...refid.Requirement) (User
 	reqs = append(reqs, refid.HasTag(tagValUserPWResetRefID))
 	v, err := refid.ParseWithRequire(s, reqs...)
 	return UserPWResetRefID{v}, err
+}
+
+func UserPWResetRefIDFromBytes(input []byte) (UserPWResetRefID, error) {
+	var r UserPWResetRefID
+	err := r.UnmarshalBinary(input)
+	return r, err
 }
 
 type NullUserPWResetRefID struct {

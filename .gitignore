@@ -3,3 +3,5 @@
 /.modd.conf
 /build
 /diagrams
+server.crt
+server.key

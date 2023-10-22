@@ -36,7 +36,7 @@ func (r *UserRefID) UnmarshalJSON(b []byte) error {
 }
 
 func (r *UserRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.RefID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -54,6 +54,12 @@ func ParseUserRefIDWithRequire(s string, reqs ...refid.Requirement) (UserRefID, 
 	reqs = append(reqs, refid.HasTag(tagValUserRefID))
 	v, err := refid.ParseWithRequire(s, reqs...)
 	return UserRefID{v}, err
+}
+
+func UserRefIDFromBytes(input []byte) (UserRefID, error) {
+	var r UserRefID
+	err := r.UnmarshalBinary(input)
+	return r, err
 }
 
 type NullUserRefID struct {

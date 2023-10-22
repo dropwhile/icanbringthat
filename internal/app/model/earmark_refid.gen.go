@@ -36,7 +36,7 @@ func (r *EarmarkRefID) UnmarshalJSON(b []byte) error {
 }
 
 func (r *EarmarkRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.RefID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -54,6 +54,12 @@ func ParseEarmarkRefIDWithRequire(s string, reqs ...refid.Requirement) (EarmarkR
 	reqs = append(reqs, refid.HasTag(tagValEarmarkRefID))
 	v, err := refid.ParseWithRequire(s, reqs...)
 	return EarmarkRefID{v}, err
+}
+
+func EarmarkRefIDFromBytes(input []byte) (EarmarkRefID, error) {
+	var r EarmarkRefID
+	err := r.UnmarshalBinary(input)
+	return r, err
 }
 
 type NullEarmarkRefID struct {

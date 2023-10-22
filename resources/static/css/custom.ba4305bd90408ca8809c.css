@@ -52,6 +52,15 @@ input.apple-switch:checked:after {
 }
 
 .mb-1 {
-    margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
+.my-2	{
+  margin-top: 0.5rem; 
+  margin-bottom: 0.5rem; 
+}
+
+.mx-2	{
+  margin-left: 0.5rem; 
+  margin-right: 0.5rem;
+}

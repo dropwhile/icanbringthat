@@ -36,7 +36,7 @@ func (r *EventItemRefID) UnmarshalJSON(b []byte) error {
 }
 
 func (r *EventItemRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.RefID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -54,6 +54,12 @@ func ParseEventItemRefIDWithRequire(s string, reqs ...refid.Requirement) (EventI
 	reqs = append(reqs, refid.HasTag(tagValEventItemRefID))
 	v, err := refid.ParseWithRequire(s, reqs...)
 	return EventItemRefID{v}, err
+}
+
+func EventItemRefIDFromBytes(input []byte) (EventItemRefID, error) {
+	var r EventItemRefID
+	err := r.UnmarshalBinary(input)
+	return r, err
 }
 
 type NullEventItemRefID struct {
