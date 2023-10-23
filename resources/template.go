@@ -122,6 +122,16 @@ var templateFuncMap = txttemplate.FuncMap{
 	"lowercase": func(s fmt.Stringer) string {
 		return cases.Lower(language.English).String(s.String())
 	},
+	"truncate": func(s string, size int) string {
+		asRunes := []rune(s)
+		if len(asRunes) > size {
+			asRunes = asRunes[:size]
+			if size > 3 {
+				asRunes = append(asRunes[:size-3], []rune("...")...)
+			}
+		}
+		return string(asRunes)
+	},
 	"formatTS": func(t time.Time) string {
 		return t.UTC().Format("2006-01-02T15:04Z07:00")
 	},
