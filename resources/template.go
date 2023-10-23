@@ -117,20 +117,31 @@ func CalculateMaxPageNum(size, step int) int {
 	return maxPage
 }
 
+func truncateString(s string, size int) string {
+	asRunes := []rune(s)
+	if len(asRunes) > size {
+		asRunes = asRunes[:size]
+		if size > 3 {
+			asRunes = append(asRunes[:size-3], []rune("...")...)
+		}
+	}
+	return string(asRunes)
+}
+
 var templateFuncMap = txttemplate.FuncMap{
 	"titlecase": cases.Title(language.English).String,
 	"lowercase": func(s fmt.Stringer) string {
 		return cases.Lower(language.English).String(s.String())
 	},
-	"truncate": func(s string, size int) string {
-		asRunes := []rune(s)
-		if len(asRunes) > size {
-			asRunes = asRunes[:size]
-			if size > 3 {
-				asRunes = append(asRunes[:size-3], []rune("...")...)
-			}
-		}
-		return string(asRunes)
+	"truncate": truncateString,
+	"truncate30": func(s string) string {
+		return truncateString(s, 30)
+	},
+	"truncate45": func(s string) string {
+		return truncateString(s, 45)
+	},
+	"truncate60": func(s string) string {
+		return truncateString(s, 60)
 	},
 	"formatTS": func(t time.Time) string {
 		return t.UTC().Format("2006-01-02T15:04Z07:00")

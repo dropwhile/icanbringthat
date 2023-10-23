@@ -48,7 +48,6 @@
           >
             <th class="px-4 py-3">Earmarked Item</th>
             <th class="px-4 py-3">Event Name</th>
-            <th class="px-4 py-3 text-center" style="width:11rem">Date Earmarked</th>
             <th class="px-4 py-3 text-center" style="width:11rem">Event Date</th>
             <th class="px-4 py-3 text-center" style="width:9rem">Actions</th>
           </tr>
@@ -64,7 +63,7 @@
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <p class="font-semibold">{{$eventItem.Description}}</p>
+                  <p>{{$eventItem.Description | truncate30}}</p>
                 </div>
               </div>
             </td>
@@ -72,17 +71,10 @@
               <div class="flex items-center text-sm">
                 <div>
                   <a href="/events/{{$event.RefID }}">
-                    <p class="font-semibold">{{$event.Name}}</p>
+                    <p class="font-semibold">{{$event.Name | truncate30}}</p>
                   </a>
                 </div>
               </div>
-            </td>
-            <td
-              class="px-4 py-3 text-sm text-center" style="width:11rem"
-              x-data="{date: new Date($el.innerText)}"
-              x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
-            >
-              {{.Created | formatTS}}
             </td>
             <td
               class="px-4 py-3 text-sm text-center" style="width:11rem"

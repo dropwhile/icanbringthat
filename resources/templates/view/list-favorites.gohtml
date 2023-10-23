@@ -47,6 +47,7 @@
             class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
           >
             <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3 text-center" style="width:11rem">Item Count</th>
             <th class="px-4 py-3 text-center" style="width:11rem">Event Date</th>
             <th class="px-4 py-3 text-center" style="width:9rem">Actions</th>
           </tr>
@@ -61,10 +62,14 @@
               <div class="flex items-center text-sm">
                 <div>
                   <a href="/events/{{.RefID }}">
-                    <p class="font-semibold">{{.Name}}</p>
+                    <p class="font-semibold">{{ .Name | truncate60 }}</p>
                   </a>
                 </div>
               </div>
+            </td>
+            <td
+              class="px-4 py-3 text-sm text-center" style="width:11rem"
+            >{{with (index $.eventItemCounts .ID) }}{{.}}{{else}}0{{end}}
             </td>
             <td
               class="px-4 py-3 text-sm text-center" style="width:11rem"

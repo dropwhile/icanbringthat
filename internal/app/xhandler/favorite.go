@@ -13,6 +13,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -57,15 +58,36 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
+		return e.ID
+	})
+	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event items")
+		eventItemCounts = []*model.EventItemCount{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventItemCountsMap := util.ToMapIndexedByFunc(
+		eventItemCounts,
+		func(eic *model.EventItemCount) (int, int) {
+			return eic.EventID, eic.Count
+		})
+
 	tplVars := map[string]any{
-		"user":           user,
-		"events":         events,
-		"favoriteCount":  favoriteCount,
-		"pgInput":        resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
-		"title":          "My Favorites",
-		"nav":            "favorites",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":            user,
+		"events":          events,
+		"favoriteCount":   favoriteCount,
+		"eventItemCounts": eventItemCountsMap,
+		"pgInput":         resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
+		"title":           "My Favorites",
+		"nav":             "favorites",
+		csrf.TemplateTag:  csrf.TemplateField(r),
+		"csrfToken":       csrf.Token(r),
 	}
 
 	// render user profile view
