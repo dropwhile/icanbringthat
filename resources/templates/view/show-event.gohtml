@@ -2,15 +2,7 @@
   <!-- new event form -->
   <h4 class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     <div>
-      <span class="pr-2">{{.event.Name | titlecase}}</span>
-      @
-      <span
-        class="pl-2"
-        x-data="{date: new Date($el.innerText)}"
-        x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {timeStyle: 'short', hour12: true})"
-        >
-        {{.event.StartTime | formatTS}}
-      </span>
+      <span class="pr-2">Specifics</span>
     </div>
     <div style="min-width: fit-content;">
         <div class="tooltip">
@@ -110,7 +102,34 @@
         {{end}}
     </div>
   </h4>
+
+  <div class="grid gap-6 mb-8 md:grid-cols-2">
+    <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <h4 class="mb-4 font-semibold text-gray-600 dark:text-gray-300">
+        Name
+      </h4>
+      <p class="text-gray-600 dark:text-gray-400">
+        {{.event.Name | titlecase}}
+      </p>
+    </div>
+    <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <h4 class="mb-4 font-semibold text-gray-600 dark:text-gray-300">
+        Date/Time
+      </h4>
+      <span
+        class="text-gray-600 dark:text-gray-400"
+        x-data="{date: new Date($el.innerText)}"
+        x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {timeStyle: 'short', hour12: true})"
+        >
+        {{.event.StartTime | formatTS}}
+      </span>
+    </div>
+  </div>
+  
   <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <h4 class="mb-4 font-semibold text-gray-600 dark:text-gray-300">
+      Description
+    </h4>
     <div class="text-gray-700 dark:text-gray-400">
       <p>{{.event.Description}}</p>
     </div>

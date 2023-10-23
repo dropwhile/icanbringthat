@@ -3,6 +3,7 @@ package xhandler
 import (
 	"context"
 	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"
+	pg_query "github.com/pganalyze/pg_query_go/v4"
 	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 
@@ -95,7 +97,22 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *XHandler) {
 	t.Helper()
 
-	mock, err := pgxmock.NewConn()
+	var queryMatcher pgxmock.QueryMatcher = pgxmock.QueryMatcherFunc(func(expectedSQL, actualSQL string) error {
+		err := pgxmock.QueryMatcherRegexp.Match(expectedSQL, actualSQL)
+		if err != nil {
+			return err
+		}
+		_, err = pg_query.Parse(actualSQL)
+		if err != nil {
+			return fmt.Errorf("error parsing sql '%s': %w", actualSQL, err)
+		}
+
+		return nil
+	})
+
+	mock, err := pgxmock.NewConn(
+		pgxmock.QueryMatcherOption(queryMatcher),
+	)
 	assert.NilError(t, err)
 	t.Cleanup(func() { mock.Close(ctx) })
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
