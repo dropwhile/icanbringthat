@@ -41,16 +41,11 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	// base32 encode hmac
 	macStr := util.Base32EncodeToString(macBytes)
 
-	// construct url
-	scheme := "http"
-	if r.TLS != nil {
-		scheme = "https"
+	verificationUrl, err := url.JoinPath(x.BaseURL, fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
+	if err != nil {
+		x.Error(w, "processing error", http.StatusInternalServerError)
+		return
 	}
-	u := &url.URL{
-		Scheme: scheme,
-		Host:   r.Host,
-	}
-	u = u.JoinPath(fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
 
 	// construct email
 	subject := "Account Verification"
@@ -58,14 +53,14 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	err = x.TemplateExecute(&buf, "mail_account_email_verify.gohtml",
 		map[string]any{
 			"Subject":         subject,
-			"VerificationUrl": u.String(),
+			"VerificationUrl": verificationUrl,
 		},
 	)
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
-	messagePlain := fmt.Sprintf("Account Verification url: %s", u.String())
+	messagePlain := fmt.Sprintf("Account Verification url: %s", verificationUrl)
 	messageHtml := buf.String()
 	log.Debug().
 		Str("plain", messagePlain).
