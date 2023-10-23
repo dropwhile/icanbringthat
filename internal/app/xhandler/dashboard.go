@@ -10,6 +10,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
@@ -54,18 +55,39 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
+		return e.ID
+	})
+	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Info().Err(err).Msg("no rows for event items")
+		eventItemCounts = []*model.EventItemCount{}
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	eventItemCountsMap := util.ToMapIndexedByFunc(
+		eventItemCounts,
+		func(eic *model.EventItemCount) (int, int) {
+			return eic.EventID, eic.Count
+		})
+
 	// parse user-id url param
 	tplVars := map[string]any{
-		"user":           user,
-		"title":          "Dashboard",
-		"nav":            "dashboard",
-		"events":         events,
-		"eventCount":     eventCount,
-		"earmarkCount":   earmarkCount,
-		"favoriteCount":  favoriteCount,
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":            user,
+		"title":           "Dashboard",
+		"nav":             "dashboard",
+		"events":          events,
+		"eventCount":      eventCount,
+		"earmarkCount":    earmarkCount,
+		"favoriteCount":   favoriteCount,
+		"eventItemCounts": eventItemCountsMap,
+		"flashes":         x.SessMgr.FlashPopAll(ctx),
+		csrf.TemplateTag:  csrf.TemplateField(r),
+		"csrfToken":       csrf.Token(r),
 	}
 
 	// render user profile view
