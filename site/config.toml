@@ -1,6 +1,6 @@
 # The URL the site will be built for
 base_url = "https://icanbringthat.com"
-
+title = "ICanBringThat"
 theme = "juice"
 
 # Whether to automatically compile all Sass files in the sass directory
@@ -16,9 +16,11 @@ highlight_code = true
 highlight_theme = "inspired-github"
 
 [extra]
+date_format="%d %b, %Y"
 juice_logo_name = "ICanBringThat"
 juice_logo_path = "logo.svg"
 juice_extra_menu = [
+    { title = "Blog", link = "/blog/" },
     { title = "SignUp", link = "https://app.icanbringthat.com/create-account" },
     { title = "LogIn", link = "https://app.icanbringthat.com/login" },
 ]
