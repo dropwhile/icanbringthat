@@ -18,7 +18,7 @@
     {% endfor %}
     {% if config.extra.juice_extra_menu %}
         {% for menu in config.extra.juice_extra_menu %}
-        <a class="nav-item subtitle-text" href="{{ menu.link | safe }}">{{ menu.title }}</a>
+        <a class="nav-item subtitle-text" href="{{ menu.link | safe }}" {%- if menu.rel %}rel="{{ menu.rel }}"{% endif -%}>{{ menu.title }}</a>
         {% endfor %}
     {% endif %}
 </nav>
