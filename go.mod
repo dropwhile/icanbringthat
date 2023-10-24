@@ -3,8 +3,8 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
-	github.com/alexedwards/scs/pgxstore v0.0.0-20231021170855-dabd6a638486
-	github.com/alexedwards/scs/v2 v2.5.1
+	github.com/alexedwards/scs/pgxstore v0.0.0-20231022164606-84bd122bd881
+	github.com/alexedwards/scs/v2 v2.6.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/dropwhile/refid v1.0.5
 	github.com/go-chi/chi/v5 v5.0.10
@@ -14,6 +14,7 @@ require (
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/pashagolub/pgxmock/v3 v3.1.0
+	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/rs/zerolog v1.31.0
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.14.0
@@ -39,7 +40,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pganalyze/pg_query_go/v4 v4.2.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
