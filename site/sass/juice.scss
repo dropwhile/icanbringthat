@@ -7,6 +7,7 @@ body {
   margin: 0;
   box-sizing: border-box;
   background-color: var(--secondary-color);
+  --bg-opacity: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -30,7 +31,7 @@ p > img {
 }
 
 header {
-  background-color: var(--primary-color);
+  background-color: var(--bar-bg-color);
   color: var(--primary-text-color);
   padding: 20px 50px;
   display: flex;
@@ -41,10 +42,14 @@ header {
 .logo {
   font-size: 32px;
   font-weight: 700;
-  color: #fff;
+  color: #7e3af2;
   display: flex;
   align-items: center;
   //margin: 0 40px;
+
+  .logo-text {
+    color: var(--primary-text-color);
+  }
 
   svg {
     width: 60px;
@@ -57,7 +62,7 @@ header {
   text-decoration: none;
   font-size: 18px;
   font-weight: bold;
-  color: #e5e7eb;
+  color: #7e3af2;
 
   &:hover {
     color: var(--primary-text-color-over);
@@ -70,7 +75,7 @@ header {
   align-items: center;
   justify-content: space-evenly;
   height: 100vh;
-  background-color: var(--primary-color);
+  background-color: var(--bar-bg-color);
   color: var(--primary-text-color);
   overflow-x: hidden;
 
@@ -87,11 +92,14 @@ header {
       width: 70%;
     }
   }
+
+  .heading-text {
+    border-left: 0;
+  }
 }
 
 .hero-image {
-  color: #fff;
-  fill: #fff;
+  color: var(--primary-text-color);
   width:40%;
 
   > div {
@@ -160,11 +168,10 @@ footer {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: var(--primary-color);
-  color: #fcfcfc;
+  background-color: var(--bar-bg-color);
 
   a {
-    color: #fcfcfc;
+    color: #7e3af2;
     text-decoration: underline;
   }
 }

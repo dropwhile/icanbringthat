@@ -29,7 +29,7 @@ juice_logo_name = "ICanBringThat"
 juice_logo_path = "logo.svg"
 
 juice_exclude_menu = [
-    "exclude_from_nav"
+    "Changelog"
 ]
 
 [[extra.juice_extra_menu]]
