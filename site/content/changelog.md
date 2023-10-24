@@ -4,6 +4,6 @@ description = "Changelog"
 weight = 2
 +++
 
-# v0.6.0 - 2021-10-05
+# v0.1.0 - 2023-10-23
 
-- stuff
+- launch beta landing page
