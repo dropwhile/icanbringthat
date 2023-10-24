@@ -14,6 +14,98 @@
     {% endblock fonts %}
     <link rel="stylesheet" href="/normalize.css">
     <link rel="stylesheet" href="{{ get_url(path="juice.css") }}">
+    <style>
+        .rw-wrapper{
+            overflow: hidden;
+            width:75%;
+        }
+        .rw-sentence{
+            text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
+        }
+        .rw-sentence span{
+            color: #444;
+            white-space: nowrap;
+            /*font-weight: normal;*/
+        }
+        .rw-words{
+            display: inline;
+            text-indent: 5px;
+        }
+        .rw-words-1 span{
+            position: absolute;
+            opacity: 0;
+            overflow: hidden;
+            color: #888;
+            -webkit-transform-origin: 10% 75%;
+            transform-origin: 10% 75%;
+            -webkit-animation: rotateWord 18s linear infinite 0s;
+            -ms-animation: rotateWord 18s linear infinite 0s;
+            animation: rotateWord 18s linear infinite 0s;
+        }
+        .rw-words span:nth-child(2) { 
+            -webkit-animation-delay: 3s; 
+            -ms-animation-delay: 3s; 
+            animation-delay: 3s; 
+            color: #6b889d;
+        }
+        .rw-words span:nth-child(3) { 
+            -webkit-animation-delay: 6s; 
+            -ms-animation-delay: 6s; 
+            animation-delay: 6s; 
+            color: #6b739d;	
+        }
+        .rw-words span:nth-child(4) { 
+            -webkit-animation-delay: 9s; 
+            -ms-animation-delay: 9s; 
+            animation-delay: 9s; 
+            color: #7a6b9d;
+        }
+        .rw-words span:nth-child(5) { 
+            -webkit-animation-delay: 12s; 
+            -ms-animation-delay: 12s; 
+            animation-delay: 12s; 
+            color: #8d6b9d;
+        }
+        .rw-words span:nth-child(6) { 
+            -webkit-animation-delay: 15s; 
+            -ms-animation-delay: 15s; 
+            animation-delay: 15s; 
+            color: #9b6b9d;
+        }
+        @-webkit-keyframes rotateWord {
+            0% { opacity: 0; }
+            5% { opacity: 1; }
+            17% { opacity: 1; -webkit-transform: rotate(0deg); }
+            19% { opacity: 1; -webkit-transform: rotate(98deg); }
+            21% { opacity: 1; -webkit-transform: rotate(86deg); }
+            23% { opacity: 1; -webkit-transform: translateY(85px) rotate(83deg); }
+            25% { opacity: 0; -webkit-transform: translateY(170px) rotate(80deg); }
+            80% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        @-ms-keyframes rotateWord {
+            0% { opacity: 0; }
+            5% { opacity: 1; }
+            17% { opacity: 1; -ms-transform: rotate(0deg); }
+            19% { opacity: 1; -ms-transform: rotate(98deg); }
+            21% { opacity: 1; -ms-transform: rotate(86deg); }
+            23% { opacity: 1; -ms-transform: translateY(85px) rotate(83deg); }
+            25% { opacity: 0; -ms-transform: translateY(170px) rotate(80deg); }
+            80% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        @keyframes rotateWord {
+            0% { opacity: 0; }
+            5% { opacity: 1; }
+            17% { opacity: 1; -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+            19% { opacity: 1; -webkit-transform: rotate(98deg); transform: rotate(98deg); }
+            21% { opacity: 1; -webkit-transform: rotate(86deg); transform: rotate(86deg); }
+            23% { opacity: 1; -webkit-transform: translateY(85px) rotate(83deg); transform: translateY(85px) rotate(83deg); }
+            25% { opacity: 0; -webkit-transform: translateY(170px) rotate(80deg); transform: translateY(170px) rotate(80deg); }
+            80% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+    </style>
     {% block head %}
     {% endblock head %}
 </head>
@@ -28,17 +120,27 @@
         {% block hero %}
         <section class="text-center">
             <h1 class="heading-text" style="font-size:50px;justify-content:center;display:flex;">
-                <span>
-                Create an event, ask people to bring stuff.
-                </span>
+                <span class="hero-leader">Create an event, ask people to bring stuff.</span>
             </h1>
             <h3 class="hero-text-container">
                 <div class="hero-text">
-                <b>ICanBringThat</b> makes it easy to plan events where
-                people collaboratively supply needed items.
-                <br>
-                <br>
-                Great for parties, potlucks, and meetups.
+                    <b>ICanBringThat</b> makes it easy to plan events where
+                    people collaboratively supply needed items.
+                    <br>
+                    <br>
+                    <div class="rw-wrapper">
+                        <div class="rw-sentence">
+                            <span>Great for</span>
+                            <div class="rw-words rw-words-1">
+                                <span>parties.</span>
+                                <span>potlucks.</span>
+                                <span>meetups.</span>
+                                <span>camping.</span>
+                                <span>trips.</span>
+                                <span>cookouts.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </h3>
         </section>
@@ -63,9 +165,6 @@
                     padding-top: 2em;
                 }
                 .hero > section {
-                    width: 100%;
-                }
-                .hero > section span {
                     width: 100%;
                 }
                 .hero-image {
