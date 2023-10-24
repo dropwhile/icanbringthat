@@ -3,4 +3,4 @@ title = "Coming Soon"
 description = "Coming Soon"
 +++
 
-# Stay tuned!
+Stay tuned!
