@@ -95,10 +95,15 @@ build: setup
 	done)
 	@echo "done!"
 
-.PHONY: build-website
-build-website:
+.PHONY: website-build
+website-build:
 	@echo ">> Building website..."
 	@cd site && zola build
+
+.PHONY: website-deploy
+website-deploy: website-build
+	@echo ">> Deploying website..."
+	@cd site && ${WEBSITE_DEPLOY}
 
 .PHONY: test 
 test: setup
