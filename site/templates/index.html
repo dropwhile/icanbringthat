@@ -20,7 +20,6 @@
 
 <body>
     {% block header %}
-
     <header class="pos-absolute" style="background-color: transparent">
         {{ macros::render_header() }}
     </header>
@@ -107,5 +106,4 @@
     let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
     items.forEach(item => observer.observe(item));
 </script>
-
 </html>

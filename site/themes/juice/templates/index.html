@@ -7,12 +7,10 @@
     <title>{% block title %}{{ config.title }}{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block favicon %}
-    <link rel="icon" type="image/png" href="/favicon.ico">
+        <link rel="icon" type="image/png" href="/favicon.ico">
     {% endblock favicon %}
     {% include "_variables.html" %}
     {% block fonts %}
-    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
     {% endblock fonts %}
     <link rel="stylesheet" href="/normalize.css">
     <link rel="stylesheet" href="{{ get_url(path="juice.css") }}">
@@ -22,7 +20,6 @@
 
 <body>
     {% block header %}
-
     <header class="pos-absolute" style="background-color: transparent">
         {{ macros::render_header() }}
     </header>
@@ -67,7 +64,6 @@
         </style>
         {% endblock hero %}
     </div>
-
     {% endblock header %}
 
     <main>
