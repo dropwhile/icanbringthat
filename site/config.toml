@@ -21,10 +21,10 @@ external_links_no_referrer = false
 
 [slugify]
 taxonomies = "off"
-paths_keep_dates = false
+paths_keep_dates = true
 
 [extra]
-date_format="%d %b, %Y"
+date_format="%Y-%m-%d"
 juice_logo_name = "ICanBringThat"
 juice_logo_path = "logo.svg"
 juice_extra_menu = [
