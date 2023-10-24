@@ -1,0 +1,118 @@
+{% import "_macros.html" as macros %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% block favicon %}
+        <link rel="icon" type="image/png" href="/favicon.ico">
+    {% endblock favicon %}
+    {% include "_variables.html" %}
+    {% block fonts %}
+    {% endblock fonts %}
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="{{ get_url(path="juice.css") }}">
+    {% block head %}
+    {% endblock head %}
+</head>
+
+<body>
+    {% block header %}
+
+    <header class="pos-absolute" style="background-color: transparent">
+        {{ macros::render_header() }}
+    </header>
+
+    <div class="hero">
+        {% block hero %}
+        <section class="text-center">
+            <h1 class="heading-text" style="font-size:50px;justify-content:center;display:flex;">
+                <span>
+                Create an event, ask people to bring stuff.
+                </span>
+            </h1>
+            <h3 class="hero-text-container">
+                <div class="hero-text">
+                <b>ICanBringThat</b> makes it easy to plan events where
+                people collaboratively supply needed items.
+                <br>
+                <br>
+                Great for parties, potlucks, and meetups.
+                </div>
+            </h3>
+        </section>
+
+        <div class="hero-image">
+            <div>
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <style>
+            @media screen and (max-width: 768px) {
+                .hero-text {
+                    padding-left: 1em;
+                    padding-right: .75em;
+                    text-align: left;
+                    width: 100%;
+                }
+                .hero {
+                    padding-top: 2em;
+                }
+                .hero > section {
+                    width: 100%;
+                }
+                .hero > section span {
+                    width: 100%;
+                }
+                .hero-image {
+                    display: none;
+                }
+                h1, .title-text {
+                    border-left:0;
+                }
+            }
+        </style>
+        {% endblock hero %}
+
+    </div>
+    {% endblock header %}
+
+    {% block footer %}
+    <footer>
+        <small class="subtext">
+            theme: <a href="https://juice.huhu.io/">Juice</a>
+        </small>
+    </footer>
+    {% endblock footer %}
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>
