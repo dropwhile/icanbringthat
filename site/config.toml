@@ -26,7 +26,6 @@ paths_keep_dates = true
 [extra]
 date_format="%Y-%m-%d"
 juice_logo_name = "ICanBringThat"
-juice_logo_path = "logo.svg"
 
 juice_exclude_menu = [
     "Changelog",
