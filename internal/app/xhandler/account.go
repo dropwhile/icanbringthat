@@ -64,11 +64,19 @@ func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	// parse user-id url param
 	tplVars := map[string]any{
 		"user":           user,
 		"credentials":    credentials,
 		"title":          "Settings",
+		"notifCount":     notifCount,
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),

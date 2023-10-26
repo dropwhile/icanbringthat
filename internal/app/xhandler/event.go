@@ -30,6 +30,13 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
@@ -85,6 +92,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		"events":          events,
 		"eventItemCounts": eventItemCountsMap,
 		"eventCount":      eventCount,
+		"notifCount":      notifCount,
 		"pgInput":         resources.NewPgInput(eventCount, 10, pageNum, "/events"),
 		"title":           "My Events",
 		"nav":             "events",
@@ -108,6 +116,13 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		x.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
@@ -215,6 +230,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		"eventItems":      eventItems,
 		"earmarksMap":     earmarksMap,
 		"earmarkUsersMap": earmarkUsersMap,
+		"notifCount":      notifCount,
 		"favorite":        has_favorite,
 		"title":           "Event Details",
 		"nav":             "show-event",

@@ -28,6 +28,13 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
@@ -83,6 +90,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		"events":          events,
 		"favoriteCount":   favoriteCount,
 		"eventItemCounts": eventItemCountsMap,
+		"notifCount":      notifCount,
 		"pgInput":         resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":           "My Favorites",
 		"nav":             "favorites",

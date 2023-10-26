@@ -12,9 +12,9 @@ import (
 
 type Notification struct {
 	ID           int
-	RefID        NotificationRefID
-	UserID       int `db:"user_id"`
-	Message      int
+	RefID        NotificationRefID `db:"ref_id"`
+	UserID       int               `db:"user_id"`
+	Message      string
 	Read         bool
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
@@ -93,7 +93,7 @@ func GetNotificationsByUserPaginated(ctx context.Context, db PgxHandle,
 		user_id = @userID AND
 		read = FALSE
 	ORDER BY 
-		event_.created DESC,
+		created DESC
 	LIMIT @limit OFFSET @offset
 	`
 	args := pgx.NamedArgs{

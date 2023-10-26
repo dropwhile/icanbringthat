@@ -28,6 +28,13 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
@@ -96,6 +103,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		"earmarkCount":   earmarkCount,
 		"events":         eventsMap,
 		"eventItems":     eventItemsMap,
+		"notifCount":     notifCount,
 		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",
