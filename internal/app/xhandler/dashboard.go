@@ -23,6 +23,13 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
 	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user.ID, 10, 0)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -85,6 +92,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		"earmarkCount":    earmarkCount,
 		"favoriteCount":   favoriteCount,
 		"eventItemCounts": eventItemCountsMap,
+		"notifCount":      notifCount,
 		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
