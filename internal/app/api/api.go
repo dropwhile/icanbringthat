@@ -128,6 +128,10 @@ func New(
 			// r.Get("/earmarks/{mRefID:[0-9a-z]+}", zh.ShowEarmark)
 			// r.Post("/earmarks/{mRefID:[0-9a-z]+}", zh.UpdateEarmark)
 			// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
+			// notifications
+			r.Get("/notifications", zh.ListNotifications)
+			r.Delete("/notifications/{nRefID:[0-9a-z]+}", zh.DeleteNotification)
+			// account verification
 			r.Post("/verify", zh.SendVerificationEmail)
 			r.Get("/verify/{uvRefID:[0-9a-z]+}-{hmac:[0-9a-z]+}", zh.VerifyEmail)
 			// webauthn

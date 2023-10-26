@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS event_item_ (
     CONSTRAINT event_fk FOREIGN KEY(event_id) REFERENCES event_(id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX event_item_ref_idx ON event_item_(ref_id);
-CREATE TRIGGER last_mod_event_item_
+CREATE TRIGGER last_mod_event_item
 	BEFORE UPDATE ON event_item_
 	FOR EACH ROW
     EXECUTE PROCEDURE update_last_modified();
@@ -87,11 +87,12 @@ CREATE TRIGGER last_mod_earmark
 -- +goose Down
 --- drop earmarks table/indexes/triggers
 DROP INDEX IF EXISTS earmark_ref_idx;
-DROP TRIGGER IF EXISTS last_mod_earmark ON earmark_;
+DROP TRIGGER IF EXISTS last_mod_event_item ON earmark_;
 DROP TABLE IF EXISTS earmark_;
 
 --- drop events items table/indexes/triggers
 DROP INDEX IF EXISTS event_item_ref_idx;
+DROP TRIGGER IF EXISTS last_mod_event on event_;
 DROP TABLE IF EXISTS event_item_;
 
 --- drop events table/indexes/triggers
