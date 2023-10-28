@@ -130,6 +130,7 @@ func New(
 			// r.Get("/profile/{uRefID:[a-zA-Z-]+}", zh.ShowProfile)
 			// notifications
 			r.Get("/notifications", zh.ListNotifications)
+			r.Delete("/notifications", zh.DeleteAllNotifications)
 			r.Delete("/notifications/{nRefID:[0-9a-z]+}", zh.DeleteNotification)
 			// account verification
 			r.Post("/verify", zh.SendVerificationEmail)

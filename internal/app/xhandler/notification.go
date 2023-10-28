@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -140,5 +141,8 @@ func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("content-type", "text/html")
+	if htmx.Hx(r).CurrentUrl().HasPathPrefix("/notifications") {
+		w.Header().Add("HX-Refresh", "true")
+	}
 	w.WriteHeader(http.StatusOK)
 }
