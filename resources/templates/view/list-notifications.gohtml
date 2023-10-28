@@ -41,7 +41,7 @@
   <!-- New Table -->
   <div id="notiftable" class="w-full overflow-hidden rounded-lg shadow-xs">
     <div class="w-full overflow-x-auto">
-      <table class="w-full whitespace-no-wrap table-auto">
+      <table class="w-full table-auto align-top">
         <thead>
           <tr
             class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
@@ -65,13 +65,13 @@
               </div>
             </td>
             <td
-              class="px-4 py-3 text-sm text-center" style="width:11rem"
+              class="px-4 py-3 text-sm text-center" style="width:11.5rem;"
               x-data="{date: new Date('{{.Created | formatTS}}')}"
               x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
               >
               {{.Created | formatTS}}
             </td>
-            <td class="text-sm text-center" style="width:6rem">
+            <td class="text-sm text-center" style="width:6rem;">
               <div class="tooltip" hx-boost="false">
                 <button
                   class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"

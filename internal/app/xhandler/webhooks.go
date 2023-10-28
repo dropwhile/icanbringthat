@@ -3,6 +3,7 @@ package xhandler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"mime"
 	"net/http"
 	"strings"
@@ -80,6 +81,15 @@ func (x *XHandler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if already disabled, no need to disable again
+	if !user.Settings.EnableReminders {
+		log.Info().
+			Any("postmark", pm).
+			Msg("reminders already disabled")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	log.Info().
 		Any("postmark", pm).
 		Msg("disabling reminders due to postmark callback")
@@ -88,6 +98,14 @@ func (x *XHandler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	// so... disable reminders
 	user.Settings.EnableReminders = false
 	err = model.UpdateUserSettings(ctx, x.Db, &user.Settings, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	_, err = model.NewNotification(ctx, x.Db, user.ID,
+		fmt.Sprintf("email notifications disabled due to '%s'", pm.SuppressionReason),
+	)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
