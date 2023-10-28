@@ -121,3 +121,24 @@ func (x *XHandler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	w.WriteHeader(http.StatusOK)
 }
+
+func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "bad session data", http.StatusBadRequest)
+		return
+	}
+
+	err = model.DeleteNotificationsByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("content-type", "text/html")
+	w.WriteHeader(http.StatusOK)
+}

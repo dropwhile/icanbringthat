@@ -64,6 +64,11 @@ func DeleteNotification(ctx context.Context, db PgxHandle, ID int) error {
 	return ExecTx[Notification](ctx, db, q, ID)
 }
 
+func DeleteNotificationsByUser(ctx context.Context, db PgxHandle, userID int) error {
+	q := `DELETE FROM notification_ WHERE user_id = $1`
+	return ExecTx[Notification](ctx, db, q, userID)
+}
+
 func GetNotificationByID(ctx context.Context, db PgxHandle, ID int) (*Notification, error) {
 	q := `SELECT * FROM notification_ WHERE id = $1`
 	return QueryOne[Notification](ctx, db, q, ID)
