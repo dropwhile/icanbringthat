@@ -48,7 +48,10 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
 		rows := pgxmock.NewRows(userCols).
-			AddRow(user.ID, user.RefID, user.Email, user.PWHash, user.Created, user.LastModified, user.Settings)
+			AddRow(
+				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+				user.LastModified, user.Settings,
+			)
 
 		expectedSettings := model.UserSettings{
 			EnableReminders: false,
@@ -144,7 +147,10 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
 		rows := pgxmock.NewRows(userCols).
-			AddRow(user.ID, user.RefID, user.Email, user.PWHash, user.Created, user.LastModified)
+			AddRow(
+				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+				user.LastModified, user.Settings,
+			)
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
@@ -194,7 +200,10 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
 		rows := pgxmock.NewRows(userCols).
-			AddRow(user.ID, user.RefID, user.Email, user.PWHash, user.Created, user.LastModified)
+			AddRow(
+				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+				user.LastModified, user.Settings,
+			)
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
