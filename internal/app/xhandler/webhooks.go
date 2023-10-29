@@ -97,15 +97,19 @@ func (x *XHandler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	// bounced email, marked spam, unsubscribed...etc
 	// so... disable reminders
 	user.Settings.EnableReminders = false
-	err = model.UpdateUserSettings(ctx, x.Db, &user.Settings, user.ID)
-	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-	_, err = model.NewNotification(ctx, x.Db, user.ID,
-		fmt.Sprintf("email notifications disabled due to '%s'", pm.SuppressionReason),
-	)
+	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
+		innerErr := model.UpdateUserSettings(ctx, tx, &user.Settings, user.ID)
+		if innerErr != nil {
+			return innerErr
+		}
+		_, innerErr = model.NewNotification(ctx, tx, user.ID,
+			fmt.Sprintf("email notifications disabled due to '%s'", pm.SuppressionReason),
+		)
+		if innerErr != nil {
+			return innerErr
+		}
+		return nil
+	})
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

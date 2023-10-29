@@ -64,7 +64,7 @@ func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user)
+	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)

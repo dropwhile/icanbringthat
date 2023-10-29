@@ -82,10 +82,10 @@ func GetNotificationByRefID(ctx context.Context, db PgxHandle,
 }
 
 func GetNotificationCountByUser(ctx context.Context, db PgxHandle,
-	user *User,
+	userID int,
 ) (int, error) {
 	q := `SELECT count(*) FROM notification_ WHERE user_id = $1`
-	return Get[int](ctx, db, q, user.ID)
+	return Get[int](ctx, db, q, userID)
 }
 
 func GetNotificationsByUserPaginated(ctx context.Context, db PgxHandle,
