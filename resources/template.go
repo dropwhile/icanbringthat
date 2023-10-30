@@ -275,7 +275,7 @@ var templateFuncMap = txttemplate.FuncMap{
 		p.RequireNoReferrerOnLinks(true)
 		p.AllowAttrs("href").OnElements("a")
 		out := p.SanitizeReader(&buf).String()
-		return htmltemplate.HTML(out), nil
+		return htmltemplate.HTML(out), nil // #nosec G203 -- html sanitized by bluemonday
 	},
 }
 
