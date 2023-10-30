@@ -268,6 +268,12 @@ var templateFuncMap = txttemplate.FuncMap{
 		p := bluemonday.NewPolicy()
 		p.AllowElements("p", "br", "strong", "sub", "sup", "em")
 		p.AllowElements("b", "i", "pre", "small", "strike", "tt", "u")
+		p.RequireParseableURLs(true)
+		p.AllowRelativeURLs(false)
+		p.AllowURLSchemes("http", "https")
+		p.RequireNoFollowOnLinks(true)
+		p.RequireNoReferrerOnLinks(true)
+		p.AllowAttrs("href").OnElements("a")
 		out := p.SanitizeReader(&buf).String()
 		return htmltemplate.HTML(out), nil
 	},
