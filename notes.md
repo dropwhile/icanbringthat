@@ -102,3 +102,25 @@
 
 *   chi routing docs
     https://go-chi.io/
+
+## config notes
+| QueryExecMode                | pgbouncer pool_mode | a usable config? |
+| ---------------------------- | ------------------- | ---------------- |
+| QueryExecModeCacheStatement  | session             | no               |
+| QueryExecModeCacheStatement  | transaction         | no               |
+| QueryExecModeCacheStatement  | statement           | no               |
+| QueryExecModeCacheDescribe   | session             | yes [^1]         |
+| QueryExecModeCacheDescribe   | transaction         | yes [^1]         |
+| QueryExecModeCacheDescribe   | statement           | no [^2]          |
+| QueryExecModeDescribeExec    | session             | yes              |
+| QueryExecModeDescribeExec    | transaction         | yes              |
+| QueryExecModeDescribeExec    | statement           | no [^2]          |
+| QueryExecModeExec            | session             | yes              |
+| QueryExecModeExec            | transaction         | yes              |
+| QueryExecModeExec            | statement           | no [^2]          |
+| QueryExecModeSimpleProtocol  | session             | yes              |
+| QueryExecModeSimpleProtocol  | transaction         | yes              |
+| QueryExecModeSimpleProtocol  | statement           | no [^2]          |
+
+[^1]: assuming scheme does not change
+[^2]: not transaction safe
