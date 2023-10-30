@@ -265,12 +265,10 @@ var templateFuncMap = txttemplate.FuncMap{
 		if err := md.Convert(b, &buf); err != nil {
 			return "", err
 		}
-		fmt.Println(buf.String())
 		p := bluemonday.NewPolicy()
 		p.AllowElements("p", "br", "strong", "sub", "sup", "em")
 		p.AllowElements("b", "i", "pre", "small", "strike", "tt", "u")
 		out := p.SanitizeReader(&buf).String()
-		fmt.Println(out)
 		return htmltemplate.HTML(out), nil
 	},
 }
