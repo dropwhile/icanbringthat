@@ -26,14 +26,21 @@
       <div>
         <p
           class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-        >
+          >
           My Events
         </p>
+        {{block "event_count" .}}
         <p
+          id="eventCount"
+          hx-get="/events"
+          hx-boost="false"
+          hx-select="#eventCount"
+          hx-trigger="count-updated from:body"
           class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-        > 
+          > 
           {{ .eventCount }}
         </p>
+        {{end}}
       </div>
     </div>
   </div>

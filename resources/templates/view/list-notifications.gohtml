@@ -26,14 +26,20 @@
       <div>
         <p
           class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-        >
+          >
           Notifications
         </p>
-        <p
+        {{block "notif_count" .}}
+        <p id="notifCount"
+          hx-get="/notifications"
+          hx-boost="false"
+          hx-select="#notifCount"
+          hx-trigger="count-updated from:body"
           class="text-lg font-semibold text-gray-700 dark:text-gray-200"
         > 
           {{ .notifCount }}
         </p>
+        {{end}}
       </div>
     </div>
   </div>

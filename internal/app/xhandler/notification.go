@@ -69,7 +69,11 @@ func (x *XHandler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "list-notifications.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "notifCount" {
+		err = x.TemplateExecuteSub(w, "list-notifications.gohtml", "notif_count", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "list-notifications.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
@@ -120,6 +124,9 @@ func (x *XHandler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("content-type", "text/html")
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -146,8 +153,8 @@ func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix("/notifications") {
-		w.Header().Add("HX-Refresh", "true")
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
 	}
 	w.WriteHeader(http.StatusOK)
 }

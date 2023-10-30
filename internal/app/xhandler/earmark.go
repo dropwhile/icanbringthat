@@ -113,7 +113,11 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "earmarkCount" {
+		err = x.TemplateExecuteSub(w, "list-earmarks.gohtml", "earmark_count", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
@@ -333,8 +337,8 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix("/events/") {
-		w.Header().Add("HX-Refresh", "true")
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
 	}
 	w.WriteHeader(http.StatusOK)
 }

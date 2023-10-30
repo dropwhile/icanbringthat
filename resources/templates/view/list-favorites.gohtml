@@ -29,11 +29,17 @@
         >
           My Favorites
         </p>
-        <p
+        {{block "fav_count" .}}
+        <p id="favCount"
+          hx-get="/favorites"
+          hx-boost="false"
+          hx-select="#favCount"
+          hx-trigger="count-updated from:body"
           class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-        > 
+          > 
           {{ .favoriteCount }}
         </p>
+        {{end}}
       </div>
     </div>
   </div>
@@ -110,7 +116,7 @@
                 hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
                 hx-boost="false"
                 >
-                  <button
+                <button
                   class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                   style="padding-right: 0.25rem; padding-left: 0.25rem;"
                   aria-label="Unfavorite this Event"

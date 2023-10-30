@@ -102,7 +102,11 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "list-events.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "eventCount" {
+		err = x.TemplateExecuteSub(w, "list-events.gohtml", "event_count", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "list-events.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
@@ -593,5 +597,8 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+	}
 	w.WriteHeader(http.StatusOK)
 }

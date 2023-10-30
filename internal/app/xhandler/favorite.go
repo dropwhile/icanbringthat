@@ -100,7 +100,11 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
+	if htmx.Hx(r).Target() == "favCount" {
+		err = x.TemplateExecuteSub(w, "list-favorites.gohtml", "fav_count", tplVars)
+	} else {
+		err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
+	}
 	if err != nil {
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
@@ -229,17 +233,8 @@ func (x *XHandler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "favorite" {
-		tplVars := map[string]any{
-			"user":     user,
-			"event":    event,
-			"favorite": false,
-		}
-		if err := x.TemplateExecuteSub(w, "show-event.gohtml", "favorite", tplVars); err != nil {
-			x.Error(w, "template error", http.StatusInternalServerError)
-			return
-		}
-	} else {
-		w.WriteHeader(http.StatusOK)
+	if htmx.Hx(r).Request() {
+		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
 	}
+	w.WriteHeader(http.StatusOK)
 }
