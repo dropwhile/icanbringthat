@@ -38,12 +38,10 @@ link = "/blog/"
 
 [[extra.juice_extra_menu]]
 title = "SignUp"
-#link = "https://app.icanbringthat.com/create-account"
-link = "/coming-soon/"
+link = "https://app.icanbringthat.com/create-account"
 rel = "nofollow"
 
 [[extra.juice_extra_menu]]
 title = "LogIn"
-#link = "https://app.icanbringthat.com/login"
-link = "/coming-soon/"
+link = "https://app.icanbringthat.com/login"
 rel = "nofollow"
