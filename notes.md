@@ -124,3 +124,8 @@
 
 [^1]: assuming scheme does not change
 [^2]: not transaction safe
+
+## possible future changes
+*   use redis for sessions?
+*   use memcached?
+*   use pgbouncer
