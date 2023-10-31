@@ -166,11 +166,21 @@ var templateFuncMap = txttemplate.FuncMap{
 		if current > maxPage {
 			current = maxPage
 		}
+
 		start := (step * (current - 1)) + 1
+		if start < 0 {
+			start = 0
+		}
+
 		stop := start + step - 1
+		if size == 0 {
+			stop = 0
+		}
+
 		if current == maxPage && size%step != 0 {
 			stop = ((current - 1) * step) + (size % step)
 		}
+
 		s := &PaginationResult{
 			start, stop, size, current > 1, current < maxPage,
 			NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current),

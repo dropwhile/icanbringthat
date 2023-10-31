@@ -154,7 +154,7 @@ func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+		w.Header().Add("HX-Refresh", "true")
 	}
 	w.WriteHeader(http.StatusOK)
 }
