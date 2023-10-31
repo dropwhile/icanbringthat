@@ -65,6 +65,8 @@ func Require(next http.Handler) http.Handler {
 		ctx := r.Context()
 		v := ctx.Value(mwContextKey("auth"))
 		if v == nil || !v.(bool) {
+			// if auth is required, and this is a get request,
+			// redirect to login page and set "next=" query param
 			if r.Method == http.MethodGet ||
 				r.Method == http.MethodHead {
 				target := "/login"

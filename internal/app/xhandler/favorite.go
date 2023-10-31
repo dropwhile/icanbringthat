@@ -94,6 +94,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		"pgInput":         resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":           "My Favorites",
 		"nav":             "favorites",
+		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
 	}

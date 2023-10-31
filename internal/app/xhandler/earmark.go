@@ -107,6 +107,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",
+		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}

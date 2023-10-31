@@ -96,6 +96,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		"pgInput":         resources.NewPgInput(eventCount, 10, pageNum, "/events"),
 		"title":           "My Events",
 		"nav":             "events",
+		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
 	}
