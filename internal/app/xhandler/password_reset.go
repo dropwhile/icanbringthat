@@ -194,6 +194,19 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		// construct email
 		subject := "Password reset"
 		var buf bytes.Buffer
+		err = x.TemplateExecute(&buf, "mail_password_reset.gotxt",
+			map[string]any{
+				"Subject":          subject,
+				"PasswordResetUrl": u.String(),
+			},
+		)
+		if err != nil {
+			x.Error(w, "template error", http.StatusInternalServerError)
+			return
+		}
+		messagePlain := buf.String()
+
+		buf.Reset()
 		err = x.TemplateExecute(&buf, "mail_password_reset.gohtml",
 			map[string]any{
 				"Subject":          subject,
@@ -204,8 +217,8 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 			x.Error(w, "template error", http.StatusInternalServerError)
 			return
 		}
-		messagePlain := fmt.Sprintf("Password reset url: %s", u.String())
 		messageHtml := buf.String()
+
 		log.Debug().
 			Str("plain", messagePlain).
 			Str("html", messageHtml).

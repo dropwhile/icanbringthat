@@ -546,6 +546,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		handler.Tpl["mail_password_reset.gohtml"] = passResetTpl
+		handler.Tpl["mail_password_reset.gotxt"] = passResetTpl
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
@@ -574,7 +575,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		tm := handler.Mailer.(*TestMailer)
 		assert.Equal(t, len(tm.Sent), 1)
 		message := tm.Sent[0].BodyPlain
-		after, found := strings.CutPrefix(message, "Password reset url: http://example.com/forgot-password/")
+		after, found := strings.CutPrefix(message, "Password reset: http://example.com/forgot-password/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
 		rID := refid.Must(model.ParseUserPWResetRefID(refParts[0]))
