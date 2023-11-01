@@ -108,7 +108,7 @@ website-deploy: website-build
 	@echo ">> Deploying website..."
 	@cd site && ${WEBSITE_DEPLOY}
 
-.PHONY: test 
+.PHONY: test
 test: setup
 	@echo ">> Running tests..."
 	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
@@ -214,7 +214,7 @@ run: build
 	@exec ./build/bin/server
 
 .PHONY: devrun
-devrun: 
+devrun:
 	@echo ">> Monitoring for change, runnging tests, and restarting..."
 	@modd -f .modd.conf
 
