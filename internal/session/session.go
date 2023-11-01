@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/gob"
 
+	"github.com/alexedwards/scs/goredisstore"
 	"github.com/alexedwards/scs/pgxstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 func init() {
@@ -50,6 +52,13 @@ func NewDBSessionManager(pool *pgxpool.Pool, secure bool) *SessionMgr {
 	manager := scs.New()
 	manager.Cookie.Secure = secure
 	manager.Store = pgxstore.New(pool)
+	return &SessionMgr{SessionManager: manager}
+}
+
+func NewRedisSessionManager(rdb *redis.Client, secure bool) *SessionMgr {
+	manager := scs.New()
+	manager.Cookie.Secure = secure
+	manager.Store = goredisstore.New(rdb)
 	return &SessionMgr{SessionManager: manager}
 }
 

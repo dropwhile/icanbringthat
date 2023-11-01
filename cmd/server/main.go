@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -67,6 +68,14 @@ func main() {
 	}
 	defer dbpool.Close()
 
+	redisOpt, err := redis.ParseURL(config.RedisDSN)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to redis")
+	}
+
+	rdb := redis.NewClient(redisOpt)
+	defer rdb.Close()
+
 	// configure mailer
 	mailer := util.NewMailer(
 		config.SMTPHost,
@@ -79,7 +88,8 @@ func main() {
 
 	// routing/handlers
 	r := api.New(
-		dbpool, templates, mailer,
+		dbpool, rdb,
+		templates, mailer,
 		config.HMACKeyBytes,
 		config.CSRFKeyBytes,
 		config.Production,

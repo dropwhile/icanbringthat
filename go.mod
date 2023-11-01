@@ -3,6 +3,7 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
+	github.com/alexedwards/scs/goredisstore v0.0.0-20231022164606-84bd122bd881
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231022164606-84bd122bd881
 	github.com/alexedwards/scs/v2 v2.6.0
 	github.com/caarlos0/env/v9 v9.0.0
@@ -16,6 +17,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/pashagolub/pgxmock/v3 v3.1.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
+	github.com/redis/go-redis/v9 v9.3.0
 	github.com/rs/zerolog v1.31.0
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-emoji v1.0.2
@@ -28,7 +30,9 @@ require (
 
 require (
 	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.1.4 // indirect
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect

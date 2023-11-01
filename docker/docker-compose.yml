@@ -15,11 +15,20 @@ services:
       # copy the sql script to create tables
       - ./database/init/load-extensions.sql:/docker-entrypoint-initdb.d/load-extensions.sql
 
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning --requirepass "${REDISPASS}"
+
   app:
     image: "icbt:latest"
     restart: always
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+      - redis
     environment:
       #TPL_DIR: "embed"
       #STATIC_DIR: "embed"
@@ -27,6 +36,7 @@ services:
       LOG_FORMAT: "plain"
       PRODUCTION: "true"
       DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
+      REDIS_DSN: "redis://:${REDISPASS}@redis:6379"
       HMAC_KEY: ${HMAC_KEY}
       SMTP_HOSTNAME: "smtp.gmail.com"
       SMTP_PORT: "587"
@@ -39,6 +49,8 @@ services:
   notifier:
     image: "icbt:latest"
     restart: always
+    depends_on:
+      - db
     environment:
       #TPL_DIR: "embed"
       #STATIC_DIR: "embed"

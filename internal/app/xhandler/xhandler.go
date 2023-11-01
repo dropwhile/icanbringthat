@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -17,6 +18,7 @@ import (
 
 type XHandler struct {
 	Db      model.PgxHandle
+	Redis   *redis.Client
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
 	Mailer  util.MailSender

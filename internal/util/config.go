@@ -19,6 +19,7 @@ type Config struct {
 	TemplateDir  string            `env:"TPL_DIR" envDefault:"embed"`
 	StaticDir    string            `env:"STATIC_DIR" envDefault:"embed"`
 	DatabaseDSN  string            `env:"DB_DSN,required"`
+	RedisDSN     string            `env:"REDIS_DSN,required"`
 	BaseURL      string            `env:"BASE_URL,required"`
 	SMTPHostname string            `env:"SMTP_HOSTNAME,required"`
 	SMTPHost     string            `env:"SMTP_HOST,expand" envDefault:"$SMTP_HOSTNAME"`

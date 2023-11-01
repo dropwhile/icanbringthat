@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -36,6 +37,7 @@ func (api *API) OnClose(f func()) {
 
 func New(
 	db *pgxpool.Pool,
+	rdb *redis.Client,
 	tpl resources.TemplateMap,
 	mailer *util.Mailer,
 	hmacKey []byte,
@@ -46,6 +48,7 @@ func New(
 ) *API {
 	zh := &xhandler.XHandler{
 		Db:      model.SetupFromDbPool(db),
+		Redis:   rdb,
 		Tpl:     tpl,
 		SessMgr: session.NewDBSessionManager(db, isProd),
 		Mailer:  mailer,
