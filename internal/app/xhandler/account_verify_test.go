@@ -64,6 +64,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		handler.Tpl["mail_account_email_verify.gohtml"] = verifyTpl
+		handler.Tpl["mail_account_email_verify.gotxt"] = verifyTpl
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectBegin()
@@ -87,7 +88,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		tm := handler.Mailer.(*TestMailer)
 		assert.Equal(t, len(tm.Sent), 1)
 		message := tm.Sent[0].BodyPlain
-		after, found := strings.CutPrefix(message, "Account Verification url: http://example.com/verify/")
+		after, found := strings.CutPrefix(message, "Account Verification: http://example.com/verify/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
 		rID := refid.Must(model.ParseUserVerifyRefID(refParts[0]))

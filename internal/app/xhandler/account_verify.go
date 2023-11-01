@@ -50,6 +50,19 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	// construct email
 	subject := "Account Verification"
 	var buf bytes.Buffer
+	err = x.TemplateExecute(&buf, "mail_account_email_verify.gotxt",
+		map[string]any{
+			"Subject":         subject,
+			"VerificationUrl": verificationUrl,
+		},
+	)
+	if err != nil {
+		x.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+	messagePlain := buf.String()
+
+	buf.Reset()
 	err = x.TemplateExecute(&buf, "mail_account_email_verify.gohtml",
 		map[string]any{
 			"Subject":         subject,
@@ -60,8 +73,8 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 		x.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}
-	messagePlain := fmt.Sprintf("Account Verification url: %s", verificationUrl)
 	messageHtml := buf.String()
+
 	log.Debug().
 		Str("plain", messagePlain).
 		Str("html", messageHtml).
