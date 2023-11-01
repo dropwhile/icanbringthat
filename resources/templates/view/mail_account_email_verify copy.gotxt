@@ -1,0 +1,5 @@
+Acount Email Verification has been requested.
+If you did not make this request, please ignore and delete this email.
+
+The following account email verification url is valid for 30 minutes:
+  {{.VerificationUrl}}
