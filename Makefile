@@ -31,6 +31,9 @@ CC_OUTPUT_TPL       := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 # misc
 DOCKER_PREBUILD     ?=
 DOCKER_POSTBUILD    ?=
+PGDATABASE          ?= icbt
+PGPASSWORD          ?= password
+REDIS_PASS          ?= password
 
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
@@ -155,7 +158,7 @@ cloc:
 
 .PHONY: dev-db-create
 dev-db-create:
-	@echo ">> starting dev postgres..."
+	@echo ">> starting dev postgres,redis ..."
 	@docker volume rm -f icbt-db-init
 	@docker volume create icbt-db-init
 	@docker create -v icbt-db-init:/data --name icbt-db-helper busybox true
@@ -163,24 +166,32 @@ dev-db-create:
 	@docker rm -f icbt-db-helper
 	@docker run \
 		--name icbt-database \
-		-e POSTGRES_PASSWORD=password \
-		-e POSTGRES_DB=icbt \
+		-e POSTGRES_PASSWORD=${PGPASSWORD} \
+		-e POSTGRES_DB=${PGDATABASE} \
 		-p 5432:5432 \
 		-v "icbt-db-init:/docker-entrypoint-initdb.d/" \
 		-d postgres
+	@docker run \
+		--name icbt-redis \
+		-p 6379:6379 \
+		-d redis:7-alpine \
+		redis-server --requirepass "${REDIS_PASS}"
 
 .PHONY: dev-db-start
 dev-db-start:
-	@echo ">> starting dev postgres..."
+	@echo ">> starting dev postgres,redis ..."
 	@docker start icbt-db-init
+	@docker start icbt-redis
 
 dev-db-stop:
-	@echo ">> stopping dev postgres..."
-	docker stop icbt-database
+	@echo ">> stopping dev postgres,redis ..."
+	@docker stop icbt-database
+	@docker stop icbt-redis
 
 dev-db-purge:
-	@echo ">> purging dev postgres..."
+	@echo ">> purging dev postgres,redis ..."
 	@docker rm -fv icbt-database
+	@docker rm -fv icbt-redis
 	@docker volume rm -f icbt-db-init
 
 .PHONY: docker-build

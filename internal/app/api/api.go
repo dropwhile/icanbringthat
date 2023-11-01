@@ -50,7 +50,7 @@ func New(
 		Db:      model.SetupFromDbPool(db),
 		Redis:   rdb,
 		Tpl:     tpl,
-		SessMgr: session.NewDBSessionManager(db, isProd),
+		SessMgr: session.NewRedisSessionManager(rdb, isProd),
 		Mailer:  mailer,
 		Hmac:    util.NewMAC(hmacKey),
 		BaseURL: strings.TrimSuffix(baseURL, "/"),
