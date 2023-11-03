@@ -77,7 +77,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO notification_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":   model.NotificationRefIDMatcher{},
+				"refID":   model.NotificationRefIDMatcher,
 				"userID":  user.ID,
 				"message": pgxmock.AnyArg(),
 			}).

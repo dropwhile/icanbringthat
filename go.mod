@@ -2,6 +2,8 @@ module github.com/dropwhile/icbt
 
 go 1.21.1
 
+replace github.com/dropwhile/refid => /Users/elij/projects/dropwhile/refid
+
 require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20231022164606-84bd122bd881
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231022164606-84bd122bd881
@@ -9,13 +11,13 @@ require (
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/dropwhile/refid v1.0.6-0.20231103022821-322cf1d4af2c
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-chi/httplog v0.3.1
+	github.com/go-chi/httplog v0.3.2
 	github.com/go-webauthn/webauthn v0.8.6
 	github.com/gorilla/csrf v1.7.1
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/pashagolub/pgxmock/v3 v3.1.0
+	github.com/pashagolub/pgxmock/v3 v3.2.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/rs/zerolog v1.31.0

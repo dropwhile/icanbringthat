@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t UserVerify -v 6
+type (
+	UserVerifyRefID     = reftag.IDt6
+	UserVerifyRefIDNull = reftag.NullIDt6
+)
+
+var (
+	NewUserVerifyRefID       = reftag.New[UserVerifyRefID]
+	UserVerifyRefIDMatcher   = reftag.NewMatcher[UserVerifyRefID]()
+	UserVerifyRefIDFromBytes = reftag.FromBytes[UserVerifyRefID]
+	ParseUserVerifyRefID     = reftag.Parse[UserVerifyRefID]
+)
 
 type UserVerify struct {
 	RefID   UserVerifyRefID `db:"ref_id"`

@@ -70,7 +70,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"refID":  model.UserVerifyRefIDMatcher{},
+				"refID":  model.UserVerifyRefIDMatcher,
 				"userID": user.ID,
 			}).
 			WillReturnRows(uvRows)
@@ -355,7 +355,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
-			WithArgs(model.UserVerifyRefIDMatcher{}).
+			WithArgs(model.UserVerifyRefIDMatcher).
 			WillReturnRows(pwrRows)
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)

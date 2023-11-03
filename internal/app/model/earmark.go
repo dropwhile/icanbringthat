@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t Earmark -v 4
+type (
+	EarmarkRefID     = reftag.IDt4
+	EarmarkRefIDNull = reftag.NullIDt4
+)
+
+var (
+	NewEarmarkRefID       = reftag.New[EarmarkRefID]
+	EarmarkRefIDMatcher   = reftag.NewMatcher[EarmarkRefID]()
+	EarmarkRefIDFromBytes = reftag.FromBytes[EarmarkRefID]
+	ParseEarmarkRefID     = reftag.Parse[EarmarkRefID]
+)
 
 type Earmark struct {
 	ID           int

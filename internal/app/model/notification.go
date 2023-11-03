@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t Notification -v 8
+type (
+	NotificationRefID     = reftag.IDt8
+	NotificationRefIDNull = reftag.NullIDt8
+)
+
+var (
+	NewNotificationRefID       = reftag.New[NotificationRefID]
+	NotificationRefIDMatcher   = reftag.NewMatcher[NotificationRefID]()
+	NotificationRefIDFromBytes = reftag.FromBytes[NotificationRefID]
+	ParseNotificationRefID     = reftag.Parse[NotificationRefID]
+)
 
 type Notification struct {
 	ID           int

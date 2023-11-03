@@ -398,7 +398,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(model.UserPWResetRefIDMatcher{}).
+			WithArgs(model.UserPWResetRefIDMatcher).
 			WillReturnRows(pwrRows)
 
 		data := url.Values{
@@ -555,7 +555,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"refID":  model.UserPWResetRefIDMatcher{},
+				"refID":  model.UserPWResetRefIDMatcher,
 				"userID": user.ID,
 			}).
 			WillReturnRows(upwRows)

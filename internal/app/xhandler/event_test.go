@@ -71,7 +71,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EventRefIDMatcher{},
+				"refID":       model.EventRefIDMatcher,
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,
@@ -253,7 +253,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EventRefIDMatcher{},
+				"refID":       model.EventRefIDMatcher,
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,

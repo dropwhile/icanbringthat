@@ -481,7 +481,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(pgx.NamedArgs{
-				"refID":    model.UserRefIDMatcher{},
+				"refID":    model.UserRefIDMatcher,
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),
@@ -590,7 +590,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(pgx.NamedArgs{
-				"refID":    model.UserRefIDMatcher{},
+				"refID":    model.UserRefIDMatcher,
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),

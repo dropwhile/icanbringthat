@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t UserPWReset -v 5
+type (
+	UserPWResetRefID     = reftag.IDt5
+	UserPWResetRefIDNull = reftag.NullIDt5
+)
+
+var (
+	NewUserPWResetRefID       = reftag.New[UserPWResetRefID]
+	UserPWResetRefIDMatcher   = reftag.NewMatcher[UserPWResetRefID]()
+	UserPWResetRefIDFromBytes = reftag.FromBytes[UserPWResetRefID]
+	ParseUserPWResetRefID     = reftag.Parse[UserPWResetRefID]
+)
 
 type UserPWReset struct {
 	RefID   UserPWResetRefID `db:"ref_id"`

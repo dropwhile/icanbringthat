@@ -6,12 +6,23 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-//go:generate go run ../../../cmd/refidgen -t User -v 1
+type (
+	UserRefID     = reftag.IDt1
+	UserRefIDNull = reftag.NullIDt1
+)
+
+var (
+	NewUserRefID       = reftag.New[UserRefID]
+	UserRefIDMatcher   = reftag.NewMatcher[UserRefID]()
+	UserRefIDFromBytes = reftag.FromBytes[UserRefID]
+	ParseUserRefID     = reftag.Parse[UserRefID]
+)
 
 type User struct {
 	ID           int

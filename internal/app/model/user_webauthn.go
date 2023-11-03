@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t Credential -v 7
+type (
+	CredentialRefID     = reftag.IDt7
+	CredentialRefIDNull = reftag.NullIDt7
+)
+
+var (
+	NewCredentialRefID       = reftag.New[CredentialRefID]
+	CredentialRefIDMatcher   = reftag.NewMatcher[CredentialRefID]()
+	CredentialRefIDFromBytes = reftag.FromBytes[CredentialRefID]
+	ParseCredentialRefID     = reftag.Parse[CredentialRefID]
+)
 
 type UserCredential struct {
 	ID         int

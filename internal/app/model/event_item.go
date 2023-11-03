@@ -5,10 +5,21 @@ import (
 	"time"
 
 	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 )
 
-//go:generate go run ../../../cmd/refidgen -t EventItem -v 3
+type (
+	EventItemRefID     = reftag.IDt3
+	EventItemRefIDNull = reftag.NullIDt3
+)
+
+var (
+	NewEventItemRefID       = reftag.New[EventItemRefID]
+	EventItemRefIDMatcher   = reftag.NewMatcher[EventItemRefID]()
+	EventItemRefIDFromBytes = reftag.FromBytes[EventItemRefID]
+	ParseEventItemRefID     = reftag.Parse[EventItemRefID]
+)
 
 type EventItem struct {
 	ID           int
