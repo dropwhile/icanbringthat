@@ -26,31 +26,31 @@ import (
 const tagVal{{.Name}} = {{.Value}}
 
 type {{.Name}} struct {
-	refid.RefID
+	refid.ID
 }
 
 func (r *{{.Name}}) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	if !r.RefID.HasTag(tagVal{{.Name}}) {
+	if !r.ID.HasTag(tagVal{{.Name}}) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
 }
 
 func (r *{{.Name}}) Scan(src interface{}) error {
-	err := r.RefID.Scan(src)
+	err := r.ID.Scan(src)
 	return r.checkResult(err)
 }
 
 func (r *{{.Name}}) UnmarshalJSON(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.ID.UnmarshalJSON(b)
 	return r.checkResult(err)
 }
 
 func (r *{{.Name}}) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalBinary(b)
+	err := r.ID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -77,15 +77,15 @@ func {{.Name}}FromBytes(input []byte) ({{.Name}}, error) {
 }
 
 type Null{{.Name}} struct {
-	refid.NullRefID
+	refid.NullID
 }
 
 func (u *Null{{.Name}}) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	n := u.NullRefID
-	if n.Valid && !n.RefID.HasTag(tagVal{{.Name}}) {
+	n := u.NullID
+	if n.Valid && !n.ID.HasTag(tagVal{{.Name}}) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
@@ -93,25 +93,25 @@ func (u *Null{{.Name}}) checkResult(err error) error {
 
 
 func (u *Null{{.Name}}) Scan(src interface{}) error {
-	err := u.NullRefID.Scan(src)
+	err := u.NullID.Scan(src)
 	return u.checkResult(err)
 }
 
 func (u *Null{{.Name}}) UnmarshalJSON(b []byte) error {
-	err := u.NullRefID.UnmarshalJSON(b)
+	err := u.NullID.UnmarshalJSON(b)
 	return u.checkResult(err)
 }
 
 type {{.Name}}Matcher struct{}
 
 func (a {{.Name}}Matcher) Match(v interface{}) bool {
-	var r refid.RefID
+	var r refid.ID
 	var err error
 	switch x := v.(type) {
 	case {{.Name}}:
-		r = x.RefID
+		r = x.ID
 	case *{{.Name}}:
-		r = x.RefID
+		r = x.ID
 	case string:
 		r, err = refid.Parse(x)
 	case []byte:

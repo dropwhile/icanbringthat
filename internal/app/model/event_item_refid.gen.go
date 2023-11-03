@@ -12,31 +12,31 @@ import (
 const tagValEventItemRefID = 3
 
 type EventItemRefID struct {
-	refid.RefID
+	refid.ID
 }
 
 func (r *EventItemRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	if !r.RefID.HasTag(tagValEventItemRefID) {
+	if !r.ID.HasTag(tagValEventItemRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
 }
 
 func (r *EventItemRefID) Scan(src interface{}) error {
-	err := r.RefID.Scan(src)
+	err := r.ID.Scan(src)
 	return r.checkResult(err)
 }
 
 func (r *EventItemRefID) UnmarshalJSON(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.ID.UnmarshalJSON(b)
 	return r.checkResult(err)
 }
 
 func (r *EventItemRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalBinary(b)
+	err := r.ID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -63,15 +63,15 @@ func EventItemRefIDFromBytes(input []byte) (EventItemRefID, error) {
 }
 
 type NullEventItemRefID struct {
-	refid.NullRefID
+	refid.NullID
 }
 
 func (u *NullEventItemRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	n := u.NullRefID
-	if n.Valid && !n.RefID.HasTag(tagValEventItemRefID) {
+	n := u.NullID
+	if n.Valid && !n.ID.HasTag(tagValEventItemRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
@@ -79,25 +79,25 @@ func (u *NullEventItemRefID) checkResult(err error) error {
 
 
 func (u *NullEventItemRefID) Scan(src interface{}) error {
-	err := u.NullRefID.Scan(src)
+	err := u.NullID.Scan(src)
 	return u.checkResult(err)
 }
 
 func (u *NullEventItemRefID) UnmarshalJSON(b []byte) error {
-	err := u.NullRefID.UnmarshalJSON(b)
+	err := u.NullID.UnmarshalJSON(b)
 	return u.checkResult(err)
 }
 
 type EventItemRefIDMatcher struct{}
 
 func (a EventItemRefIDMatcher) Match(v interface{}) bool {
-	var r refid.RefID
+	var r refid.ID
 	var err error
 	switch x := v.(type) {
 	case EventItemRefID:
-		r = x.RefID
+		r = x.ID
 	case *EventItemRefID:
-		r = x.RefID
+		r = x.ID
 	case string:
 		r, err = refid.Parse(x)
 	case []byte:

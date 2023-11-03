@@ -12,31 +12,31 @@ import (
 const tagValUserPWResetRefID = 5
 
 type UserPWResetRefID struct {
-	refid.RefID
+	refid.ID
 }
 
 func (r *UserPWResetRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	if !r.RefID.HasTag(tagValUserPWResetRefID) {
+	if !r.ID.HasTag(tagValUserPWResetRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
 }
 
 func (r *UserPWResetRefID) Scan(src interface{}) error {
-	err := r.RefID.Scan(src)
+	err := r.ID.Scan(src)
 	return r.checkResult(err)
 }
 
 func (r *UserPWResetRefID) UnmarshalJSON(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.ID.UnmarshalJSON(b)
 	return r.checkResult(err)
 }
 
 func (r *UserPWResetRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalBinary(b)
+	err := r.ID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -63,15 +63,15 @@ func UserPWResetRefIDFromBytes(input []byte) (UserPWResetRefID, error) {
 }
 
 type NullUserPWResetRefID struct {
-	refid.NullRefID
+	refid.NullID
 }
 
 func (u *NullUserPWResetRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	n := u.NullRefID
-	if n.Valid && !n.RefID.HasTag(tagValUserPWResetRefID) {
+	n := u.NullID
+	if n.Valid && !n.ID.HasTag(tagValUserPWResetRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
@@ -79,25 +79,25 @@ func (u *NullUserPWResetRefID) checkResult(err error) error {
 
 
 func (u *NullUserPWResetRefID) Scan(src interface{}) error {
-	err := u.NullRefID.Scan(src)
+	err := u.NullID.Scan(src)
 	return u.checkResult(err)
 }
 
 func (u *NullUserPWResetRefID) UnmarshalJSON(b []byte) error {
-	err := u.NullRefID.UnmarshalJSON(b)
+	err := u.NullID.UnmarshalJSON(b)
 	return u.checkResult(err)
 }
 
 type UserPWResetRefIDMatcher struct{}
 
 func (a UserPWResetRefIDMatcher) Match(v interface{}) bool {
-	var r refid.RefID
+	var r refid.ID
 	var err error
 	switch x := v.(type) {
 	case UserPWResetRefID:
-		r = x.RefID
+		r = x.ID
 	case *UserPWResetRefID:
-		r = x.RefID
+		r = x.ID
 	case string:
 		r, err = refid.Parse(x)
 	case []byte:

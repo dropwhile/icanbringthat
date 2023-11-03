@@ -12,31 +12,31 @@ import (
 const tagValUserVerifyRefID = 6
 
 type UserVerifyRefID struct {
-	refid.RefID
+	refid.ID
 }
 
 func (r *UserVerifyRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	if !r.RefID.HasTag(tagValUserVerifyRefID) {
+	if !r.ID.HasTag(tagValUserVerifyRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
 }
 
 func (r *UserVerifyRefID) Scan(src interface{}) error {
-	err := r.RefID.Scan(src)
+	err := r.ID.Scan(src)
 	return r.checkResult(err)
 }
 
 func (r *UserVerifyRefID) UnmarshalJSON(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.ID.UnmarshalJSON(b)
 	return r.checkResult(err)
 }
 
 func (r *UserVerifyRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalBinary(b)
+	err := r.ID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -63,15 +63,15 @@ func UserVerifyRefIDFromBytes(input []byte) (UserVerifyRefID, error) {
 }
 
 type NullUserVerifyRefID struct {
-	refid.NullRefID
+	refid.NullID
 }
 
 func (u *NullUserVerifyRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	n := u.NullRefID
-	if n.Valid && !n.RefID.HasTag(tagValUserVerifyRefID) {
+	n := u.NullID
+	if n.Valid && !n.ID.HasTag(tagValUserVerifyRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
@@ -79,25 +79,25 @@ func (u *NullUserVerifyRefID) checkResult(err error) error {
 
 
 func (u *NullUserVerifyRefID) Scan(src interface{}) error {
-	err := u.NullRefID.Scan(src)
+	err := u.NullID.Scan(src)
 	return u.checkResult(err)
 }
 
 func (u *NullUserVerifyRefID) UnmarshalJSON(b []byte) error {
-	err := u.NullRefID.UnmarshalJSON(b)
+	err := u.NullID.UnmarshalJSON(b)
 	return u.checkResult(err)
 }
 
 type UserVerifyRefIDMatcher struct{}
 
 func (a UserVerifyRefIDMatcher) Match(v interface{}) bool {
-	var r refid.RefID
+	var r refid.ID
 	var err error
 	switch x := v.(type) {
 	case UserVerifyRefID:
-		r = x.RefID
+		r = x.ID
 	case *UserVerifyRefID:
-		r = x.RefID
+		r = x.ID
 	case string:
 		r, err = refid.Parse(x)
 	case []byte:

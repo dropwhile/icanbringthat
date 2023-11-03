@@ -26,6 +26,10 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/r
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/dropwhile/refid v1.0.5 h1:lqVywKJKGzwIY4QIwNVeiJfF1EQCZtY3T26UztjADfM=
 github.com/dropwhile/refid v1.0.5/go.mod h1:5nLOKx1E/UsCugc53xWNzm14e/03kWzMEjDxIkyujs8=
+github.com/dropwhile/refid v1.0.6-0.20231103022601-7add2ad4703a h1:Rx23yjB0iqBaUV2Ef1C8YtGCFry3+xuaT7y/lO+c78A=
+github.com/dropwhile/refid v1.0.6-0.20231103022601-7add2ad4703a/go.mod h1:585c/nD5HL0O1HwhGXy8s1ghwM/6chstKbaiacWpGBQ=
+github.com/dropwhile/refid v1.0.6-0.20231103022821-322cf1d4af2c h1:wRvJmdTLQqnCTIRQf3+qVRw+sdGeJdFqyuKcf9d6MOU=
+github.com/dropwhile/refid v1.0.6-0.20231103022821-322cf1d4af2c/go.mod h1:585c/nD5HL0O1HwhGXy8s1ghwM/6chstKbaiacWpGBQ=
 github.com/fxamacker/cbor/v2 v2.5.0 h1:oHsG0V/Q6E/wqTS2O1Cozzsy69nqCiguo5Q1a1ADivE=
 github.com/fxamacker/cbor/v2 v2.5.0/go.mod h1:TA1xS00nchWmaBnEIxPSE5oHLuJBAVvqrtAnWBwBCVo=
 github.com/go-chi/chi/v5 v5.0.7/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=

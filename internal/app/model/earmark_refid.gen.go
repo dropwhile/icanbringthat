@@ -12,31 +12,31 @@ import (
 const tagValEarmarkRefID = 4
 
 type EarmarkRefID struct {
-	refid.RefID
+	refid.ID
 }
 
 func (r *EarmarkRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	if !r.RefID.HasTag(tagValEarmarkRefID) {
+	if !r.ID.HasTag(tagValEarmarkRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
 }
 
 func (r *EarmarkRefID) Scan(src interface{}) error {
-	err := r.RefID.Scan(src)
+	err := r.ID.Scan(src)
 	return r.checkResult(err)
 }
 
 func (r *EarmarkRefID) UnmarshalJSON(b []byte) error {
-	err := r.RefID.UnmarshalJSON(b)
+	err := r.ID.UnmarshalJSON(b)
 	return r.checkResult(err)
 }
 
 func (r *EarmarkRefID) UnmarshalBinary(b []byte) error {
-	err := r.RefID.UnmarshalBinary(b)
+	err := r.ID.UnmarshalBinary(b)
 	return r.checkResult(err)
 }
 
@@ -63,15 +63,15 @@ func EarmarkRefIDFromBytes(input []byte) (EarmarkRefID, error) {
 }
 
 type NullEarmarkRefID struct {
-	refid.NullRefID
+	refid.NullID
 }
 
 func (u *NullEarmarkRefID) checkResult(err error) error {
 	if err != nil {
 		return err
 	}
-	n := u.NullRefID
-	if n.Valid && !n.RefID.HasTag(tagValEarmarkRefID) {
+	n := u.NullID
+	if n.Valid && !n.ID.HasTag(tagValEarmarkRefID) {
 		return fmt.Errorf("wrong refid type")
 	}
 	return nil
@@ -79,25 +79,25 @@ func (u *NullEarmarkRefID) checkResult(err error) error {
 
 
 func (u *NullEarmarkRefID) Scan(src interface{}) error {
-	err := u.NullRefID.Scan(src)
+	err := u.NullID.Scan(src)
 	return u.checkResult(err)
 }
 
 func (u *NullEarmarkRefID) UnmarshalJSON(b []byte) error {
-	err := u.NullRefID.UnmarshalJSON(b)
+	err := u.NullID.UnmarshalJSON(b)
 	return u.checkResult(err)
 }
 
 type EarmarkRefIDMatcher struct{}
 
 func (a EarmarkRefIDMatcher) Match(v interface{}) bool {
-	var r refid.RefID
+	var r refid.ID
 	var err error
 	switch x := v.(type) {
 	case EarmarkRefID:
-		r = x.RefID
+		r = x.ID
 	case *EarmarkRefID:
-		r = x.RefID
+		r = x.ID
 	case string:
 		r, err = refid.Parse(x)
 	case []byte:
