@@ -64,3 +64,27 @@ input.apple-switch:checked:after {
   margin-left: 0.5rem; 
   margin-right: 0.5rem;
 }
+
+.mkdn a {
+    color: #7e3af2;
+}
+
+.mkdn a:hover {
+  text-decoration: underline
+}
+
+.mkdn ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-left: 1em;
+}
+
+.mkdn ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 1em;
+}
+
+.theme-dark .mkdn a {
+  color: #ac94fa;
+}

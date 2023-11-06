@@ -222,6 +222,7 @@ var templateFuncMap = txttemplate.FuncMap{
 		p := bluemonday.NewPolicy()
 		p.AllowElements("p", "br", "strong", "sub", "sup", "em")
 		p.AllowElements("b", "i", "pre", "small", "strike", "tt", "u")
+		p.AllowElements("ul", "ol", "li")
 		p.RequireParseableURLs(true)
 		// do not allow relative urls in markdown
 		p.AllowRelativeURLs(false)
