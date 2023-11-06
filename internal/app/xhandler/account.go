@@ -127,6 +127,14 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err = model.NewNotification(ctx, x.Db, user.ID,
+		`Account is not current verified. Please verify account in <a href="/settings">Account Settings</a>.`,
+	)
+	if err != nil {
+		// this is a nonfatal error
+		log.Error().Err(err).Msg("error adding account notification")
+	}
+
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change

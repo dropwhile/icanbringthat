@@ -81,7 +81,7 @@
             <td class="px-4 py-3">
               <div class="flex items-center text-sm">
                 <div>
-                  <p>{{ .Message }}</p>
+                  <p>{{ .Message | replaceLinks }}</p>
                 </div>
               </div>
             </td>
