@@ -78,7 +78,10 @@
         >
         {{ range .notifs }}
           <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
-            <td class="px-4 py-3">
+            <td
+              class="px-4 py-3"
+              style="min-width: 20em;"
+              >
               <div class="flex items-center text-sm">
                 <div>
                   <p>{{ .Message | replaceLinks }}</p>
@@ -86,7 +89,8 @@
               </div>
             </td>
             <td
-              class="px-4 py-3 text-sm text-center" style="width:11.5rem;"
+              class="px-4 py-3 text-sm text-center"
+              style="width:11.5rem;min-width:8em;"
               x-data="{date: new Date('{{.Created | formatTS}}')}"
               x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
               >
