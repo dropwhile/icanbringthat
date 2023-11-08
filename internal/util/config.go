@@ -18,6 +18,9 @@ type Config struct {
 	ListenHost   string            `env:"HOST" envDefault:"127.0.0.1"`
 	ListenPort   int               `env:"PORT" envDefault:"8000"`
 	Listen       string            `env:"LISTEN,expand" envDefault:"${HOST}:${PORT}"`
+	TLSCert      string            `env:"TLS_CERT"`
+	TLSKey       string            `env:"TLS_KEY"`
+	WithQuic     bool              `env:"QUIC" envDefault:"false"`
 	TemplateDir  string            `env:"TPL_DIR" envDefault:"embed"`
 	StaticDir    string            `env:"STATIC_DIR" envDefault:"embed"`
 	DatabaseDSN  string            `env:"DB_DSN,required"`
@@ -72,10 +75,25 @@ func ParseConfig() (*Config, error) {
 		}
 		_, err := os.Stat(staticDir)
 		if err != nil && os.IsNotExist(err) {
-			return nil, fmt.Errorf("static dir does not exist: %s", staticDir)
+			return nil, fmt.Errorf("static dir does not exist or is not readable: %s", staticDir)
 		}
 	}
 	config.StaticDir = staticDir
+
+	if config.TLSCert != "" {
+		config.TLSCert = path.Clean(config.TLSCert)
+		_, err := os.Stat(config.TLSCert)
+		if err != nil && os.IsNotExist(err) {
+			return nil, fmt.Errorf("tls cert does not exist or is not readable: %s", config.TLSCert)
+		}
+	}
+	if config.TLSKey != "" {
+		config.TLSKey = path.Clean(config.TLSKey)
+		_, err := os.Stat(config.TLSKey)
+		if err != nil && os.IsNotExist(err) {
+			return nil, fmt.Errorf("tls cert does not exist or is not readable: %s", config.TLSKey)
+		}
+	}
 
 	// csrf Key
 	keyInput := config.HMACKey

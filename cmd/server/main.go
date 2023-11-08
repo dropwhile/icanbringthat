@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/quic-go/quic-go/http3"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -112,6 +113,14 @@ func main() {
 		WriteTimeout:      5 * time.Second,
 	}
 
+	var quicServer *http3.Server
+	if config.TLSCert != "" && config.TLSKey != "" {
+		quicServer = &http3.Server{
+			Addr:    config.Listen,
+			Handler: r,
+		}
+	}
+
 	// signal handling && graceful shutdown
 	idleConnsClosed := make(chan struct{})
 	go func() {
@@ -120,21 +129,54 @@ func main() {
 		<-signals
 
 		// We received an interrupt signal, shut down.
-		log.Info().Msg("HTTP server shutting down...")
+		log.Info().Msg("Server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
 			log.Error().Err(err).Msg("HTTP server shutdown error")
+		}
+		if quicServer != nil {
+			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
+				// Error from closing listeners, or context timeout:
+				log.Error().Err(err).Msg("HTTP/3 server shutdown error")
+			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
 	log.Info().Msg("starting up...")
-	log.Info().Msgf("listening: %s", config.Listen)
 	log.Info().Msgf("server version: %s", ServerVersion)
-	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal().Err(err).Msg("HTTP server error")
-	}
+	if config.TLSCert != "" && config.TLSKey != "" {
+		if config.WithQuic {
+			// add quic headers to https/tls server
+			if config.WithQuic {
+				handler := server.Handler
+				server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					quicServer.SetQuicHeaders(w.Header())
+					handler.ServeHTTP(w, r)
+				})
+			}
 
+			// start up http3/quic server
+			go func() {
+				log.Info().Msgf("listening(https/quic): %s", config.Listen)
+				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					log.Fatal().Err(err).Msg("HTTP/3 server error")
+				}
+			}()
+		}
+		// startup https3/tls server
+		go func() {
+			log.Info().Msgf("listening(https/tls):  %s", config.Listen)
+			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				log.Fatal().Err(err).Msg("HTTP server error")
+			}
+		}()
+	} else {
+		log.Info().Msgf("listening(http): %s", config.Listen)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal().Err(err).Msg("HTTP server error")
+		}
+	}
 	<-idleConnsClosed
 }
