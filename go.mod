@@ -6,7 +6,7 @@ require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20231022164606-84bd122bd881
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231022164606-84bd122bd881
 	github.com/alexedwards/scs/v2 v2.6.0
-	github.com/caarlos0/env/v9 v9.0.0
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid v1.0.6
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.2
