@@ -15,7 +15,9 @@ type Config struct {
 	LogFormat    string            `env:"LOG_FORMAT" envDefault:"json"`
 	LogLevel     zerolog.Level     `env:"LOG_LEVEL" envDefault:"info"`
 	Production   bool              `env:"PRODUCTION" envDefault:"true"`
-	Listen       string            `env:"LISTEN" envDefault:"127.0.0.1:8000"`
+	ListenHost   string            `env:"HOST" envDefault:"127.0.0.1"`
+	ListenPort   int               `env:"PORT" envDefault:"8000"`
+	Listen       string            `env:"LISTEN,expand" envDefault:"${HOST}:${PORT}"`
 	TemplateDir  string            `env:"TPL_DIR" envDefault:"embed"`
 	StaticDir    string            `env:"STATIC_DIR" envDefault:"embed"`
 	DatabaseDSN  string            `env:"DB_DSN,required"`
