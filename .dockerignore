@@ -3,6 +3,8 @@
 .envrc
 .modd.conf
 .vscode
+server.key
+server.crt
 notes.txt
 build/
 diagrams/
