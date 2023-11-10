@@ -156,13 +156,16 @@ dev-db-create:
 	@docker rm -f icbt-db-helper
 	@docker run \
 		--name icbt-database \
+		--restart always \
 		-e POSTGRES_PASSWORD=${PGPASSWORD} \
 		-e POSTGRES_DB=${PGDATABASE} \
 		-p 5432:5432 \
 		-v "icbt-db-init:/docker-entrypoint-initdb.d/" \
-		-d postgres
+		-d postgres \
+		postgres -c jit=off
 	@docker run \
 		--name icbt-redis \
+		--restart always \
 		-p 6379:6379 \
 		-d redis:7-alpine \
 		redis-server --requirepass "${REDIS_PASS}"

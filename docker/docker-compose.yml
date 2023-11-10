@@ -14,8 +14,10 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
       # copy the sql script to create tables
       - ./database/init/load-extensions.sql:/docker-entrypoint-initdb.d/load-extensions.sql
+    command: postgres -c jit=off
 
   redis:
+    restart: always
     image: redis:7-alpine
     volumes:
       - ./redis-data:/data

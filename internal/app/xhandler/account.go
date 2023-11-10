@@ -128,7 +128,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = model.NewNotification(ctx, x.Db, user.ID,
-		`Account is not current verified. Please verify account in <a href="/settings">Account Settings</a>.`,
+		`Account is not currently verified. Please verify account in link:/settings.`,
 	)
 	if err != nil {
 		// this is a nonfatal error
