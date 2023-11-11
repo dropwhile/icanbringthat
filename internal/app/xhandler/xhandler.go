@@ -31,7 +31,7 @@ func (x *XHandler) Template(name string) (resources.TemplateIf, error) {
 	return x.Tpl.Get(name)
 }
 
-func (x *XHandler) TemplateExecute(w io.Writer, name string, vars map[string]any) error {
+func (x *XHandler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 	tpl, err := x.Tpl.Get(name)
 	if err != nil {
 		log.Info().
@@ -52,7 +52,7 @@ func (x *XHandler) TemplateExecute(w io.Writer, name string, vars map[string]any
 	return nil
 }
 
-func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars map[string]any) error {
+func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
 	tpl, err := x.Tpl.Get(name)
 	if err != nil {
 		log.Info().
@@ -83,7 +83,7 @@ func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	w.Header().Set("content-type", "text/html")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
-	err := x.TemplateExecute(w, "error-page.gohtml", map[string]any{
+	err := x.TemplateExecute(w, "error-page.gohtml", MapSA{
 		"ErrorCode":   code,
 		"ErrorStatus": statusMsg,
 		"title":       fmt.Sprintf("%d - %s", code, statusMsg),
@@ -108,3 +108,5 @@ func (x *XHandler) Json(w http.ResponseWriter, code int, payload interface{}) {
 	w.WriteHeader(code)
 	_, _ = w.Write(response)
 }
+
+type MapSA = map[string]any

@@ -17,7 +17,7 @@ func (x *XHandler) ShowAbout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":  user,
 		"title": "About",
 		"nav":   "about",

@@ -21,7 +21,7 @@ func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"title":          "Login",
 		"next":           r.FormValue("next"),
 		"flashes":        x.SessMgr.FlashPopAll(ctx),

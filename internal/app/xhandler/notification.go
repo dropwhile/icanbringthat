@@ -56,7 +56,7 @@ func (x *XHandler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"notifs":         notifs,
 		"notifCount":     notifCount,

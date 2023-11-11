@@ -39,7 +39,7 @@ func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":        user,
 		"profileUser": profileUser,
 		"selfView":    selfView,

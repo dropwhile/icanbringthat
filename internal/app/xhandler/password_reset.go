@@ -28,7 +28,7 @@ func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"title":          "Forgot Password",
 		"next":           r.FormValue("next"),
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
@@ -106,7 +106,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"title":          "Reset Password",
 		"next":           r.FormValue("next"),
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
@@ -195,7 +195,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		subject := "Password reset"
 		var buf bytes.Buffer
 		err = x.TemplateExecute(&buf, "mail_password_reset.gotxt",
-			map[string]any{
+			MapSA{
 				"Subject":          subject,
 				"PasswordResetUrl": u.String(),
 			},
@@ -208,7 +208,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 
 		buf.Reset()
 		err = x.TemplateExecute(&buf, "mail_password_reset.gohtml",
-			map[string]any{
+			MapSA{
 				"Subject":          subject,
 				"PasswordResetUrl": u.String(),
 			},

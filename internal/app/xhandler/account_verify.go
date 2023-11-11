@@ -51,7 +51,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	subject := "Account Verification"
 	var buf bytes.Buffer
 	err = x.TemplateExecute(&buf, "mail_account_email_verify.gotxt",
-		map[string]any{
+		MapSA{
 			"Subject":         subject,
 			"VerificationUrl": verificationUrl,
 		},
@@ -64,7 +64,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 
 	buf.Reset()
 	err = x.TemplateExecute(&buf, "mail_account_email_verify.gohtml",
-		map[string]any{
+		MapSA{
 			"Subject":         subject,
 			"VerificationUrl": verificationUrl,
 		},

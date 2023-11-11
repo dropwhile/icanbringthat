@@ -26,7 +26,7 @@ func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"title":          "Create Account",
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		"next":           r.FormValue("next"),
@@ -72,7 +72,7 @@ func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"credentials":    credentials,
 		"title":          "Settings",

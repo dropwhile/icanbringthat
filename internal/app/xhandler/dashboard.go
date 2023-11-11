@@ -83,7 +83,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		})
 
 	// parse user-id url param
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":            user,
 		"title":           "Dashboard",
 		"nav":             "dashboard",

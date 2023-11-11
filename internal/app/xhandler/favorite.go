@@ -85,7 +85,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 			return eic.EventID, eic.Count
 		})
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":            user,
 		"events":          events,
 		"favoriteCount":   favoriteCount,
@@ -173,7 +173,7 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).Target() == "favorite" {
-		tplVars := map[string]any{
+		tplVars := MapSA{
 			"user":     user,
 			"event":    event,
 			"favorite": true,

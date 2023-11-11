@@ -87,7 +87,7 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 			return eic.EventID, eic.Count
 		})
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":            user,
 		"events":          events,
 		"eventItemCounts": eventItemCountsMap,
@@ -228,7 +228,7 @@ func (x *XHandler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		func(u *model.User) (int, *model.User) { return u.ID, u },
 	)
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":            user,
 		"owner":           owner,
 		"event":           event,
@@ -261,7 +261,7 @@ func (x *XHandler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"title":          "Create Event",
 		"nav":            "create-event",
@@ -314,7 +314,7 @@ func (x *XHandler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"event":          event,
 		"title":          "Edit Event",

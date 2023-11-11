@@ -52,7 +52,7 @@ func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"event":          event,
 		"title":          "Create Event Item",
@@ -128,7 +128,7 @@ func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"event":          event,
 		"eventItem":      eventItem,

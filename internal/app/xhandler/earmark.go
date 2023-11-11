@@ -97,7 +97,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventItemsMap := util.ToMapIndexedByFunc(eventItems,
 		func(v *model.EventItem) (int, *model.EventItem) { return v.ID, v })
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"earmarks":       earmarks,
 		"earmarkCount":   earmarkCount,
@@ -171,7 +171,7 @@ func (x *XHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tplVars := map[string]any{
+	tplVars := MapSA{
 		"user":           user,
 		"event":          event,
 		"eventItem":      eventItem,

@@ -19,21 +19,7 @@ import (
 )
 
 func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.WebAuthn, error) {
-	if isProd {
-		siteURL, err := url.Parse(baseURL)
-		if err != nil {
-			return nil, err
-		}
-		wconfig := &webauthn.Config{
-			// Display Name for site
-			RPDisplayName: "ICanBringThat",
-			// Generally the FQDN for site
-			RPID: siteURL.Hostname(),
-			// The origin URLs allowed for WebAuthn requests
-			RPOrigins: []string{siteURL.String()},
-		}
-		return webauthn.New(wconfig)
-	} else {
+	if !isProd {
 		protocol := "http"
 		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
 			protocol = "https"
@@ -42,23 +28,22 @@ func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.W
 		if r.Header.Get("X-Forwarded-Host") != "" {
 			host = r.Header.Get("X-Forwarded-Host")
 		}
-		baseURL := fmt.Sprintf("%s://%s", protocol, host)
-
-		siteURL, err := url.Parse(baseURL)
-		if err != nil {
-			return nil, err
-		}
-		wconfig := &webauthn.Config{
-			// Display Name for site
-			RPDisplayName: "ICanBringThat",
-			// Generally the FQDN for site
-			RPID: siteURL.Hostname(),
-			// The origin URLs allowed for WebAuthn requests
-			RPOrigins: []string{siteURL.String()},
-		}
-		fmt.Printf("%#v\n", wconfig)
-		return webauthn.New(wconfig)
+		baseURL = fmt.Sprintf("%s://%s", protocol, host)
 	}
+
+	siteURL, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, err
+	}
+	wconfig := &webauthn.Config{
+		// Display Name for site
+		RPDisplayName: "ICanBringThat",
+		// Generally the FQDN for site
+		RPID: siteURL.Hostname(),
+		// The origin URLs allowed for WebAuthn requests
+		RPOrigins: []string{siteURL.String()},
+	}
+	return webauthn.New(wconfig)
 }
 
 func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +143,7 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 
 	var sessionData webauthn.SessionData
 	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:register").([]byte)
-	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
+	if err := json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
 		x.Error(w, "bad session data", http.StatusBadRequest)
 		return
@@ -175,8 +160,8 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
 		return
 	}
-	resp := map[string]any{"verified": true}
-	x.Json(w, http.StatusOK, resp)
+
+	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
 func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
@@ -194,7 +179,7 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Json(w, http.StatusInternalServerError,
-			map[string]any{"error": "Passkey login failed"},
+			MapSA{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -206,7 +191,7 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Json(w, http.StatusBadRequest,
-			map[string]any{"error": "Passkey login failed"},
+			MapSA{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -215,7 +200,7 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Json(w, http.StatusInternalServerError,
-			map[string]any{"error": "Passkey login failed"},
+			MapSA{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -238,7 +223,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
 		x.Json(w, http.StatusInternalServerError,
-			map[string]any{"error": "Passkey login failed"},
+			MapSA{"error": "Passkey login failed"},
 		)
 		return
 	}
@@ -248,7 +233,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
 		x.Json(w, http.StatusBadRequest,
-			map[string]any{"error": "bad session data"},
+			MapSA{"error": "bad session data"},
 		)
 		return
 	}
@@ -257,12 +242,14 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
 		x.Json(w, http.StatusForbidden,
-			map[string]any{"error": "Passkey login failed"},
+			MapSA{"error": "Passkey login failed"},
 		)
 		return
 	}
 
 	var userID int
+	// needs to be inline here (as opposed to a defined function elsewhere)
+	// so we can capture the discovered userID value
 	handler := func(rawID, userHandle []byte) (webauthn.User, error) {
 		// rawID is the credentialID
 		// userHandler is user.WebauthnID
@@ -277,6 +264,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		if !user.WebAuthn {
 			return nil, fmt.Errorf("user found but webauthn disabled")
 		}
+		// capture userID for session login operation after auth success
 		userID = user.ID
 		authNUser := service.WebAuthnUserFrom(x.Db, user)
 		return authNUser, nil
@@ -284,9 +272,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	_, err = authnInstance.ValidateDiscoverableLogin(handler, sessionData, parsedResponse)
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
-		x.Json(w, http.StatusForbidden,
-			map[string]any{"error": "Passkey login failed"},
-		)
+		x.Json(w, http.StatusForbidden, MapSA{"error": "Passkey login failed"})
 		return
 	}
 
@@ -301,8 +287,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	// Then make the privilege-level change.
 	x.SessMgr.Put(r.Context(), "user-id", userID)
 	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
-	resp := map[string]any{"verified": true}
-	x.Json(w, http.StatusOK, resp)
+	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
 func (x *XHandler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
