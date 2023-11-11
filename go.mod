@@ -3,8 +3,8 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
-	github.com/alexedwards/scs/goredisstore v0.0.0-20231022164606-84bd122bd881
-	github.com/alexedwards/scs/pgxstore v0.0.0-20231022164606-84bd122bd881
+	github.com/alexedwards/scs/goredisstore v0.0.0-20231111185542-df09415656dc
+	github.com/alexedwards/scs/pgxstore v0.0.0-20231111185542-df09415656dc
 	github.com/alexedwards/scs/v2 v2.6.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid v1.0.6
@@ -17,13 +17,14 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/pashagolub/pgxmock/v3 v3.2.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
+	github.com/quic-go/quic-go v0.40.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/rs/zerolog v1.31.0
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.15.0
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	golang.org/x/text v0.14.0
 	gotest.tools/v3 v3.5.1
 )
@@ -40,7 +41,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
-	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
+	github.com/google/pprof v0.0.0-20231101202521-4ca4178f5c7a // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -51,17 +52,16 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
+	github.com/onsi/ginkgo/v2 v2.13.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
-	github.com/quic-go/quic-go v0.40.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/mock v0.3.0 // indirect
-	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/tools v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
