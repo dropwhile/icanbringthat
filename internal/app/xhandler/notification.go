@@ -140,16 +140,11 @@ func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID); err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+	err = model.DeleteNotificationsByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		http.Error(w, "db error", http.StatusInternalServerError)
 		return
-	} else if notifCount > 0 {
-		err = model.DeleteNotificationsByUser(ctx, x.Db, user.ID)
-		if err != nil {
-			log.Info().Err(err).Msg("db error")
-			http.Error(w, "db error", http.StatusInternalServerError)
-			return
-		}
 	}
 
 	w.Header().Set("content-type", "text/html")

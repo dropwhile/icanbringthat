@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -89,7 +88,7 @@ func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interf
 	}
 	if commandTag.RowsAffected() == 0 {
 		log.Debug().Msg("query affected zero rows!")
-		return errors.New("no rows affected")
+		// return errors.New("no rows affected")
 	}
 	return nil
 }
