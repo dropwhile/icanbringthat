@@ -1,9 +1,9 @@
-github.com/alexedwards/scs/goredisstore v0.0.0-20231111185542-df09415656dc h1:WXuBRQspfaymgjvl3nUp/8jjdoCwRk2X9xpVmBP/52E=
-github.com/alexedwards/scs/goredisstore v0.0.0-20231111185542-df09415656dc/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
-github.com/alexedwards/scs/pgxstore v0.0.0-20231111185542-df09415656dc h1:Tjl9e/p9vTyMdbjG+xk+Oz5tvYLBANJevHSPCOaYC9o=
-github.com/alexedwards/scs/pgxstore v0.0.0-20231111185542-df09415656dc/go.mod h1:KTB1slYgIU/BBa4MWA5IdET31OsbPQBM7dqDw5klIt4=
-github.com/alexedwards/scs/v2 v2.6.0 h1:vxNyhWZOnlWK9NsYlgFjSaP5IGN7Cm/sf6/slLJNBos=
-github.com/alexedwards/scs/v2 v2.6.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
+github.com/alexedwards/scs/goredisstore v0.0.0-20231112091051-4deadb932006 h1:bp+rg+TO7JJA3aoM+9p+FuTYh0caE2jaQn+ueInp3/I=
+github.com/alexedwards/scs/goredisstore v0.0.0-20231112091051-4deadb932006/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
+github.com/alexedwards/scs/pgxstore v0.0.0-20231112091051-4deadb932006 h1:bxiDGiXx1Ix3ky8bur4SKoLQ629MTsrWUJ7ZWzN3Fw0=
+github.com/alexedwards/scs/pgxstore v0.0.0-20231112091051-4deadb932006/go.mod h1:KTB1slYgIU/BBa4MWA5IdET31OsbPQBM7dqDw5klIt4=
+github.com/alexedwards/scs/v2 v2.7.0 h1:DY4rqLCM7UIR9iwxFS0++z1NhTzQlKV30aMHkJCDWKw=
+github.com/alexedwards/scs/v2 v2.7.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/bsm/ginkgo/v2 v2.5.0/go.mod h1:AiKlXPm7ItEHNc/2+OkrNG4E0ITzojb9/xWzvQ9XZ9w=

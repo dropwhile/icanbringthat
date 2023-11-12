@@ -3,9 +3,9 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
-	github.com/alexedwards/scs/goredisstore v0.0.0-20231111185542-df09415656dc
-	github.com/alexedwards/scs/pgxstore v0.0.0-20231111185542-df09415656dc
-	github.com/alexedwards/scs/v2 v2.6.0
+	github.com/alexedwards/scs/goredisstore v0.0.0-20231112091051-4deadb932006
+	github.com/alexedwards/scs/pgxstore v0.0.0-20231112091051-4deadb932006
+	github.com/alexedwards/scs/v2 v2.7.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid v1.0.6
 	github.com/go-chi/chi/v5 v5.0.10
