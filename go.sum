@@ -1,7 +1,7 @@
-github.com/alexedwards/scs/goredisstore v0.0.0-20231112091051-4deadb932006 h1:bp+rg+TO7JJA3aoM+9p+FuTYh0caE2jaQn+ueInp3/I=
-github.com/alexedwards/scs/goredisstore v0.0.0-20231112091051-4deadb932006/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
-github.com/alexedwards/scs/pgxstore v0.0.0-20231112091051-4deadb932006 h1:bxiDGiXx1Ix3ky8bur4SKoLQ629MTsrWUJ7ZWzN3Fw0=
-github.com/alexedwards/scs/pgxstore v0.0.0-20231112091051-4deadb932006/go.mod h1:KTB1slYgIU/BBa4MWA5IdET31OsbPQBM7dqDw5klIt4=
+github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8 h1:9/vyo/IlMZIuBVTpiqH4Fapw0fST6YTnD6qQI29YABs=
+github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
+github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8 h1:VBv3gVMztXFdn4L1ExHuOKmK9q5I6UimljFwmssU7z0=
+github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8/go.mod h1:KTB1slYgIU/BBa4MWA5IdET31OsbPQBM7dqDw5klIt4=
 github.com/alexedwards/scs/v2 v2.7.0 h1:DY4rqLCM7UIR9iwxFS0++z1NhTzQlKV30aMHkJCDWKw=
 github.com/alexedwards/scs/v2 v2.7.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
