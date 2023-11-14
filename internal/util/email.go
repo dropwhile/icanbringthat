@@ -13,12 +13,12 @@ import (
 type MailHeader map[string]string
 
 type Mail struct {
+	ExtraHeaders MailHeader
 	Sender       string
-	To           []string
 	Subject      string
 	BodyPlain    string
 	BodyHtml     string
-	ExtraHeaders MailHeader
+	To           []string
 }
 
 type Mailer struct {

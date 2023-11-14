@@ -8,9 +8,9 @@ import (
 )
 
 type UserEventNotification struct {
+	Created time.Time
 	UserID  int `db:"user_id"`
 	EventID int `db:"event_id"`
-	Created time.Time
 }
 
 func NewUserEventNotification(ctx context.Context, db PgxHandle,
@@ -57,11 +57,11 @@ func GetUserEventNotification(ctx context.Context, db PgxHandle,
 }
 
 type UserEventNotificationNeeded struct {
-	UserID       int `db:"user_id"`
-	EventID      int `db:"event_id"`
 	When         time.Time
-	Owner        bool
 	EventItemIDs []int `db:"items"`
+	UserID       int   `db:"user_id"`
+	EventID      int   `db:"event_id"`
+	Owner        bool
 }
 
 func GetUserEventNotificationNeeded(

@@ -22,9 +22,9 @@ var (
 )
 
 type UserPWReset struct {
-	RefID   UserPWResetRefID `db:"ref_id"`
-	UserID  int              `db:"user_id"`
 	Created time.Time
+	UserID  int              `db:"user_id"`
+	RefID   UserPWResetRefID `db:"ref_id"`
 }
 
 const UserPWResetExpiry = 30 * time.Minute

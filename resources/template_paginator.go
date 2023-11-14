@@ -70,24 +70,24 @@ func (p *Paginator) Paginate(current int) []*Page {
 }
 
 type PaginationResult struct {
+	Pages   []*Page
 	Start   int
 	Stop    int
 	Size    int
 	HasPrev bool
 	HasNext bool
-	Pages   []*Page
 }
 
 type PgInput struct {
+	// baseurl to work around some funky issues with browser pushstate
+	BaseUrl string
 	Max     int
 	Step    int
 	Current int
-	// baseurl to work around some funky issues with browser pushstate
-	BaseUrl string
 }
 
 func NewPgInput(max, step, current int, baseUrl string) *PgInput {
-	return &PgInput{max, step, current, baseUrl}
+	return &PgInput{baseUrl, max, step, current}
 }
 
 func CalculateMaxPageNum(size, step int) int {

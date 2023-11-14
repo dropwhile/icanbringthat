@@ -22,12 +22,12 @@ var (
 )
 
 type UserCredential struct {
+	Created    time.Time
+	KeyName    string `db:"key_name"`
+	Credential []byte
+	UserID     int `db:"user_id"`
 	ID         int
 	RefID      CredentialRefID `db:"ref_id"`
-	UserID     int             `db:"user_id"`
-	KeyName    string          `db:"key_name"`
-	Created    time.Time
-	Credential []byte
 }
 
 func NewUserCredential(ctx context.Context, db PgxHandle,

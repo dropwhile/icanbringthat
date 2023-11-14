@@ -111,8 +111,12 @@ var templateFuncMap = txttemplate.FuncMap{
 		}
 
 		s := &PaginationResult{
-			start, stop, size, current > 1, current < maxPage,
-			NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current),
+			Pages:   NewPaginator(3, 3, 3).AddPages(size, step).Paginate(current),
+			Start:   start,
+			Stop:    stop,
+			Size:    size,
+			HasPrev: current > 1,
+			HasNext: current < maxPage,
 		}
 		return s
 	},

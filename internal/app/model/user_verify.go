@@ -22,9 +22,9 @@ var (
 )
 
 type UserVerify struct {
-	RefID   UserVerifyRefID `db:"ref_id"`
-	UserID  int             `db:"user_id"`
 	Created time.Time
+	UserID  int             `db:"user_id"`
+	RefID   UserVerifyRefID `db:"ref_id"`
 }
 
 const UserVerifyExpiry = 30 * time.Minute

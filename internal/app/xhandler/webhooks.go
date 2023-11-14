@@ -17,9 +17,9 @@ import (
 type PostMarkRecord struct {
 	RecordType        string
 	MessageStream     string
-	SuppressSending   bool
 	SuppressionReason string
 	Recipient         string
+	SuppressSending   bool
 }
 
 func (x *XHandler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {

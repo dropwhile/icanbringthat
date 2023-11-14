@@ -25,17 +25,17 @@ var (
 )
 
 type User struct {
-	ID           int
-	RefID        UserRefID `db:"ref_id"`
+	Created      time.Time
+	LastModified time.Time `db:"last_modified"`
 	Email        string
 	Name         string
 	PWHash       []byte
+	ID           int
+	RefID        UserRefID `db:"ref_id"`
+	Settings     UserSettings
 	Verified     bool
 	PWAuth       bool
 	WebAuthn     bool
-	Settings     UserSettings
-	Created      time.Time
-	LastModified time.Time `db:"last_modified"`
 }
 
 func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {

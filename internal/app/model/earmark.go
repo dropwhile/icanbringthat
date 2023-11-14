@@ -22,13 +22,13 @@ var (
 )
 
 type Earmark struct {
-	ID           int
-	RefID        EarmarkRefID `db:"ref_id"`
-	EventItemID  int          `db:"event_item_id"`
-	UserID       int          `db:"user_id"`
-	Note         string
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
+	Note         string
+	EventItemID  int `db:"event_item_id"`
+	UserID       int `db:"user_id"`
+	ID           int
+	RefID        EarmarkRefID `db:"ref_id"`
 }
 
 func NewEarmark(ctx context.Context, db PgxHandle,

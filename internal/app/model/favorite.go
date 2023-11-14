@@ -8,10 +8,10 @@ import (
 )
 
 type Favorite struct {
-	ID      int
-	UserID  int `db:"user_id"`
-	EventID int `db:"event_id"`
 	Created time.Time
+	EventID int `db:"event_id"`
+	UserID  int `db:"user_id"`
+	ID      int
 }
 
 func CreateFavorite(ctx context.Context, db PgxHandle,

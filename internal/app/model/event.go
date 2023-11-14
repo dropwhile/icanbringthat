@@ -22,16 +22,16 @@ var (
 )
 
 type Event struct {
-	ID            int
-	RefID         EventRefID `db:"ref_id"`
-	UserID        int        `db:"user_id"`
-	Name          string
-	Description   string
 	StartTime     time.Time `db:"start_time"`
-	StartTimeTz   *TimeZone `db:"start_time_tz"`
-	ItemSortOrder []int     `db:"item_sort_order"`
 	Created       time.Time
 	LastModified  time.Time `db:"last_modified"`
+	StartTimeTz   *TimeZone `db:"start_time_tz"`
+	Name          string
+	Description   string
+	ItemSortOrder []int `db:"item_sort_order"`
+	UserID        int   `db:"user_id"`
+	ID            int
+	RefID         EventRefID `db:"ref_id"`
 }
 
 func NewEvent(ctx context.Context, db PgxHandle,

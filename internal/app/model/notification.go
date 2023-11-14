@@ -22,13 +22,13 @@ var (
 )
 
 type Notification struct {
-	ID           int
-	RefID        NotificationRefID `db:"ref_id"`
-	UserID       int               `db:"user_id"`
-	Message      string
-	Read         bool
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
+	Message      string
+	UserID       int `db:"user_id"`
+	ID           int
+	RefID        NotificationRefID `db:"ref_id"`
+	Read         bool
 }
 
 func NewNotification(ctx context.Context, db PgxHandle,

@@ -22,12 +22,12 @@ var (
 )
 
 type EventItem struct {
-	ID           int
-	RefID        EventItemRefID `db:"ref_id"`
-	EventID      int            `db:"event_id"`
-	Description  string
 	Created      time.Time
 	LastModified time.Time `db:"last_modified"`
+	Description  string
+	EventID      int `db:"event_id"`
+	ID           int
+	RefID        EventItemRefID `db:"ref_id"`
 }
 
 func NewEventItem(ctx context.Context, db PgxHandle,
