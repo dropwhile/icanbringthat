@@ -38,7 +38,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	uvRefIDStr := uv.RefID.String()
 
 	// generate hmac
-	macBytes := x.Hmac.Generate([]byte(uvRefIDStr))
+	macBytes := x.MAC.Generate([]byte(uvRefIDStr))
 	// base32 encode hmac
 	macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -123,7 +123,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return

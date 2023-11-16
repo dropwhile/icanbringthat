@@ -39,19 +39,19 @@ func (api *App) OnClose(f func()) {
 func New(
 	db *pgxpool.Pool,
 	rdb *redis.Client,
-	tpl resources.TemplateMap,
+	templateMap resources.TemplateMap,
 	mailer *mail.Mailer,
 	conf *Config,
 ) *App {
 	zh := &xhandler.XHandler{
-		Db:      model.SetupFromDbPool(db),
-		Redis:   rdb,
-		Tpl:     tpl,
-		SessMgr: session.NewRedisSessionManager(rdb, conf.Production),
-		Mailer:  mailer,
-		Hmac:    crypto.NewMAC(conf.HMACKeyBytes),
-		BaseURL: strings.TrimSuffix(conf.BaseURL, "/"),
-		IsProd:  conf.Production,
+		Db:          model.SetupFromDbPool(db),
+		Redis:       rdb,
+		TemplateMap: templateMap,
+		SessMgr:     session.NewRedisSessionManager(rdb, conf.Production),
+		Mailer:      mailer,
+		MAC:         crypto.NewMAC(conf.HMACKeyBytes),
+		BaseURL:     strings.TrimSuffix(conf.BaseURL, "/"),
+		IsProd:      conf.Production,
 	}
 
 	api := &App{Mux: chi.NewRouter(), handler: zh}

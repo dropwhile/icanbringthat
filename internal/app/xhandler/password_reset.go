@@ -73,7 +73,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusNotFound)
 		return
@@ -177,7 +177,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		upwRefIDStr := upw.RefID.String()
 
 		// generate hmac
-		macBytes := x.Hmac.Generate([]byte(upwRefIDStr))
+		macBytes := x.MAC.Generate([]byte(upwRefIDStr))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -272,7 +272,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.Hmac.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
 		log.Info().Msg("invalid hmac!")
 		x.Error(w, "bad data", http.StatusBadRequest)
 		return

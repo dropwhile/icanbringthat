@@ -65,7 +65,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -145,7 +145,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -182,7 +182,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -219,7 +219,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		macBytes[0] += 1
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
@@ -258,7 +258,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(refID.String()))
+		macBytes := handler.MAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -295,7 +295,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -340,7 +340,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -388,7 +388,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(refID.String()))
+		macBytes := handler.MAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -438,7 +438,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
-		macBytes := handler.Hmac.Generate([]byte(pwr.RefID.String()))
+		macBytes := handler.MAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -546,8 +546,8 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.Tpl["mail_password_reset.gohtml"] = passResetTpl
-		handler.Tpl["mail_password_reset.gotxt"] = passResetTpl
+		handler.TemplateMap["mail_password_reset.gohtml"] = passResetTpl
+		handler.TemplateMap["mail_password_reset.gotxt"] = passResetTpl
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
@@ -582,7 +582,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		rID := refid.Must(model.ParseUserPWResetRefID(refParts[0]))
 		hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
-		assert.Assert(t, handler.Hmac.Validate([]byte(rID.String()), hmacBytes))
+		assert.Assert(t, handler.MAC.Validate([]byte(rID.String()), hmacBytes))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -601,7 +601,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.Tpl["mail_password_reset.gohtml"] = passResetTpl
+		handler.TemplateMap["mail_password_reset.gohtml"] = passResetTpl
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").

@@ -92,7 +92,6 @@ func main() {
 
 	// routing/handlers
 	appConfig := &app.Config{
-		HMACKey:      config.HMACKey,
 		WebhookCreds: config.WebhookCreds,
 		CSRFKeyBytes: config.CSRFKeyBytes,
 		HMACKeyBytes: config.HMACKeyBytes,

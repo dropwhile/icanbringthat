@@ -18,22 +18,22 @@ import (
 )
 
 type XHandler struct {
-	Db      model.PgxHandle
-	Redis   *redis.Client
-	Tpl     resources.TemplateMap
-	SessMgr *session.SessionMgr
-	Mailer  mail.MailSender
-	Hmac    *crypto.MAC
-	BaseURL string
-	IsProd  bool
+	Db          model.PgxHandle
+	Redis       *redis.Client
+	TemplateMap resources.TemplateMap
+	SessMgr     *session.SessionMgr
+	Mailer      mail.MailSender
+	MAC         *crypto.MAC
+	BaseURL     string
+	IsProd      bool
 }
 
 func (x *XHandler) Template(name string) (resources.TemplateIf, error) {
-	return x.Tpl.Get(name)
+	return x.TemplateMap.Get(name)
 }
 
 func (x *XHandler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
-	tpl, err := x.Tpl.Get(name)
+	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
@@ -54,7 +54,7 @@ func (x *XHandler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 }
 
 func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
-	tpl, err := x.Tpl.Get(name)
+	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
 		log.Info().
 			Err(err).
