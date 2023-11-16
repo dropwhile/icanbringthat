@@ -13,7 +13,9 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/envconfig"
+	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -25,13 +27,13 @@ func main() {
 	// parse config //
 	//--------------//
 
-	config, err := util.ParseConfig()
+	config, err := envconfig.Parse()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse config")
 	}
 
 	if config.LogFormat == "plain" {
-		log.Logger = util.NewLogger(os.Stderr)
+		log.Logger = logger.NewLogger(os.Stderr)
 	}
 	zerolog.SetGlobalLevel(config.LogLevel)
 	log.Info().Msgf("setting log level: %s", config.LogLevel.String())
@@ -66,14 +68,15 @@ func main() {
 	defer dbpool.Close()
 
 	// configure mailer
-	mailer := util.NewMailer(
-		config.SMTPHost,
-		config.SMTPPort,
-		config.SMTPHostname,
-		config.SMTPUser,
-		config.SMTPPass,
-		config.MailFrom,
-	)
+	mailConfig := &mail.Config{
+		Hostname:    config.SMTPHostname,
+		Host:        config.SMTPHost,
+		Port:        config.SMTPPort,
+		User:        config.SMTPUser,
+		Pass:        config.SMTPPass,
+		DefaultFrom: config.MailFrom,
+	}
+	mailer := mail.NewMailer(mailConfig)
 
 	// signals
 	signals := make(chan os.Signal, 1)

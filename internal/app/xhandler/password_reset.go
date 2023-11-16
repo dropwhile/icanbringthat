@@ -14,7 +14,8 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/encoder"
+	"github.com/dropwhile/icbt/internal/mail"
 )
 
 func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +66,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// decode hmac
-	hmacBytes, err := util.Base32DecodeString(hmacStr)
+	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
 		x.Error(w, "bad data", http.StatusNotFound)
@@ -178,7 +179,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		// generate hmac
 		macBytes := x.Hmac.Generate([]byte(upwRefIDStr))
 		// base32 encode hmac
-		macStr := util.Base32EncodeToString(macBytes)
+		macStr := encoder.Base32EncodeToString(macBytes)
 
 		// construct url
 		scheme := "http"
@@ -227,7 +228,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 		_ = user
 		x.Mailer.SendAsync("", []string{user.Email},
 			subject, messagePlain, messageHtml,
-			util.MailHeader{
+			mail.MailHeader{
 				"X-PM-Message-Stream": "outbound",
 			},
 		)
@@ -264,7 +265,7 @@ func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// decode hmac
-	hmacBytes, err := util.Base32DecodeString(hmacStr)
+	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
 		x.Error(w, "bad data", http.StatusBadRequest)

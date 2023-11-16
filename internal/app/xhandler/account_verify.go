@@ -12,8 +12,9 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/icbt/internal/util/htmx"
+	"github.com/dropwhile/icbt/internal/encoder"
+	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/mail"
 )
 
 func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +40,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	// generate hmac
 	macBytes := x.Hmac.Generate([]byte(uvRefIDStr))
 	// base32 encode hmac
-	macStr := util.Base32EncodeToString(macBytes)
+	macStr := encoder.Base32EncodeToString(macBytes)
 
 	verificationUrl, err := url.JoinPath(x.BaseURL, fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
 	if err != nil {
@@ -83,7 +84,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	_ = user
 	x.Mailer.SendAsync("", []string{user.Email},
 		subject, messagePlain, messageHtml,
-		util.MailHeader{
+		mail.MailHeader{
 			"X-PM-Message-Stream": "outbound",
 		},
 	)
@@ -115,7 +116,7 @@ func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// decode hmac
-	hmacBytes, err := util.Base32DecodeString(hmacStr)
+	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Info().Err(err).Msg("error decoding hmac data")
 		x.Error(w, "bad data", http.StatusBadRequest)

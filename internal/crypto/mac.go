@@ -1,4 +1,4 @@
-package util
+package crypto
 
 import (
 	"crypto/hmac"
@@ -7,7 +7,7 @@ import (
 )
 
 // keyed MAC using blake3
-// similar to HMAC, but simpler and faster (while offering similar security)
+// similar to HMAC(SHA256), but simpler and faster (while offering similar security)
 type MAC struct {
 	key []byte
 }

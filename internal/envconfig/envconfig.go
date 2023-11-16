@@ -1,4 +1,4 @@
-package util
+package envconfig
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-type Config struct {
+type EnvConfig struct {
 	LogFormat    string            `env:"LOG_FORMAT" envDefault:"json"`
 	LogLevel     zerolog.Level     `env:"LOG_LEVEL" envDefault:"info"`
 	Production   bool              `env:"PRODUCTION" envDefault:"true"`
@@ -38,8 +38,8 @@ type Config struct {
 	HMACKeyBytes []byte
 }
 
-func ParseConfig() (*Config, error) {
-	config := &Config{}
+func Parse() (*EnvConfig, error) {
+	config := &EnvConfig{}
 
 	//----------------//
 	// parse env vars //

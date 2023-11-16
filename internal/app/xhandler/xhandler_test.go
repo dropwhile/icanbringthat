@@ -24,8 +24,10 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -67,19 +69,19 @@ func setCookie(r *http.Request, cookie string) {
 }
 
 type TestMailer struct {
-	Sent []*util.Mail
+	Sent []*mail.Mail
 }
 
-func (tm *TestMailer) SendRaw(mail *util.Mail) error {
+func (tm *TestMailer) SendRaw(mail *mail.Mail) error {
 	tm.Sent = append(tm.Sent, mail)
 	return nil
 }
 
-func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders util.MailHeader) error {
+func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders mail.MailHeader) error {
 	if from == "" {
 		from = "user@example.com"
 	}
-	mail := &util.Mail{
+	mail := &mail.Mail{
 		Sender:       from,
 		To:           to,
 		ExtraHeaders: extraHeaders,
@@ -90,7 +92,7 @@ func (tm *TestMailer) Send(from string, to []string, subject, bodyPlain, bodyHtm
 	return tm.SendRaw(mail)
 }
 
-func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders util.MailHeader) {
+func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtml string, extraHeaders mail.MailHeader) {
 	tm.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 }
 
@@ -120,8 +122,8 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		Db:      mock,
 		Tpl:     resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr: session.NewTestSessionManager(),
-		Mailer:  &TestMailer{make([]*util.Mail, 0)},
-		Hmac:    util.NewMAC([]byte("test-hmac-key")),
+		Mailer:  &TestMailer{make([]*mail.Mail, 0)},
+		Hmac:    crypto.NewMAC([]byte("test-hmac-key")),
 		BaseURL: "http://example.com",
 	}
 	mux := chi.NewMux()
@@ -196,6 +198,6 @@ func FormData(values url.Values) *strings.Reader {
 func TestMain(m *testing.M) {
 	// call flag.Parse() here if TestMain uses flags
 	flag.Parse()
-	log.Logger = util.NewTestLogger(os.Stderr)
+	log.Logger = logger.NewTestLogger(os.Stderr)
 	os.Exit(m.Run())
 }

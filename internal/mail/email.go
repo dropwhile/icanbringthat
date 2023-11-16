@@ -1,4 +1,4 @@
-package util
+package mail
 
 import (
 	"fmt"
@@ -100,13 +100,13 @@ func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtm
 	}()
 }
 
-func NewMailer(host string, port int, hostname, user, pass string, defaultFrom string) *Mailer {
-	auth := smtp.PlainAuth("", user, pass, hostname)
+func NewMailer(conf *Config) *Mailer {
+	auth := smtp.PlainAuth("", conf.User, conf.Pass, conf.Hostname)
 	return &Mailer{
-		hostname:    hostname,
-		hostPort:    strings.Join([]string{host, strconv.Itoa(port)}, ":"),
-		user:        user,
+		hostname:    conf.Hostname,
+		hostPort:    strings.Join([]string{conf.Host, strconv.Itoa(conf.Port)}, ":"),
+		user:        conf.User,
 		auth:        auth,
-		defaultFrom: defaultFrom,
+		defaultFrom: conf.DefaultFrom,
 	}
 }

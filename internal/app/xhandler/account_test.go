@@ -16,7 +16,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/crypto"
 )
 
 func TestHandler_Account_Update(t *testing.T) {
@@ -24,7 +24,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
-	pwhash, _ := util.HashPW([]byte("00x00"))
+	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	user := &model.User{
 		ID:           1,
 		RefID:        refID,
@@ -470,7 +470,7 @@ func TestHandler_Account_Create(t *testing.T) {
 			"confirm_password": {"00x00"},
 		}
 
-		pwhash, _ := util.HashPW([]byte("00x00"))
+		pwhash, _ := crypto.HashPW([]byte("00x00"))
 		rows := pgxmock.NewRows(
 			[]string{
 				"id", "ref_id", "email", "pwhash", "created", "last_modified",
@@ -623,7 +623,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 
-		pwhash, _ := util.HashPW([]byte("00x00"))
+		pwhash, _ := crypto.HashPW([]byte("00x00"))
 		user := &model.User{
 			ID:           1,
 			RefID:        refid.Must(model.NewUserRefID()),

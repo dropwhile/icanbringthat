@@ -16,7 +16,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/crypto"
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
@@ -24,7 +24,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
-	pwhash, _ := util.HashPW([]byte("00x00"))
+	pwhash, _ := crypto.HashPW([]byte("00x00"))
 
 	t.Run("bad password", func(t *testing.T) {
 		t.Parallel()
@@ -130,7 +130,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
-	pwhash, _ := util.HashPW([]byte("00x00"))
+	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	rows := pgxmock.NewRows(
 		[]string{"id", "ref_id", "email", "name", "pwhash", "pwauth", "created", "last_modified"}).
 		AddRow(1, refID, "user@example.com", "user", pwhash, true, ts, ts)

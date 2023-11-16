@@ -9,7 +9,7 @@ import (
 	"github.com/dropwhile/refid/reftag"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/crypto"
 )
 
 type (
@@ -39,7 +39,7 @@ type User struct {
 }
 
 func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
-	pwHash, err := util.HashPW([]byte(rawPass))
+	pwHash, err := crypto.HashPW([]byte(rawPass))
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}
@@ -49,7 +49,7 @@ func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
 func CheckPass(ctx context.Context,
 	pwHash []byte, rawPass []byte,
 ) (bool, error) {
-	ok, err := util.CheckPWHash(pwHash, rawPass)
+	ok, err := crypto.CheckPWHash(pwHash, rawPass)
 	if err != nil {
 		return false, fmt.Errorf("error when comparing pass")
 	}
@@ -60,7 +60,7 @@ func NewUser(ctx context.Context, db PgxHandle,
 	email, name string, rawPass []byte,
 ) (*User, error) {
 	refID := refid.Must(NewUserRefID())
-	pwHash, err := util.HashPW([]byte(rawPass))
+	pwHash, err := crypto.HashPW([]byte(rawPass))
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}

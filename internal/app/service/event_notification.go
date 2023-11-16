@@ -10,11 +10,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util"
+	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/resources"
 )
 
-func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap resources.TemplateMap, siteBaseUrl string) error {
+func NotifyUsersPendingEvents(db model.PgxHandle, mailer mail.MailSender, tplMap resources.TemplateMap, siteBaseUrl string) error {
 	ctx := context.Background()
 	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, db)
 	if err != nil {
@@ -130,7 +130,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer util.MailSender, tplMap
 		subj := vars["Subject"].(string)
 		err = mailer.Send("", []string{user.Email},
 			subj, messagePlain, messageHtml,
-			util.MailHeader{
+			mail.MailHeader{
 				"X-PM-Message-Stream": "broadcast",
 			},
 		)

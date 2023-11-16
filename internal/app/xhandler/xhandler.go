@@ -11,8 +11,9 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -21,8 +22,8 @@ type XHandler struct {
 	Redis   *redis.Client
 	Tpl     resources.TemplateMap
 	SessMgr *session.SessionMgr
-	Mailer  util.MailSender
-	Hmac    *util.MAC
+	Mailer  mail.MailSender
+	Hmac    *crypto.MAC
 	BaseURL string
 	IsProd  bool
 }

@@ -1,4 +1,4 @@
-package api
+package app
 
 import (
 	"strings"
@@ -14,24 +14,25 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/xhandler"
+	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
 
-type API struct {
+type App struct {
 	*chi.Mux
 	handler *xhandler.XHandler
 	closers []func()
 }
 
-func (api *API) Close() {
+func (api *App) Close() {
 	for _, f := range api.closers {
 		f()
 	}
 }
 
-func (api *API) OnClose(f func()) {
+func (api *App) OnClose(f func()) {
 	api.closers = append(api.closers, f)
 }
 
@@ -39,25 +40,21 @@ func New(
 	db *pgxpool.Pool,
 	rdb *redis.Client,
 	tpl resources.TemplateMap,
-	mailer *util.Mailer,
-	hmacKey []byte,
-	csrfKey []byte,
-	isProd bool,
-	baseURL string,
-	webhookCredentials map[string]string,
-) *API {
+	mailer *mail.Mailer,
+	conf *Config,
+) *App {
 	zh := &xhandler.XHandler{
 		Db:      model.SetupFromDbPool(db),
 		Redis:   rdb,
 		Tpl:     tpl,
-		SessMgr: session.NewRedisSessionManager(rdb, isProd),
+		SessMgr: session.NewRedisSessionManager(rdb, conf.Production),
 		Mailer:  mailer,
-		Hmac:    util.NewMAC(hmacKey),
-		BaseURL: strings.TrimSuffix(baseURL, "/"),
-		IsProd:  isProd,
+		Hmac:    crypto.NewMAC(conf.HMACKeyBytes),
+		BaseURL: strings.TrimSuffix(conf.BaseURL, "/"),
+		IsProd:  conf.Production,
 	}
 
-	api := &API{Mux: chi.NewRouter(), handler: zh}
+	api := &App{Mux: chi.NewRouter(), handler: zh}
 	api.OnClose(zh.SessMgr.Close)
 
 	// Router/Middleware //
@@ -78,9 +75,9 @@ func New(
 	r.Group(func(r chi.Router) {
 		r.Use(zh.SessMgr.LoadAndSave)
 		r.Use(csrf.Protect(
-			csrfKey,
+			conf.CSRFKeyBytes,
 			// false in development only!
-			csrf.Secure(isProd),
+			csrf.Secure(conf.Production),
 			// setup path so csrf works _between_ pages (eg. htmx calls)
 			csrf.Path("/"),
 			// Must be in CORS Allowed and Exposed Headers
@@ -161,7 +158,7 @@ func New(
 			r.Get("/create-account", zh.ShowCreateAccount)
 			r.Post("/create-account", zh.CreateAccount)
 			// local only debug stuff
-			if !isProd {
+			if !conf.Production {
 				r.Route("/debug", func(r chi.Router) {
 				})
 			}
@@ -170,7 +167,7 @@ func New(
 
 	// webhooks
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.BasicAuth("simple", webhookCredentials))
+		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Use(middleware.NoCache)
 		r.Post("/webhooks/pm", zh.PostmarkCallback)
 	})

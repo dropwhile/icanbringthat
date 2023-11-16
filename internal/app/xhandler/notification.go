@@ -12,7 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/util/htmx"
+	"github.com/dropwhile/icbt/internal/htmx"
 	"github.com/dropwhile/icbt/resources"
 )
 
