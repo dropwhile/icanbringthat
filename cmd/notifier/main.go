@@ -96,15 +96,10 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				switch sig {
-				case syscall.SIGTERM | syscall.SIGINT:
-					log.Info().
-						Msgf("Got %s.", sig.String())
-					log.Info().Msg("Program will terminate now.")
-					return
-				default:
-					log.Info().Stringer("signal", sig).Msg("Ignoring signal")
-				}
+				log.Info().
+					Msgf("Got %s.", sig.String())
+				log.Info().Msg("Program will terminate now.")
+				return
 			case <-timer.C:
 				err := service.NotifyUsersPendingEvents(
 					dbpool, mailer, templates, config.BaseURL,
