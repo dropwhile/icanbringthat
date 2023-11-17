@@ -97,12 +97,9 @@ func main() {
 			select {
 			case sig := <-signals:
 				switch sig {
-				case syscall.SIGTERM:
-					log.Info().Msg("Got kill signal.")
-					log.Info().Msg("Program will terminate now.")
-					return
-				case syscall.SIGINT:
-					log.Info().Msg("Got CTRL+C signal.")
+				case syscall.SIGTERM | syscall.SIGINT:
+					log.Info().
+						Msgf("Got %s.", sig.String())
 					log.Info().Msg("Program will terminate now.")
 					return
 				default:
