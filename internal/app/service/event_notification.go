@@ -127,9 +127,9 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer mail.MailSender, tplMap
 			Str("html", messageHtml).
 			Msg("email content")
 
-		subj := vars["Subject"].(string)
 		err = mailer.Send("", []string{user.Email},
-			subj, messagePlain, messageHtml,
+			vars["Subject"].(string),
+			messagePlain, messageHtml,
 			mail.MailHeader{
 				"X-PM-Message-Stream": "broadcast",
 			},
@@ -141,7 +141,6 @@ func NotifyUsersPendingEvents(db model.PgxHandle, mailer mail.MailSender, tplMap
 		if err != nil {
 			return fmt.Errorf("error updating database: %w", err)
 		}
-
 	}
 	return nil
 }
