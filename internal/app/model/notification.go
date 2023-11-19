@@ -35,10 +35,7 @@ func NewNotification(ctx context.Context, db PgxHandle,
 	userID int, message string,
 ) (*Notification, error) {
 	refID := refid.Must(NewNotificationRefID())
-	return CreateNotification(
-		ctx, db,
-		refID, userID, message,
-	)
+	return CreateNotification(ctx, db, refID, userID, message)
 }
 
 func CreateNotification(ctx context.Context, db PgxHandle,

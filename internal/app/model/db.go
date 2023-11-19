@@ -56,10 +56,12 @@ func Query[T any](ctx context.Context, db PgxHandle, query string, args ...inter
 
 func QueryOneTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	var t *T
-	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
-		tt, err := QueryOne[T](ctx, tx, query, args...)
-		t = tt
-		return err
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
+		t, errIn = QueryOne[T](ctx, tx, query, args...)
+		if errIn != nil {
+			log.Info().Err(errIn).Msg("inner db tx error")
+		}
+		return errIn
 	})
 	if err != nil {
 		log.Info().Err(err).Msg("db tx error")
@@ -69,10 +71,12 @@ func QueryOneTx[T any](ctx context.Context, db PgxHandle, query string, args ...
 
 func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
 	var t []*T
-	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
-		tt, err := Query[T](ctx, tx, query, args...)
-		t = tt
-		return err
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
+		t, errIn = Query[T](ctx, tx, query, args...)
+		if errIn != nil {
+			log.Info().Err(errIn).Msg("inner db tx error")
+		}
+		return errIn
 	})
 	if err != nil {
 		log.Info().Err(err).Msg("db tx error")
@@ -94,8 +98,12 @@ func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interf
 }
 
 func ExecTx[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
-	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
-		return Exec[T](ctx, tx, query, args...)
+	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
+		errIn = Exec[T](ctx, tx, query, args...)
+		if errIn != nil {
+			log.Info().Err(errIn).Msg("inner db tx error")
+		}
+		return errIn
 	})
 	if err != nil {
 		log.Info().Err(err).Msg("db tx error")

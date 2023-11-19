@@ -69,7 +69,7 @@ clean:
 setup:
 
 .PHONY: setup-check
-setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
+setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck ${GOBIN}/nilaway
 
 ${GOBIN}/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -82,6 +82,9 @@ ${GOBIN}/govulncheck:
 
 ${GOBIN}/stringer:
 	go install golang.org/x/tools/cmd/stringer@latest
+
+${GOBIN}/nilaway:
+	go install go.uber.org/nilaway/cmd/nilaway@latest
 
 .PHONY: generate
 generate: setup
@@ -129,6 +132,12 @@ check: setup setup-check
 	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 	@echo "... govulncheck ..."
 	@${GOBIN}/govulncheck ./...
+
+.PHONY: nilcheck
+nilcheck: setup setup-check
+	@echo ">> Running nilcheck (will have some false positives)..."
+	@echo "... nilaway ..."
+	@${GOBIN}/nilaway -test=false ./...
 
 .PHONY: update-go-deps
 update-go-deps:

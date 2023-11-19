@@ -39,21 +39,13 @@ type User struct {
 }
 
 func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
-	pwHash, err := crypto.HashPW([]byte(rawPass))
-	if err != nil {
-		return nil, fmt.Errorf("error hashing pw: %w", err)
-	}
-	return pwHash, nil
+	return crypto.HashPW([]byte(rawPass))
 }
 
 func CheckPass(ctx context.Context,
 	pwHash []byte, rawPass []byte,
 ) (bool, error) {
-	ok, err := crypto.CheckPWHash(pwHash, rawPass)
-	if err != nil {
-		return false, fmt.Errorf("error when comparing pass")
-	}
-	return ok, nil
+	return crypto.CheckPWHash(pwHash, rawPass)
 }
 
 func NewUser(ctx context.Context, db PgxHandle,
@@ -64,11 +56,7 @@ func NewUser(ctx context.Context, db PgxHandle,
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)
 	}
-	user, err := CreateUser(ctx, db, refID, email, name, pwHash)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return CreateUser(ctx, db, refID, email, name, pwHash)
 }
 
 func CreateUser(ctx context.Context, db PgxHandle,
@@ -90,11 +78,7 @@ func CreateUser(ctx context.Context, db PgxHandle,
 		"pwAuth":   true,
 		"settings": NewUserPropertyMap(),
 	}
-	res, err := QueryOneTx[User](ctx, db, q, args)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return QueryOneTx[User](ctx, db, q, args)
 }
 
 func UpdateUser(ctx context.Context, db PgxHandle,

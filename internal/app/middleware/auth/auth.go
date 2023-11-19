@@ -17,7 +17,7 @@ type mwContextKey string
 
 func UserFromContext(ctx context.Context) (*model.User, error) {
 	v, ok := ContextGet[*model.User](ctx, "user")
-	if !ok {
+	if !ok || v == nil {
 		return nil, fmt.Errorf("bad context value for user")
 	}
 	return v, nil
