@@ -146,8 +146,8 @@ func main() {
 	}()
 
 	// listen
-	log.Info().Msg("starting up...")
 	log.Info().Msgf("server version: %s", ServerVersion)
+	log.Info().Msg("starting up...")
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
 			// add quic headers to https/tls server
