@@ -238,15 +238,6 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedResponse, err := protocol.ParseCredentialRequestResponse(r)
-	if err != nil {
-		log.Info().Err(err).Msg("error finishing webauthn login")
-		x.Json(w, http.StatusForbidden,
-			MapSA{"error": "Passkey login failed"},
-		)
-		return
-	}
-
 	var userID int
 	// needs to be inline here (as opposed to a defined function elsewhere)
 	// so we can capture the discovered userID value
@@ -269,7 +260,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		authNUser := service.WebAuthnUserFrom(x.Db, user)
 		return authNUser, nil
 	}
-	_, err = authnInstance.ValidateDiscoverableLogin(handler, sessionData, parsedResponse)
+	_, err = authnInstance.FinishDiscoverableLogin(handler, sessionData, r)
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn login")
 		x.Json(w, http.StatusForbidden, MapSA{"error": "Passkey login failed"})

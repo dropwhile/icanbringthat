@@ -10,7 +10,7 @@ require (
 	github.com/dropwhile/refid v1.0.6
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.2
-	github.com/go-webauthn/webauthn v0.8.6
+	github.com/go-webauthn/webauthn v0.9.1
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.5.0
