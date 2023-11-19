@@ -1,0 +1,10 @@
+(*github.com/dropwhile/icbt/internal/app/xhandler.TestMailer).Send
+(*github.com/dropwhile/refid.ID).SetTime
+(*github.com/quic-go/quic-go/http3.Server).SetQuicHeaders
+(*github.com/redis/go-redis/v9.baseClient).Close
+(*github.com/zeebo/blake3.Hasher).Write([]byte)
+(github.com/pashagolub/pgxmock/v3.PgxConnIface).Close
+(io.Closer).Close
+(io/fs.File).Close
+fmt.Fprint
+fmt.Fprintln

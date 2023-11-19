@@ -69,7 +69,8 @@ clean:
 setup:
 
 .PHONY: setup-check
-setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck ${GOBIN}/nilaway
+setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck ${GOBIN}/golangci-lint ${GOBIN}/nilaway
+setup-check: ${GOBIN}/ineffassign ${GOBIN}/errcheck ${GOBIN}/nilaway
 
 ${GOBIN}/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -80,8 +81,14 @@ ${GOBIN}/gosec:
 ${GOBIN}/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
+${GOBIN}/errcheck:
+	go install github.com/kisielk/errcheck@latest
+
 ${GOBIN}/stringer:
 	go install golang.org/x/tools/cmd/stringer@latest
+
+${GOBIN}/ineffassign:
+	go install github.com/gordonklaus/ineffassign@latest
 
 ${GOBIN}/nilaway:
 	go install go.uber.org/nilaway/cmd/nilaway@latest
@@ -126,10 +133,14 @@ check: setup setup-check
 	@echo ">> Running checks and validators..."
 	@echo "... staticcheck ..."
 	@${GOBIN}/staticcheck ./...
+	@echo "... errcheck ..."
+	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... gosec ..."
 	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
+	@echo "... ineffassign ..."
+	@${GOBIN}/ineffassign ./...
 	@echo "... govulncheck ..."
 	@${GOBIN}/govulncheck ./...
 
