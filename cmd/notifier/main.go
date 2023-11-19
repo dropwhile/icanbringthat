@@ -89,6 +89,7 @@ func main() {
 
 	var wg sync.WaitGroup
 	log.Info().Msg("starting up...")
+	log.Info().Msgf("server version: %s", ServerVersion)
 
 	wg.Add(1)
 	go func() {
