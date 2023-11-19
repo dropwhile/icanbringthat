@@ -34,6 +34,7 @@ func main() {
 	config, err := envconfig.Parse()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse config")
+		return
 	}
 
 	if config.LogFormat == "plain" {
@@ -50,6 +51,7 @@ func main() {
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse templates")
+		return
 	}
 
 	if config.StaticDir == "embed" {
@@ -68,12 +70,14 @@ func main() {
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
+		return
 	}
 	defer dbpool.Close()
 
 	redisOpt, err := redis.ParseURL(config.RedisDSN)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to redis")
+		return
 	}
 
 	rdb := redis.NewClient(redisOpt)
@@ -164,6 +168,7 @@ func main() {
 				log.Info().Msgf("listening(https/quic): %s", config.Listen)
 				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
 					log.Fatal().Err(err).Msg("HTTP/3 server error")
+					return
 				}
 			}()
 		}
@@ -172,12 +177,14 @@ func main() {
 			log.Info().Msgf("listening(https/tls):  %s", config.Listen)
 			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				log.Fatal().Err(err).Msg("HTTP server error")
+				return
 			}
 		}()
 	} else {
 		log.Info().Msgf("listening(http): %s", config.Listen)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Err(err).Msg("HTTP server error")
+			return
 		}
 	}
 	<-idleConnsClosed

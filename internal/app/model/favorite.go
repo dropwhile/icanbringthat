@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -57,6 +58,9 @@ func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle,
 func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
 	user *User,
 ) (int, error) {
+	if user == nil {
+		return 0, errors.New("nil user supplied")
+	}
 	q := `SELECT count(*) FROM favorite_ WHERE user_id = $1`
 	return Get[int](ctx, db, q, user.ID)
 }

@@ -27,7 +27,9 @@ func StructToMap(s interface{}) map[string]interface{} {
 
 	for i := 0; i < v.NumField(); i++ {
 		if v.Field(i).CanInterface() {
-			values[v.Type().Field(i).Name] = v.Field(i).Interface()
+			name := v.Type().Field(i).Name
+			val := v.Field(i).Interface()
+			values[name] = val
 		}
 	}
 

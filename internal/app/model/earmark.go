@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/dropwhile/refid"
@@ -134,6 +135,9 @@ func GetEarmarksByUserPaginated(ctx context.Context, db PgxHandle,
 func GetEarmarkCountByUser(ctx context.Context, db PgxHandle,
 	user *User,
 ) (int, error) {
+	if user == nil {
+		return 0, errors.New("nil user supplied")
+	}
 	q := `SELECT count(*) FROM earmark_ WHERE user_id = $1`
 	return Get[int](ctx, db, q, user.ID)
 }

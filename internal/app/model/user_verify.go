@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dropwhile/refid"
@@ -32,6 +33,9 @@ const UserVerifyExpiry = 30 * time.Minute
 func NewUserVerify(ctx context.Context, db PgxHandle,
 	user *User,
 ) (*UserVerify, error) {
+	if user == nil {
+		return nil, fmt.Errorf("nil user supplied")
+	}
 	refID := refid.Must(NewUserVerifyRefID())
 	return CreateUserVerify(ctx, db, refID, user.ID)
 }

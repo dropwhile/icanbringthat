@@ -81,7 +81,7 @@ func (hxx *Hxx) Trigger() string {
 }
 
 func Hx(r *http.Request) *Hxx {
-	if r.Header.Get("hx-request") != "true" {
+	if r == nil || r.Header.Get("hx-request") != "true" {
 		return &Hxx{}
 	}
 	return &Hxx{r.Header}

@@ -30,6 +30,7 @@ func main() {
 	config, err := envconfig.Parse()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse config")
+		return
 	}
 
 	if config.LogFormat == "plain" {
@@ -46,6 +47,7 @@ func main() {
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse templates")
+		return
 	}
 
 	if config.StaticDir == "embed" {
@@ -64,6 +66,7 @@ func main() {
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
+		return
 	}
 	defer dbpool.Close()
 
