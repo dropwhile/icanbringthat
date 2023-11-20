@@ -50,10 +50,22 @@ Available targets:
   clean               clean up
   all                 build binaries and man pages
   check               run checks and validators
-  test                run tests
   cover               run tests with cover output
-  bench               run benchmarks
+  generate            run go:generate
   build               build all binaries
+  test                run tests
+  bench               run benchmarks
+  nilcheck            run nilcheck; noisy/false positives, so not enabled by default
+  update-go-deps      updates go.mod and go.sum files
+  migrate             runs db migrations
+  cloc                counts lines of code
+  dev-db-create       creates a docker postgres for development
+  dev-db-start        starts a previously created docker postgres for development
+  dev-db-stop         stops a previously created docker postgres for development
+  dev-db-purge        deletes/destroys a previously created docker postgres for development
+  docker-build        build a deployable docker image
+  run                 run local server
+  devrun              run local server with modd, monitoring/restarting with changes
 endef
 export HELP_OUTPUT
 
