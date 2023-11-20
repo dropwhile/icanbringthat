@@ -65,12 +65,8 @@ help:
 clean:
 	@rm -rf "${BUILDDIR}"
 
-.PHONY: setup
-setup:
-
-.PHONY: setup-check
-setup-check: ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck ${GOBIN}/golangci-lint ${GOBIN}/nilaway
-setup-check: ${GOBIN}/ineffassign ${GOBIN}/errcheck ${GOBIN}/nilaway
+${GOBIN}/stringer:
+	go install golang.org/x/tools/cmd/stringer@latest
 
 ${GOBIN}/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -84,22 +80,32 @@ ${GOBIN}/govulncheck:
 ${GOBIN}/errcheck:
 	go install github.com/kisielk/errcheck@latest
 
-${GOBIN}/stringer:
-	go install golang.org/x/tools/cmd/stringer@latest
-
 ${GOBIN}/ineffassign:
 	go install github.com/gordonklaus/ineffassign@latest
 
 ${GOBIN}/nilaway:
 	go install go.uber.org/nilaway/cmd/nilaway@latest
 
+BUILD_TOOLS := ${GOBIN}/stringer
+CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
+CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
+
+.PHONY: setup
+setup:
+
+.PHONY: setup-build
+setup-build: setup ${BUILD_TOOLS}
+
+.PHONY: setup-check
+setup-check: setup ${CHECK_TOOLS}
+
 .PHONY: generate
-generate: setup
+generate: setup-build
 	@echo ">> Generating..."
 	@go generate ./...
 
 .PHONY: build
-build: setup
+build: setup-build
 	@echo ">> Building..."
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@(for x in ${CC_BUILD_TARGETS}; do \
