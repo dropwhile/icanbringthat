@@ -40,6 +40,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
+		Archived:     false,
 		StartTime:    ts,
 		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
@@ -47,7 +48,7 @@ func TestHandler_Event_Create(t *testing.T) {
 	}
 
 	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description",
+		"id", "ref_id", "user_id", "name", "description", "archived",
 		"start_time", "start_time_tz", "created", "last_modified",
 	}
 
@@ -57,7 +58,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -239,7 +240,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -387,6 +388,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
+		Archived:      false,
 		ItemSortOrder: []int{},
 		StartTime:     ts,
 		StartTimeTz:   model.Must(model.ParseTimeZone("Etc/UTC")),
@@ -395,7 +397,7 @@ func TestHandler_Event_Update(t *testing.T) {
 	}
 
 	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description",
+		"id", "ref_id", "user_id", "name", "description", "archived",
 		"start_time", "start_time_tz", "created", "last_modified",
 	}
 
@@ -405,7 +407,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -537,7 +539,50 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"name":        {event.Name},
+			"description": {event.Description},
+			"when":        {event.StartTime.Format("2006-01-02T15:04")},
+			"timezone":    {event.StartTimeTz.String()},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEvent(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event archived should fail", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				true, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -580,7 +625,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -639,7 +684,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -698,7 +743,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -758,7 +803,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -798,7 +843,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -838,7 +883,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -878,7 +923,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -938,7 +983,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -994,6 +1039,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
+		Archived:      false,
 		ItemSortOrder: []int{1, 2, 3},
 		StartTime:     ts,
 		StartTimeTz:   model.Must(model.ParseTimeZone("Etc/UTC")),
@@ -1002,8 +1048,8 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	}
 
 	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description", "item_sort_order",
-		"start_time", "start_time_tz", "created", "last_modified",
+		"id", "ref_id", "user_id", "name", "description", "archived",
+		"item_sort_order", "start_time", "start_time_tz", "created", "last_modified",
 	}
 
 	t.Run("update", func(t *testing.T) {
@@ -1012,7 +1058,8 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.ItemSortOrder, event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1130,7 +1177,49 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.ItemSortOrder, event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+
+		data := url.Values{
+			"sortOrder": {"1", "3", "2"},
+		}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateEventItemSorting(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update archived event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				true, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1170,7 +1259,8 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.ItemSortOrder, event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1210,7 +1300,8 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.ItemSortOrder, event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1250,7 +1341,8 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.ItemSortOrder, event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.ItemSortOrder, event.StartTime,
+				event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1305,6 +1397,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
+		Archived:     false,
 		StartTime:    ts,
 		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
@@ -1312,7 +1405,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 	}
 
 	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description",
+		"id", "ref_id", "user_id", "name", "description", "archived",
 		"start_time", "start_time_tz", "created", "last_modified",
 	}
 
@@ -1322,7 +1415,50 @@ func TestHandler_Event_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.RefID).
+			WillReturnRows(eventRows)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("^DELETE FROM event_ ").
+			WithArgs(event.ID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.DeleteEvent(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusOK)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete event archived should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		eventRows := pgxmock.NewRows(eventColumns).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				true, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()
@@ -1421,7 +1557,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		eventRows := pgxmock.NewRows(eventColumns).
 			AddRow(
 				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 
 		ctx := context.TODO()

@@ -438,6 +438,15 @@ func (x *XHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		x.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -528,6 +537,15 @@ func (x *XHandler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
