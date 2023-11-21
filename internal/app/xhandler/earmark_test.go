@@ -39,6 +39,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
+		Archived:     false,
 		StartTime:    ts,
 		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
@@ -64,12 +65,12 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 	eventRows := pgxmock.NewRows(
 		[]string{
-			"id", "ref_id", "user_id", "name", "description",
+			"id", "ref_id", "user_id", "name", "description", "archived",
 			"start_time", "start_time_tz", "created", "last_modified",
 		}).
 		AddRow(
 			event.ID, event.RefID, event.UserID, event.Name, event.Description,
-			event.StartTime, event.StartTimeTz, ts, ts,
+			event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 		)
 	eventItemRows := pgxmock.NewRows(
 		[]string{
@@ -338,12 +339,12 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(
 			[]string{
-				"id", "ref_id", "user_id", "name", "description",
+				"id", "ref_id", "user_id", "name", "description", "archived",
 				"start_time", "start_time_tz", "created", "last_modified",
 			}).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		eventItemRows := pgxmock.NewRows(
 			[]string{
@@ -402,12 +403,12 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		eventRows := pgxmock.NewRows(
 			[]string{
-				"id", "ref_id", "user_id", "name", "description",
+				"id", "ref_id", "user_id", "name", "description", "archived",
 				"start_time", "start_time_tz", "created", "last_modified",
 			}).
 			AddRow(
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -443,7 +444,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.NewEarmarkRefID())
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
@@ -455,47 +455,49 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	event := &model.Event{
-		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
-		UserID:       user.ID,
-		Name:         "event",
-		Description:  "description",
-		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
-		Created:      ts,
-		LastModified: ts,
-	}
-	earmark := &model.Earmark{
-		ID:           1,
-		RefID:        refID,
-		EventItemID:  1,
-		UserID:       user.ID,
-		Note:         "nothing",
-		Created:      ts,
-		LastModified: ts,
-	}
-
-	eventRows := pgxmock.NewRows(
-		[]string{
-			"id", "ref_id", "user_id", "name", "description",
-			"start_time", "start_time_tz", "created", "last_modified",
-		}).
-		AddRow(
-			event.ID, event.RefID, event.UserID, event.Name, event.Description,
-			event.StartTime, event.StartTimeTz, ts, ts,
-		)
-	earmarkRows := pgxmock.NewRows(
-		[]string{
-			"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-		}).
-		AddRow(
-			earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-			earmark.Note, ts, ts,
-		)
 
 	t.Run("delete earmark", func(t *testing.T) {
 		t.Parallel()
+
+		event := &model.Event{
+			ID:           1,
+			RefID:        refid.Must(model.NewEventRefID()),
+			UserID:       user.ID,
+			Name:         "event",
+			Description:  "description",
+			Archived:     false,
+			StartTime:    ts,
+			StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+			Created:      ts,
+			LastModified: ts,
+		}
+		earmark := &model.Earmark{
+			ID:           1,
+			RefID:        refid.Must(model.NewEarmarkRefID()),
+			EventItemID:  1,
+			UserID:       user.ID,
+			Note:         "nothing",
+			Created:      ts,
+			LastModified: ts,
+		}
+
+		eventRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "user_id", "name", "description", "archived",
+				"start_time", "start_time_tz", "created", "last_modified",
+			}).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+			)
+		earmarkRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+			}).
+			AddRow(
+				earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+				earmark.Note, ts, ts,
+			)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -528,6 +530,78 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark event archived", func(t *testing.T) {
+		t.Parallel()
+
+		earmark := &model.Earmark{
+			ID:           1,
+			RefID:        refid.Must(model.NewEarmarkRefID()),
+			EventItemID:  1,
+			UserID:       user.ID,
+			Note:         "nothing",
+			Created:      ts,
+			LastModified: ts,
+		}
+		event := &model.Event{
+			ID:           1,
+			RefID:        refid.Must(model.NewEventRefID()),
+			UserID:       user.ID,
+			Name:         "event",
+			Description:  "description",
+			Archived:     true,
+			StartTime:    ts,
+			StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+			Created:      ts,
+			LastModified: ts,
+		}
+		eventRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "user_id", "name", "description", "archived",
+				"start_time", "start_time_tz", "created", "last_modified",
+			}).
+			AddRow(
+				event.ID, event.RefID, event.UserID, event.Name, event.Description,
+				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+			)
+		earmarkRows := pgxmock.NewRows(
+			[]string{
+				"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+			}).
+			AddRow(
+				earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+				earmark.Note, ts, ts,
+			)
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("mRefID", earmark.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(earmarkRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_").
+			WithArgs(earmark.ID).
+			WillReturnRows(eventRows)
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -593,7 +667,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID = refid.Must(model.NewEarmarkRefID())
+		refID := refid.Must(model.NewEarmarkRefID())
 		rctx.URLParams.Add("mRefID", refID.String())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
@@ -644,6 +718,19 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	t.Run("delete earmark wrong user", func(t *testing.T) {
 		t.Parallel()
 
+		earmark := &model.Earmark{
+			ID:           1,
+			RefID:        refid.Must(model.NewEarmarkRefID()),
+			EventItemID:  1,
+			UserID:       user.ID,
+			Note:         "nothing",
+			Created:      ts,
+			LastModified: ts,
+		}
+		rows := pgxmock.NewRows(
+			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
+			AddRow(earmark.ID, earmark.RefID, earmark.EventItemID, user.ID+1, earmark.Note, ts, ts)
+
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -651,10 +738,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("mRefID", earmark.RefID.String())
-
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-			AddRow(earmark.ID, earmark.RefID, earmark.EventItemID, user.ID+1, earmark.Note, ts, ts)
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
