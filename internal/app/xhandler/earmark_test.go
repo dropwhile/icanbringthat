@@ -19,214 +19,6 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-func TestHandler_Earmark_Delete(t *testing.T) {
-	t.Parallel()
-
-	refID := refid.Must(model.NewEarmarkRefID())
-	ts := tstTs
-	user := &model.User{
-		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
-	}
-	earmark := &model.Earmark{
-		ID:           1,
-		RefID:        refID,
-		EventItemID:  1,
-		UserID:       user.ID,
-		Note:         "nothing",
-		Created:      ts,
-		LastModified: ts,
-	}
-
-	t.Run("delete earmark", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", earmark.RefID.String())
-
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-			AddRow(earmark.ID, earmark.RefID, earmark.EventItemID, user.ID, earmark.Note, ts, ts)
-
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefID).
-			WillReturnRows(rows)
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM earmark_").
-			WithArgs(earmark.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusOK)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark missing refid", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark bad refid", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", "hodor")
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark not found", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID = refid.Must(model.NewEarmarkRefID())
-		rctx.URLParams.Add("mRefID", refID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(refID).
-			WillReturnError(pgx.ErrNoRows)
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark refid wrong type", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", refid.Must(model.NewEventRefID()).String())
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark wrong user", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", earmark.RefID.String())
-
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
-			AddRow(earmark.ID, earmark.RefID, earmark.EventItemID, user.ID+1, earmark.Note, ts, ts)
-
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefID).
-			WillReturnRows(rows)
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusForbidden)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-}
-
 func TestHandler_Earmark_Create(t *testing.T) {
 	t.Parallel()
 
@@ -639,6 +431,242 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+}
+
+func TestHandler_Earmark_Delete(t *testing.T) {
+	t.Parallel()
+
+	refID := refid.Must(model.NewEarmarkRefID())
+	ts := tstTs
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      ts,
+		LastModified: ts,
+	}
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		StartTime:    ts,
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		Created:      ts,
+		LastModified: ts,
+	}
+	earmark := &model.Earmark{
+		ID:           1,
+		RefID:        refID,
+		EventItemID:  1,
+		UserID:       user.ID,
+		Note:         "nothing",
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	eventRows := pgxmock.NewRows(
+		[]string{
+			"id", "ref_id", "user_id", "name", "description",
+			"start_time", "start_time_tz", "created", "last_modified",
+		}).
+		AddRow(
+			event.ID, event.RefID, event.UserID, event.Name, event.Description,
+			event.StartTime, event.StartTimeTz, ts, ts,
+		)
+	earmarkRows := pgxmock.NewRows(
+		[]string{
+			"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+		}).
+		AddRow(
+			earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+			earmark.Note, ts, ts,
+		)
+
+	t.Run("delete earmark", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("mRefID", earmark.RefID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(earmarkRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_").
+			WithArgs(earmark.ID).
+			WillReturnRows(eventRows)
+		mock.ExpectBegin()
+		mock.ExpectExec("^DELETE FROM earmark_").
+			WithArgs(earmark.ID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusOK)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark missing refid", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark bad refid", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("mRefID", "hodor")
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark not found", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		refID = refid.Must(model.NewEarmarkRefID())
+		rctx.URLParams.Add("mRefID", refID.String())
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(refID).
+			WillReturnError(pgx.ErrNoRows)
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark refid wrong type", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("mRefID", refid.Must(model.NewEventRefID()).String())
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusNotFound)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete earmark wrong user", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("mRefID", earmark.RefID.String())
+
+		rows := pgxmock.NewRows(
+			[]string{"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified"}).
+			AddRow(earmark.ID, earmark.RefID, earmark.EventItemID, user.ID+1, earmark.Note, ts, ts)
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(rows)
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		rr := httptest.NewRecorder()
+		handler.DeleteEarmark(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
