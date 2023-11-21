@@ -188,6 +188,15 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form")
 		x.Error(w, err.Error(), http.StatusBadRequest)
@@ -249,6 +258,15 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
@@ -362,6 +380,15 @@ func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
 		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
+		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 

@@ -254,6 +254,15 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
 	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -345,6 +354,27 @@ func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.ID != earmark.UserID {
+		x.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	event, err := model.GetEventByEarmark(ctx, x.Db, earmark)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for event")
+		x.Error(w, "not found", http.StatusNotFound)
+		return
+	case err != nil:
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	if event.Archived {
+		log.Info().
+			Int("user.ID", user.ID).
+			Int("event.UserID", event.UserID).
+			Msg("event is archived")
 		x.Error(w, "access denied", http.StatusForbidden)
 		return
 	}

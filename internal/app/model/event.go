@@ -130,6 +130,20 @@ func GetEventByRefID(ctx context.Context, db PgxHandle,
 	return QueryOne[Event](ctx, db, q, refID)
 }
 
+func GetEventByEarmark(ctx context.Context, db PgxHandle,
+	earmark *Earmark,
+) (*Event, error) {
+	q := `
+		SELECT ev.*
+		FROM event_ ev 
+		JOIN event_item_ ei ON
+			ev.id = ei.event_id
+		JOIN earmark_ em ON
+			em.event_item_id = ei.id
+		WHERE em.id = $1`
+	return QueryOne[Event](ctx, db, q, earmark.ID)
+}
+
 func GetEventsByUserPaginated(
 	ctx context.Context, db PgxHandle,
 	userID int, limit, offset int,
