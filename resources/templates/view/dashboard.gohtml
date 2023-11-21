@@ -3,12 +3,8 @@
   <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
     <!-- Card -->
     <a href="/events">
-      <div
-        class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-      >
-        <div
-          class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500"
-        >
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
           <svg
             class="w-5 h-5"
             aria-hidden="true"
@@ -33,7 +29,7 @@
           <p
             class="text-lg font-semibold text-gray-700 dark:text-gray-200"
           >
-            {{ .eventCount }}
+            {{ .eventCount.Current }}
           </p>
         </div>
       </div>
@@ -70,7 +66,7 @@
           <p
             class="text-lg font-semibold text-gray-700 dark:text-gray-200"
           >
-            {{ .earmarkCount }}
+            {{ .earmarkCount.Current }}
           </p>
         </div>
       </div>
@@ -106,7 +102,7 @@
           <p
             class="text-lg font-semibold text-gray-700 dark:text-gray-200"
           >
-            {{ .favoriteCount }}
+            {{ .favoriteCount.Current }}
           </p>
         </div>
       </div>

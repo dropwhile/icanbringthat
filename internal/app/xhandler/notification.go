@@ -60,11 +60,13 @@ func (x *XHandler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		"user":           user,
 		"notifs":         notifs,
 		"notifCount":     notifCount,
-		"pgInput":        resources.NewPgInput(notifCount, 10, pageNum, "/notifications"),
 		"title":          "Notifications",
 		"nav":            "notifications",
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
+		"pgInput": resources.NewPgInput(
+			notifCount, 10, pageNum, "/notifications", nil,
+		),
 	}
 
 	// render user profile view

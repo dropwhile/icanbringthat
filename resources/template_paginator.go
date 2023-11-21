@@ -2,6 +2,8 @@ package resources
 
 import (
 	"fmt"
+	"html/template"
+	"net/url"
 )
 
 type Page struct {
@@ -80,14 +82,19 @@ type PaginationResult struct {
 
 type PgInput struct {
 	// baseurl to work around some funky issues with browser pushstate
-	BaseUrl string
-	Max     int
-	Step    int
-	Current int
+	BaseUrl    string
+	Max        int
+	Step       int
+	Current    int
+	ExtraQargs template.URL
 }
 
-func NewPgInput(max, step, current int, baseUrl string) *PgInput {
-	return &PgInput{baseUrl, max, step, current}
+func NewPgInput(max, step, current int, baseUrl string, extraQargs url.Values) *PgInput {
+	extra := ""
+	if len(extraQargs) > 0 {
+		extra = "&" + extraQargs.Encode()
+	}
+	return &PgInput{baseUrl, max, step, current, template.URL(extra)}
 }
 
 func CalculateMaxPageNum(size, step int) int {

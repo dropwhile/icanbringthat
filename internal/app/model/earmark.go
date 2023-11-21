@@ -132,12 +132,48 @@ func GetEarmarksByUserPaginated(ctx context.Context, db PgxHandle,
 	return Query[Earmark](ctx, db, q, args)
 }
 
+func GetEarmarksByUserPaginatedFiltered(
+	ctx context.Context, db PgxHandle,
+	userID int, limit, offset int, archived bool,
+) ([]*Earmark, error) {
+	q := `
+		SELECT em.*
+		FROM earmark_ em
+		JOIN event_item_ ON 
+			event_item_.id = em.event_item_id
+		JOIN event_ ON 
+			event_.id = event_item_.event_id
+		WHERE
+			em.user_id = @userID AND
+			event_.archived = @archived
+		ORDER BY
+			created DESC,
+			id DESC
+		LIMIT @limit OFFSET @offset`
+	args := pgx.NamedArgs{
+		"userID":   userID,
+		"limit":    limit,
+		"offset":   offset,
+		"archived": archived,
+	}
+	return Query[Earmark](ctx, db, q, args)
+}
+
 func GetEarmarkCountByUser(ctx context.Context, db PgxHandle,
 	user *User,
-) (int, error) {
+) (*BifurcatedRowCounts, error) {
 	if user == nil {
-		return 0, errors.New("nil user supplied")
+		return nil, errors.New("nil user supplied")
 	}
-	q := `SELECT count(*) FROM earmark_ WHERE user_id = $1`
-	return Get[int](ctx, db, q, user.ID)
+	q := `
+		SELECT
+			count(*) filter (WHERE event_.archived IS NOT TRUE) as current,
+			count(*) filter (WHERE event_.archived IS TRUE) as archived
+		FROM earmark_ em
+		JOIN event_item_ ON 
+			event_item_.id = em.event_item_id
+		JOIN event_ ON 
+			event_.id = event_item_.event_id
+		WHERE em.user_id = $1`
+	return QueryOne[BifurcatedRowCounts](ctx, db, q, user.ID)
 }

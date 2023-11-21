@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -42,8 +43,18 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	extraQargs := url.Values{}
+	maxCount := favoriteCount.Current
+	archiveParam := r.FormValue("archive")
+	archived := false
+	if archiveParam == "1" {
+		maxCount = favoriteCount.Archived
+		extraQargs.Add("archive", "1")
+		archived = true
+	}
+
 	pageNum := 1
-	maxPageNum := resources.CalculateMaxPageNum(favoriteCount, 10)
+	maxPageNum := resources.CalculateMaxPageNum(maxCount, 10)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
@@ -54,7 +65,9 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetFavoriteEventsByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
+	events, err := model.GetFavoriteEventsByUserPaginatedFiltered(
+		ctx, x.Db, user.ID, 10, offset*10, archived,
+	)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for favorite events")
@@ -91,12 +104,16 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		"favoriteCount":   favoriteCount,
 		"eventItemCounts": eventItemCountsMap,
 		"notifCount":      notifCount,
-		"pgInput":         resources.NewPgInput(favoriteCount, 10, pageNum, "/favorites"),
 		"title":           "My Favorites",
 		"nav":             "favorites",
 		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
+		"pgInput": resources.NewPgInput(
+			maxCount, 10,
+			pageNum, "/favorites",
+			extraQargs,
+		),
 	}
 
 	// render user profile view

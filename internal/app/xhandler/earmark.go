@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -42,18 +43,31 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	extraQargs := url.Values{}
+	maxCount := earmarkCount.Current
+	archiveParam := r.FormValue("archive")
+	archived := false
+	if archiveParam == "1" {
+		maxCount = earmarkCount.Archived
+		extraQargs.Add("archive", "1")
+		archived = true
+	}
+
 	pageNum := 1
+	maxPageNum := resources.CalculateMaxPageNum(maxCount, 10)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
 			if v > 1 {
-				pageNum = min(((earmarkCount / 10) + 1), int(v))
+				pageNum = min(maxPageNum, int(v))
 			}
 		}
 	}
 
 	offset := pageNum - 1
-	earmarks, err := model.GetEarmarksByUserPaginated(ctx, x.Db, user.ID, 10, offset)
+	earmarks, err := model.GetEarmarksByUserPaginatedFiltered(
+		ctx, x.Db, user.ID, 10, offset, archived,
+	)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("no earmarks")
@@ -104,12 +118,16 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		"events":         eventsMap,
 		"eventItems":     eventItemsMap,
 		"notifCount":     notifCount,
-		"pgInput":        resources.NewPgInput(earmarkCount, 10, pageNum, "/earmarks"),
 		"title":          "My Earmarks",
 		"nav":            "earmarks",
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
+		"pgInput": resources.NewPgInput(
+			maxCount, 10,
+			pageNum, "/earmarks",
+			extraQargs,
+		),
 	}
 
 	// render user profile view

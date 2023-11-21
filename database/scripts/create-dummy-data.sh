@@ -101,7 +101,6 @@ VALUES
 END
 
 EVENT_ITEM_ID=$(psql -qtAXc 'SELECT event_item_.id from event_item_ left join earmark_ on event_item_.id = earmark_.event_item_id where earmark_.event_item_id is NULL limit 1;')
-
 echo ">> creating an earmark for event_item id=${EVENT_ITEM_ID} as user id=${NEXT_USER2_ID}"
 psql -qtAX <<END
 INSERT INTO earmark_ 

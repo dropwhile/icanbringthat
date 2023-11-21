@@ -2,45 +2,78 @@
   <!-- Cards -->
   <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
     <!-- Card -->
-    <div
-      class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-    >
-      <div
-        class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500"
-      >
-        <svg
-          class="w-5 h-5"
-          aria-hidden="true"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-          ></path>
-        </svg>
+    <a href="/earmarks">
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            >
+            <path
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+          </svg>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            My Earmarks
+          </p>
+          {{block "earmark_count" .}}
+          <p id="earmarkCount"
+            hx-get="/earmarks"
+            hx-boost="false"
+            hx-trigger="count-updated from:body"
+            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+            >
+            {{ .earmarkCount.Current }}
+          </p>
+          {{end}}
+        </div>
       </div>
-      <div>
-        <p
-          class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-        >
-          My Earmarks
-        </p>
-        {{block "earmark_count" .}}
-        <p id="earmarkCount"
-          hx-get="/earmarks"
-          hx-boost="false"
-          hx-trigger="count-updated from:body"
-          class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-        >
-          {{ .earmarkCount }}
-        </p>
-        {{end}}
+    </a>
+    <!-- Card -->
+    <a href="/earmarks?archive=1">
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            >
+            <path
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+          </svg>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            Archived Earmarks
+          </p>
+          {{block "earmark_count_archived" .}}
+          <p
+            id="earmarkCountArchived"
+            hx-get="/earmarks"
+            hx-boost="false"
+            hx-trigger="count-updated from:body"
+            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+            > 
+            {{ .earmarkCount.Archived }}
+          </p>
+          {{end}}
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   <!-- New Table -->
@@ -89,6 +122,7 @@
               {{$event.StartTime | formatTS}}
             </td>
             <td class="px-3 text-sm text-center" style="width:9rem">
+              {{if not $event.Archived}}
               <div class="tooltip" hx-boost="false">
                 <button
                   class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
@@ -117,6 +151,7 @@
                   </svg>
                 </button>
               </div>
+              {{end}}
              </td>
           </tr>
         {{end}}

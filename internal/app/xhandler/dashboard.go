@@ -30,18 +30,7 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user.ID, 10, 0)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Msg("no rows for events")
-		events = []*model.Event{}
-	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-
-	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user.ID)
+	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
@@ -57,6 +46,17 @@ func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 
 	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
 	if err != nil {
+		log.Info().Err(err).Msg("db error")
+		x.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+
+	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user.ID, 10, 0)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Msg("no rows for events")
+		events = []*model.Event{}
+	case err != nil:
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return

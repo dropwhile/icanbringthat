@@ -2,46 +2,79 @@
   <!-- Cards -->
   <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
     <!-- Card -->
-    <div
-      class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-    >
-      <div
-        class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500"
-      >
-        <svg
-          class="w-5 h-5"
-          aria-hidden="true"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-          ></path>
-        </svg>
+    <a href="/events">
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            >
+            <path
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+          </svg>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            My Events
+          </p>
+          {{block "event_count" .}}
+          <p
+            id="eventCount"
+            hx-get="/events"
+            hx-boost="false"
+            hx-trigger="count-updated from:body"
+            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+            > 
+            {{ .eventCount.Current }}
+          </p>
+          {{end}}
+        </div>
       </div>
-      <div>
-        <p
-          class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-          >
-          My Events
-        </p>
-        {{block "event_count" .}}
-        <p
-          id="eventCount"
-          hx-get="/events"
-          hx-boost="false"
-          hx-trigger="count-updated from:body"
-          class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-          > 
-          {{ .eventCount }}
-        </p>
-        {{end}}
+    </a>
+    <!-- Card -->
+    <a href="/events?archive=1">
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            >
+            <path
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+          </svg>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            Archived Events
+          </p>
+          {{block "event_count_archived" .}}
+          <p
+            id="eventCountArchived"
+            hx-get="/events"
+            hx-boost="false"
+            hx-trigger="count-updated from:body"
+            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+            > 
+            {{ .eventCount.Archived }}
+          </p>
+          {{end}}
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   <!-- New Table -->

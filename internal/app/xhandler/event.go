@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 	"time"
@@ -37,15 +38,25 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventCount, err := model.GetEventCountByUser(ctx, x.Db, user.ID)
+	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		log.Info().Err(err).Msg("db error")
 		x.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}
 
+	extraQargs := url.Values{}
+	maxCount := eventCount.Current
+	archiveParam := r.FormValue("archive")
+	archived := false
+	if archiveParam == "1" {
+		maxCount = eventCount.Archived
+		extraQargs.Add("archive", "1")
+		archived = true
+	}
+
 	pageNum := 1
-	maxPageNum := resources.CalculateMaxPageNum(eventCount, 10)
+	maxPageNum := resources.CalculateMaxPageNum(maxCount, 10)
 	pageNumParam := r.FormValue("page")
 	if pageNumParam != "" {
 		if v, err := strconv.ParseInt(pageNumParam, 10, 0); err == nil {
@@ -56,7 +67,8 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetEventsByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
+	events, err := model.GetEventsByUserPaginatedFiltered(
+		ctx, x.Db, user.ID, 10, offset*10, archived)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Debug().Err(err).Msg("no rows for event")
@@ -93,12 +105,16 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		"eventItemCounts": eventItemCountsMap,
 		"eventCount":      eventCount,
 		"notifCount":      notifCount,
-		"pgInput":         resources.NewPgInput(eventCount, 10, pageNum, "/events"),
 		"title":           "My Events",
 		"nav":             "events",
 		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
+		"pgInput": resources.NewPgInput(
+			maxCount, 10,
+			pageNum, "/events",
+			extraQargs,
+		),
 	}
 
 	// render user profile view

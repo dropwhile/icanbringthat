@@ -29,7 +29,8 @@ type Event struct {
 	Name          string
 	Description   string
 	ItemSortOrder []int `db:"item_sort_order"`
-	UserID        int   `db:"user_id"`
+	Archived      bool
+	UserID        int `db:"user_id"`
 	ID            int
 	RefID         EventRefID `db:"ref_id"`
 }
@@ -149,6 +150,28 @@ func GetEventsByUserPaginated(
 	return Query[Event](ctx, db, q, args)
 }
 
+func GetEventsByUserPaginatedFiltered(
+	ctx context.Context, db PgxHandle,
+	userID int, limit, offset int, archived bool,
+) ([]*Event, error) {
+	q := `
+		SELECT * FROM event_
+		WHERE
+			event_.user_id = @userID AND
+			archived = @archived
+		ORDER BY
+			start_time DESC,
+			id DESC
+		LIMIT @limit OFFSET @offset`
+	args := pgx.NamedArgs{
+		"userID":   userID,
+		"limit":    limit,
+		"offset":   offset,
+		"archived": archived,
+	}
+	return Query[Event](ctx, db, q, args)
+}
+
 func GetEventsComingSoonByUserPaginated(
 	ctx context.Context, db PgxHandle,
 	userID int, limit, offset int,
@@ -171,9 +194,14 @@ func GetEventsComingSoonByUserPaginated(
 	return Query[Event](ctx, db, q, args)
 }
 
-func GetEventCountByUser(ctx context.Context, db PgxHandle,
+func GetEventCountsByUser(ctx context.Context, db PgxHandle,
 	userID int,
-) (int, error) {
-	q := `SELECT count(*) FROM event_ WHERE user_id = $1`
-	return Get[int](ctx, db, q, userID)
+) (*BifurcatedRowCounts, error) {
+	q := `
+		SELECT
+			count(*) filter (WHERE archived IS NOT TRUE) as current,
+			count(*) filter (WHERE archived IS TRUE) as archived
+		FROM event_
+		WHERE user_id = $1`
+	return QueryOne[BifurcatedRowCounts](ctx, db, q, userID)
 }
