@@ -98,13 +98,17 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 			return eic.EventID, eic.Count
 		})
 
+	title := "My Favorites"
+	if archived {
+		title += " (Archived)"
+	}
 	tplVars := MapSA{
 		"user":            user,
 		"events":          events,
 		"favoriteCount":   favoriteCount,
 		"eventItemCounts": eventItemCountsMap,
 		"notifCount":      notifCount,
-		"title":           "My Favorites",
+		"title":           title,
 		"nav":             "favorites",
 		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
@@ -118,8 +122,8 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "favCount" {
-		err = x.TemplateExecuteSub(w, "list-favorites.gohtml", "fav_count", tplVars)
+	if htmx.Hx(r).Target() == "favCards" {
+		err = x.TemplateExecuteSub(w, "list-favorites.gohtml", "fav_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
 	}

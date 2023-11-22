@@ -99,13 +99,17 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 			return eic.EventID, eic.Count
 		})
 
+	title := "My Events"
+	if archived {
+		title += " (Archived)"
+	}
 	tplVars := MapSA{
 		"user":            user,
 		"events":          events,
 		"eventItemCounts": eventItemCountsMap,
 		"eventCount":      eventCount,
 		"notifCount":      notifCount,
-		"title":           "My Events",
+		"title":           title,
 		"nav":             "events",
 		"flashes":         x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
@@ -119,8 +123,8 @@ func (x *XHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "eventCount" {
-		err = x.TemplateExecuteSub(w, "list-events.gohtml", "event_count", tplVars)
+	if htmx.Hx(r).Target() == "eventCards" {
+		err = x.TemplateExecuteSub(w, "list-events.gohtml", "event_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-events.gohtml", tplVars)
 	}
@@ -633,7 +637,12 @@ func (x *XHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+		if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", refID)) {
+			x.SessMgr.FlashAppend(ctx, "success", "Event deleted.")
+			w.Header().Add("HX-Redirect", "/events")
+		} else {
+			w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+		}
 	}
 	w.WriteHeader(http.StatusOK)
 }

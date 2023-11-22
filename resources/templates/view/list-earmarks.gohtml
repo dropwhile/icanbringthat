@@ -1,6 +1,14 @@
 {{ define "main" }}
   <!-- Cards -->
-  <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+  {{block "earmark_cards" .}}
+  <div
+    class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
+    id="earmarkCards"
+    hx-get="/earmarks"
+    hx-boost="false"
+    hx-swap="outerHTML"
+    hx-trigger="count-updated from:body"
+    >
     <!-- Card -->
     <a href="/earmarks">
       <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
@@ -24,16 +32,9 @@
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
             My Earmarks
           </p>
-          {{block "earmark_count" .}}
-          <p id="earmarkCount"
-            hx-get="/earmarks"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-            >
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
             {{ .earmarkCount.Current }}
           </p>
-          {{end}}
         </div>
       </div>
     </a>
@@ -60,21 +61,15 @@
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
             Archived Earmarks
           </p>
-          {{block "earmark_count_archived" .}}
-          <p
-            id="earmarkCountArchived"
-            hx-get="/earmarks"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-            > 
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> 
             {{ .earmarkCount.Archived }}
           </p>
-          {{end}}
         </div>
       </div>
     </a>
   </div>
+  {{end}}
+
 
   <!-- New Table -->
   <div class="w-full overflow-hidden rounded-lg shadow-xs">

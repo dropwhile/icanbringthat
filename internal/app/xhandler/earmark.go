@@ -111,6 +111,10 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventItemsMap := util.ToMapIndexedByFunc(eventItems,
 		func(v *model.EventItem) (int, *model.EventItem) { return v.ID, v })
 
+	title := "My Earmarks"
+	if archived {
+		title += " (Archived)"
+	}
 	tplVars := MapSA{
 		"user":           user,
 		"earmarks":       earmarks,
@@ -118,7 +122,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		"events":         eventsMap,
 		"eventItems":     eventItemsMap,
 		"notifCount":     notifCount,
-		"title":          "My Earmarks",
+		"title":          title,
 		"nav":            "earmarks",
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
@@ -132,8 +136,8 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "earmarkCount" {
-		err = x.TemplateExecuteSub(w, "list-earmarks.gohtml", "earmark_count", tplVars)
+	if htmx.Hx(r).Target() == "earmarkCards" {
+		err = x.TemplateExecuteSub(w, "list-earmarks.gohtml", "earmark_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
 	}

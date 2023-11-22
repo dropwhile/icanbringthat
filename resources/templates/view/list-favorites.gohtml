@@ -1,12 +1,19 @@
 {{ define "main" }}
+  {{block "fav_cards" .}}
   <!-- Cards -->
-  <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+  <div
+    class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
+    id="favCards"
+    hx-get="/favorites"
+    hx-boost="false"
+    hx-swap="outerHTML"
+    hx-trigger="count-updated from:body"
+    >
     <!-- Card -->
     <a href="/favorites">
       <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
         <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="2"
@@ -23,16 +30,9 @@
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
             My Favorites
           </p>
-          {{block "fav_count" .}}
-          <p id="favCount"
-            hx-get="/favorites"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-            > 
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> 
             {{ .favoriteCount.Current }}
           </p>
-          {{end}}
         </div>
       </div>
     </a>
@@ -59,13 +59,7 @@
             Archived Favorites
           </p>
           {{block "fav_count_archived" .}}
-          <p
-            id="favCountArchived"
-            hx-get="/favorites"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-            > 
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> 
             {{ .favoriteCount.Archived }}
           </p>
           {{end}}
@@ -73,6 +67,7 @@
       </div>
     </a>
   </div>
+  {{end}}
 
   <!-- New Table -->
   <div class="w-full overflow-hidden rounded-lg shadow-xs">

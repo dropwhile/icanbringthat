@@ -1,6 +1,14 @@
 {{ define "main" }}
   <!-- Cards -->
-  <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+  {{block "event_cards" .}}
+  <div
+    class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
+    id="eventCards"
+    hx-get="/events"
+    hx-boost="false"
+    hx-swap="outerHTML"
+    hx-trigger="count-updated from:body"
+    >
     <!-- Card -->
     <a href="/events">
       <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
@@ -24,17 +32,9 @@
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
             My Events
           </p>
-          {{block "event_count" .}}
-          <p
-            id="eventCount"
-            hx-get="/events"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-            > 
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> 
             {{ .eventCount.Current }}
           </p>
-          {{end}}
         </div>
       </div>
     </a>
@@ -61,21 +61,16 @@
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
             Archived Events
           </p>
-          {{block "event_count_archived" .}}
           <p
-            id="eventCountArchived"
-            hx-get="/events"
-            hx-boost="false"
-            hx-trigger="count-updated from:body"
             class="text-lg font-semibold text-gray-700 dark:text-gray-200"
             > 
             {{ .eventCount.Archived }}
           </p>
-          {{end}}
         </div>
       </div>
     </a>
   </div>
+  {{end}}
 
   <!-- New Table -->
   <div class="w-full overflow-hidden rounded-lg shadow-xs">
@@ -156,7 +151,6 @@
                 >
                   <span class="tooltiptext text-center">Delete Event</span>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
