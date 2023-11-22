@@ -61,6 +61,7 @@ services:
       PRODUCTION: "true"
       DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       HMAC_KEY: "ignore"
+      JOBS: "all"
       SMTP_HOSTNAME: "smtp.gmail.com"
       SMTP_PORT: "587"
       SMTP_USER: ${SMTP_USER}

@@ -41,6 +41,8 @@ ENV SMTP_USER=""
 ENV SMTP_PASS=""
 # db data
 ENV DB_DSN=""
+# worker data
+ENV JOBS="all"
 # migrations
 ENV GOOSE_DRIVER=postgres
 ENV GOOSE_DBSTRING=""

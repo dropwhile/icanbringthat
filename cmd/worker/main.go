@@ -4,10 +4,12 @@ import (
 	_ "database/sql"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 
+	"github.com/caarlos0/env/v10"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -21,6 +23,18 @@ import (
 
 // ServerVersion holds the server version string
 var ServerVersion = "no-version"
+
+//go:generate stringer -type=Job
+type Job int
+
+const (
+	jNotifier Job = iota + 1
+	jArchiver
+)
+
+type WorkerConfig struct {
+	Jobs []string `env:"JOBS" envDefault:"all"`
+}
 
 func main() {
 	//--------------//
@@ -70,6 +84,30 @@ func main() {
 	}
 	defer dbpool.Close()
 
+	//----------------//
+	// configure jobs //
+	//----------------//
+	workerConfig := &WorkerConfig{}
+	if err := env.Parse(workerConfig); err != nil {
+		log.Fatal().Err(err).Msg("failed to parse config")
+		return
+	}
+	jobs := make(map[Job]bool)
+	for _, v := range workerConfig.Jobs {
+		switch strings.ToLower(v) {
+		case "notifier":
+			jobs[jNotifier] = true
+		case "archiver":
+			jobs[jArchiver] = true
+		case "all":
+			jobs[jNotifier] = true
+			jobs[jArchiver] = true
+		default:
+			log.Fatal().Msgf("unknown job: %s", v)
+			return
+		}
+	}
+
 	// configure mailer
 	mailConfig := &mail.Config{
 		Hostname:    config.SMTPHostname,
@@ -105,13 +143,17 @@ func main() {
 				log.Info().Msg("Program will terminate now.")
 				return
 			case <-timer.C:
-				if err := service.NotifyUsersPendingEvents(
-					dbpool, mailer, templates, config.BaseURL,
-				); err != nil {
-					log.Error().Err(err).Msg("notifier error!!")
+				if ok := jobs[jNotifier]; ok {
+					if err := service.NotifyUsersPendingEvents(
+						dbpool, mailer, templates, config.BaseURL,
+					); err != nil {
+						log.Error().Err(err).Msg("notifier error!!")
+					}
 				}
-				if err := service.ArchiveOldEvents(dbpool); err != nil {
-					log.Error().Err(err).Msg("archiver error!!")
+				if ok := jobs[jArchiver]; ok {
+					if err := service.ArchiveOldEvents(dbpool); err != nil {
+						log.Error().Err(err).Msg("archiver error!!")
+					}
 				}
 				timer.Reset(timerInterval)
 			}
