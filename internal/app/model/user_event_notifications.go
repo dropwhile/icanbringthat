@@ -78,6 +78,7 @@ func GetUserEventNotificationNeeded(
 			FROM event_
 			WHERE
 				date_trunc('hour', start_time) AT TIME ZONE 'UTC' > timezone('utc', CURRENT_TIMESTAMP)
+				AND archived IS FALSE
 
 			UNION
 
@@ -96,6 +97,7 @@ func GetUserEventNotificationNeeded(
 				ON ei.event_id = ev.id
 			WHERE
 				date_trunc('hour', ev.start_time) AT TIME ZONE 'UTC' > timezone('utc', CURRENT_TIMESTAMP)
+				AND archived IS FALSE
 		)
 		SELECT
 			subt.user_id,

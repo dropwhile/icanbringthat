@@ -225,8 +225,9 @@ func ArchiveOldEvents(ctx context.Context, db PgxHandle) error {
 		UPDATE event_
 		SET archived = TRUE
 		WHERE
-			start_time < CURRENT_TIMESTAMP - INTERVER '1 day' AND
-			archived IS FALSE
+			date_trunc('hour', start_time) AT TIME ZONE 'UTC' <
+				timezone('utc', CURRENT_TIMESTAMP) - INTERVAL '1 day'
+			AND archived IS FALSE
 	`
 	return ExecTx[Event](ctx, db, q)
 }
