@@ -219,3 +219,14 @@ func GetEventCountsByUser(ctx context.Context, db PgxHandle,
 		WHERE user_id = $1`
 	return QueryOne[BifurcatedRowCounts](ctx, db, q, userID)
 }
+
+func ArchiveOldEvents(ctx context.Context, db PgxHandle) error {
+	q := `
+		UPDATE event_
+		SET archived = TRUE
+		WHERE
+			start_time < CURRENT_TIMESTAMP - INTERVER '1 day' AND
+			archived IS FALSE
+	`
+	return ExecTx[Event](ctx, db, q)
+}

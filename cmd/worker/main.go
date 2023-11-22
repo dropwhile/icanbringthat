@@ -105,11 +105,13 @@ func main() {
 				log.Info().Msg("Program will terminate now.")
 				return
 			case <-timer.C:
-				err := service.NotifyUsersPendingEvents(
+				if err := service.NotifyUsersPendingEvents(
 					dbpool, mailer, templates, config.BaseURL,
-				)
-				if err != nil {
-					log.Error().Err(err).Msg("error!!")
+				); err != nil {
+					log.Error().Err(err).Msg("notifier error!!")
+				}
+				if err := service.ArchiveOldEvents(dbpool); err != nil {
+					log.Error().Err(err).Msg("archiver error!!")
 				}
 				timer.Reset(timerInterval)
 			}

@@ -48,7 +48,7 @@ services:
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
 
-  notifier:
+  worker:
     image: "icbt:latest"
     restart: always
     depends_on:
@@ -68,5 +68,5 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
-    command: /app/notifier
+    command: /app/worker
 
