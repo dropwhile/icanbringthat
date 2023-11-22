@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -133,7 +133,7 @@ func (x *XHandler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -208,7 +208,7 @@ func (x *XHandler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

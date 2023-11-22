@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
-func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session
@@ -97,7 +97,7 @@ func (x *XHandler) SendVerificationEmail(w http.ResponseWriter, r *http.Request)
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *XHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

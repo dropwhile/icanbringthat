@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 )
 
-func (x *XHandler) ShowIndex(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session

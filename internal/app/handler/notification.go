@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-func (x *XHandler) ListNotifications(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -82,7 +82,7 @@ func (x *XHandler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -132,7 +132,7 @@ func (x *XHandler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *XHandler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 )
 
-func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -37,7 +37,7 @@ func (x *XHandler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -108,7 +108,7 @@ func (x *XHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
-func (x *XHandler) Logout(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if err := x.SessMgr.Clear(r.Context()); err != nil {

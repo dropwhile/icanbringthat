@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-type XHandler struct {
+type Handler struct {
 	Db          model.PgxHandle
 	Redis       *redis.Client
 	TemplateMap resources.TemplateMap
@@ -28,11 +28,11 @@ type XHandler struct {
 	IsProd      bool
 }
 
-func (x *XHandler) Template(name string) (resources.TemplateIf, error) {
+func (x *Handler) Template(name string) (resources.TemplateIf, error) {
 	return x.TemplateMap.Get(name)
 }
 
-func (x *XHandler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
+func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
 		log.Info().
@@ -53,7 +53,7 @@ func (x *XHandler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 	return nil
 }
 
-func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
+func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
 	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
 		log.Info().
@@ -76,11 +76,11 @@ func (x *XHandler) TemplateExecuteSub(w io.Writer, name, subname string, vars Ma
 	return nil
 }
 
-func (x *XHandler) NotFound(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
 	x.Error(w, "Not Found", 404)
 }
 
-func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
+func (x *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	w.Header().Set("content-type", "text/html")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
@@ -97,7 +97,7 @@ func (x *XHandler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	}
 }
 
-func (x *XHandler) Json(w http.ResponseWriter, code int, payload interface{}) {
+func (x *Handler) Json(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
 		log.Info().Err(err).Msg("json encoding error")

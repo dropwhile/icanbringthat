@@ -10,10 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 
+	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/xhandler"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
@@ -22,7 +22,7 @@ import (
 
 type App struct {
 	*chi.Mux
-	handler *xhandler.XHandler
+	handler *handler.Handler
 	closers []func()
 }
 
@@ -43,7 +43,7 @@ func New(
 	mailer *mail.Mailer,
 	conf *Config,
 ) *App {
-	zh := &xhandler.XHandler{
+	zh := &handler.Handler{
 		Db:          model.SetupFromDbPool(db),
 		Redis:       rdb,
 		TemplateMap: templateMap,

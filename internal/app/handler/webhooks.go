@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ type PostMarkRecord struct {
 	SuppressSending   bool
 }
 
-func (x *XHandler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	isJson := false

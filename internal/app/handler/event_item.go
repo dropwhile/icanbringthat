@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ import (
 	"github.com/dropwhile/icbt/internal/htmx"
 )
 
-func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -73,7 +73,7 @@ func (x *XHandler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -150,7 +150,7 @@ func (x *XHandler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -220,7 +220,7 @@ func (x *XHandler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
-func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -341,7 +341,7 @@ func (x *XHandler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *XHandler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

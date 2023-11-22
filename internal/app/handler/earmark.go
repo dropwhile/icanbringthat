@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -147,7 +147,7 @@ func (x *XHandler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -215,7 +215,7 @@ func (x *XHandler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -329,7 +329,7 @@ func (x *XHandler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *XHandler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

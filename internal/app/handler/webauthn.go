@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"encoding/json"
@@ -46,7 +46,7 @@ func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.W
 	return webauthn.New(wconfig)
 }
 
-func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -115,7 +115,7 @@ func (x *XHandler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Requ
 	x.Json(w, http.StatusOK, options)
 }
 
-func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -164,7 +164,7 @@ func (x *XHandler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Req
 	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
-func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -208,7 +208,7 @@ func (x *XHandler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	x.Json(w, http.StatusOK, options)
 }
 
-func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -281,7 +281,7 @@ func (x *XHandler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
-func (x *XHandler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

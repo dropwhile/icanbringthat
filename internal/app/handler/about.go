@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/dropwhile/icbt/internal/htmx"
 )
 
-func (x *XHandler) ShowAbout(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowAbout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

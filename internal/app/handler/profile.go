@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 )
 
-func (x *XHandler) ShowProfile(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

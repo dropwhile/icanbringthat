@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
-func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -46,7 +46,7 @@ func (x *XHandler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -126,7 +126,7 @@ func (x *XHandler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session
@@ -238,7 +238,7 @@ func (x *XHandler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func (x *XHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session

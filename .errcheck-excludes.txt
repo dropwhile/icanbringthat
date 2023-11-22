@@ -1,4 +1,4 @@
-(*github.com/dropwhile/icbt/internal/app/xhandler.TestMailer).Send
+(*github.com/dropwhile/icbt/internal/app/handler.TestMailer).Send
 (*github.com/dropwhile/refid.ID).SetTime
 (*github.com/quic-go/quic-go/http3.Server).SetQuicHeaders
 (*github.com/redis/go-redis/v9.baseClient).Close

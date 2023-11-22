@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"context"
@@ -96,7 +96,7 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 	tm.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 }
 
-func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *XHandler) {
+func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
 	t.Helper()
 
 	var queryMatcher pgxmock.QueryMatcher = pgxmock.QueryMatcherFunc(func(expectedSQL, actualSQL string) error {
@@ -118,7 +118,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	assert.NilError(t, err)
 	t.Cleanup(func() { mock.Close(ctx) })
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
-	h := &XHandler{
+	h := &Handler{
 		Db:          mock,
 		TemplateMap: resources.TemplateMap{"error-page.gohtml": tpl},
 		SessMgr:     session.NewTestSessionManager(),
@@ -132,7 +132,7 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	return mock, mux, h
 }
 
-func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *XHandler) string {
+func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *Handler) string {
 	t.Helper()
 
 	userID := 1

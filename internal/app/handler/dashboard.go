@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-func (x *XHandler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session

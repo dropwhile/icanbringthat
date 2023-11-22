@@ -1,4 +1,4 @@
-package xhandler
+package handler
 
 import (
 	"errors"
@@ -14,7 +14,7 @@ import (
 	"github.com/dropwhile/icbt/internal/htmx"
 )
 
-func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -43,7 +43,7 @@ func (x *XHandler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -91,7 +91,7 @@ func (x *XHandler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Debug().Err(err).Msg("error parsing form data")
 		x.Error(w, err.Error(), http.StatusBadRequest)
@@ -155,7 +155,7 @@ func (x *XHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
-func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -234,7 +234,7 @@ func (x *XHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -345,7 +345,7 @@ func (x *XHandler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *XHandler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -427,7 +427,7 @@ func (x *XHandler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *XHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
