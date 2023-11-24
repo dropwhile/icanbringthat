@@ -4,7 +4,6 @@ import (
 	_ "database/sql"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -24,12 +23,11 @@ import (
 // ServerVersion holds the server version string
 var ServerVersion = "no-version"
 
-//go:generate stringer -type=Job
-type Job int
+type Job string
 
 const (
-	jNotifier Job = iota + 1
-	jArchiver
+	NotifierJob Job = "notifier"
+	ArchiverJob Job = "archiver"
 )
 
 type WorkerConfig struct {
@@ -92,21 +90,10 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to parse config")
 		return
 	}
-	jobs := make(map[Job]bool)
-	for _, v := range workerConfig.Jobs {
-		switch strings.ToLower(v) {
-		case "notifier":
-			jobs[jNotifier] = true
-		case "archiver":
-			jobs[jArchiver] = true
-		case "all":
-			jobs[jNotifier] = true
-			jobs[jArchiver] = true
-		default:
-			log.Fatal().Msgf("unknown job: %s", v)
-			return
-		}
-	}
+
+	jobList := NewJobList()
+	jobList.AddByName(workerConfig.Jobs...)
+	log.Info().Msgf("configured workers: %s", jobList.String())
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -143,14 +130,14 @@ func main() {
 				log.Info().Msg("Program will terminate now.")
 				return
 			case <-timer.C:
-				if ok := jobs[jNotifier]; ok {
+				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
 						log.Error().Err(err).Msg("notifier error!!")
 					}
 				}
-				if ok := jobs[jArchiver]; ok {
+				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
 						log.Error().Err(err).Msg("archiver error!!")
 					}
