@@ -13,7 +13,7 @@ import (
 
 // env vars that are used to derive EnvConfig values later
 type deriveConfig struct {
-	HMACKey string `env:"HMAC_KEY,required"`
+	HMACKey string `env:"HMAC_KEY,required,unset"`
 	// bind/listen
 	ListenHost string `env:"HOST" envDefault:"127.0.0.1"`
 	ListenPort int    `env:"PORT" envDefault:"8000"`
@@ -28,24 +28,24 @@ type EnvConfig struct {
 	LogFormat string        `env:"LOG_FORMAT" envDefault:"json"`
 	LogLevel  zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
 	// tls/quic
-	TLSCert  string `env:"TLS_CERT"`
-	TLSKey   string `env:"TLS_KEY"`
+	TLSCert  string `env:"TLS_CERT,unset"`
+	TLSKey   string `env:"TLS_KEY,unset"`
 	WithQuic bool   `env:"QUIC" envDefault:"false"`
 	// static files and templates
 	TemplateDir string `env:"TPL_DIR" envDefault:"embed"`
 	StaticDir   string `env:"STATIC_DIR" envDefault:"embed"`
 	// database connectivity
-	DatabaseDSN string `env:"DB_DSN,required"`
-	RedisDSN    string `env:"REDIS_DSN,required"`
+	DatabaseDSN string `env:"DB_DSN,required,unset"`
+	RedisDSN    string `env:"REDIS_DSN,required,unset"`
 	// email settings
 	SMTPHostname string `env:"SMTP_HOSTNAME,required"`
 	SMTPHost     string `env:"SMTP_HOST,expand" envDefault:"$SMTP_HOSTNAME"`
 	SMTPPort     int    `env:"SMTP_PORT,required"`
 	SMTPUser     string `env:"SMTP_USER,required"`
-	SMTPPass     string `env:"SMTP_PASS,required"`
+	SMTPPass     string `env:"SMTP_PASS,required,unset"`
 	MailFrom     string `env:"MAIL_FROM,required"`
 	// webhook settings
-	WebhookCreds map[string]string `env:"WEBHOOK_CREDS"`
+	WebhookCreds map[string]string `env:"WEBHOOK_CREDS,unset"`
 	// values derived from other env vars (deriveConfig)
 	Listen       string
 	CSRFKeyBytes []byte
