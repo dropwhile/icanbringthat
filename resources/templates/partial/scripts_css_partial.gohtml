@@ -32,7 +32,31 @@
           handle: ".sort-handle"
       });
     }
-  })
+  });
+
+  //-- htmx error bubbling -->
+  htmx.on('htmx:afterRequest', function (evt) {
+    const notyf = new Notyf({
+        ripple: false,
+        dismissible: true,
+        duration: 2500,
+        position: {
+          x: 'center',
+          y: 'top',
+        }
+    });
+    console.debug("detail: ", evt.detail);
+    if (evt.detail.failed && evt.detail.xhr) {
+        // Server error with response contents, equivalent to htmx:responseError
+        const xhr = evt.detail.xhr;
+        const msg = xhr.statusText ? xhr.statusText.trim() : xhr.responseText.trim();
+        notyf.error(`Unexpected server error: ${msg}`);
+    } else if (evt.detail.failed) {
+        // Unspecified failure, usually caused by network error
+        notyf.error("Unexpected error, check your connection and try to refresh the page.");
+    }
+  });
+
 
   //-- focus trap for modals -->
   function myFunction(obj) {
