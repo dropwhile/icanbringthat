@@ -1,14 +1,16 @@
 {{ define "main" }}
-  <!-- new event form -->
+  {{if .event.Archived }}
+  <div
+    class="flex items-center justify-center p-2 mb-4 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-orange-100 dark:bg-orange-600 rounded-lg shadow-md focus:outline-none"
+    >
+    <span>This event is archived</span>
+  </div>
+  {{end}}
+  <!-- event specifics -->
   <h4 class="flex justify-between mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     <div>
       <span class="pr-2">Specifics</span>
     </div>
-    {{if .event.Archived }}
-    <div>
-      <span class="pr-2 text-red-700 dark:text-red-400">Event is Archived</span>
-    </div>
-    {{end}}
     <div style="min-width: fit-content;">
         <div class="tooltip">
           <button
