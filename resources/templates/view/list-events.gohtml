@@ -5,7 +5,6 @@
     class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
     id="eventCards"
     hx-get="/events"
-    hx-boost="false"
     hx-swap="outerHTML"
     hx-trigger="count-updated from:body"
     >
@@ -123,7 +122,6 @@
                   <span class="tooltiptext">Copy Link to clipboard</span>
                   <span hidden class="eventlink">/events/{{.RefID}}</span>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"

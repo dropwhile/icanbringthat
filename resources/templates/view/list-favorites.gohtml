@@ -5,7 +5,6 @@
     class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"
     id="favCards"
     hx-get="/favorites"
-    hx-boost="false"
     hx-swap="outerHTML"
     hx-trigger="count-updated from:body"
     >
@@ -41,7 +40,6 @@
       <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
         <div class="p-3 mr-4 text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="2"
@@ -120,7 +118,6 @@
                   <span class="tooltiptext">Copy Link to clipboard</span>
                   <span hidden class="eventlink">/events/{{.RefID}}</span>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
@@ -153,7 +150,6 @@
                   >
                   <span class="tooltiptext">Unfavorite this Event</span>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     class="w-5 h-5">

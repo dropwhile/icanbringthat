@@ -130,7 +130,6 @@
                 >
                 <span class="tooltiptext">Unfavorite this Event</span>
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   class="w-6 h-6"
@@ -152,7 +151,6 @@
                 >
                 <span class="tooltiptext">Favorite this Event</span>
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
@@ -350,7 +348,6 @@
                           <svg
                             x-cloak
                             x-show="swap"
-                            xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                             class="w-5 h-5"
@@ -372,7 +369,6 @@
                       >
                       <span class="tooltiptext text-center">Someone else is bringing that!</span>
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke-width="2"
@@ -454,7 +450,6 @@
                     {{end}}
                       <span class="tooltiptext text-center">I can bring that!</span>
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke-width="1.5"
@@ -587,8 +582,18 @@
                 {{ if and $.owner (not $.event.Archived)}}
                 <div class="tooltip">
                   <span class="tooltiptext text-center" style="top: -60%; right: 160%;">Click and drag to sort rows</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sort-handle align-middle">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-4 h-4 sort-handle align-middle"
+                    >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                      />
                   </svg>
                 </div>
                 {{ end }}
