@@ -92,7 +92,11 @@ func main() {
 	}
 
 	jobList := NewJobList()
-	jobList.AddByName(workerConfig.Jobs...)
+	err = jobList.AddByName(workerConfig.Jobs...)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error adding worker jobs")
+		return
+	}
 	log.Info().Msgf("configured workers: %s", jobList.String())
 
 	// configure mailer
