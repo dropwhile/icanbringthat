@@ -46,12 +46,14 @@
         }
     });
     console.debug("detail: ", evt.detail);
-    if (evt.detail.failed && evt.detail.xhr) {
+    if (evt.detail.successful) {
+      // Successful request
+    } else if (evt.detail.failed && evt.detail.xhr) {
         // Server error with response contents, equivalent to htmx:responseError
         const xhr = evt.detail.xhr;
         const msg = xhr.statusText ? xhr.statusText.trim() : xhr.responseText.trim();
         notyf.error(`Unexpected server error: ${msg}`);
-    } else if (evt.detail.failed) {
+    } else {
         // Unspecified failure, usually caused by network error
         notyf.error("Unexpected error, check your connection and try to refresh the page.");
     }
