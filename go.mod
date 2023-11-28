@@ -56,6 +56,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
+	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/mock v0.3.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
