@@ -13,7 +13,7 @@ func (x *Handler) ShowAbout(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (x *Handler) ShowAbout(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "about.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }

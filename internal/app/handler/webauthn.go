@@ -52,14 +52,14 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
@@ -101,14 +101,14 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 	)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
 	val, err := json.Marshal(sessionData)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn error")
 		return
 	}
 	x.SessMgr.Put(ctx, "webauthn-session:register", val)
@@ -121,14 +121,14 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
 		log.Info().Err(err).Msg("webauthn error")
-		x.Error(w, "webauthn error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
@@ -137,7 +137,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 	keyName := r.FormValue("key_name")
 	if keyName == "" {
 		log.Debug().Msg("missing param data")
-		x.Error(w, "Missing param data", http.StatusBadRequest)
+		x.BadFormDataError(w, err, "key_name")
 		return
 	}
 
@@ -145,19 +145,19 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:register").([]byte)
 	if err := json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		log.Info().Err(err).Msg("error decoding json webauthn session")
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	credential, err := authnInstance.FinishRegistration(authNUser, sessionData, r)
 	if err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn registration")
-		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn registration error")
 		return
 	}
 	if err := authNUser.AddCredential(keyName, credential); err != nil {
 		log.Info().Err(err).Msg("error finishing webauthn registration")
-		x.Error(w, "webauthn registration error", http.StatusInternalServerError)
+		x.InternalServerError(w, "webauthn registration error")
 		return
 	}
 
@@ -272,7 +272,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err = x.SessMgr.RenewToken(ctx)
 	if err != nil {
-		x.Error(w, err.Error(), 500)
+		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
@@ -287,14 +287,13 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		log.Debug().Err(err).Msg("bad session data")
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	credentialRefID, err := model.ParseCredentialRefID(chi.URLParam(r, "cRefID"))
 	if err != nil {
-		x.Error(w, "bad credential-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "credential", err)
 		return
 	}
 
@@ -302,36 +301,33 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		log.Info().Err(err).Msg("credential not found")
-		x.Error(w, "credential not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	if credential.UserID != user.ID {
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
 	count, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	if count == 1 && user.WebAuthn {
 		log.Debug().Msg("refusing to remove last passkey when password auth disabled")
-		x.Error(w, "pre-condition failed", http.StatusBadRequest)
+		x.BadRequestError(w, "pre-condition failed")
 		return
 	}
 
 	err = model.DeleteUserCredential(ctx, x.Db, credential.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 

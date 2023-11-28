@@ -59,7 +59,7 @@ func New(
 
 	// Router/Middleware //
 	r := api.Mux
-	r.NotFound(zh.NotFound)
+	r.NotFound(zh.NotFoundHandler)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)

@@ -52,7 +52,7 @@ func ServeSingle(fsys fs.FS, filePath string) http.HandlerFunc {
 			log.Debug().Err(err).
 				Str("filepath", filePath).
 				Msg("cant open file for reading")
-			http.Error(w, "Not Found", 404)
+			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
 		defer f.Close()
@@ -61,7 +61,7 @@ func ServeSingle(fsys fs.FS, filePath string) http.HandlerFunc {
 			log.Debug().Err(err).
 				Str("filepath", filePath).
 				Msg("cant read file")
-			http.Error(w, "Not Found", 404)
+			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
 		w.Header().Set("Vary", "Accept-Encoding")

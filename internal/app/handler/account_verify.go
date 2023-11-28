@@ -23,16 +23,14 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	// attempt to get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		log.Debug().Err(err).Msg("bad session data")
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	// generate a verifier
 	uv, err := model.NewUserVerify(ctx, x.Db, user)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	uvRefIDStr := uv.RefID.String()
@@ -44,7 +42,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 
 	verificationUrl, err := url.JoinPath(x.BaseURL, fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
 	if err != nil {
-		x.Error(w, "processing error", http.StatusInternalServerError)
+		x.InternalServerError(w, "processing error")
 		return
 	}
 
@@ -58,7 +56,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 	messagePlain := buf.String()
@@ -71,7 +69,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 	messageHtml := buf.String()
@@ -103,7 +101,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
@@ -111,41 +109,41 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	refIDStr := chi.URLParam(r, "uvRefID")
 	if hmacStr == "" || refIDStr == "" {
 		log.Debug().Msg("missing url query data")
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	}
 
 	// decode hmac
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
-		log.Info().Err(err).Msg("error decoding hmac data")
-		x.Error(w, "bad data", http.StatusBadRequest)
+		log.Debug().Err(err).Msg("error decoding hmac data")
+		x.BadRequestError(w, "Bad Request")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
-		log.Info().Msg("invalid hmac!")
-		x.Error(w, "bad data", http.StatusNotFound)
+		log.Debug().Msg("invalid hmac!")
+		x.BadRequestError(w, "Bad Request")
 		return
 	}
 
 	// hmac checks out. ok to parse refid now.
 	verifyRefID, err := model.ParseUserVerifyRefID(refIDStr)
 	if err != nil {
-		x.Error(w, "bad verify-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "verify", err)
 		return
 	}
 
 	verifier, err := model.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no verifier match")
-		x.Error(w, "bad data", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	}
 
 	if model.IsExpired(verifier.RefID, model.UserVerifyExpiry) {
 		log.Debug().Err(err).Msg("verifier is expired")
-		x.Error(w, "bad data", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	}
 
@@ -168,8 +166,8 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	if err != nil {
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "error saving verification", http.StatusInternalServerError)
+		log.Debug().Err(err).Msg("error saving verification")
+		x.DBError(w, err)
 		return
 	}
 

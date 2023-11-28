@@ -22,14 +22,13 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -51,8 +50,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("no rows for favorite events")
 		notifs = []*model.Notification{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -77,7 +75,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "list-notifications.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -88,24 +86,23 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifRefID, err := model.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "notification", err)
 		return
 	}
 
 	notif, err := model.GetNotificationByRefID(ctx, x.Db, notifRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -114,14 +111,13 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 			Int("user.ID", user.ID).
 			Int("notif.UserID", notif.UserID).
 			Msg("user id mismatch")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
 	err = model.DeleteNotification(ctx, x.Db, notif.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -138,14 +134,13 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	err = model.DeleteNotificationsByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 

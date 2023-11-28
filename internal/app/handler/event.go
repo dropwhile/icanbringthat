@@ -27,21 +27,19 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -74,8 +72,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("no rows for event")
 		events = []*model.Event{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -88,8 +85,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		log.Info().Err(err).Msg("no rows for event items")
 		eventItemCounts = []*model.EventItemCount{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -129,7 +125,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "list-events.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -140,32 +136,29 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		x.Error(w, "bad event ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event")
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -177,8 +170,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("no rows for event items")
 		eventItems = []*model.EventItem{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -207,8 +199,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		log.Info().Err(err).Msg("no rows for earmarks")
 		earmarks = []*model.Earmark{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -224,7 +215,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// now get the list of usrs ids and fetch the associated users
 	earmarkUsers, err := model.GetUsersByIDs(ctx, x.Db, userIDs)
 	if err != nil {
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	has_favorite := false
@@ -233,8 +224,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	case errors.Is(err, pgx.ErrNoRows):
 		has_favorite = false
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	case err == nil:
 		has_favorite = true
@@ -266,7 +256,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = x.TemplateExecute(w, "show-event.gohtml", tplVars)
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -277,7 +267,7 @@ func (x *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
@@ -296,7 +286,7 @@ func (x *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "create-event-form.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -307,30 +297,28 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		x.Error(w, "bad event ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event")
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	if user.ID != event.UserID {
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
@@ -350,7 +338,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -361,18 +349,18 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	if !user.Verified {
-		x.Error(w, "Account must be verified before event creation is allowed.", http.StatusForbidden)
+		x.ForbiddenError(w,
+			"Account must be verified before event creation is allowed.")
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form data")
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -381,8 +369,7 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	when := r.PostFormValue("when")
 	tz := r.PostFormValue("timezone")
 	if name == "" || description == "" || when == "" || tz == "" {
-		log.Debug().Msg("missing form data")
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -396,15 +383,14 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 	if err != nil {
 		log.Debug().Err(err).Msg("error parsing start time")
-		x.Error(w, "bad form data - when", http.StatusBadRequest)
+		x.BadFormDataError(w, err, "when", "loc")
 		return
 	}
 
 	event, err := model.NewEvent(ctx, x.Db,
 		user.ID, name, description, startTime, &model.TimeZone{Location: loc})
 	if err != nil {
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "error creating event", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
@@ -416,29 +402,28 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		x.Error(w, "bad event ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	if user.ID != event.UserID {
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
@@ -447,12 +432,12 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("event is archived")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -461,15 +446,16 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	when := r.PostFormValue("when")
 	tz := r.PostFormValue("timezone")
 	if name == "" && description == "" && when == "" && tz == "" {
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
 	switch {
 	case when == "" && tz != "":
-		fallthrough
+		x.BadFormDataError(w, err, "when")
+		return
 	case when != "" && tz == "":
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, err, "tz")
 		return
 	case when != "" && tz != "":
 		loc, err := time.LoadLocation(tz)
@@ -481,7 +467,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 		if err != nil {
 			log.Debug().Err(err).Msg("error parsing start time")
-			x.Error(w, "bad form data - when", http.StatusBadRequest)
+			x.BadFormDataError(w, err, "when")
 			return
 		}
 		event.StartTime = startTime
@@ -502,8 +488,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		event.StartTime, event.StartTimeTz,
 	)
 	if err != nil {
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "error updating event", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
@@ -515,24 +500,23 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		x.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -541,7 +525,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
@@ -550,28 +534,25 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("event is archived")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
 	sortOrder, ok := r.Form["sortOrder"]
 	if !ok {
-		log.Debug().Err(err).Msg("missing form data")
-		http.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, err, "sortOrder")
 		return
 	}
 	order := make([]int, 0)
 	// make sure values are ok
 	for _, v := range sortOrder {
 		if i, err := strconv.Atoi(v); err != nil {
-			log.Debug().Err(err).Msg("bad form data")
-			http.Error(w, "bad form data", http.StatusBadRequest)
+			x.BadFormDataError(w, err, "sortOrder")
 			return
 		} else {
 			order = append(order, i)
@@ -585,8 +566,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		event.StartTime, event.StartTimeTz,
 	)
 	if err != nil {
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "error updating event", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -599,24 +579,23 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		x.Error(w, "bad event ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -625,14 +604,13 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("user id mismatch")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
 	err = model.DeleteEvent(ctx, x.Db, event.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 

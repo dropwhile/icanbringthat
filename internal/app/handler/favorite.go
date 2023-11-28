@@ -25,21 +25,19 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -73,8 +71,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("no rows for favorite events")
 		events = []*model.Event{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -87,8 +84,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		log.Info().Err(err).Msg("no rows for event items")
 		eventItemCounts = []*model.EventItemCount{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -128,7 +124,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
 	}
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -139,26 +135,23 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		log.Debug().Err(err).Msg("bad event ref-id")
-		x.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Msg("no rows for event")
-		x.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -168,7 +161,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 			Int("user.ID", user.ID).
 			Int("event.UserID", event.UserID).
 			Msg("user id match")
-		x.Error(w, "access denied", http.StatusForbidden)
+		x.AccessDeniedError(w)
 		return
 	}
 
@@ -176,19 +169,16 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	case err == nil:
-		log.Info().Msg("already exists")
-		x.Error(w, "already favorited", http.StatusBadRequest)
+		x.BadRequestError(w, "already favorited")
 		return
 	}
 
 	_, err = model.CreateFavorite(ctx, x.Db, user.ID, event.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -200,7 +190,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 			"favorite": true,
 		}
 		if err := x.TemplateExecuteSub(w, "show-event.gohtml", "favorite", tplVars); err != nil {
-			x.Error(w, "template error", http.StatusInternalServerError)
+			x.TemplateError(w)
 			return
 		}
 	} else {
@@ -214,43 +204,39 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		http.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
-		http.Error(w, "bad event-ref-id", http.StatusNotFound)
+		x.BadRefIDError(w, "event", err)
 		return
 	}
 
 	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		http.Error(w, "not found", http.StatusNotFound)
+		x.NotFoundError(w)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	favorite, err := model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Msg("favorite not found")
-		x.Error(w, "not favorited", http.StatusBadRequest)
+		x.BadRequestError(w, "not favorited")
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	err = model.DeleteFavorite(ctx, x.Db, favorite.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		http.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 

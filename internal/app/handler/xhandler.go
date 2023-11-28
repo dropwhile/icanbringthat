@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -74,27 +73,6 @@ func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars Map
 		return err
 	}
 	return nil
-}
-
-func (x *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
-	x.Error(w, "Not Found", 404)
-}
-
-func (x *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
-	w.Header().Set("content-type", "text/html")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.WriteHeader(code)
-	err := x.TemplateExecute(w, "error-page.gohtml", MapSA{
-		"ErrorCode":   code,
-		"ErrorStatus": statusMsg,
-		"title":       fmt.Sprintf("%d - %s", code, statusMsg),
-	})
-	if err != nil {
-		// error rendering template, so just return a very basic status page
-		log.Debug().Err(err).Msg("custom error status page render issue")
-		fmt.Fprintln(w, statusMsg)
-		return
-	}
 }
 
 func (x *Handler) Json(w http.ResponseWriter, code int, payload interface{}) {

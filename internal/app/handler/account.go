@@ -37,8 +37,7 @@ func (x *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = x.TemplateExecute(w, "create-account-form.gohtml", tplVars)
 	if err != nil {
-		log.Debug().Err(err).Msg("template error")
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -49,7 +48,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
@@ -59,15 +58,13 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("no rows for event items")
 		credentials = []*model.UserCredential{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -85,16 +82,14 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = x.TemplateExecute(w, "show-settings.gohtml", tplVars)
 	if err != nil {
-		log.Debug().Err(err).Msg("template error")
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
 
 func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form data")
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -103,11 +98,11 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	passwd := r.PostFormValue("password")
 	confirm_passwd := r.PostFormValue("confirm_password")
 	if email == "" || name == "" || passwd == "" {
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, nil)
 		return
 	}
 	if passwd != confirm_passwd {
-		x.Error(w, "password and confirm_password fields do not match", http.StatusBadRequest)
+		x.BadRequestError(w, "password and confirm_password fields do not match")
 		return
 	}
 
@@ -116,14 +111,14 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if auth.IsLoggedIn(ctx) {
 		// got a user, you can't make a user if you are already logged
 		// in!
-		x.Error(w, "already logged in as a user", http.StatusForbidden)
+		x.ForbiddenError(w, "already logged in as a user")
 		return
 	}
 
 	user, err := model.NewUser(ctx, x.Db, email, name, []byte(passwd))
 	if err != nil {
 		log.Error().Err(err).Msg("error adding user")
-		x.Error(w, "error adding user", http.StatusBadRequest)
+		x.BadRequestError(w, "error adding user")
 		return
 	}
 
@@ -141,7 +136,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	err = x.SessMgr.RenewToken(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error renewing session token")
-		x.Error(w, err.Error(), 500)
+		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
@@ -161,13 +156,12 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form data")
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -207,7 +201,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 				pwhash, err := model.HashPass(ctx, []byte(newPasswd))
 				if err != nil {
 					log.Error().Err(err).Msg("error setting user password")
-					x.Error(w, "error updating user", http.StatusInternalServerError)
+					x.InternalServerError(w, "error updating user")
 					return
 				}
 				user.PWHash = pwhash
@@ -224,7 +218,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
-			x.Error(w, "error updating user", http.StatusInternalServerError)
+			x.InternalServerError(w, "error updating user")
 			return
 		}
 		x.SessMgr.FlashAppend(ctx, "success", successMsgs...)
@@ -240,13 +234,12 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form data")
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -255,16 +248,14 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	authPK := r.PostFormValue("auth_passkeys")
 
 	if authPW == "" && authPK == "" {
-		log.Debug().Msg("bad form data")
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, nil, "auth params")
 		return
 	}
 
 	// ensure we have at least one passkey first
 	pkCount, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	hasPasskeys := false
@@ -291,8 +282,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "":
 		// nothing
 	default:
-		log.Debug().Msg("bad form data")
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, nil, "auth_passauth")
 		return
 	}
 
@@ -321,8 +311,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "":
 		// nothing
 	default:
-		log.Debug().Msg("bad form data")
-		x.Error(w, "bad form data", http.StatusBadRequest)
+		x.BadFormDataError(w, nil, "auth_passkeys")
 		return
 	}
 
@@ -338,7 +327,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("error updating user auth")
-		x.Error(w, "error updating user auth", http.StatusInternalServerError)
+		x.InternalServerError(w, "error updating user auth")
 		return
 	}
 
@@ -351,13 +340,12 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Debug().Err(err).Msg("error parsing form data")
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -419,7 +407,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("error updating user settings")
-		x.Error(w, "error updating user settings", http.StatusInternalServerError)
+		x.InternalServerError(w, "error updating user settings")
 		return
 	}
 
@@ -433,15 +421,13 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	// get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		log.Debug().Err(err).Msg("bad session data")
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	err = model.DeleteUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Debug().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 	// destroy session

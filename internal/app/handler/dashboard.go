@@ -19,35 +19,31 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	// try to get user from session
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
-		x.Error(w, "bad session data", http.StatusBadRequest)
+		x.BadSessionDataError(w)
 		return
 	}
 
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
 	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -57,8 +53,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Msg("no rows for events")
 		events = []*model.Event{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -71,8 +66,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		log.Info().Err(err).Msg("no rows for event items")
 		eventItemCounts = []*model.EventItemCount{}
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -102,7 +96,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = x.TemplateExecute(w, "dashboard.gohtml", tplVars)
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }

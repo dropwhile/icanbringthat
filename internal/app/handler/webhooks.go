@@ -53,7 +53,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	err := dec.Decode(&pm)
 	if err != nil {
 		log.Info().Err(err).Msg("webhook error")
-		x.Error(w, "bad webhook data error", http.StatusBadRequest)
+		x.BadRequestError(w, "bad webhook data")
 		return
 	}
 
@@ -70,8 +70,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	case err != nil:
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 
@@ -111,8 +110,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	if err != nil {
-		log.Info().Err(err).Msg("db error")
-		x.Error(w, "db error", http.StatusInternalServerError)
+		x.DBError(w, err)
 		return
 	}
 }

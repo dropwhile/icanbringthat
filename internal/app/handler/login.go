@@ -32,7 +32,7 @@ func (x *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	err = x.TemplateExecute(w, "login-form.gohtml", tplVars)
 	if err != nil {
-		x.Error(w, "template error", http.StatusInternalServerError)
+		x.TemplateError(w)
 		return
 	}
 }
@@ -49,7 +49,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		x.Error(w, err.Error(), http.StatusBadRequest)
+		x.BadFormDataError(w, err)
 		return
 	}
 
@@ -57,8 +57,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	passwd := r.PostFormValue("password")
 
 	if email == "" || passwd == "" {
-		log.Debug().Msg("missing form data")
-		x.Error(w, "Missing form data", http.StatusBadRequest)
+		x.BadFormDataError(w, nil, "missing form data")
 		return
 	}
 
@@ -95,7 +94,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err = x.SessMgr.RenewToken(ctx)
 	if err != nil {
-		x.Error(w, err.Error(), 500)
+		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
@@ -112,7 +111,7 @@ func (x *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if err := x.SessMgr.Clear(r.Context()); err != nil {
-		x.Error(w, err.Error(), 500)
+		x.InternalServerError(w, "Session Error")
 		return
 	}
 
@@ -120,7 +119,7 @@ func (x *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
 	if err := x.SessMgr.RenewToken(r.Context()); err != nil {
-		x.Error(w, "session error", http.StatusInternalServerError)
+		x.InternalServerError(w, "Session Error")
 		return
 	}
 	x.SessMgr.FlashAppend(ctx, "success", "Logout successful")
