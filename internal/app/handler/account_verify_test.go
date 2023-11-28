@@ -240,7 +240,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
+		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

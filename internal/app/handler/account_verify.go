@@ -117,13 +117,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
 		log.Debug().Err(err).Msg("error decoding hmac data")
-		x.BadRequestError(w, "Bad Request")
+		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
 		log.Debug().Msg("invalid hmac!")
-		x.BadRequestError(w, "Bad Request")
+		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 
