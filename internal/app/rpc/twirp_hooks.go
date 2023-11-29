@@ -28,6 +28,8 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 			return ctx, twirp.Unauthenticated.Error("invalid auth")
 		}
 
+		ctx = auth.ContextSet(ctx, "auth", true)
+		ctx = auth.ContextSet(ctx, "user", user)
 		// do any authorization here if needed in the future...
 		// in a request routed
 		// ref: https://github.com/twitchtv/twirp/issues/90#issuecomment-373108190

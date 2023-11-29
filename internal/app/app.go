@@ -198,7 +198,7 @@ func New(
 		// which pulls an auth token from a header,
 		// looks it up in the db, and sets the user in the context
 		r.Use(middleware.NoCache)
-		r.Use(auth.WithToken)
+		r.Use(auth.LoadToken)
 		r.Mount(twirpHandler.PathPrefix(), twirpHandler)
 	})
 

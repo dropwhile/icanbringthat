@@ -42,18 +42,18 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			if sessMgr.Exists(r.Context(), "user-id") {
-				userID := sessMgr.GetInt(r.Context(), "user-id")
-				user, err := model.GetUserByID(r.Context(), db, userID)
+			if sessMgr.Exists(ctx, "user-id") {
+				userID := sessMgr.GetInt(ctx, "user-id")
+				user, err := model.GetUserByID(ctx, db, userID)
 				if err != nil {
 					log.Err(err).Msg("authorization failure")
 					http.Error(w, "authorization failure", http.StatusInternalServerError)
 					return
 				}
-				ctx = context.WithValue(ctx, mwContextKey("auth"), true)
-				ctx = context.WithValue(ctx, mwContextKey("user"), user)
+				ctx = ContextSet(ctx, "auth", true)
+				ctx = ContextSet(ctx, "user", user)
 			} else {
-				ctx = context.WithValue(ctx, mwContextKey("auth"), false)
+				ctx = ContextSet(ctx, "auth", false)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -63,8 +63,7 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 func Require(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		v := ctx.Value(mwContextKey("auth"))
-		if v == nil || !v.(bool) {
+		if !IsLoggedIn(ctx) {
 			// if auth is required, and this is a get request,
 			// redirect to login page and set "next=" query param
 			if r.Method == http.MethodGet ||
