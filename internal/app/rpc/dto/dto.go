@@ -15,6 +15,7 @@ import (
 // goverter:name DTOConverter
 // goverter:output:file ./converter/generated.go
 // goverter:output:package github.com/dropwhile/icbt/rpc/converter
+// goverter:matchIgnoreCase
 // goverter:extend TimeToTimestamp
 type Converter interface {
 	ConvertNotifications(source []*model.Notification) []*rpc.Notification
@@ -28,6 +29,6 @@ func TimeToTimestamp(t time.Time) timestamppb.Timestamp {
 	return *timestamppb.New(t)
 }
 
-func GetRefId(source model.Notification) string {
+func GetRefId(source *model.Notification) string {
 	return source.RefID.String()
 }

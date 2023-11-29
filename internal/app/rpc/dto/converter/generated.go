@@ -16,7 +16,7 @@ func (c *DTOConverter) ConvertNotification(source *model.Notification) *rpc.Noti
 	var pRpcNotification *rpc.Notification
 	if source != nil {
 		var rpcNotification rpc.Notification
-		rpcNotification.RefId = dto.GetRefId((*source))
+		rpcNotification.RefId = dto.GetRefId(source)
 		rpcNotification.Message = (*source).Message
 		rpcNotification.Created = c.timeTimeToPTimestamppbTimestamp((*source).Created)
 		pRpcNotification = &rpcNotification
