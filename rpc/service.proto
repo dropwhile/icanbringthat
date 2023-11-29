@@ -64,9 +64,15 @@ service ICBT {
   common 
 */
 
-message Pagination {
+message PaginationRequest {
     uint32 limit = 1;
-    uint64 offset = 2;
+    uint32 offset = 2;
+}
+
+message PaginationResult {
+    uint32 limit = 1;
+    uint32 offset = 2;
+    uint32 count = 3;
 }
 
 message TimestampTZ {
@@ -113,7 +119,7 @@ message GetEventDetailsResponse {
 }
 
 message ListEventsRequest {
-  optional Pagination pagination = 1;
+  optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
@@ -197,7 +203,7 @@ message GetEarmarkDetailsResponse{
 }
 
 message ListEarmarksRequest {
-  optional Pagination pagination = 1;
+  optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
@@ -229,7 +235,7 @@ message RemoveFavoriteRequst {
 message RemoveFavoriteResponse {}
 
 message ListFavoritesRequest {
-  optional Pagination pagination = 1;
+  optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
@@ -256,11 +262,12 @@ message DeleteNotificationRequest {
 message DeleteNotificationResponse {}
 
 message ListNotificationsRequest {
-  optional Pagination pagination = 1;
+  optional PaginationRequest pagination = 1;
 }
 
 message ListNotificationsResponse {
   repeated Notification notifications = 1;
+  PaginationResult pagination = 2;
 }
 
 message Notification {

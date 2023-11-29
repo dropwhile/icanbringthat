@@ -189,6 +189,9 @@ func New(
 		rpcServer, twirp.WithServerPathPrefix("/api"),
 	)
 	r.Group(func(r chi.Router) {
+		// add auth token middleware here instead,
+		// which pulls an auth token from a header,
+		// looks it up in the db, and sets the user in the context
 		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Use(middleware.NoCache)
 		r.Mount(twirpHandler.PathPrefix(), twirpHandler)
