@@ -10,10 +10,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	UserVerifyRefID     = reftag.IDt6
-	UserVerifyRefIDNull = reftag.NullIDt6
-)
+type UserVerifyRefID = reftag.IDt6
+
+type UserVerifyRefIDNull struct {
+	reftag.NullIDt6
+}
 
 var (
 	NewUserVerifyRefID       = reftag.New[UserVerifyRefID]

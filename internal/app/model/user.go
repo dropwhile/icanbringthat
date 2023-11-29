@@ -12,10 +12,11 @@ import (
 	"github.com/dropwhile/icbt/internal/crypto"
 )
 
-type (
-	UserRefID     = reftag.IDt1
-	UserRefIDNull = reftag.NullIDt1
-)
+type UserRefID = reftag.IDt1
+
+type UserRefIDNull struct {
+	reftag.NullIDt1
+}
 
 var (
 	NewUserRefID       = reftag.New[UserRefID]

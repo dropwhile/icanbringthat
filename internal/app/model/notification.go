@@ -9,9 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	NotificationRefIDNull = reftag.NullIDt8
-)
+type NotificationRefIDNull = reftag.NullIDt8
 
 type NotificationRefID struct {
 	reftag.IDt8

@@ -10,10 +10,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	EarmarkRefID     = reftag.IDt4
-	EarmarkRefIDNull = reftag.NullIDt4
-)
+type EarmarkRefIDNull = reftag.NullIDt4
+
+type EarmarkRefID struct {
+	reftag.IDt4
+}
 
 var (
 	NewEarmarkRefID       = reftag.New[EarmarkRefID]

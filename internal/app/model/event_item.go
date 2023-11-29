@@ -9,10 +9,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	EventItemRefID     = reftag.IDt3
-	EventItemRefIDNull = reftag.NullIDt3
-)
+type EventItemRefID = reftag.IDt3
+
+type EventItemRefIDNull struct {
+	reftag.NullIDt3
+}
 
 var (
 	NewEventItemRefID       = reftag.New[EventItemRefID]

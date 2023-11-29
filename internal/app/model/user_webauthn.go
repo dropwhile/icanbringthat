@@ -9,10 +9,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	CredentialRefID     = reftag.IDt7
-	CredentialRefIDNull = reftag.NullIDt7
-)
+type CredentialRefID = reftag.IDt7
+
+type CredentialRefIDNull struct {
+	reftag.NullIDt7
+}
 
 var (
 	NewCredentialRefID       = reftag.New[CredentialRefID]

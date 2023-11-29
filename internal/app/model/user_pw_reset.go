@@ -9,10 +9,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	UserPWResetRefID     = reftag.IDt5
-	UserPWResetRefIDNull = reftag.NullIDt5
-)
+type UserPWResetRefID = reftag.IDt5
+
+type UserPWResetRefIDNull struct {
+	reftag.NullIDt5
+}
 
 var (
 	NewUserPWResetRefID       = reftag.New[UserPWResetRefID]
