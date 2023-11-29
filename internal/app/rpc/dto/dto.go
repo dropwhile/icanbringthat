@@ -17,6 +17,7 @@ import (
 // goverter:output:package github.com/dropwhile/icbt/rpc/converter
 // goverter:matchIgnoreCase
 // goverter:extend TimeToTimestamp
+// goverter:extend StringerToString
 type Converter interface {
 	ConvertNotifications(source []*model.Notification) []*rpc.Notification
 
@@ -31,4 +32,8 @@ func TimeToTimestamp(t time.Time) timestamppb.Timestamp {
 
 func GetRefId(source *model.Notification) string {
 	return source.RefID.String()
+}
+
+func StringerToString(src interface{ String() string }) string {
+	return src.String()
 }
