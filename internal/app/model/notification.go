@@ -117,3 +117,21 @@ func GetNotificationsByUserPaginated(ctx context.Context, db PgxHandle,
 	}
 	return Query[Notification](ctx, db, q, args)
 }
+
+func GetNotificationsByUser(ctx context.Context, db PgxHandle,
+	userID int,
+) ([]*Notification, error) {
+	q := `
+	SELECT *
+	FROM notification_ 
+	WHERE
+		user_id = @userID AND
+		read = FALSE
+	ORDER BY 
+		created DESC
+	`
+	args := pgx.NamedArgs{
+		"userID": userID,
+	}
+	return Query[Notification](ctx, db, q, args)
+}

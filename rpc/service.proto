@@ -64,6 +64,10 @@ service ICBT {
   common 
 */
 
+message FilterRequest {
+    bool archived = 1;
+}
+
 message PaginationRequest {
     uint32 limit = 1;
     uint32 offset = 2;
@@ -267,7 +271,7 @@ message ListNotificationsRequest {
 
 message ListNotificationsResponse {
   repeated Notification notifications = 1;
-  PaginationResult pagination = 2;
+  optional PaginationResult pagination = 2;
 }
 
 message Notification {

@@ -91,8 +91,8 @@ func New(
 		// Routing //
 		// Protected routes
 		r.Group(func(r chi.Router) {
-			r.Use(auth.Require)
 			r.Use(middleware.NoCache)
+			r.Use(auth.Require)
 			r.Get("/about", zh.ShowAbout)
 			// acccount/settings
 			r.Get("/settings", zh.ShowSettings)
@@ -185,15 +185,20 @@ func New(
 		BaseURL:     zh.BaseURL,
 		IsProd:      zh.IsProd,
 	}
+	twirpHooks := &twirp.ServerHooks{
+		RequestReceived: rpc.AuthHook(rpcServer.Db),
+	}
 	twirpHandler := rpcdef.NewICBTServer(
-		rpcServer, twirp.WithServerPathPrefix("/api"),
+		rpcServer,
+		twirp.WithServerPathPrefix("/api"),
+		twirp.WithServerHooks(twirpHooks),
 	)
 	r.Group(func(r chi.Router) {
 		// add auth token middleware here instead,
 		// which pulls an auth token from a header,
 		// looks it up in the db, and sets the user in the context
-		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Use(middleware.NoCache)
+		r.Use(auth.WithToken)
 		r.Mount(twirpHandler.PathPrefix(), twirpHandler)
 	})
 

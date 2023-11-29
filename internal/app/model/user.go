@@ -36,6 +36,7 @@ type User struct {
 	Settings     UserSettings
 	Verified     bool
 	PWAuth       bool
+	ApiKey       bool
 	WebAuthn     bool
 }
 
@@ -84,7 +85,7 @@ func CreateUser(ctx context.Context, db PgxHandle,
 
 func UpdateUser(ctx context.Context, db PgxHandle,
 	email, name string, pwHash []byte, verified bool,
-	pwAuth bool, webAuthn bool, userID int,
+	pwAuth, apiKey, webAuthn bool, userID int,
 ) error {
 	q := `
 		UPDATE user_
@@ -94,6 +95,7 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 			pwhash = @pwHash,
 			verified = @verified,
 			pwauth = @pwAuth,
+			apikey = @apiKey,
 			webauthn = @webAuthn
 		WHERE id = @userID`
 	args := pgx.NamedArgs{
@@ -102,6 +104,7 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 		"pwHash":   pwHash,
 		"verified": verified,
 		"pwAuth":   pwAuth,
+		"apiKey":   apiKey,
 		"webAuthn": webAuthn,
 		"userID":   userID,
 	}

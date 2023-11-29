@@ -1,15 +1,21 @@
 package dto
 
 import (
-	"time"
-
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/rpc"
 )
 
-//go:generate goverter gen ./...
+//go:generate convergen
+type Convergen interface {
+	// :typecast
+	// :stringer
+	// :case:off
+	// :conv TimeToTimestamp Created Created
+	ToPbNotification(*model.Notification) *rpc.Notification
+}
+
+/*
+//  go:generate goverter gen ./...
 
 // goverter:converter
 // goverter:name DTOConverter
@@ -37,3 +43,4 @@ func GetRefId(source *model.Notification) string {
 func StringerToString(src interface{ String() string }) string {
 	return src.String()
 }
+*/
