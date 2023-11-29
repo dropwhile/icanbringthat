@@ -22,9 +22,9 @@ var (
 )
 
 type Event struct {
-	StartTime     time.Time `db:"start_time"`
 	Created       time.Time
 	LastModified  time.Time `db:"last_modified"`
+	StartTime     time.Time `db:"start_time"`
 	StartTimeTz   *TimeZone `db:"start_time_tz"`
 	Name          string
 	Description   string

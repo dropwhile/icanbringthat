@@ -3,20 +3,266 @@ syntax = "proto3";
 package dropwhile.icbt.rpc;
 option go_package = "github.com/dropwhile/icbt/rpc";
 
+import "google/protobuf/timestamp.proto";
+
+
 // Haberdasher service makes hats for clients.
-service Haberdasher {
-  // MakeHat produces a hat of mysterious, randomly-selected color!
-  rpc MakeHat(Size) returns (Hat);
+service ICBT {
+  // events
+  rpc CreateEvent(CreateEventRequest)
+    returns (CreateEventResponse);
+  rpc DeleteEvent(DeleteEventRequest)
+    returns (DeleteEventResponse);
+  rpc UpdateEvent(UpdateEventRequest)
+    returns (UpdateEventResponse);
+  rpc GetEventDetails(GetEventDetailsRequest)
+    returns (GetEventDetailsResponse);
+  rpc ListEvents(ListEventsRequest)
+    returns (ListEventsResponse);
+  rpc EventListItems(EventListItemsRequest)
+    returns (EventListItemsResponse);
+  // rpc UpdateEventItemsSorting : TODO
+
+  // event-items
+  rpc AddEventItem(AddEventItemRequest)
+    returns (AddEventItemResponse);
+  rpc RemoveEventItem(RemoveEventItemRequest)
+    returns (RemoveEventItemResponse);
+  rpc UpdateEventItem(UpdateEventItemRequest)
+    returns (UpdateEventItemResponse);
+
+  // earmarks
+  rpc CreateEarmark(CreateEarmarkRequest)
+    returns (CreateEarmarkResponse);
+  rpc RemoveEarmark(RemoveEarmarkRequest)
+    returns (RemoveEarmarkResponse);
+  rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
+    returns (GetEarmarkDetailsResponse);
+  rpc ListEarmarks(ListEarmarksRequest)
+    returns (ListEarmarksResponse);
+
+  // favorites
+  rpc AddFavorite(CreateFavoriteRequest)
+    returns (CreateFavoriteResponse);
+  rpc RemoveFavorite(RemoveFavoriteRequst)
+    returns (RemoveFavoriteResponse);
+  rpc ListFavorites(ListFavoritesRequest)
+    returns (ListFavoritesResponse);
+
+  // notifications
+  rpc DeleteNotification(DeleteNotificationRequest)
+    returns (DeleteNotificationResponse);
+  rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
+    returns (DeleteAllNotificationsResponse);
+  rpc ListNotifications(ListNotificationsRequest)
+    returns (ListNotificationsResponse);
 }
 
-// Size of a Hat, in inches.
-message Size {
-  int32 inches = 1; // must be > 0
+/* 
+  common 
+*/
+
+message Pagination {
+    uint32 limit = 1;
+    uint64 offset = 2;
 }
 
-// A Hat is a piece of headwear made by a Haberdasher.
-message Hat {
-  int32 inches = 1;
-  string color = 2; // anything but "invisible"
-  string name = 3; // i.e. "bowler"
+message TimestampTZ {
+  google.protobuf.Timestamp ts = 1; // timestamp
+  string tz = 2; // timezone
+}
+
+/* event */
+
+message CreateEventRequest {
+  string name = 1;
+  string description = 2;
+  TimestampTZ when = 3;
+}
+
+message CreateEventResponse {
+  Event event = 1;
+}
+
+message DeleteEventRequest {
+  string ref_id = 1;
+}
+
+message DeleteEventResponse {}
+
+message UpdateEventRequest {
+  string ref_id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional TimestampTZ when = 4;
+}
+
+message UpdateEventResponse {
+  Event event = 1;
+}
+
+message GetEventDetailsRequest {
+  string ref_id = 1;
+}
+
+message GetEventDetailsResponse {
+  Event event = 1;
+  repeated EventItem items = 2;
+}
+
+message ListEventsRequest {
+  optional Pagination pagination = 1;
+  optional bool archived = 2;
+}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message Event {
+  string ref_id = 1;
+  string name = 2;
+  string description = 3;
+  TimestampTZ when = 4;
+  bool archived = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message EventListItemsRequest {
+  string ref_id = 1;
+}
+
+message EventListItemsResponse {
+  repeated EventItem items = 1;
+}
+
+/* event-items */
+
+message AddEventItemRequest {
+  string event_ref_id = 1;
+  string description = 2;
+}
+
+message AddEventItemResponse {
+  EventItem event_item = 1;
+}
+
+message RemoveEventItemRequest {
+  string ref_id = 1;
+}
+
+message RemoveEventItemResponse {}
+
+message UpdateEventItemRequest {
+  string ref_id = 1;
+  string description = 2;
+}
+
+message UpdateEventItemResponse {
+  EventItem event_item = 1;
+}
+
+message EventItem {
+  string ref_id = 1;
+  string event_ref_id = 2;
+  string description = 3;
+  google.protobuf.Timestamp created = 4;
+}
+
+/* earmarks */
+
+message CreateEarmarkRequest {
+  int64 event_item_ref_id = 1;
+  string note = 2;
+}
+
+message CreateEarmarkResponse {
+  Earmark earmark = 1;
+}
+
+message RemoveEarmarkRequest {
+  string ref_id = 1;
+}
+
+message RemoveEarmarkResponse {}
+
+message GetEarmarkDetailsRequest{
+  string ref_id = 1;
+}
+
+message GetEarmarkDetailsResponse{
+  Earmark earmark = 1;
+}
+
+message ListEarmarksRequest {
+  optional Pagination pagination = 1;
+  optional bool archived = 2;
+}
+
+message ListEarmarksResponse {
+  repeated Earmark earmarks = 1;
+}
+
+message Earmark {
+  string ref_id = 1;
+  string event_item_ref_id = 2;
+  string note = 3;
+  google.protobuf.Timestamp created = 4;
+}
+
+/* favorites */
+
+message CreateFavoriteRequest {
+  string event_ref_id = 1;
+}
+
+message CreateFavoriteResponse {
+  Favorite favorite = 1;
+}
+
+message RemoveFavoriteRequst {
+  int64 id = 1;
+}
+
+message RemoveFavoriteResponse {}
+
+message ListFavoritesRequest {
+  optional Pagination pagination = 1;
+  optional bool archived = 2;
+}
+
+message ListFavoritesResponse {
+  repeated Favorite favorites = 1;
+}
+
+message Favorite {
+  int64 id = 1;
+  int64 event_ref_id = 2;
+  google.protobuf.Timestamp created = 3;
+}
+
+/* notifications */
+
+message DeleteAllNotificationsRequest {}
+
+message DeleteAllNotificationsResponse {}
+
+message DeleteNotificationRequest {
+  string ref_id = 1;
+}
+
+message DeleteNotificationResponse {}
+
+message ListNotificationsRequest {
+  optional Pagination pagination = 1;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+}
+
+message Notification {
+  string ref_id = 1;
+  string message = 2;
+  google.protobuf.Timestamp created = 3;
 }

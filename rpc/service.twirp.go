@@ -27,30 +27,70 @@ import url "net/url"
 // See https://twitchtv.github.io/twirp/docs/version_matrix.html
 const _ = twirp.TwirpPackageMinVersion_8_1_0
 
-// =====================
-// Haberdasher Interface
-// =====================
+// ==============
+// ICBT Interface
+// ==============
 
 // Haberdasher service makes hats for clients.
-type Haberdasher interface {
-	// MakeHat produces a hat of mysterious, randomly-selected color!
-	MakeHat(context.Context, *Size) (*Hat, error)
+type ICBT interface {
+	// events
+	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
+
+	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
+
+	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
+
+	GetEventDetails(context.Context, *GetEventDetailsRequest) (*GetEventDetailsResponse, error)
+
+	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
+
+	EventListItems(context.Context, *EventListItemsRequest) (*EventListItemsResponse, error)
+
+	// event-items
+	AddEventItem(context.Context, *AddEventItemRequest) (*AddEventItemResponse, error)
+
+	RemoveEventItem(context.Context, *RemoveEventItemRequest) (*RemoveEventItemResponse, error)
+
+	UpdateEventItem(context.Context, *UpdateEventItemRequest) (*UpdateEventItemResponse, error)
+
+	// earmarks
+	CreateEarmark(context.Context, *CreateEarmarkRequest) (*CreateEarmarkResponse, error)
+
+	RemoveEarmark(context.Context, *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error)
+
+	GetEarmarkDetails(context.Context, *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error)
+
+	ListEarmarks(context.Context, *ListEarmarksRequest) (*ListEarmarksResponse, error)
+
+	// favorites
+	AddFavorite(context.Context, *CreateFavoriteRequest) (*CreateFavoriteResponse, error)
+
+	RemoveFavorite(context.Context, *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error)
+
+	ListFavorites(context.Context, *ListFavoritesRequest) (*ListFavoritesResponse, error)
+
+	// notifications
+	DeleteNotification(context.Context, *DeleteNotificationRequest) (*DeleteNotificationResponse, error)
+
+	DeleteAllNotifications(context.Context, *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error)
+
+	ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsResponse, error)
 }
 
-// ===========================
-// Haberdasher Protobuf Client
-// ===========================
+// ====================
+// ICBT Protobuf Client
+// ====================
 
-type haberdasherProtobufClient struct {
+type iCBTProtobufClient struct {
 	client      HTTPClient
-	urls        [1]string
+	urls        [19]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
 
-// NewHaberdasherProtobufClient creates a Protobuf client that implements the Haberdasher interface.
+// NewICBTProtobufClient creates a Protobuf client that implements the ICBT interface.
 // It communicates using Protobuf and can be configured with a custom HTTPClient.
-func NewHaberdasherProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) Haberdasher {
+func NewICBTProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) ICBT {
 	if c, ok := client.(*http.Client); ok {
 		client = withoutRedirects(c)
 	}
@@ -70,12 +110,30 @@ func NewHaberdasherProtobufClient(baseURL string, client HTTPClient, opts ...twi
 
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "dropwhile.icbt.rpc", "Haberdasher")
-	urls := [1]string{
-		serviceURL + "MakeHat",
+	serviceURL += baseServicePath(pathPrefix, "dropwhile.icbt.rpc", "ICBT")
+	urls := [19]string{
+		serviceURL + "CreateEvent",
+		serviceURL + "DeleteEvent",
+		serviceURL + "UpdateEvent",
+		serviceURL + "GetEventDetails",
+		serviceURL + "ListEvents",
+		serviceURL + "EventListItems",
+		serviceURL + "AddEventItem",
+		serviceURL + "RemoveEventItem",
+		serviceURL + "UpdateEventItem",
+		serviceURL + "CreateEarmark",
+		serviceURL + "RemoveEarmark",
+		serviceURL + "GetEarmarkDetails",
+		serviceURL + "ListEarmarks",
+		serviceURL + "AddFavorite",
+		serviceURL + "RemoveFavorite",
+		serviceURL + "ListFavorites",
+		serviceURL + "DeleteNotification",
+		serviceURL + "DeleteAllNotifications",
+		serviceURL + "ListNotifications",
 	}
 
-	return &haberdasherProtobufClient{
+	return &iCBTProtobufClient{
 		client:      client,
 		urls:        urls,
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
@@ -83,26 +141,26 @@ func NewHaberdasherProtobufClient(baseURL string, client HTTPClient, opts ...twi
 	}
 }
 
-func (c *haberdasherProtobufClient) MakeHat(ctx context.Context, in *Size) (*Hat, error) {
+func (c *iCBTProtobufClient) CreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
-	ctx = ctxsetters.WithServiceName(ctx, "Haberdasher")
-	ctx = ctxsetters.WithMethodName(ctx, "MakeHat")
-	caller := c.callMakeHat
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
+	caller := c.callCreateEvent
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *Size) (*Hat, error) {
+		caller = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*Size)
+					typedReq, ok := req.(*CreateEventRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*Size) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
 					}
-					return c.callMakeHat(ctx, typedReq)
+					return c.callCreateEvent(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*Hat)
+				typedResp, ok := resp.(*CreateEventResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*Hat) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -112,8 +170,8 @@ func (c *haberdasherProtobufClient) MakeHat(ctx context.Context, in *Size) (*Hat
 	return caller(ctx, in)
 }
 
-func (c *haberdasherProtobufClient) callMakeHat(ctx context.Context, in *Size) (*Hat, error) {
-	out := new(Hat)
+func (c *iCBTProtobufClient) callCreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
+	out := new(CreateEventResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -129,20 +187,848 @@ func (c *haberdasherProtobufClient) callMakeHat(ctx context.Context, in *Size) (
 	return out, nil
 }
 
-// =======================
-// Haberdasher JSON Client
-// =======================
+func (c *iCBTProtobufClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest) (*DeleteEventResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	caller := c.callDeleteEvent
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteEventRequest) (*DeleteEventResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+					}
+					return c.callDeleteEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
 
-type haberdasherJSONClient struct {
+func (c *iCBTProtobufClient) callDeleteEvent(ctx context.Context, in *DeleteEventRequest) (*DeleteEventResponse, error) {
+	out := new(DeleteEventResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest) (*UpdateEventResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	caller := c.callUpdateEvent
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *UpdateEventRequest) (*UpdateEventResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+					}
+					return c.callUpdateEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callUpdateEvent(ctx context.Context, in *UpdateEventRequest) (*UpdateEventResponse, error) {
+	out := new(UpdateEventResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) GetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	caller := c.callGetEventDetails
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEventDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+					}
+					return c.callGetEventDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEventDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callGetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+	out := new(GetEventDetailsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) ListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	caller := c.callListEvents
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEventsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+					}
+					return c.callListEvents(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEventsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+	out := new(ListEventsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) EventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	caller := c.callEventListItems
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*EventListItemsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
+					}
+					return c.callEventListItems(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*EventListItemsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callEventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	out := new(EventListItemsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) AddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	caller := c.callAddEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+					}
+					return c.callAddEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*AddEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callAddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+	out := new(AddEventItemResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) RemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	caller := c.callRemoveEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+					}
+					return c.callRemoveEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callRemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+	out := new(RemoveEventItemResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) UpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	caller := c.callUpdateEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+					}
+					return c.callUpdateEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callUpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+	out := new(UpdateEventItemResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) CreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	caller := c.callCreateEarmark
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+					}
+					return c.callCreateEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callCreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+	out := new(CreateEarmarkResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) RemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	caller := c.callRemoveEarmark
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+					}
+					return c.callRemoveEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callRemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+	out := new(RemoveEarmarkResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) GetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	caller := c.callGetEarmarkDetails
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+					}
+					return c.callGetEarmarkDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callGetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+	out := new(GetEarmarkDetailsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) ListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	caller := c.callListEarmarks
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEarmarksRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+					}
+					return c.callListEarmarks(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEarmarksResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+	out := new(ListEarmarksResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) AddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	caller := c.callAddFavorite
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateFavoriteRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+					}
+					return c.callAddFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callAddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+	out := new(CreateFavoriteResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	caller := c.callRemoveFavorite
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveFavoriteRequst)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequst) when calling interceptor")
+					}
+					return c.callRemoveFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callRemoveFavorite(ctx context.Context, in *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+	out := new(RemoveFavoriteResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) ListFavorites(ctx context.Context, in *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListFavorites")
+	caller := c.callListFavorites
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListFavoritesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListFavoritesRequest) when calling interceptor")
+					}
+					return c.callListFavorites(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListFavoritesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoritesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callListFavorites(ctx context.Context, in *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+	out := new(ListFavoritesResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) DeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	caller := c.callDeleteNotification
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteNotificationRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+					}
+					return c.callDeleteNotification(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteNotificationResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteNotificationResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callDeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+	out := new(DeleteNotificationResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) DeleteAllNotifications(ctx context.Context, in *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	caller := c.callDeleteAllNotifications
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteAllNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteAllNotificationsRequest) when calling interceptor")
+					}
+					return c.callDeleteAllNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteAllNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteAllNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callDeleteAllNotifications(ctx context.Context, in *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+	out := new(DeleteAllNotificationsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTProtobufClient) ListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	caller := c.callListNotifications
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+					}
+					return c.callListNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTProtobufClient) callListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+	out := new(ListNotificationsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+// ================
+// ICBT JSON Client
+// ================
+
+type iCBTJSONClient struct {
 	client      HTTPClient
-	urls        [1]string
+	urls        [19]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
 
-// NewHaberdasherJSONClient creates a JSON client that implements the Haberdasher interface.
+// NewICBTJSONClient creates a JSON client that implements the ICBT interface.
 // It communicates using JSON and can be configured with a custom HTTPClient.
-func NewHaberdasherJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) Haberdasher {
+func NewICBTJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) ICBT {
 	if c, ok := client.(*http.Client); ok {
 		client = withoutRedirects(c)
 	}
@@ -162,12 +1048,30 @@ func NewHaberdasherJSONClient(baseURL string, client HTTPClient, opts ...twirp.C
 
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "dropwhile.icbt.rpc", "Haberdasher")
-	urls := [1]string{
-		serviceURL + "MakeHat",
+	serviceURL += baseServicePath(pathPrefix, "dropwhile.icbt.rpc", "ICBT")
+	urls := [19]string{
+		serviceURL + "CreateEvent",
+		serviceURL + "DeleteEvent",
+		serviceURL + "UpdateEvent",
+		serviceURL + "GetEventDetails",
+		serviceURL + "ListEvents",
+		serviceURL + "EventListItems",
+		serviceURL + "AddEventItem",
+		serviceURL + "RemoveEventItem",
+		serviceURL + "UpdateEventItem",
+		serviceURL + "CreateEarmark",
+		serviceURL + "RemoveEarmark",
+		serviceURL + "GetEarmarkDetails",
+		serviceURL + "ListEarmarks",
+		serviceURL + "AddFavorite",
+		serviceURL + "RemoveFavorite",
+		serviceURL + "ListFavorites",
+		serviceURL + "DeleteNotification",
+		serviceURL + "DeleteAllNotifications",
+		serviceURL + "ListNotifications",
 	}
 
-	return &haberdasherJSONClient{
+	return &iCBTJSONClient{
 		client:      client,
 		urls:        urls,
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
@@ -175,26 +1079,26 @@ func NewHaberdasherJSONClient(baseURL string, client HTTPClient, opts ...twirp.C
 	}
 }
 
-func (c *haberdasherJSONClient) MakeHat(ctx context.Context, in *Size) (*Hat, error) {
+func (c *iCBTJSONClient) CreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
-	ctx = ctxsetters.WithServiceName(ctx, "Haberdasher")
-	ctx = ctxsetters.WithMethodName(ctx, "MakeHat")
-	caller := c.callMakeHat
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
+	caller := c.callCreateEvent
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *Size) (*Hat, error) {
+		caller = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*Size)
+					typedReq, ok := req.(*CreateEventRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*Size) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
 					}
-					return c.callMakeHat(ctx, typedReq)
+					return c.callCreateEvent(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*Hat)
+				typedResp, ok := resp.(*CreateEventResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*Hat) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -204,8 +1108,8 @@ func (c *haberdasherJSONClient) MakeHat(ctx context.Context, in *Size) (*Hat, er
 	return caller(ctx, in)
 }
 
-func (c *haberdasherJSONClient) callMakeHat(ctx context.Context, in *Size) (*Hat, error) {
-	out := new(Hat)
+func (c *iCBTJSONClient) callCreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
+	out := new(CreateEventResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -221,12 +1125,840 @@ func (c *haberdasherJSONClient) callMakeHat(ctx context.Context, in *Size) (*Hat
 	return out, nil
 }
 
-// ==========================
-// Haberdasher Server Handler
-// ==========================
+func (c *iCBTJSONClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest) (*DeleteEventResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	caller := c.callDeleteEvent
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteEventRequest) (*DeleteEventResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+					}
+					return c.callDeleteEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
 
-type haberdasherServer struct {
-	Haberdasher
+func (c *iCBTJSONClient) callDeleteEvent(ctx context.Context, in *DeleteEventRequest) (*DeleteEventResponse, error) {
+	out := new(DeleteEventResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest) (*UpdateEventResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	caller := c.callUpdateEvent
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *UpdateEventRequest) (*UpdateEventResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+					}
+					return c.callUpdateEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callUpdateEvent(ctx context.Context, in *UpdateEventRequest) (*UpdateEventResponse, error) {
+	out := new(UpdateEventResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) GetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	caller := c.callGetEventDetails
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEventDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+					}
+					return c.callGetEventDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEventDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callGetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+	out := new(GetEventDetailsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) ListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	caller := c.callListEvents
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEventsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+					}
+					return c.callListEvents(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEventsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+	out := new(ListEventsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) EventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	caller := c.callEventListItems
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*EventListItemsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
+					}
+					return c.callEventListItems(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*EventListItemsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callEventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	out := new(EventListItemsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) AddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	caller := c.callAddEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+					}
+					return c.callAddEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*AddEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callAddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+	out := new(AddEventItemResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) RemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	caller := c.callRemoveEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+					}
+					return c.callRemoveEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callRemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+	out := new(RemoveEventItemResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) UpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	caller := c.callUpdateEventItem
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+					}
+					return c.callUpdateEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callUpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+	out := new(UpdateEventItemResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) CreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	caller := c.callCreateEarmark
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+					}
+					return c.callCreateEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callCreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+	out := new(CreateEarmarkResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) RemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	caller := c.callRemoveEarmark
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+					}
+					return c.callRemoveEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callRemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+	out := new(RemoveEarmarkResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) GetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	caller := c.callGetEarmarkDetails
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+					}
+					return c.callGetEarmarkDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callGetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+	out := new(GetEarmarkDetailsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) ListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	caller := c.callListEarmarks
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEarmarksRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+					}
+					return c.callListEarmarks(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEarmarksResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+	out := new(ListEarmarksResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) AddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	caller := c.callAddFavorite
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateFavoriteRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+					}
+					return c.callAddFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callAddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+	out := new(CreateFavoriteResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	caller := c.callRemoveFavorite
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveFavoriteRequst)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequst) when calling interceptor")
+					}
+					return c.callRemoveFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callRemoveFavorite(ctx context.Context, in *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+	out := new(RemoveFavoriteResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) ListFavorites(ctx context.Context, in *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListFavorites")
+	caller := c.callListFavorites
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListFavoritesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListFavoritesRequest) when calling interceptor")
+					}
+					return c.callListFavorites(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListFavoritesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoritesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callListFavorites(ctx context.Context, in *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+	out := new(ListFavoritesResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) DeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	caller := c.callDeleteNotification
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteNotificationRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+					}
+					return c.callDeleteNotification(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteNotificationResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteNotificationResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callDeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+	out := new(DeleteNotificationResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) DeleteAllNotifications(ctx context.Context, in *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	caller := c.callDeleteAllNotifications
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteAllNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteAllNotificationsRequest) when calling interceptor")
+					}
+					return c.callDeleteAllNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteAllNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteAllNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callDeleteAllNotifications(ctx context.Context, in *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+	out := new(DeleteAllNotificationsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *iCBTJSONClient) ListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
+	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	caller := c.callListNotifications
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+					}
+					return c.callListNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *iCBTJSONClient) callListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+	out := new(ListNotificationsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+// ===================
+// ICBT Server Handler
+// ===================
+
+type iCBTServer struct {
+	ICBT
 	interceptor      twirp.Interceptor
 	hooks            *twirp.ServerHooks
 	pathPrefix       string // prefix for routing
@@ -234,10 +1966,10 @@ type haberdasherServer struct {
 	jsonCamelCase    bool   // JSON fields are serialized as lowerCamelCase rather than keeping the original proto names
 }
 
-// NewHaberdasherServer builds a TwirpServer that can be used as an http.Handler to handle
+// NewICBTServer builds a TwirpServer that can be used as an http.Handler to handle
 // HTTP requests that are routed to the right method in the provided svc implementation.
 // The opts are twirp.ServerOption modifiers, for example twirp.WithServerHooks(hooks).
-func NewHaberdasherServer(svc Haberdasher, opts ...interface{}) TwirpServer {
+func NewICBTServer(svc ICBT, opts ...interface{}) TwirpServer {
 	serverOpts := newServerOpts(opts)
 
 	// Using ReadOpt allows backwards and forwards compatibility with new options in the future
@@ -250,8 +1982,8 @@ func NewHaberdasherServer(svc Haberdasher, opts ...interface{}) TwirpServer {
 		pathPrefix = "/twirp" // default prefix
 	}
 
-	return &haberdasherServer{
-		Haberdasher:      svc,
+	return &iCBTServer{
+		ICBT:             svc,
 		hooks:            serverOpts.Hooks,
 		interceptor:      twirp.ChainInterceptors(serverOpts.Interceptors...),
 		pathPrefix:       pathPrefix,
@@ -262,12 +1994,12 @@ func NewHaberdasherServer(svc Haberdasher, opts ...interface{}) TwirpServer {
 
 // writeError writes an HTTP response with a valid Twirp error format, and triggers hooks.
 // If err is not a twirp.Error, it will get wrapped with twirp.InternalErrorWith(err)
-func (s *haberdasherServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
+func (s *iCBTServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
 	writeError(ctx, resp, err, s.hooks)
 }
 
 // handleRequestBodyError is used to handle error when the twirp server cannot read request
-func (s *haberdasherServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
+func (s *iCBTServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
 	if context.Canceled == ctx.Err() {
 		s.writeError(ctx, resp, twirp.NewError(twirp.Canceled, "failed to read request: context canceled"))
 		return
@@ -279,16 +2011,16 @@ func (s *haberdasherServer) handleRequestBodyError(ctx context.Context, resp htt
 	s.writeError(ctx, resp, twirp.WrapError(malformedRequestError(msg), err))
 }
 
-// HaberdasherPathPrefix is a convenience constant that may identify URL paths.
+// ICBTPathPrefix is a convenience constant that may identify URL paths.
 // Should be used with caution, it only matches routes generated by Twirp Go clients,
 // with the default "/twirp" prefix and default CamelCase service and method names.
 // More info: https://twitchtv.github.io/twirp/docs/routing.html
-const HaberdasherPathPrefix = "/twirp/dropwhile.icbt.rpc.Haberdasher/"
+const ICBTPathPrefix = "/twirp/dropwhile.icbt.rpc.ICBT/"
 
-func (s *haberdasherServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+func (s *iCBTServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	ctx = ctxsetters.WithPackageName(ctx, "dropwhile.icbt.rpc")
-	ctx = ctxsetters.WithServiceName(ctx, "Haberdasher")
+	ctx = ctxsetters.WithServiceName(ctx, "ICBT")
 	ctx = ctxsetters.WithResponseWriter(ctx, resp)
 
 	var err error
@@ -306,7 +2038,7 @@ func (s *haberdasherServer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 
 	// Verify path format: [<prefix>]/<package>.<Service>/<Method>
 	prefix, pkgService, method := parseTwirpPath(req.URL.Path)
-	if pkgService != "dropwhile.icbt.rpc.Haberdasher" {
+	if pkgService != "dropwhile.icbt.rpc.ICBT" {
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
 		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
 		return
@@ -318,8 +2050,62 @@ func (s *haberdasherServer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 	}
 
 	switch method {
-	case "MakeHat":
-		s.serveMakeHat(ctx, resp, req)
+	case "CreateEvent":
+		s.serveCreateEvent(ctx, resp, req)
+		return
+	case "DeleteEvent":
+		s.serveDeleteEvent(ctx, resp, req)
+		return
+	case "UpdateEvent":
+		s.serveUpdateEvent(ctx, resp, req)
+		return
+	case "GetEventDetails":
+		s.serveGetEventDetails(ctx, resp, req)
+		return
+	case "ListEvents":
+		s.serveListEvents(ctx, resp, req)
+		return
+	case "EventListItems":
+		s.serveEventListItems(ctx, resp, req)
+		return
+	case "AddEventItem":
+		s.serveAddEventItem(ctx, resp, req)
+		return
+	case "RemoveEventItem":
+		s.serveRemoveEventItem(ctx, resp, req)
+		return
+	case "UpdateEventItem":
+		s.serveUpdateEventItem(ctx, resp, req)
+		return
+	case "CreateEarmark":
+		s.serveCreateEarmark(ctx, resp, req)
+		return
+	case "RemoveEarmark":
+		s.serveRemoveEarmark(ctx, resp, req)
+		return
+	case "GetEarmarkDetails":
+		s.serveGetEarmarkDetails(ctx, resp, req)
+		return
+	case "ListEarmarks":
+		s.serveListEarmarks(ctx, resp, req)
+		return
+	case "AddFavorite":
+		s.serveAddFavorite(ctx, resp, req)
+		return
+	case "RemoveFavorite":
+		s.serveRemoveFavorite(ctx, resp, req)
+		return
+	case "ListFavorites":
+		s.serveListFavorites(ctx, resp, req)
+		return
+	case "DeleteNotification":
+		s.serveDeleteNotification(ctx, resp, req)
+		return
+	case "DeleteAllNotifications":
+		s.serveDeleteAllNotifications(ctx, resp, req)
+		return
+	case "ListNotifications":
+		s.serveListNotifications(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -328,7 +2114,7 @@ func (s *haberdasherServer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 	}
 }
 
-func (s *haberdasherServer) serveMakeHat(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *iCBTServer) serveCreateEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -336,9 +2122,9 @@ func (s *haberdasherServer) serveMakeHat(ctx context.Context, resp http.Response
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveMakeHatJSON(ctx, resp, req)
+		s.serveCreateEventJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveMakeHatProtobuf(ctx, resp, req)
+		s.serveCreateEventProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -346,9 +2132,9 @@ func (s *haberdasherServer) serveMakeHat(ctx context.Context, resp http.Response
 	}
 }
 
-func (s *haberdasherServer) serveMakeHatJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *iCBTServer) serveCreateEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "MakeHat")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -361,29 +2147,29 @@ func (s *haberdasherServer) serveMakeHatJSON(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(Size)
+	reqContent := new(CreateEventRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Haberdasher.MakeHat
+	handler := s.ICBT.CreateEvent
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *Size) (*Hat, error) {
+		handler = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*Size)
+					typedReq, ok := req.(*CreateEventRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*Size) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
 					}
-					return s.Haberdasher.MakeHat(ctx, typedReq)
+					return s.ICBT.CreateEvent(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*Hat)
+				typedResp, ok := resp.(*CreateEventResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*Hat) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -392,7 +2178,7 @@ func (s *haberdasherServer) serveMakeHatJSON(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *Hat
+	var respContent *CreateEventResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -403,7 +2189,7 @@ func (s *haberdasherServer) serveMakeHatJSON(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Hat and nil error while calling MakeHat. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEventResponse and nil error while calling CreateEvent. nil responses are not supported"))
 		return
 	}
 
@@ -429,9 +2215,9 @@ func (s *haberdasherServer) serveMakeHatJSON(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *haberdasherServer) serveMakeHatProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *iCBTServer) serveCreateEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "MakeHat")
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -443,28 +2229,28 @@ func (s *haberdasherServer) serveMakeHatProtobuf(ctx context.Context, resp http.
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(Size)
+	reqContent := new(CreateEventRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Haberdasher.MakeHat
+	handler := s.ICBT.CreateEvent
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *Size) (*Hat, error) {
+		handler = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*Size)
+					typedReq, ok := req.(*CreateEventRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*Size) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
 					}
-					return s.Haberdasher.MakeHat(ctx, typedReq)
+					return s.ICBT.CreateEvent(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*Hat)
+				typedResp, ok := resp.(*CreateEventResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*Hat) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -473,7 +2259,7 @@ func (s *haberdasherServer) serveMakeHatProtobuf(ctx context.Context, resp http.
 	}
 
 	// Call service method
-	var respContent *Hat
+	var respContent *CreateEventResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -484,7 +2270,7 @@ func (s *haberdasherServer) serveMakeHatProtobuf(ctx context.Context, resp http.
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Hat and nil error while calling MakeHat. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEventResponse and nil error while calling CreateEvent. nil responses are not supported"))
 		return
 	}
 
@@ -508,19 +2294,3259 @@ func (s *haberdasherServer) serveMakeHatProtobuf(ctx context.Context, resp http.
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *haberdasherServer) ServiceDescriptor() ([]byte, int) {
+func (s *iCBTServer) serveDeleteEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveDeleteEventJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveDeleteEventProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveDeleteEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(DeleteEventRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.DeleteEvent
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteEventRequest) (*DeleteEventResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteEventResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteEventResponse and nil error while calling DeleteEvent. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveDeleteEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(DeleteEventRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.DeleteEvent
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteEventRequest) (*DeleteEventResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteEventResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteEventResponse and nil error while calling DeleteEvent. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveUpdateEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveUpdateEventJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveUpdateEventProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveUpdateEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(UpdateEventRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.UpdateEvent
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *UpdateEventRequest) (*UpdateEventResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+					}
+					return s.ICBT.UpdateEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *UpdateEventResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventResponse and nil error while calling UpdateEvent. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveUpdateEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(UpdateEventRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.UpdateEvent
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *UpdateEventRequest) (*UpdateEventResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+					}
+					return s.ICBT.UpdateEvent(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *UpdateEventResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventResponse and nil error while calling UpdateEvent. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveGetEventDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetEventDetailsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetEventDetailsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveGetEventDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetEventDetailsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.GetEventDetails
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEventDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+					}
+					return s.ICBT.GetEventDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEventDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetEventDetailsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEventDetailsResponse and nil error while calling GetEventDetails. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetEventDetailsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.GetEventDetails
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEventDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+					}
+					return s.ICBT.GetEventDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEventDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetEventDetailsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEventDetailsResponse and nil error while calling GetEventDetails. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListEvents(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveListEventsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveListEventsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveListEventsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(ListEventsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.ListEvents
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEventsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+					}
+					return s.ICBT.ListEvents(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEventsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListEventsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventsResponse and nil error while calling ListEvents. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListEventsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(ListEventsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.ListEvents
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEventsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+					}
+					return s.ICBT.ListEvents(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEventsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListEventsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventsResponse and nil error while calling ListEvents. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveEventListItems(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveEventListItemsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveEventListItemsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveEventListItemsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(EventListItemsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.EventListItems
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*EventListItemsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
+					}
+					return s.ICBT.EventListItems(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*EventListItemsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *EventListItemsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListItemsResponse and nil error while calling EventListItems. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveEventListItemsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(EventListItemsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.EventListItems
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*EventListItemsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
+					}
+					return s.ICBT.EventListItems(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*EventListItemsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *EventListItemsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListItemsResponse and nil error while calling EventListItems. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveAddEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveAddEventItemJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveAddEventItemProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveAddEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(AddEventItemRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.AddEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.AddEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*AddEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *AddEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *AddEventItemResponse and nil error while calling AddEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveAddEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(AddEventItemRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.AddEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.AddEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*AddEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *AddEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *AddEventItemResponse and nil error while calling AddEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveRemoveEventItemJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveRemoveEventItemProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveRemoveEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(RemoveEventItemRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.RemoveEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.RemoveEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveEventItemResponse and nil error while calling RemoveEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(RemoveEventItemRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.RemoveEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveEventItemRequest) (*RemoveEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.RemoveEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveEventItemResponse and nil error while calling RemoveEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveUpdateEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveUpdateEventItemJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveUpdateEventItemProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveUpdateEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(UpdateEventItemRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.UpdateEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.UpdateEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *UpdateEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventItemResponse and nil error while calling UpdateEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(UpdateEventItemRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.UpdateEventItem
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*UpdateEventItemRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+					}
+					return s.ICBT.UpdateEventItem(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*UpdateEventItemResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *UpdateEventItemResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventItemResponse and nil error while calling UpdateEventItem. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveCreateEarmark(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveCreateEarmarkJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveCreateEarmarkProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveCreateEarmarkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(CreateEarmarkRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.CreateEarmark
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+					}
+					return s.ICBT.CreateEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *CreateEarmarkResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEarmarkResponse and nil error while calling CreateEarmark. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(CreateEarmarkRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.CreateEarmark
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+					}
+					return s.ICBT.CreateEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *CreateEarmarkResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEarmarkResponse and nil error while calling CreateEarmark. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveEarmark(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveRemoveEarmarkJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveRemoveEarmarkProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveRemoveEarmarkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(RemoveEarmarkRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.RemoveEarmark
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+					}
+					return s.ICBT.RemoveEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveEarmarkResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveEarmarkResponse and nil error while calling RemoveEarmark. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveEarmarkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(RemoveEarmarkRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.RemoveEarmark
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveEarmarkRequest) (*RemoveEarmarkResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveEarmarkRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+					}
+					return s.ICBT.RemoveEarmark(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveEarmarkResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveEarmarkResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveEarmarkResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveEarmarkResponse and nil error while calling RemoveEarmark. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveGetEarmarkDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetEarmarkDetailsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetEarmarkDetailsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetEarmarkDetailsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.GetEarmarkDetails
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+					}
+					return s.ICBT.GetEarmarkDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetEarmarkDetailsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEarmarkDetailsResponse and nil error while calling GetEarmarkDetails. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetEarmarkDetailsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.GetEarmarkDetails
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+					}
+					return s.ICBT.GetEarmarkDetails(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetEarmarkDetailsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEarmarkDetailsResponse and nil error while calling GetEarmarkDetails. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListEarmarks(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveListEarmarksJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveListEarmarksProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveListEarmarksJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(ListEarmarksRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.ListEarmarks
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEarmarksRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+					}
+					return s.ICBT.ListEarmarks(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEarmarksResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListEarmarksResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEarmarksResponse and nil error while calling ListEarmarks. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListEarmarksProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(ListEarmarksRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.ListEarmarks
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListEarmarksRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+					}
+					return s.ICBT.ListEarmarks(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListEarmarksResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListEarmarksResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEarmarksResponse and nil error while calling ListEarmarks. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveAddFavorite(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveAddFavoriteJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveAddFavoriteProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveAddFavoriteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(CreateFavoriteRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.AddFavorite
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateFavoriteRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+					}
+					return s.ICBT.AddFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *CreateFavoriteResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateFavoriteResponse and nil error while calling AddFavorite. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(CreateFavoriteRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.AddFavorite
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*CreateFavoriteRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+					}
+					return s.ICBT.AddFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*CreateFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *CreateFavoriteResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateFavoriteResponse and nil error while calling AddFavorite. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveFavorite(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveRemoveFavoriteJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveRemoveFavoriteProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveRemoveFavoriteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(RemoveFavoriteRequst)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.RemoveFavorite
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveFavoriteRequst)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequst) when calling interceptor")
+					}
+					return s.ICBT.RemoveFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveFavoriteResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveFavoriteResponse and nil error while calling RemoveFavorite. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveRemoveFavoriteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(RemoveFavoriteRequst)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.RemoveFavorite
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *RemoveFavoriteRequst) (*RemoveFavoriteResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*RemoveFavoriteRequst)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequst) when calling interceptor")
+					}
+					return s.ICBT.RemoveFavorite(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*RemoveFavoriteResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*RemoveFavoriteResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *RemoveFavoriteResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *RemoveFavoriteResponse and nil error while calling RemoveFavorite. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListFavorites(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveListFavoritesJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveListFavoritesProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveListFavoritesJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListFavorites")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(ListFavoritesRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.ListFavorites
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListFavoritesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListFavoritesRequest) when calling interceptor")
+					}
+					return s.ICBT.ListFavorites(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListFavoritesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoritesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListFavoritesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListFavoritesResponse and nil error while calling ListFavorites. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListFavoritesProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListFavorites")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(ListFavoritesRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.ListFavorites
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListFavoritesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListFavoritesRequest) when calling interceptor")
+					}
+					return s.ICBT.ListFavorites(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListFavoritesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoritesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListFavoritesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListFavoritesResponse and nil error while calling ListFavorites. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveDeleteNotification(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveDeleteNotificationJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveDeleteNotificationProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveDeleteNotificationJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(DeleteNotificationRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.DeleteNotification
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteNotificationRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteNotification(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteNotificationResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteNotificationResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteNotificationResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteNotificationResponse and nil error while calling DeleteNotification. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveDeleteNotificationProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(DeleteNotificationRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.DeleteNotification
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteNotificationRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteNotification(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteNotificationResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteNotificationResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteNotificationResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteNotificationResponse and nil error while calling DeleteNotification. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveDeleteAllNotifications(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveDeleteAllNotificationsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveDeleteAllNotificationsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(DeleteAllNotificationsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.DeleteAllNotifications
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteAllNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteAllNotificationsRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteAllNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteAllNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteAllNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteAllNotificationsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteAllNotificationsResponse and nil error while calling DeleteAllNotifications. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(DeleteAllNotificationsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.DeleteAllNotifications
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *DeleteAllNotificationsRequest) (*DeleteAllNotificationsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*DeleteAllNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*DeleteAllNotificationsRequest) when calling interceptor")
+					}
+					return s.ICBT.DeleteAllNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*DeleteAllNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*DeleteAllNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *DeleteAllNotificationsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *DeleteAllNotificationsResponse and nil error while calling DeleteAllNotifications. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListNotifications(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveListNotificationsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveListNotificationsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *iCBTServer) serveListNotificationsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(ListNotificationsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.ICBT.ListNotifications
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+					}
+					return s.ICBT.ListNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListNotificationsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListNotificationsResponse and nil error while calling ListNotifications. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) serveListNotificationsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(ListNotificationsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.ICBT.ListNotifications
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*ListNotificationsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+					}
+					return s.ICBT.ListNotifications(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*ListNotificationsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *ListNotificationsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListNotificationsResponse and nil error while calling ListNotifications. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *iCBTServer) ServiceDescriptor() ([]byte, int) {
 	return twirpFileDescriptor0, 0
 }
 
-func (s *haberdasherServer) ProtocGenTwirpVersion() string {
+func (s *iCBTServer) ProtocGenTwirpVersion() string {
 	return "v8.1.3"
 }
 
 // PathPrefix returns the base service path, in the form: "/<prefix>/<package>.<Service>/"
 // that is everything in a Twirp route except for the <Method>. This can be used for routing,
 // for example to identify the requests that are targeted to this service in a mux.
-func (s *haberdasherServer) PathPrefix() string {
-	return baseServicePath(s.pathPrefix, "dropwhile.icbt.rpc", "Haberdasher")
+func (s *iCBTServer) PathPrefix() string {
+	return baseServicePath(s.pathPrefix, "dropwhile.icbt.rpc", "ICBT")
 }
 
 // =====
@@ -1089,18 +6115,90 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 195 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2d, 0x4e, 0x2d, 0x2a,
-	0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x4a, 0x29, 0xca, 0x2f, 0x28,
-	0xcf, 0xc8, 0xcc, 0x49, 0xd5, 0xcb, 0x4c, 0x4e, 0x2a, 0xd1, 0x2b, 0x2a, 0x48, 0x56, 0x92, 0xe3,
-	0x62, 0x09, 0xce, 0xac, 0x4a, 0x15, 0x12, 0xe3, 0x62, 0xcb, 0xcc, 0x4b, 0xce, 0x48, 0x2d, 0x96,
-	0x60, 0x54, 0x60, 0xd4, 0x60, 0x0d, 0x82, 0xf2, 0x94, 0xdc, 0xb9, 0x98, 0x3d, 0x12, 0x4b, 0x70,
-	0x49, 0x0b, 0x89, 0x70, 0xb1, 0x26, 0xe7, 0xe7, 0xe4, 0x17, 0x49, 0x30, 0x29, 0x30, 0x6a, 0x70,
-	0x06, 0x41, 0x38, 0x42, 0x42, 0x5c, 0x2c, 0x79, 0x89, 0xb9, 0xa9, 0x12, 0xcc, 0x60, 0x41, 0x30,
-	0xdb, 0xc8, 0x9b, 0x8b, 0xdb, 0x23, 0x31, 0x29, 0xb5, 0x28, 0x25, 0xb1, 0x38, 0x23, 0xb5, 0x48,
-	0xc8, 0x86, 0x8b, 0xdd, 0x37, 0x31, 0x3b, 0x15, 0x64, 0xb6, 0x84, 0x1e, 0xa6, 0xbb, 0xf4, 0x40,
-	0x8e, 0x92, 0x12, 0xc7, 0x26, 0xe3, 0x91, 0x58, 0xe2, 0x24, 0x1f, 0x25, 0x9b, 0x9e, 0x59, 0x92,
-	0x51, 0x9a, 0xa4, 0x97, 0x9c, 0x9f, 0xab, 0x0f, 0x57, 0xa4, 0x0f, 0x52, 0xa4, 0x5f, 0x54, 0x90,
-	0x9c, 0xc4, 0x06, 0xf6, 0xb1, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x4a, 0x4b, 0x5b, 0x48, 0x02,
-	0x01, 0x00, 0x00,
+	// 1356 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0x5d, 0x4f, 0xdb, 0x56,
+	0x18, 0xae, 0xf3, 0x01, 0xe4, 0x0d, 0x50, 0x71, 0x20, 0x21, 0x78, 0xa5, 0x44, 0x47, 0x2a, 0x03,
+	0x3a, 0x1c, 0x01, 0x9b, 0xd6, 0x55, 0xbb, 0x01, 0x3a, 0x0a, 0xd2, 0xd6, 0x6d, 0x1e, 0xd5, 0xb4,
+	0x4e, 0x6a, 0x64, 0xe2, 0x93, 0xe0, 0x2d, 0x89, 0x33, 0xfb, 0x40, 0xa5, 0xde, 0x70, 0xdb, 0x3f,
+	0x30, 0x6d, 0x17, 0xfb, 0x3f, 0xbb, 0xdd, 0xfd, 0xfe, 0xcc, 0x64, 0xfb, 0xf8, 0xfb, 0x75, 0x6c,
+	0x58, 0x2f, 0x7a, 0x47, 0xce, 0x79, 0xbf, 0xce, 0xf3, 0x3e, 0xef, 0xf1, 0x73, 0x80, 0x05, 0x9b,
+	0x59, 0xd7, 0x46, 0x8f, 0x29, 0x13, 0xcb, 0xe4, 0x26, 0x21, 0xba, 0x65, 0x4e, 0xde, 0x5c, 0x1a,
+	0x43, 0xa6, 0x18, 0xbd, 0x0b, 0xae, 0x58, 0x93, 0x9e, 0xbc, 0x31, 0x30, 0xcd, 0xc1, 0x90, 0x75,
+	0x5c, 0x8b, 0x8b, 0xab, 0x7e, 0x87, 0x1b, 0x23, 0x66, 0x73, 0x6d, 0x34, 0xf1, 0x9c, 0xe8, 0x53,
+	0x80, 0xef, 0xb4, 0x81, 0x31, 0xd6, 0xb8, 0x61, 0x8e, 0xc9, 0x0a, 0x54, 0x87, 0xc6, 0xc8, 0xe0,
+	0x2d, 0xa9, 0x2d, 0x6d, 0x2d, 0xa8, 0xde, 0x0f, 0xd2, 0x84, 0x19, 0xb3, 0xdf, 0xb7, 0x19, 0x6f,
+	0x95, 0xda, 0xd2, 0x56, 0x45, 0x15, 0xbf, 0xe8, 0x19, 0xd4, 0xcf, 0xfd, 0x70, 0xe7, 0xaf, 0xc8,
+	0x0e, 0x94, 0xb8, 0xed, 0x7a, 0xd6, 0xf7, 0x65, 0xc5, 0x4b, 0xac, 0xf8, 0x89, 0x95, 0xc0, 0x52,
+	0x2d, 0x71, 0x9b, 0x2c, 0x42, 0x89, 0xbf, 0x75, 0xc3, 0xd5, 0xd4, 0x12, 0x7f, 0x4b, 0x6f, 0x80,
+	0x1c, 0x5b, 0x4c, 0xe3, 0xec, 0xab, 0x6b, 0x36, 0xe6, 0x2a, 0xfb, 0xed, 0x8a, 0xd9, 0x9c, 0x10,
+	0xa8, 0x8c, 0xb5, 0x11, 0x73, 0x63, 0xd6, 0x54, 0xf7, 0x6f, 0xd2, 0x86, 0xba, 0xce, 0xec, 0x9e,
+	0x65, 0x4c, 0x9c, 0x8a, 0x45, 0x88, 0xe8, 0x12, 0x39, 0x80, 0xca, 0x9b, 0x4b, 0x36, 0x6e, 0x95,
+	0xdd, 0x4a, 0x36, 0x94, 0x34, 0x2c, 0x4a, 0xa4, 0x6c, 0xd5, 0x35, 0xa6, 0x27, 0xb0, 0x1c, 0x2b,
+	0xc0, 0x9e, 0x98, 0x63, 0x9b, 0x91, 0x0e, 0x54, 0x99, 0xb3, 0x20, 0x8e, 0xb5, 0x86, 0x05, 0xf3,
+	0x3c, 0x3c, 0x3b, 0xfa, 0x18, 0xc8, 0x33, 0x36, 0x64, 0x89, 0x83, 0x34, 0x60, 0xc6, 0x62, 0xfd,
+	0xae, 0xa1, 0x8b, 0xa3, 0x54, 0x2d, 0xd6, 0x3f, 0xd3, 0x69, 0x03, 0x96, 0x63, 0xc6, 0x5e, 0x52,
+	0xfa, 0xb7, 0x04, 0xe4, 0xe5, 0x44, 0xd7, 0x0a, 0x05, 0x21, 0xab, 0x02, 0x24, 0x17, 0x89, 0xd3,
+	0x7b, 0x1e, 0x4c, 0xef, 0x24, 0x89, 0x3c, 0x8a, 0x23, 0x55, 0x76, 0xf7, 0xa5, 0x18, 0x56, 0x8e,
+	0xd9, 0x13, 0x01, 0x57, 0xa5, 0x10, 0x5c, 0xa7, 0x25, 0x0f, 0xb0, 0x77, 0x92, 0x74, 0x34, 0x0b,
+	0xd5, 0xae, 0x93, 0xec, 0x68, 0x11, 0xe6, 0xbb, 0x91, 0xa8, 0xee, 0x86, 0x8f, 0x6a, 0xec, 0x20,
+	0x77, 0x45, 0xb5, 0x03, 0xcd, 0xe7, 0x8c, 0xbb, 0x4b, 0xcf, 0x18, 0xd7, 0x8c, 0xa1, 0x9d, 0x83,
+	0xec, 0x0d, 0xac, 0xa6, 0x1c, 0xee, 0x98, 0x9c, 0x1c, 0x40, 0xd5, 0xe0, 0x6c, 0x64, 0xb7, 0x4a,
+	0xed, 0xf2, 0x56, 0x7d, 0x7f, 0x3d, 0xd3, 0xe1, 0x8c, 0xb3, 0x91, 0xea, 0xd9, 0xd2, 0xdf, 0x25,
+	0x58, 0xfa, 0xda, 0xb0, 0xbd, 0x12, 0x82, 0x6a, 0x8f, 0x01, 0x26, 0xc1, 0xb4, 0x89, 0x02, 0x1e,
+	0x62, 0xf1, 0xc2, 0x99, 0x3c, 0xbd, 0xa7, 0x46, 0x7c, 0x9c, 0x86, 0x6d, 0xc0, 0x9c, 0x66, 0xf5,
+	0x2e, 0x8d, 0x6b, 0xa6, 0xbb, 0x4d, 0x9f, 0x3b, 0x95, 0xd4, 0x60, 0xc5, 0xe9, 0xcb, 0x02, 0xd4,
+	0xbb, 0xa1, 0xcb, 0x51, 0x1d, 0x6a, 0x5d, 0x7f, 0x9b, 0x3e, 0x07, 0x12, 0x2d, 0x4b, 0x60, 0xb2,
+	0x07, 0x33, 0xee, 0x59, 0x9d, 0xf1, 0x2d, 0x4f, 0x07, 0x45, 0x18, 0xd2, 0x7f, 0x25, 0xa8, 0xba,
+	0x2b, 0x59, 0xbc, 0x24, 0x51, 0x5e, 0xe2, 0xc3, 0x5b, 0xce, 0x1e, 0xde, 0xca, 0x2d, 0x86, 0x97,
+	0xc8, 0x11, 0x44, 0xaa, 0x0e, 0x22, 0x21, 0x1e, 0xe4, 0x53, 0x98, 0xed, 0xb9, 0x83, 0xad, 0xb7,
+	0x66, 0x72, 0xaf, 0x26, 0xdf, 0x94, 0x2a, 0xd0, 0x70, 0x0f, 0xe7, 0x60, 0xe5, 0xb4, 0x35, 0x8f,
+	0x6f, 0xdf, 0x40, 0x33, 0x69, 0x2f, 0xa0, 0x0d, 0xd8, 0x23, 0xdd, 0x82, 0x3d, 0x3f, 0xc1, 0xf2,
+	0xa1, 0xae, 0x87, 0xcb, 0x22, 0x79, 0x1b, 0xe6, 0x5d, 0xf4, 0xbb, 0xb1, 0x12, 0x80, 0x79, 0xc3,
+	0xe5, 0x80, 0x9e, 0x7b, 0x3b, 0xd2, 0x73, 0x58, 0x89, 0x87, 0x16, 0x75, 0x7e, 0x09, 0x5e, 0x9c,
+	0xae, 0x53, 0x81, 0xa0, 0x66, 0x4e, 0xb1, 0x35, 0xe6, 0xff, 0xe9, 0x0c, 0xa8, 0xca, 0x46, 0xe6,
+	0x35, 0x4b, 0xd5, 0x9c, 0x01, 0xd8, 0x1a, 0xac, 0xa6, 0x1c, 0xc4, 0xf5, 0xf7, 0x3d, 0x34, 0x23,
+	0x97, 0x46, 0x7e, 0xac, 0x02, 0x87, 0xfe, 0x11, 0x56, 0x53, 0x21, 0xdf, 0xcb, 0xb9, 0xff, 0x92,
+	0xa0, 0x16, 0x6c, 0x64, 0xd7, 0x17, 0x6f, 0x5b, 0x29, 0xaf, 0x6d, 0xc8, 0x5c, 0x44, 0x68, 0x5c,
+	0x29, 0x4e, 0xe3, 0x97, 0xb0, 0x22, 0xbe, 0x6a, 0x9a, 0x35, 0xd2, 0xac, 0x5f, 0x7d, 0x20, 0xb7,
+	0x61, 0x29, 0x3c, 0x74, 0x94, 0x4d, 0x65, 0x75, 0x91, 0x85, 0x10, 0xf9, 0x63, 0x6c, 0xf2, 0x70,
+	0x8c, 0x4d, 0xce, 0xe8, 0x0b, 0x68, 0x24, 0xc2, 0x0a, 0x30, 0x3f, 0x83, 0x59, 0xe6, 0x2d, 0x09,
+	0x24, 0x3f, 0x42, 0x91, 0x14, 0x5e, 0xbe, 0x2d, 0xdd, 0x85, 0x15, 0x41, 0x86, 0x78, 0x99, 0x19,
+	0xdc, 0x59, 0x85, 0x46, 0xc2, 0x5c, 0x30, 0x67, 0x0f, 0x5a, 0xce, 0xad, 0xef, 0xad, 0x16, 0xfb,
+	0x50, 0xa8, 0xb0, 0x86, 0xb8, 0xfc, 0xbf, 0xe3, 0xfc, 0x21, 0xc1, 0xb2, 0x7b, 0xc9, 0x7a, 0xbf,
+	0x3f, 0xa0, 0xdb, 0xff, 0x5b, 0x58, 0x89, 0x17, 0x26, 0x0e, 0xfa, 0x39, 0xcc, 0x89, 0xe2, 0xfd,
+	0x7b, 0x6a, 0xea, 0x49, 0x03, 0x63, 0xe7, 0x33, 0x37, 0x2b, 0x56, 0xb3, 0xd8, 0x8f, 0x72, 0xcd,
+	0x63, 0x53, 0x16, 0xd7, 0xca, 0x21, 0xd7, 0xee, 0x48, 0xfc, 0x2f, 0x7c, 0x86, 0x9e, 0x68, 0xd7,
+	0xa6, 0x65, 0x70, 0x56, 0xf8, 0x0a, 0xa5, 0x2a, 0x34, 0x93, 0xae, 0x02, 0xa5, 0x27, 0x30, 0xd7,
+	0x17, 0x6b, 0xa2, 0x7b, 0x0f, 0x30, 0x94, 0x02, 0xbf, 0xc0, 0x9a, 0x6e, 0xfa, 0x04, 0x8f, 0x96,
+	0x63, 0x73, 0x47, 0x06, 0x07, 0x83, 0x57, 0x32, 0x74, 0xda, 0xf2, 0xaf, 0xd1, 0x64, 0x6e, 0xfa,
+	0xa7, 0xe4, 0xb5, 0xce, 0xdf, 0xf8, 0x80, 0x48, 0xf5, 0x03, 0x34, 0x12, 0x95, 0x09, 0xbc, 0x9e,
+	0x42, 0xcd, 0x47, 0xc0, 0xa7, 0xd5, 0x74, 0xc0, 0x42, 0x73, 0x6a, 0xc1, 0x9c, 0xbf, 0x9c, 0x44,
+	0x09, 0xbd, 0x4f, 0xcb, 0xb1, 0xfb, 0x34, 0x42, 0x9a, 0x72, 0x71, 0xd2, 0x6c, 0xc0, 0xba, 0x27,
+	0xc7, 0x0f, 0x87, 0xc3, 0x17, 0x26, 0x37, 0xfa, 0x46, 0xcf, 0x3d, 0xae, 0x8f, 0x35, 0x6d, 0xc3,
+	0xc3, 0x2c, 0x03, 0xd1, 0xa6, 0x7d, 0x58, 0xf3, 0x2c, 0xa2, 0xdb, 0x39, 0x57, 0xd0, 0x03, 0x90,
+	0x31, 0x1f, 0x11, 0x71, 0x0c, 0x2d, 0x07, 0x5d, 0xac, 0x9e, 0xf7, 0xd2, 0xfb, 0x44, 0x6b, 0x69,
+	0x0f, 0xd6, 0x90, 0x7c, 0xa2, 0xa3, 0x27, 0xb0, 0x30, 0x8e, 0x6e, 0x88, 0xae, 0xb6, 0xb1, 0x9c,
+	0xb1, 0xd3, 0xc4, 0xdd, 0xe8, 0x15, 0xcc, 0x47, 0xb7, 0xb3, 0xae, 0x8e, 0x16, 0xcc, 0x8e, 0x98,
+	0x6d, 0x6b, 0x03, 0xff, 0xf3, 0xe3, 0xff, 0xbc, 0x5b, 0x83, 0xf7, 0xff, 0xb9, 0x0f, 0x95, 0xb3,
+	0xe3, 0xa3, 0x73, 0xf2, 0x1a, 0xea, 0x91, 0xd7, 0x1e, 0xd9, 0xc4, 0xea, 0x4f, 0xbf, 0x47, 0xe5,
+	0x8f, 0x73, 0xed, 0x04, 0x4e, 0xaf, 0xa1, 0x1e, 0x79, 0xd8, 0xe1, 0xf1, 0xd3, 0xcf, 0x44, 0x3c,
+	0x3e, 0xf2, 0x42, 0x74, 0xe2, 0x47, 0xf4, 0x0c, 0x1e, 0x3f, 0xfd, 0x82, 0xc4, 0xe3, 0x63, 0x0f,
+	0xb4, 0x5f, 0xe0, 0x7e, 0xe2, 0xf9, 0x44, 0x76, 0x30, 0x5f, 0xfc, 0x51, 0x26, 0x3f, 0x2e, 0x64,
+	0x2b, 0x72, 0xfd, 0x0c, 0x10, 0xbe, 0x48, 0xc8, 0x23, 0xcc, 0x35, 0xf5, 0x90, 0x92, 0x37, 0xf3,
+	0xcc, 0x44, 0xf0, 0x01, 0x2c, 0xc6, 0x75, 0x39, 0xd9, 0xce, 0xd4, 0x76, 0x49, 0xad, 0x2f, 0xef,
+	0x14, 0x31, 0x15, 0x89, 0x34, 0x98, 0x8f, 0xca, 0x6a, 0x82, 0x42, 0x8d, 0x68, 0x7a, 0x79, 0x2b,
+	0xdf, 0x30, 0x6c, 0x4a, 0x42, 0x32, 0xe3, 0x4d, 0xc1, 0x85, 0x38, 0xde, 0x94, 0x0c, 0x0d, 0xee,
+	0xe4, 0x4a, 0x08, 0x66, 0x3c, 0x17, 0x2e, 0xd4, 0xf1, 0x5c, 0x59, 0x0a, 0x5c, 0x87, 0x85, 0x98,
+	0x9a, 0x24, 0x5b, 0x53, 0xc6, 0x2c, 0x26, 0x10, 0xe5, 0xed, 0x02, 0x96, 0x61, 0x96, 0x98, 0x68,
+	0xc4, 0xb3, 0x60, 0x32, 0x14, 0xcf, 0x82, 0x2a, 0x50, 0x32, 0x81, 0xa5, 0x94, 0x9c, 0x24, 0x9f,
+	0x64, 0x8d, 0x03, 0x26, 0x54, 0xe5, 0xdd, 0x82, 0xd6, 0x21, 0xf1, 0xa2, 0x92, 0x0e, 0x27, 0x1e,
+	0xa2, 0x46, 0x71, 0xe2, 0xa1, 0xea, 0x50, 0x87, 0xfa, 0xa1, 0xae, 0x07, 0x9f, 0xe3, 0x29, 0xa0,
+	0x27, 0xd4, 0x16, 0x3e, 0x41, 0x19, 0xea, 0xaa, 0x0f, 0x8b, 0x71, 0xed, 0x33, 0xad, 0x43, 0x71,
+	0x1d, 0x25, 0xef, 0x14, 0xb1, 0x0c, 0x89, 0x10, 0x93, 0x2b, 0x24, 0x13, 0x88, 0xa4, 0xd6, 0xc2,
+	0x89, 0x80, 0x6b, 0x1f, 0xdb, 0xff, 0x3f, 0x60, 0xec, 0x3b, 0xb7, 0x9b, 0x7d, 0xc1, 0x23, 0x82,
+	0x41, 0x56, 0x8a, 0x9a, 0x8b, 0xa4, 0x37, 0xd0, 0xc4, 0xf5, 0x09, 0xd9, 0xcb, 0x8e, 0x94, 0x21,
+	0x76, 0xe4, 0xfd, 0xdb, 0xb8, 0x84, 0xf4, 0x4f, 0x89, 0x07, 0x9c, 0xfe, 0x59, 0x9a, 0x06, 0xa7,
+	0x7f, 0xa6, 0x22, 0x39, 0xda, 0x78, 0xb5, 0x3e, 0x30, 0xf8, 0xe5, 0xd5, 0x85, 0xd2, 0x33, 0x47,
+	0x9d, 0xc0, 0xb5, 0xe3, 0xb8, 0x76, 0xac, 0x49, 0xef, 0x62, 0xc6, 0x15, 0x04, 0x07, 0xff, 0x05,
+	0x00, 0x00, 0xff, 0xff, 0xe0, 0xae, 0x90, 0x0f, 0x2d, 0x17, 0x00, 0x00,
 }
