@@ -9,15 +9,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
+	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/resources"
+	rpcdef "github.com/dropwhile/icbt/rpc"
 )
 
 type App struct {
@@ -170,6 +173,25 @@ func New(
 		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Use(middleware.NoCache)
 		r.Post("/webhooks/pm", zh.PostmarkCallback)
+	})
+
+	// rpc api
+	rpcServer := &rpc.Server{
+		Db:          zh.Db,
+		Redis:       zh.Redis,
+		TemplateMap: zh.TemplateMap,
+		Mailer:      zh.Mailer,
+		MAC:         zh.MAC,
+		BaseURL:     zh.BaseURL,
+		IsProd:      zh.IsProd,
+	}
+	twirpHandler := rpcdef.NewICBTServer(
+		rpcServer, twirp.WithServerPathPrefix("/api"),
+	)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
+		r.Use(middleware.NoCache)
+		r.Mount(twirpHandler.PathPrefix(), twirpHandler)
 	})
 
 	return api

@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 
 // Haberdasher service makes hats for clients.
 service ICBT {
+  /*
   // events
   rpc CreateEvent(CreateEventRequest)
     returns (CreateEventResponse);
@@ -54,6 +55,7 @@ service ICBT {
     returns (DeleteNotificationResponse);
   rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
     returns (DeleteAllNotificationsResponse);
+  */
   rpc ListNotifications(ListNotificationsRequest)
     returns (ListNotificationsResponse);
 }
