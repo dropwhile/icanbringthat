@@ -73,3 +73,46 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 	}
 	return response, nil
 }
+
+func (s *Server) RemoveFavorite(ctx context.Context,
+	r *pb.RemoveFavoriteRequest,
+) (*pb.RemoveFavoriteResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEventRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+	}
+
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("event not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	favorite, err := model.GetFavoriteByUserEvent(ctx, s.Db, user.ID, event.ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("favorite not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	// superfluous check, but fine to leave in
+	if user.ID != favorite.UserID {
+		return nil, twirp.PermissionDenied.Error("permission denied")
+	}
+
+	err = model.DeleteFavorite(ctx, s.Db, favorite.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	return &pb.RemoveFavoriteResponse{}, nil
+}

@@ -50,9 +50,9 @@ service Rpc {
   /*
     rpc AddFavorite(CreateFavoriteRequest)
       returns (CreateFavoriteResponse);
-    rpc RemoveFavorite(RemoveFavoriteRequst)
-      returns (RemoveFavoriteResponse);
   */
+  rpc RemoveFavorite(RemoveFavoriteRequest)
+      returns (RemoveFavoriteResponse);
   rpc ListFavoriteEvents(ListFavoriteEventsRequest)
       returns (ListFavoriteEventsResponse);
 
@@ -249,8 +249,8 @@ message CreateFavoriteResponse {
   Favorite favorite = 1;
 }
 
-message RemoveFavoriteRequst {
-  int64 id = 1;
+message RemoveFavoriteRequest {
+  string ref_id = 1;
 }
 
 message RemoveFavoriteResponse {}
@@ -266,9 +266,8 @@ message ListFavoriteEventsResponse {
 }
 
 message Favorite {
-  int64 id = 1;
-  int64 event_ref_id = 2;
-  google.protobuf.Timestamp created = 3;
+  string ref_id = 1;
+  google.protobuf.Timestamp created = 2;
 }
 
 /* notifications */

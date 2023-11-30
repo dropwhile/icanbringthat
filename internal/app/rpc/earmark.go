@@ -38,7 +38,6 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 	earmarks, err := model.GetEarmarksByEvent(ctx, s.Db, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		earmarks = []*model.Earmark{}
 		return nil, twirp.NotFoundError("event not found")
 	case err != nil:
 		return nil, twirp.InternalError("db error")

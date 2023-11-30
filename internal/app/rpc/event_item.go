@@ -38,7 +38,6 @@ func (s *Server) ListEventItems(ctx context.Context,
 	items, err := model.GetEventItemsByEvent(ctx, s.Db, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		items = []*model.EventItem{}
 		return nil, twirp.NotFoundError("event not found")
 	case err != nil:
 		return nil, twirp.InternalError("db error")
