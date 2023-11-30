@@ -1,32 +1,33 @@
 syntax = "proto3";
-
 package icbt.rpc;
 option go_package = "github.com/dropwhile/icbt/rpc";
 
 import "google/protobuf/timestamp.proto";
 
-// Haberdasher service makes hats for clients.
 service Rpc {
+  // events
   /*
-    // events
     rpc CreateEvent(CreateEventRequest)
       returns (CreateEventResponse);
-    rpc DeleteEvent(DeleteEventRequest)
+  */
+  rpc DeleteEvent(DeleteEventRequest)
       returns (DeleteEventResponse);
+  /*
     rpc UpdateEvent(UpdateEventRequest)
       returns (UpdateEventResponse);
     rpc GetEventDetails(GetEventDetailsRequest)
       returns (GetEventDetailsResponse);
   */
   rpc ListEventItems(ListEventItemsRequest)
-    returns (ListEventItemsResponse);
+      returns (ListEventItemsResponse);
   rpc ListEventEarmarks(ListEventEarmarksRequest)
-    returns (ListEventEarmarksResponse);
+      returns (ListEventEarmarksResponse);
   rpc ListEvents(ListEventsRequest)
-    returns (ListEventsResponse);
+      returns (ListEventsResponse);
   // rpc UpdateEventItemsSorting : TODO
+
+  // event-items
   /*
-      // event-items
       rpc AddEventItem(AddEventItemRequest)
         returns (AddEventItemResponse);
       rpc RemoveEventItem(RemoveEventItemRequest)
@@ -43,25 +44,23 @@ service Rpc {
         returns (GetEarmarkDetailsResponse);
     */
   rpc ListEarmarks(ListEarmarksRequest)
-    returns (ListEarmarksResponse);
+      returns (ListEarmarksResponse);
 
-    /*
-      // favorites
-      rpc AddFavorite(CreateFavoriteRequest)
-        returns (CreateFavoriteResponse);
-      rpc RemoveFavorite(RemoveFavoriteRequst)
-        returns (RemoveFavoriteResponse);
-    */
+  // favorites
+  /*
+    rpc AddFavorite(CreateFavoriteRequest)
+      returns (CreateFavoriteResponse);
+    rpc RemoveFavorite(RemoveFavoriteRequst)
+      returns (RemoveFavoriteResponse);
+  */
   rpc ListFavoriteEvents(ListFavoriteEventsRequest)
       returns (ListFavoriteEventsResponse);
 
-    // notifications
-    rpc DeleteNotification(DeleteNotificationRequest)
+  // notifications
+  rpc DeleteNotification(DeleteNotificationRequest)
       returns (DeleteNotificationResponse);
-  /*
-    rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
+  rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
       returns (DeleteAllNotificationsResponse);
-  */
   rpc ListNotifications(ListNotificationsRequest)
       returns (ListNotificationsResponse);
 }

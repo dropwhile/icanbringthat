@@ -73,3 +73,38 @@ func (s *Server) ListEvents(ctx context.Context,
 	}
 	return response, nil
 }
+
+func (s *Server) DeleteEvent(ctx context.Context,
+	r *pb.DeleteEventRequest,
+) (*pb.DeleteEventResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEventRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+	}
+
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("notification not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	if user.ID != event.UserID {
+		return nil, twirp.PermissionDenied.Error("permission denied")
+	}
+
+	err = model.DeleteEvent(ctx, s.Db, event.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.DeleteEventResponse{}
+	return response, nil
+}

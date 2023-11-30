@@ -84,11 +84,33 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 
+	if user.ID != notification.UserID {
+		return nil, twirp.PermissionDenied.Error("permission denied")
+	}
+
 	err = model.DeleteNotification(ctx, s.Db, notification.ID)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
 
 	response := &pb.DeleteNotificationResponse{}
+	return response, nil
+}
+
+func (s *Server) DeleteAllNotifications(ctx context.Context,
+	r *pb.DeleteAllNotificationsRequest,
+) (*pb.DeleteAllNotificationsResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	err = model.DeleteNotificationsByUser(ctx, s.Db, user.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.DeleteAllNotificationsResponse{}
 	return response, nil
 }
