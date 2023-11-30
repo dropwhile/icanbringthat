@@ -30,11 +30,11 @@ service Rpc {
 /*
   rpc AddEventItem(AddEventItemRequest)
     returns (AddEventItemResponse);
-  rpc RemoveEventItem(RemoveEventItemRequest)
-    returns (RemoveEventItemResponse);
   rpc UpdateEventItem(UpdateEventItemRequest)
     returns (UpdateEventItemResponse);
 */
+  rpc RemoveEventItem(RemoveEventItemRequest)
+    returns (RemoveEventItemResponse);
 
   // earmarks
 /*
