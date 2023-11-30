@@ -149,6 +149,26 @@ func GetEventByEarmark(ctx context.Context, db PgxHandle,
 	return QueryOne[Event](ctx, db, q, earmark.ID)
 }
 
+func GetEventsByUserFiltered(
+	ctx context.Context, db PgxHandle,
+	userID int, archived bool,
+) ([]*Event, error) {
+	q := `
+		SELECT * FROM event_
+		WHERE
+			event_.user_id = @userID AND
+			archived = @archived
+		ORDER BY
+			start_time DESC,
+			id DESC
+		`
+	args := pgx.NamedArgs{
+		"userID":   userID,
+		"archived": archived,
+	}
+	return Query[Event](ctx, db, q, args)
+}
+
 func GetEventsByUserPaginated(
 	ctx context.Context, db PgxHandle,
 	userID int, limit, offset int,

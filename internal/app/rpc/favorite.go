@@ -2,7 +2,9 @@ package rpc
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -44,14 +46,17 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		if count > 0 {
 			events, err = model.GetFavoriteEventsByUserPaginatedFiltered(
 				ctx, s.Db, user.ID, limit, offset, showArchived)
-			if err != nil {
+			switch {
+			case errors.Is(err, pgx.ErrNoRows):
+				events = []*model.Event{}
+			case err != nil:
 				return nil, twirp.InternalError("db error")
 			}
 		}
 		paginationResult = &pb.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
-			Count:  uint32(favCounts.Current),
+			Count:  uint32(count),
 		}
 	} else {
 		events, err = model.GetFavoriteEventsByUserFiltered(

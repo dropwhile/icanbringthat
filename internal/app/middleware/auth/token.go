@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func LoadToken(next http.Handler) http.Handler {
+func LoadAuthToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		authHeader := r.Header.Get("Authorization")

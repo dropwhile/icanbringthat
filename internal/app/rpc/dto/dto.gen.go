@@ -20,6 +20,15 @@ func ToPbEvent(src *model.Event) (dst *pb.Event) {
 	return
 }
 
+func ToPbEventItem(src *model.EventItem) (dst *pb.EventItem) {
+	dst = &pb.EventItem{}
+	dst.RefId = src.RefID.String()
+	dst.Description = src.Description
+	dst.Created = TimeToTimestamp(src.Created)
+
+	return
+}
+
 func ToPbNotification(src *model.Notification) (dst *pb.Notification) {
 	dst = &pb.Notification{}
 	dst.RefId = src.RefID.String()

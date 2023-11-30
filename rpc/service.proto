@@ -17,36 +17,37 @@ service Rpc {
       returns (UpdateEventResponse);
     rpc GetEventDetails(GetEventDetailsRequest)
       returns (GetEventDetailsResponse);
-    rpc ListEvents(ListEventsRequest)
-      returns (ListEventsResponse);
-    rpc EventListItems(EventListItemsRequest)
-      returns (EventListItemsResponse);
-    // rpc UpdateEventItemsSorting : TODO
+  */
+  rpc ListEventItems(ListEventItemsRequest)
+    returns (ListEventItemsResponse);
+  // rpc UpdateEventItemsSorting : TODO
+  rpc ListEvents(ListEventsRequest)
+    returns (ListEventsResponse);
+  /*
+      // event-items
+      rpc AddEventItem(AddEventItemRequest)
+        returns (AddEventItemResponse);
+      rpc RemoveEventItem(RemoveEventItemRequest)
+        returns (RemoveEventItemResponse);
+      rpc UpdateEventItem(UpdateEventItemRequest)
+        returns (UpdateEventItemResponse);
 
-    // event-items
-    rpc AddEventItem(AddEventItemRequest)
-      returns (AddEventItemResponse);
-    rpc RemoveEventItem(RemoveEventItemRequest)
-      returns (RemoveEventItemResponse);
-    rpc UpdateEventItem(UpdateEventItemRequest)
-      returns (UpdateEventItemResponse);
-
-    // earmarks
-    rpc CreateEarmark(CreateEarmarkRequest)
-      returns (CreateEarmarkResponse);
-    rpc RemoveEarmark(RemoveEarmarkRequest)
-      returns (RemoveEarmarkResponse);
-    rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
-      returns (GetEarmarkDetailsResponse);
+      // earmarks
+      rpc CreateEarmark(CreateEarmarkRequest)
+        returns (CreateEarmarkResponse);
+      rpc RemoveEarmark(RemoveEarmarkRequest)
+        returns (RemoveEarmarkResponse);
+      rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
+        returns (GetEarmarkDetailsResponse);
     rpc ListEarmarks(ListEarmarksRequest)
       returns (ListEarmarksResponse);
 
-    // favorites
-    rpc AddFavorite(CreateFavoriteRequest)
-      returns (CreateFavoriteResponse);
-    rpc RemoveFavorite(RemoveFavoriteRequst)
-      returns (RemoveFavoriteResponse);
-  */
+      // favorites
+      rpc AddFavorite(CreateFavoriteRequest)
+        returns (CreateFavoriteResponse);
+      rpc RemoveFavorite(RemoveFavoriteRequst)
+        returns (RemoveFavoriteResponse);
+    */
   rpc ListFavoriteEvents(ListFavoriteEventsRequest)
       returns (ListFavoriteEventsResponse);
 
@@ -142,11 +143,11 @@ message Event {
   google.protobuf.Timestamp created = 6;
 }
 
-message EventListItemsRequest {
-  string ref_id = 1;
+message ListEventItemsRequest {
+  string ref_id = 1;  // event ref-id
 }
 
-message EventListItemsResponse {
+message ListEventItemsResponse {
   repeated EventItem items = 1;
   optional PaginationResult pagination = 2;
 }
@@ -179,9 +180,8 @@ message UpdateEventItemResponse {
 
 message EventItem {
   string ref_id = 1;
-  string event_ref_id = 2;
-  string description = 3;
-  google.protobuf.Timestamp created = 4;
+  string description = 2;
+  google.protobuf.Timestamp created = 3;
 }
 
 /* earmarks */

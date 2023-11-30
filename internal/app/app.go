@@ -1,6 +1,7 @@
 package app
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -9,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
-	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -20,8 +20,9 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/resources"
-	rpcdef "github.com/dropwhile/icbt/rpc"
 )
+
+const TwirpPrefix = "/api"
 
 type App struct {
 	*chi.Mux
@@ -170,8 +171,8 @@ func New(
 
 	// webhooks
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Use(middleware.NoCache)
+		r.Use(middleware.BasicAuth("simple", conf.WebhookCreds))
 		r.Post("/webhooks/pm", zh.PostmarkCallback)
 	})
 
@@ -185,21 +186,14 @@ func New(
 		BaseURL:     zh.BaseURL,
 		IsProd:      zh.IsProd,
 	}
-	twirpHooks := &twirp.ServerHooks{
-		RequestReceived: rpc.AuthHook(rpcServer.Db),
-	}
-	twirpHandler := rpcdef.NewRpcServer(
-		rpcServer,
-		twirp.WithServerPathPrefix("/api"),
-		twirp.WithServerHooks(twirpHooks),
-	)
-	r.Group(func(r chi.Router) {
+	r.Route(TwirpPrefix, func(r chi.Router) {
 		// add auth token middleware here instead,
 		// which pulls an auth token from a header,
 		// looks it up in the db, and sets the user in the context
+		r.NotFound(http.NotFound)
 		r.Use(middleware.NoCache)
-		r.Use(auth.LoadToken)
-		r.Mount(twirpHandler.PathPrefix(), twirpHandler)
+		r.Use(auth.LoadAuthToken)
+		r.Mount("/", rpcServer.GenHandler(TwirpPrefix))
 	})
 
 	return api

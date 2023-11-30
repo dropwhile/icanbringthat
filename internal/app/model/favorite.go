@@ -78,29 +78,6 @@ func GetFavoriteEventsByUserFiltered(
 	return Query[Event](ctx, db, q, args)
 }
 
-func GetFavoriteEventsByUserPaginated(
-	ctx context.Context, db PgxHandle,
-	userID int, limit, offset int,
-) ([]*Event, error) {
-	q := `
-	SELECT event_.*
-	FROM event_ 
-	JOIN favorite_ ON
-		favorite_.event_id = event_.id
-	WHERE favorite_.user_id = @userID 
-	ORDER BY 
-		event_.start_time DESC,
-		event_.id DESC
-	LIMIT @limit OFFSET @offset
-	`
-	args := pgx.NamedArgs{
-		"userID": userID,
-		"limit":  limit,
-		"offset": offset,
-	}
-	return Query[Event](ctx, db, q, args)
-}
-
 func GetFavoriteEventsByUserPaginatedFiltered(
 	ctx context.Context, db PgxHandle,
 	userID int, limit, offset int, archived bool,
