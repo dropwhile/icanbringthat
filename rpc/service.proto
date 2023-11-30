@@ -6,18 +6,18 @@ import "google/protobuf/timestamp.proto";
 
 service Rpc {
   // events
-  /*
-    rpc CreateEvent(CreateEventRequest)
-      returns (CreateEventResponse);
-  */
+/*
+  rpc CreateEvent(CreateEventRequest)
+    returns (CreateEventResponse);
+*/
   rpc DeleteEvent(DeleteEventRequest)
       returns (DeleteEventResponse);
-  /*
-    rpc UpdateEvent(UpdateEventRequest)
-      returns (UpdateEventResponse);
-    rpc GetEventDetails(GetEventDetailsRequest)
-      returns (GetEventDetailsResponse);
-  */
+/*
+  rpc UpdateEvent(UpdateEventRequest)
+    returns (UpdateEventResponse);
+  rpc GetEventDetails(GetEventDetailsRequest)
+    returns (GetEventDetailsResponse);
+*/
   rpc ListEventItems(ListEventItemsRequest)
       returns (ListEventItemsResponse);
   rpc ListEventEarmarks(ListEventEarmarksRequest)
@@ -27,30 +27,30 @@ service Rpc {
   // rpc UpdateEventItemsSorting : TODO
 
   // event-items
-  /*
-      rpc AddEventItem(AddEventItemRequest)
-        returns (AddEventItemResponse);
-      rpc RemoveEventItem(RemoveEventItemRequest)
-        returns (RemoveEventItemResponse);
-      rpc UpdateEventItem(UpdateEventItemRequest)
-        returns (UpdateEventItemResponse);
+/*
+  rpc AddEventItem(AddEventItemRequest)
+    returns (AddEventItemResponse);
+  rpc RemoveEventItem(RemoveEventItemRequest)
+    returns (RemoveEventItemResponse);
+  rpc UpdateEventItem(UpdateEventItemRequest)
+    returns (UpdateEventItemResponse);
+*/
 
-      // earmarks
-      rpc CreateEarmark(CreateEarmarkRequest)
-        returns (CreateEarmarkResponse);
-      rpc RemoveEarmark(RemoveEarmarkRequest)
-        returns (RemoveEarmarkResponse);
-      rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
-        returns (GetEarmarkDetailsResponse);
-    */
+  // earmarks
+/*
+  rpc CreateEarmark(CreateEarmarkRequest)
+    returns (CreateEarmarkResponse);
+  rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
+    returns (GetEarmarkDetailsResponse);
+*/
+  rpc RemoveEarmark(RemoveEarmarkRequest)
+      returns (RemoveEarmarkResponse);
   rpc ListEarmarks(ListEarmarksRequest)
       returns (ListEarmarksResponse);
 
   // favorites
-  /*
-    rpc AddFavorite(CreateFavoriteRequest)
+  rpc AddFavorite(CreateFavoriteRequest)
       returns (CreateFavoriteResponse);
-  */
   rpc RemoveFavorite(RemoveFavoriteRequest)
       returns (RemoveFavoriteResponse);
   rpc ListFavoriteEvents(ListFavoriteEventsRequest)
@@ -242,7 +242,7 @@ message Earmark {
 /* favorites */
 
 message CreateFavoriteRequest {
-  string event_ref_id = 1;
+  string event_ref_id = 1; // event ref-id
 }
 
 message CreateFavoriteResponse {
@@ -250,7 +250,7 @@ message CreateFavoriteResponse {
 }
 
 message RemoveFavoriteRequest {
-  string ref_id = 1;
+  string event_ref_id = 1; // event ref-id
 }
 
 message RemoveFavoriteResponse {}
@@ -266,7 +266,7 @@ message ListFavoriteEventsResponse {
 }
 
 message Favorite {
-  string ref_id = 1;
+  string event_ref_id = 1; // event ref-id
   google.protobuf.Timestamp created = 2;
 }
 

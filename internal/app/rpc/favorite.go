@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/twitchtv/twirp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -83,7 +84,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := model.ParseEventRefID(r.EventRefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
 	}
@@ -115,4 +116,46 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 	}
 
 	return &pb.RemoveFavoriteResponse{}, nil
+}
+
+func (s *Server) AddFavorite(ctx context.Context,
+	r *pb.CreateFavoriteRequest,
+) (*pb.CreateFavoriteResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEventRefID(r.EventRefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+	}
+
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("event not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	// check if favorite already exists
+	_, err = model.GetFavoriteByUserEvent(ctx, s.Db, user.ID, event.ID)
+	if err == nil {
+		return nil, twirp.AlreadyExists.Error("favorite already exists")
+	}
+
+	favorite, err := model.CreateFavorite(ctx, s.Db, user.ID, event.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.CreateFavoriteResponse{
+		Favorite: &pb.Favorite{
+			EventRefId: r.EventRefId,
+			Created:    timestamppb.New(favorite.Created),
+		},
+	}
+	return response, nil
 }

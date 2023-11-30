@@ -117,3 +117,37 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	}
 	return response, nil
 }
+
+func (s *Server) RemoveEarmark(ctx context.Context,
+	r *pb.RemoveEarmarkRequest,
+) (*pb.RemoveEarmarkResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEarmarkRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
+	}
+
+	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("earmark not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	if earmark.UserID != user.ID {
+		return nil, twirp.PermissionDenied.Error("permission denied")
+	}
+
+	err = model.DeleteEarmark(ctx, s.Db, earmark.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	return &pb.RemoveEarmarkResponse{}, nil
+}
