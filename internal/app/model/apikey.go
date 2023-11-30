@@ -58,11 +58,11 @@ func GetUserByApiKey(ctx context.Context, db PgxHandle,
 ) (*User, error) {
 	q := `
 		SELECT user_.*
-		FROM api_key_
-		JOIN user_ ON
+		FROM user_
+		JOIN api_key_ ON
 			api_key_.user_id = user_.id
 		WHERE
-			user_.apkey = TRUE AND
+			user_.apikey = TRUE AND
 			api_key_.token = $1
 		`
 	return QueryOne[User](ctx, db, q, token)

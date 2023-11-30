@@ -93,6 +93,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
 				"pwAuth":   user.PWAuth,
+				"apiKey":   user.ApiKey,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
@@ -191,6 +192,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"pwHash":   user.PWHash,
 				"verified": user.Verified,
 				"pwAuth":   user.PWAuth,
+				"apiKey":   user.ApiKey,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).
@@ -366,6 +368,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": user.Verified,
 				"pwAuth":   user.PWAuth,
+				"apiKey":   user.ApiKey,
 				"webAuthn": user.WebAuthn,
 				"userID":   user.ID,
 			}).

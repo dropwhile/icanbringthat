@@ -11,28 +11,39 @@ import (
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
-func (s *Server) ListNotifications(ctx context.Context,
-	r *pb.ListNotificationsRequest,
-) (*pb.ListNotificationsResponse, error) {
+func (s *Server) ListFavoriteEvents(ctx context.Context,
+	r *pb.ListFavoriteEventsRequest,
+) (*pb.ListFavoriteEventsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
+	showArchived := false
+	if r.Archived != nil && *r.Archived {
+		showArchived = true
+	}
+
 	var paginationResult *pb.PaginationResult
-	var notifications []*model.Notification
+	var events []*model.Event
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
 
-		notifCount, err := model.GetNotificationCountByUser(ctx, s.Db, user.ID)
+		favCounts, err := model.GetFavoriteCountByUser(ctx, s.Db, user.ID)
 		if err != nil {
 			return nil, twirp.InternalError("db error")
 		}
 
-		if notifCount > 0 {
-			notifications, err = model.GetNotificationsByUserPaginated(ctx, s.Db, user.ID, limit, offset)
+		count := favCounts.Current
+		if showArchived {
+			count = favCounts.Archived
+		}
+
+		if count > 0 {
+			events, err = model.GetFavoriteEventsByUserPaginatedFiltered(
+				ctx, s.Db, user.ID, limit, offset, showArchived)
 			if err != nil {
 				return nil, twirp.InternalError("db error")
 			}
@@ -40,19 +51,20 @@ func (s *Server) ListNotifications(ctx context.Context,
 		paginationResult = &pb.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
-			Count:  uint32(notifCount),
+			Count:  uint32(favCounts.Current),
 		}
 	} else {
-		notifications, err = model.GetNotificationsByUser(ctx, s.Db, user.ID)
+		events, err = model.GetFavoriteEventsByUserFiltered(
+			ctx, s.Db, user.ID, showArchived)
 		if err != nil {
 			return nil, twirp.InternalError("db error")
 		}
 
 	}
 
-	response := &pb.ListNotificationsResponse{
-		Notifications: dto.ToPbList(dto.ToPbNotification, notifications),
-		Pagination:    paginationResult,
+	response := &pb.ListFavoriteEventsResponse{
+		Events:     dto.ToPbList(dto.ToPbEvent, events),
+		Pagination: paginationResult,
 	}
 	return response, nil
 }

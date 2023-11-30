@@ -188,7 +188,7 @@ func New(
 	twirpHooks := &twirp.ServerHooks{
 		RequestReceived: rpc.AuthHook(rpcServer.Db),
 	}
-	twirpHandler := rpcdef.NewICBTServer(
+	twirpHandler := rpcdef.NewRpcServer(
 		rpcServer,
 		twirp.WithServerPathPrefix("/api"),
 		twirp.WithServerHooks(twirpHooks),

@@ -5,7 +5,6 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/dropwhile/icbt/internal/app/model"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -13,10 +12,18 @@ func TimeToTimestamp(t time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(t)
 }
 
-func ToPbNotificationList(notifications []*model.Notification) []*pb.Notification {
-	out := make([]*pb.Notification, len(notifications))
-	for i := range notifications {
-		out[i] = ToPbNotification(notifications[i])
+func TimeToTimestampTZ(t time.Time) *pb.TimestampTZ {
+	pbtz := &pb.TimestampTZ{
+		Ts: timestamppb.New(t),
+		Tz: t.Location().String(),
+	}
+	return pbtz
+}
+
+func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
+	out := make([]*V, len(in))
+	for i := range in {
+		out[i] = converter(in[i])
 	}
 	return out
 }

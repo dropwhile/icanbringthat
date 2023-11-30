@@ -2,7 +2,9 @@ package rpc
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -20,11 +22,12 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 
 		// lookup user
 		user, err := model.GetUserByApiKey(ctx, db, apiKey)
-		if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return ctx, twirp.Unauthenticated.Error("invalid auth")
+		case err != nil:
 			return ctx, twirp.InternalError("db error")
-		}
-		if user == nil {
-			// no user found
+		case user == nil:
 			return ctx, twirp.Unauthenticated.Error("invalid auth")
 		}
 

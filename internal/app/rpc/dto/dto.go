@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/rpc"
+	pb "github.com/dropwhile/icbt/rpc"
 )
 
 //go:generate convergen
@@ -11,7 +11,14 @@ type Convergen interface {
 	// :stringer
 	// :case:off
 	// :conv TimeToTimestamp Created Created
-	ToPbNotification(*model.Notification) *rpc.Notification
+	ToPbNotification(*model.Notification) *pb.Notification
+
+	// :typecast
+	// :stringer
+	// :case:off
+	// :conv TimeToTimestamp Created Created
+	// :conv TimeToTimestampTZ When() When
+	ToPbEvent(*model.Event) *pb.Event
 }
 
 /*

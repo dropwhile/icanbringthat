@@ -214,7 +214,8 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	if changes {
 		err = model.UpdateUser(ctx, x.Db,
 			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.WebAuthn, user.ID,
+			user.Verified, user.PWAuth, user.ApiKey,
+			user.WebAuthn, user.ID,
 		)
 		if err != nil {
 			log.Error().Err(err).Msg("error updating user")
@@ -323,7 +324,8 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 
 	err = model.UpdateUser(ctx, x.Db,
 		user.Email, user.Name, user.PWHash,
-		user.Verified, user.PWAuth, user.WebAuthn, user.ID,
+		user.Verified, user.PWAuth, user.ApiKey,
+		user.WebAuthn, user.ID,
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("error updating user auth")

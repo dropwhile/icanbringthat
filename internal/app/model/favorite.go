@@ -55,6 +55,29 @@ func GetFavoriteByUserEvent(ctx context.Context, db PgxHandle,
 	return QueryOne[Favorite](ctx, db, q, args)
 }
 
+func GetFavoriteEventsByUserFiltered(
+	ctx context.Context, db PgxHandle,
+	userID int, archived bool,
+) ([]*Event, error) {
+	q := `
+	SELECT event_.*
+	FROM event_ 
+	JOIN favorite_ ON
+		favorite_.event_id = event_.id
+	WHERE
+	 	favorite_.user_id = @userID AND
+		event_.archived = @archived
+	ORDER BY 
+		event_.start_time DESC,
+		event_.id DESC
+	`
+	args := pgx.NamedArgs{
+		"userID":   userID,
+		"archived": archived,
+	}
+	return Query[Event](ctx, db, q, args)
+}
+
 func GetFavoriteEventsByUserPaginated(
 	ctx context.Context, db PgxHandle,
 	userID int, limit, offset int,
@@ -105,9 +128,9 @@ func GetFavoriteEventsByUserPaginatedFiltered(
 }
 
 func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
-	user *User,
+	userID int,
 ) (*BifurcatedRowCounts, error) {
-	if user == nil {
+	if userID == 0 {
 		return nil, errors.New("nil user supplied")
 	}
 	q := `
@@ -118,5 +141,5 @@ func GetFavoriteCountByUser(ctx context.Context, db PgxHandle,
 		JOIN event_ ON 
 			event_.id = fav.event_id
 		WHERE fav.user_id = $1`
-	return QueryOne[BifurcatedRowCounts](ctx, db, q, user.ID)
+	return QueryOne[BifurcatedRowCounts](ctx, db, q, userID)
 }

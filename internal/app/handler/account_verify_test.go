@@ -172,6 +172,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": true,
 				"pwAuth":   true,
+				"apiKey":   false,
 				"webAuthn": false,
 				"userID":   user.ID,
 			}).
@@ -414,6 +415,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 				"pwHash":   pgxmock.AnyArg(),
 				"verified": true,
 				"pwAuth":   true,
+				"apiKey":   false,
 				"webAuthn": false,
 				"userID":   user.ID,
 			}).

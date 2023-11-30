@@ -320,7 +320,8 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx,
 			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.WebAuthn, user.ID,
+			user.Verified, user.PWAuth, user.ApiKey,
+			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
 			log.Debug().

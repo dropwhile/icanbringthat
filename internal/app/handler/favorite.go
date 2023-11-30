@@ -35,7 +35,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user)
+	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		x.DBError(w, err)
 		return

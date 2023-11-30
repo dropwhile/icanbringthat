@@ -36,6 +36,10 @@ type Event struct {
 	RefID         EventRefID `db:"ref_id"`
 }
 
+func (ev *Event) When() time.Time {
+	return ev.StartTime.In(ev.StartTimeTz.Location)
+}
+
 func NewEvent(ctx context.Context, db PgxHandle,
 	userID int, name, description string,
 	startTime time.Time,

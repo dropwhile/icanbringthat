@@ -1,87 +1,88 @@
 syntax = "proto3";
 
-package dropwhile.icbt.rpc;
+package icbt.rpc;
 option go_package = "github.com/dropwhile/icbt/rpc";
 
 import "google/protobuf/timestamp.proto";
 
-
 // Haberdasher service makes hats for clients.
-service ICBT {
+service Rpc {
   /*
-  // events
-  rpc CreateEvent(CreateEventRequest)
-    returns (CreateEventResponse);
-  rpc DeleteEvent(DeleteEventRequest)
-    returns (DeleteEventResponse);
-  rpc UpdateEvent(UpdateEventRequest)
-    returns (UpdateEventResponse);
-  rpc GetEventDetails(GetEventDetailsRequest)
-    returns (GetEventDetailsResponse);
-  rpc ListEvents(ListEventsRequest)
-    returns (ListEventsResponse);
-  rpc EventListItems(EventListItemsRequest)
-    returns (EventListItemsResponse);
-  // rpc UpdateEventItemsSorting : TODO
+    // events
+    rpc CreateEvent(CreateEventRequest)
+      returns (CreateEventResponse);
+    rpc DeleteEvent(DeleteEventRequest)
+      returns (DeleteEventResponse);
+    rpc UpdateEvent(UpdateEventRequest)
+      returns (UpdateEventResponse);
+    rpc GetEventDetails(GetEventDetailsRequest)
+      returns (GetEventDetailsResponse);
+    rpc ListEvents(ListEventsRequest)
+      returns (ListEventsResponse);
+    rpc EventListItems(EventListItemsRequest)
+      returns (EventListItemsResponse);
+    // rpc UpdateEventItemsSorting : TODO
 
-  // event-items
-  rpc AddEventItem(AddEventItemRequest)
-    returns (AddEventItemResponse);
-  rpc RemoveEventItem(RemoveEventItemRequest)
-    returns (RemoveEventItemResponse);
-  rpc UpdateEventItem(UpdateEventItemRequest)
-    returns (UpdateEventItemResponse);
+    // event-items
+    rpc AddEventItem(AddEventItemRequest)
+      returns (AddEventItemResponse);
+    rpc RemoveEventItem(RemoveEventItemRequest)
+      returns (RemoveEventItemResponse);
+    rpc UpdateEventItem(UpdateEventItemRequest)
+      returns (UpdateEventItemResponse);
 
-  // earmarks
-  rpc CreateEarmark(CreateEarmarkRequest)
-    returns (CreateEarmarkResponse);
-  rpc RemoveEarmark(RemoveEarmarkRequest)
-    returns (RemoveEarmarkResponse);
-  rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
-    returns (GetEarmarkDetailsResponse);
-  rpc ListEarmarks(ListEarmarksRequest)
-    returns (ListEarmarksResponse);
+    // earmarks
+    rpc CreateEarmark(CreateEarmarkRequest)
+      returns (CreateEarmarkResponse);
+    rpc RemoveEarmark(RemoveEarmarkRequest)
+      returns (RemoveEarmarkResponse);
+    rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
+      returns (GetEarmarkDetailsResponse);
+    rpc ListEarmarks(ListEarmarksRequest)
+      returns (ListEarmarksResponse);
 
-  // favorites
-  rpc AddFavorite(CreateFavoriteRequest)
-    returns (CreateFavoriteResponse);
-  rpc RemoveFavorite(RemoveFavoriteRequst)
-    returns (RemoveFavoriteResponse);
-  rpc ListFavorites(ListFavoritesRequest)
-    returns (ListFavoritesResponse);
+    // favorites
+    rpc AddFavorite(CreateFavoriteRequest)
+      returns (CreateFavoriteResponse);
+    rpc RemoveFavorite(RemoveFavoriteRequst)
+      returns (RemoveFavoriteResponse);
+  */
+  rpc ListFavoriteEvents(ListFavoriteEventsRequest)
+      returns (ListFavoriteEventsResponse);
 
-  // notifications
-  rpc DeleteNotification(DeleteNotificationRequest)
-    returns (DeleteNotificationResponse);
-  rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
-    returns (DeleteAllNotificationsResponse);
+  /*
+    // notifications
+    rpc DeleteNotification(DeleteNotificationRequest)
+      returns (DeleteNotificationResponse);
+    rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
+      returns (DeleteAllNotificationsResponse);
   */
   rpc ListNotifications(ListNotificationsRequest)
-    returns (ListNotificationsResponse);
+      returns (ListNotificationsResponse);
 }
 
-/* 
-  common 
+/*
+  common
 */
 
 message FilterRequest {
-    bool archived = 1;
+  bool archived = 1;
 }
 
 message PaginationRequest {
-    uint32 limit = 1;
-    uint32 offset = 2;
+  uint32 limit = 1;
+  uint32 offset = 2;
 }
 
 message PaginationResult {
-    uint32 limit = 1;
-    uint32 offset = 2;
-    uint32 count = 3;
+  uint32 limit = 1;
+  uint32 offset = 2;
+  uint32 count = 3;
 }
 
 message TimestampTZ {
-  google.protobuf.Timestamp ts = 1; // timestamp
-  string tz = 2; // timezone
+  google.protobuf.Timestamp ts = 1;  // timestamp
+  string tz = 2;                     // timezone
 }
 
 /* event */
@@ -129,6 +130,7 @@ message ListEventsRequest {
 
 message ListEventsResponse {
   repeated Event events = 1;
+  optional PaginationResult pagination = 2;
 }
 
 message Event {
@@ -146,6 +148,7 @@ message EventListItemsRequest {
 
 message EventListItemsResponse {
   repeated EventItem items = 1;
+  optional PaginationResult pagination = 2;
 }
 
 /* event-items */
@@ -198,11 +201,11 @@ message RemoveEarmarkRequest {
 
 message RemoveEarmarkResponse {}
 
-message GetEarmarkDetailsRequest{
+message GetEarmarkDetailsRequest {
   string ref_id = 1;
 }
 
-message GetEarmarkDetailsResponse{
+message GetEarmarkDetailsResponse {
   Earmark earmark = 1;
 }
 
@@ -213,6 +216,7 @@ message ListEarmarksRequest {
 
 message ListEarmarksResponse {
   repeated Earmark earmarks = 1;
+  optional PaginationResult pagination = 2;
 }
 
 message Earmark {
@@ -238,13 +242,14 @@ message RemoveFavoriteRequst {
 
 message RemoveFavoriteResponse {}
 
-message ListFavoritesRequest {
+message ListFavoriteEventsRequest {
   optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
-message ListFavoritesResponse {
-  repeated Favorite favorites = 1;
+message ListFavoriteEventsResponse {
+  repeated Event events = 1;
+  optional PaginationResult pagination = 2;
 }
 
 message Favorite {
