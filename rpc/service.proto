@@ -20,9 +20,11 @@ service Rpc {
   */
   rpc ListEventItems(ListEventItemsRequest)
     returns (ListEventItemsResponse);
-  // rpc UpdateEventItemsSorting : TODO
+  rpc ListEventEarmarks(ListEventEarmarksRequest)
+    returns (ListEventEarmarksResponse);
   rpc ListEvents(ListEventsRequest)
     returns (ListEventsResponse);
+  // rpc UpdateEventItemsSorting : TODO
   /*
       // event-items
       rpc AddEventItem(AddEventItemRequest)
@@ -39,9 +41,11 @@ service Rpc {
         returns (RemoveEarmarkResponse);
       rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
         returns (GetEarmarkDetailsResponse);
-    rpc ListEarmarks(ListEarmarksRequest)
-      returns (ListEarmarksResponse);
+    */
+  rpc ListEarmarks(ListEarmarksRequest)
+    returns (ListEarmarksResponse);
 
+    /*
       // favorites
       rpc AddFavorite(CreateFavoriteRequest)
         returns (CreateFavoriteResponse);
@@ -51,10 +55,10 @@ service Rpc {
   rpc ListFavoriteEvents(ListFavoriteEventsRequest)
       returns (ListFavoriteEventsResponse);
 
-  /*
     // notifications
     rpc DeleteNotification(DeleteNotificationRequest)
       returns (DeleteNotificationResponse);
+  /*
     rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
       returns (DeleteAllNotificationsResponse);
   */
@@ -152,6 +156,15 @@ message ListEventItemsResponse {
   optional PaginationResult pagination = 2;
 }
 
+message ListEventEarmarksRequest {
+  string ref_id = 1;  // event ref-id
+}
+
+message ListEventEarmarksResponse {
+  repeated Earmark earmarks = 1;
+  optional PaginationResult pagination = 2;
+}
+
 /* event-items */
 
 message AddEventItemRequest {
@@ -223,7 +236,8 @@ message Earmark {
   string ref_id = 1;
   string event_item_ref_id = 2;
   string note = 3;
-  google.protobuf.Timestamp created = 4;
+  string owner = 4;
+  google.protobuf.Timestamp created = 5;
 }
 
 /* favorites */

@@ -35,7 +35,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user)
+	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		x.DBError(w, err)
 		return

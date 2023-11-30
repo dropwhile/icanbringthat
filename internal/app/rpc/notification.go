@@ -61,3 +61,34 @@ func (s *Server) ListNotifications(ctx context.Context,
 	}
 	return response, nil
 }
+
+func (s *Server) DeleteNotification(ctx context.Context,
+	r *pb.DeleteNotificationRequest,
+) (*pb.DeleteNotificationResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseNotificationRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+	}
+
+	notification, err := model.GetNotificationByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("notification not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	err = model.DeleteNotification(ctx, s.Db, notification.ID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.DeleteNotificationResponse{}
+	return response, nil
+}
