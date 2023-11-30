@@ -24,6 +24,5 @@ type Convergen interface {
 	// :stringer
 	// :case:off
 	// :conv TimeToTimestamp Created Created
-	// :conv TimeToTimestampTZ When() When
 	ToPbEventItem(*model.EventItem) *pb.EventItem
 }
