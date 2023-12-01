@@ -27,12 +27,10 @@ service Rpc {
   // rpc UpdateEventItemsSorting : TODO
 
   // event-items
-/*
   rpc AddEventItem(AddEventItemRequest)
     returns (AddEventItemResponse);
   rpc UpdateEventItem(UpdateEventItemRequest)
     returns (UpdateEventItemResponse);
-*/
   rpc RemoveEventItem(RemoveEventItemRequest)
     returns (RemoveEventItemResponse);
 
