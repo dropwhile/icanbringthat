@@ -32,6 +32,7 @@ require (
 )
 
 require (
+	github.com/alecthomas/kong v0.8.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect

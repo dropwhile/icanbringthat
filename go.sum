@@ -1,3 +1,5 @@
+github.com/alecthomas/kong v0.8.1 h1:acZdn3m4lLRobeh3Zi2S2EpnXTd1mOL6U7xVml+vfkY=
+github.com/alecthomas/kong v0.8.1/go.mod h1:n1iCIO2xS46oE8ZfYCNDqdR0b0wZNrXAIAqro/2132U=
 github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8 h1:9/vyo/IlMZIuBVTpiqH4Fapw0fST6YTnD6qQI29YABs=
 github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
 github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8 h1:VBv3gVMztXFdn4L1ExHuOKmK9q5I6UimljFwmssU7z0=
