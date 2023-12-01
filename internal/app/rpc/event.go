@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -132,13 +133,13 @@ func (s *Server) UpdateEvent(ctx context.Context,
 
 	refID, err := model.ParseEventRefID(r.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
 	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("notification not found")
+		return nil, twirp.NotFoundError("event not found")
 	case err != nil:
 		return nil, twirp.InternalError("db error")
 	}
@@ -195,6 +196,59 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	return response, nil
 }
 
+func (s *Server) GetEventDetails(ctx context.Context,
+	r *pb.GetEventDetailsRequest,
+) (*pb.GetEventDetailsResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEventRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
+	}
+
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("event not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	eventItems, err := model.GetEventItemsByEvent(ctx, s.Db, event.ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		log.Debug().Err(err).Msg("no rows for event items")
+		eventItems = []*model.EventItem{}
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+	pbEventItems := dto.ToPbList(dto.ToPbEventItem, eventItems)
+
+	earmarks, err := model.GetEarmarksByEvent(ctx, s.Db, event.ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("event not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.GetEventDetailsResponse{
+		Event:    dto.ToPbEvent(event),
+		Items:    pbEventItems,
+		Earmarks: pbEarmarks,
+	}
+	return response, nil
+}
+
 func (s *Server) DeleteEvent(ctx context.Context,
 	r *pb.DeleteEventRequest,
 ) (*pb.DeleteEventResponse, error) {
@@ -206,13 +260,13 @@ func (s *Server) DeleteEvent(ctx context.Context,
 
 	refID, err := model.ParseEventRefID(r.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
 	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("notification not found")
+		return nil, twirp.NotFoundError("event not found")
 	case err != nil:
 		return nil, twirp.InternalError("db error")
 	}

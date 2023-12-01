@@ -18,11 +18,11 @@ func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
 	return out
 }
 
-func ToPbListWithDb[T any, V any](converter func(*T, model.PgxHandle) (*V, error), db model.PgxHandle, in []*T) ([]*V, error) {
+func ToPbListWithDb[T any, V any](converter func(model.PgxHandle, *T) (*V, error), db model.PgxHandle, in []*T) ([]*V, error) {
 	out := make([]*V, len(in))
 	var err error
 	for i := range in {
-		out[i], err = converter(in[i], db)
+		out[i], err = converter(db, in[i])
 		if err != nil {
 			break
 		}
@@ -42,7 +42,7 @@ func TimeToTimestampTZ(t time.Time) *pb.TimestampTZ {
 	return pbtz
 }
 
-func ToPbEarmark(src *model.Earmark, db model.PgxHandle) (dst *pb.Earmark, err error) {
+func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *pb.Earmark, err error) {
 	dst = &pb.Earmark{}
 	dst.RefId = src.RefID.String()
 	dst.Note = src.Note

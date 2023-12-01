@@ -12,10 +12,9 @@ service Rpc {
       returns (UpdateEventResponse);
   rpc DeleteEvent(DeleteEventRequest)
       returns (DeleteEventResponse);
-/*
   rpc GetEventDetails(GetEventDetailsRequest)
-    returns (GetEventDetailsResponse);
-*/
+      returns (GetEventDetailsResponse);
+
   rpc ListEventItems(ListEventItemsRequest)
       returns (ListEventItemsResponse);
   rpc ListEventEarmarks(ListEventEarmarksRequest)
@@ -26,19 +25,17 @@ service Rpc {
 
   // event-items
   rpc AddEventItem(AddEventItemRequest)
-    returns (AddEventItemResponse);
+      returns (AddEventItemResponse);
   rpc UpdateEventItem(UpdateEventItemRequest)
-    returns (UpdateEventItemResponse);
+      returns (UpdateEventItemResponse);
   rpc RemoveEventItem(RemoveEventItemRequest)
-    returns (RemoveEventItemResponse);
+      returns (RemoveEventItemResponse);
 
   // earmarks
-/*
   rpc CreateEarmark(CreateEarmarkRequest)
-    returns (CreateEarmarkResponse);
+      returns (CreateEarmarkResponse);
   rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
-    returns (GetEarmarkDetailsResponse);
-*/
+      returns (GetEarmarkDetailsResponse);
   rpc RemoveEarmark(RemoveEarmarkRequest)
       returns (RemoveEarmarkResponse);
   rpc ListEarmarks(ListEarmarksRequest)
@@ -121,6 +118,7 @@ message GetEventDetailsRequest {
 message GetEventDetailsResponse {
   Event event = 1;
   repeated EventItem items = 2;
+  repeated Earmark earmarks = 3;
 }
 
 message ListEventsRequest {
@@ -195,7 +193,7 @@ message EventItem {
 /* earmarks */
 
 message CreateEarmarkRequest {
-  int64 event_item_ref_id = 1;
+  string event_item_ref_id = 1;
   string note = 2;
 }
 

@@ -118,6 +118,85 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	return response, nil
 }
 
+func (s *Server) CreateEarmark(ctx context.Context,
+	r *pb.CreateEarmarkRequest,
+) (*pb.CreateEarmarkResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	eventItemRefID, err := model.ParseEventItemRefID(r.EventItemRefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
+	}
+
+	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, eventItemRefID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("event-item not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	// make sure no earmark exists yet
+	_, err = model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		// good. this is what we want
+	case err == nil:
+		// earmark already exists!
+		return nil, twirp.PermissionDenied.Error("already earmarked by other user")
+	default:
+		return nil, twirp.InternalError("db error")
+	}
+
+	earmark, err := model.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	response := &pb.CreateEarmarkResponse{
+		Earmark: pbEarmark,
+	}
+	return response, nil
+}
+
+func (s *Server) GetEarmarkDetails(ctx context.Context,
+	r *pb.GetEarmarkDetailsRequest,
+) (*pb.GetEarmarkDetailsResponse, error) {
+	// get user from auth in context
+	user, err := auth.UserFromContext(ctx)
+	if err != nil || user == nil {
+		return nil, twirp.Unauthenticated.Error("invalid credentials")
+	}
+
+	refID, err := model.ParseEarmarkRefID(r.RefId)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
+	}
+
+	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+
+	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
+	if err != nil {
+		return nil, twirp.InternalError("db error")
+	}
+	response := &pb.GetEarmarkDetailsResponse{
+		Earmark: pbEarmark,
+	}
+	return response, nil
+}
+
 func (s *Server) RemoveEarmark(ctx context.Context,
 	r *pb.RemoveEarmarkRequest,
 ) (*pb.RemoveEarmarkResponse, error) {
