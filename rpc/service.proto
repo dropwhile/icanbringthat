@@ -6,15 +6,13 @@ import "google/protobuf/timestamp.proto";
 
 service Rpc {
   // events
-/*
   rpc CreateEvent(CreateEventRequest)
-    returns (CreateEventResponse);
-*/
+      returns (CreateEventResponse);
+  rpc UpdateEvent(UpdateEventRequest)
+      returns (UpdateEventResponse);
   rpc DeleteEvent(DeleteEventRequest)
       returns (DeleteEventResponse);
 /*
-  rpc UpdateEvent(UpdateEventRequest)
-    returns (UpdateEventResponse);
   rpc GetEventDetails(GetEventDetailsRequest)
     returns (GetEventDetailsResponse);
 */
