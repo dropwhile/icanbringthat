@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/dropwhile/refid"
 	"github.com/dropwhile/refid/reftag"
@@ -20,8 +21,9 @@ var (
 )
 
 type ApiKey struct {
-	Token  string
-	UserID int `db:"user_id"`
+	Created time.Time
+	Token   string
+	UserID  int `db:"user_id"`
 }
 
 func NewApiKey(ctx context.Context, db PgxHandle,
@@ -53,6 +55,39 @@ func CreateApiKey(ctx context.Context, db PgxHandle,
 	return QueryOneTx[ApiKey](ctx, db, q, args)
 }
 
+func RotateApiKey(ctx context.Context, db PgxHandle,
+	userID int,
+) (*ApiKey, error) {
+	key, err := GetApiKeyByUser(ctx, db, userID)
+	if err != nil {
+		return nil, err
+	}
+	key.Token = strings.Join(
+		[]string{
+			refid.Must(NewApiKeyRefID()).String(),
+			refid.Must(NewApiKeyRefID()).String(),
+		},
+		":",
+	)
+	err = UpdateApiKey(ctx, db, userID, key.Token)
+	return key, err
+}
+
+func UpdateApiKey(ctx context.Context, db PgxHandle,
+	userID int, token string,
+) error {
+	q := `
+		UPDATE api_key_
+		SET token = @token
+		WHERE user_id = @userID
+	`
+	args := pgx.NamedArgs{
+		"userID": userID,
+		"token":  token,
+	}
+	return ExecTx[ApiKey](ctx, db, q, args)
+}
+
 func GetUserByApiKey(ctx context.Context, db PgxHandle,
 	token string,
 ) (*User, error) {
@@ -66,4 +101,16 @@ func GetUserByApiKey(ctx context.Context, db PgxHandle,
 			api_key_.token = $1
 		`
 	return QueryOne[User](ctx, db, q, token)
+}
+
+func GetApiKeyByUser(ctx context.Context, db PgxHandle,
+	userID int,
+) (*ApiKey, error) {
+	q := `
+		SELECT *
+		FROM api_key_
+		WHERE
+			user_id = $1
+		`
+	return QueryOne[ApiKey](ctx, db, q, userID)
 }

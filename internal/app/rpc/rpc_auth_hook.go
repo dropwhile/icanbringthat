@@ -34,7 +34,7 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 		// the above query checks to ensure user.apikey is true as well,
 		// but double check to make sure (in case sql above changes), as
 		// this is a cheap local comparison anyway
-		if !user.ApiKey {
+		if !user.ApiAccess {
 			return ctx, twirp.Unauthenticated.Error("invalid auth")
 		}
 

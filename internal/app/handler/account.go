@@ -62,6 +62,12 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	apikey, err := model.GetApiKeyByUser(ctx, x.Db, user.ID)
+	if err != nil {
+		x.DBError(w, err)
+		return
+	}
+
 	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
 	if err != nil {
 		x.DBError(w, err)
@@ -72,6 +78,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	tplVars := MapSA{
 		"user":           user,
 		"credentials":    credentials,
+		"apikey":         apikey,
 		"title":          "Settings",
 		"notifCount":     notifCount,
 		"flashes":        x.SessMgr.FlashPopAll(ctx),
@@ -214,7 +221,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	if changes {
 		err = model.UpdateUser(ctx, x.Db,
 			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiKey,
+			user.Verified, user.PWAuth, user.ApiAccess,
 			user.WebAuthn, user.ID,
 		)
 		if err != nil {
@@ -268,7 +275,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "off":
 		if user.PWAuth {
 			if !user.WebAuthn {
-				x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable password auth without alternative auth enabled")
+				x.SessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling api access")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
 			}
@@ -324,13 +331,94 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 
 	err = model.UpdateUser(ctx, x.Db,
 		user.Email, user.Name, user.PWHash,
-		user.Verified, user.PWAuth, user.ApiKey,
+		user.Verified, user.PWAuth, user.ApiAccess,
 		user.WebAuthn, user.ID,
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("error updating user auth")
 		x.InternalServerError(w, "error updating user auth")
 		return
+	}
+
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+}
+
+func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// get user from session
+	user, err := auth.UserFromContext(ctx)
+	if err != nil {
+		x.BadSessionDataError(w)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		x.BadFormDataError(w, err)
+		return
+	}
+
+	changes := false
+	apiAccess := r.PostFormValue("api_access")
+	rotateApiKey := r.PostFormValue("rotate_apikey")
+
+	if apiAccess == "" && rotateApiKey == "" {
+		x.BadFormDataError(w, nil, "bad params")
+		return
+	}
+
+	switch apiAccess {
+	case "off":
+		if user.ApiAccess {
+			changes = true
+			user.ApiAccess = false
+		}
+	case "on":
+
+		if !user.ApiAccess {
+			if !user.Verified {
+				x.SessMgr.FlashAppend(ctx, "error", "Refusing to enable api access without a verified account")
+				http.Redirect(w, r, "/settings", http.StatusSeeOther)
+				return
+			}
+			changes = true
+			user.ApiAccess = true
+		}
+	case "":
+		// nothing
+	default:
+		x.BadFormDataError(w, nil, "api_access")
+		return
+	}
+
+	if rotateApiKey == "true" {
+		changes = true
+	}
+
+	if !changes {
+		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		http.Redirect(w, r, "/settings", http.StatusSeeOther)
+		return
+	}
+
+	if rotateApiKey == "true" {
+		if _, err := model.RotateApiKey(ctx, x.Db, user.ID); err != nil {
+			log.Error().Err(err).Msg("error rotating api key")
+			x.InternalServerError(w, "error rotating api key")
+			return
+		}
+	}
+
+	if apiAccess != "" {
+		if err := model.UpdateUser(ctx, x.Db,
+			user.Email, user.Name, user.PWHash,
+			user.Verified, user.PWAuth, user.ApiAccess,
+			user.WebAuthn, user.ID,
+		); err != nil {
+			log.Error().Err(err).Msg("error updating user auth")
+			x.InternalServerError(w, "error updating user auth")
+			return
+		}
 	}
 
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)

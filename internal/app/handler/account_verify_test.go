@@ -167,14 +167,14 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":    user.Email,
-				"name":     user.Name,
-				"pwHash":   pgxmock.AnyArg(),
-				"verified": true,
-				"pwAuth":   true,
-				"apiKey":   false,
-				"webAuthn": false,
-				"userID":   user.ID,
+				"email":     user.Email,
+				"name":      user.Name,
+				"pwHash":    pgxmock.AnyArg(),
+				"verified":  true,
+				"pwAuth":    true,
+				"apiAccess": false,
+				"webAuthn":  false,
+				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx
@@ -410,14 +410,14 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":    user.Email,
-				"name":     user.Name,
-				"pwHash":   pgxmock.AnyArg(),
-				"verified": true,
-				"pwAuth":   true,
-				"apiKey":   false,
-				"webAuthn": false,
-				"userID":   user.ID,
+				"email":     user.Email,
+				"name":      user.Name,
+				"pwHash":    pgxmock.AnyArg(),
+				"verified":  true,
+				"pwAuth":    true,
+				"apiAccess": false,
+				"webAuthn":  false,
+				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		// commit+rollback first inner tx

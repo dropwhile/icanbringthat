@@ -551,15 +551,108 @@
   </div>
   {{end}}
 
+  <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+    Api Access
+  </h4>
+  {{block "apikey_settings" .}}
+  <div id="apikey_settings" class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+    <div class="mb-1 flex justify-between items-center align-middle">
+      <div class="font-semibold text-gray-600 dark:text-gray-300">
+        Api Access
+      </div>
+      {{ $enable_api_access := .user.ApiAccess }}
+      <div
+        class="tooltip"
+        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
+        hx-boost="false"
+        hx-disinherit="*"
+        >
+        {{if $enable_api_access }}
+        <span class="tooltiptext">Disable Api Access</span>
+        {{else}}
+        <span class="tooltiptext">Enable Api Access</span>
+        {{end}}
+        <form>
+          <input
+            class="apple-switch align-middle"
+            type="checkbox"
+            name="api_access"
+            hx-post="/settings/auth/api"
+            hx-select="#apikey_settings"
+            hx-target="#apikey_settings"
+            hx-swap="outerHTML"
+            hx-select-oob="#flashes_modal"
+            hx-include="[name='api_access']"
+            hx-params="api_access"
+            {{if $enable_api_access}}
+              checked
+              _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  call Swal.fire({
+                    icon: 'info',
+                    title: 'Confirm',
+                    text: 'Disable Api access?',
+                    showCancelButton: true
+                  })
+                  if result.isConfirmed
+                    issueRequest()
+                  else
+                    set my.checked to true
+                  end
+                end"
+            {{else}}
+              _="
+                on htmx:confirm(issueRequest)
+                  halt the event
+                  if not {{.user.Verified}}
+                    make a Notyf from {ripple: false, dismissible: true, duration: 2500, position: { x: 'center', y: 'top'}}
+                      called notyf
+                    call notyf.error('Account must be verified before enabling Api access')
+                    set my.checked to false
+                  else
+                    issueRequest()
+                  end
+                end"
+            {{end}}
+            />
+          <input type="hidden" name="api_access" value="off"/>
+        </form>
+      </div>
+    </div>
+    <form method="post" action="/settings/auth/api">
+      <label class="block mb-4 text-sm">
+        <span class="text-gray-700 dark:text-gray-400">Api Key</span>
+        <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
+          <input
+            class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+            style="padding-left: 6rem;"
+            type="text"
+            maxlength="54"
+            name="api_key"
+            value="{{.apikey.Token}}"
+            onfocus="this.setSelectionRange(0, this.value.length)"
+            readonly
+          >
+          <input type="hidden" name="rotate_apikey" value="true"/>
+          <button class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+            Rotate
+          </button>
+        </div>
+        <span class="text-xs text-gray-600 dark:text-gray-400">
+          Note: If the key is rotated, any existing api clients will need to be updated.
+        </span>
+      </label>
+      {{ .csrfField }}
+    </form>
+  </div>
+  {{end}}
+
   <!-- Account deletion -->
-  <h4
-    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
-  >
+  <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Account Deletion
   </h4>
-  <div
-    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl text-sm"
-  >
+  <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl text-sm">
     <div class="text-gray-700 dark:text-gray-400">
       Account deletion is not a reversible operation. <br>
       All associated Events and Earmarks
