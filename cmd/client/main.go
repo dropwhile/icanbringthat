@@ -38,10 +38,13 @@ type CLI struct {
 
 	// subcommands
 	Events struct {
-		Create EventsCreateCmd     `cmd:"" aliases:"add" help:"create new event"`
-		List   EventsListCmd       `cmd:"" aliases:"ls" help:"list events"`
-		Delete EventsDeleteCmd     `cmd:"" aliases:"rm" help:"delete event"`
-		Detail EventsGetDetailsCmd `cmd:"" aliases:"info" help:"get event details"`
+		Create         EventsCreateCmd       `cmd:"" aliases:"add" help:"create new event"`
+		Update         EventsUpdateCmd       `cmd:"" aliases:"update" help:"update event"`
+		Delete         EventsDeleteCmd       `cmd:"" aliases:"rm" help:"delete event"`
+		List           EventsListCmd         `cmd:"" aliases:"ls" help:"list events"`
+		Detail         EventsGetDetailsCmd   `cmd:"" aliases:"info,details" help:"get event details"`
+		ListEventItems EventsListItemsCmd    `cmd:"" aliases:"items,ls-items" help:"list event items"`
+		ListEarmarks   EventsListEarmarksCmd `cmd:"" aliases:"earmarks,ls-earmarks" help:"list event earmarks"`
 	} `cmd:"" help:"events"`
 	EventItems struct{} `cmd:"" help:"event-items"`
 	Earmarks   struct{} `cmd:"" help:"earmarks"`

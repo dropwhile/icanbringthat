@@ -153,7 +153,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	}
 
 	changes := false
-	if r.Name != nil && *r.Description != event.Description {
+	if r.Name != nil && *r.Name != event.Name {
 		if *r.Name == "" {
 			return nil, twirp.RequiredArgumentError("name")
 		}
