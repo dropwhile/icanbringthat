@@ -3,6 +3,7 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
+	github.com/alecthomas/kong v0.8.1
 	github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8
 	github.com/alexedwards/scs/v2 v2.7.0
@@ -10,11 +11,12 @@ require (
 	github.com/dropwhile/refid v1.0.6
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.2
-	github.com/go-webauthn/webauthn v0.9.2
+	github.com/go-webauthn/webauthn v0.9.4
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/microcosm-cc/bluemonday v1.0.26
+	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v3 v3.2.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/quic-go/quic-go v0.40.0
@@ -32,7 +34,6 @@ require (
 )
 
 require (
-	github.com/alecthomas/kong v0.8.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -40,7 +41,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/go-webauthn/x v0.1.5 // indirect
-	github.com/golang-jwt/jwt/v5 v5.1.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
@@ -49,14 +50,13 @@ require (
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
