@@ -46,6 +46,7 @@ type CLI struct {
 		ListEventItems EventsListItemsCmd    `cmd:"" aliases:"items,ls-items" help:"list event items"`
 		ListEarmarks   EventsListEarmarksCmd `cmd:"" aliases:"earmarks,ls-earmarks" help:"list event earmarks"`
 	} `cmd:"" help:"events"`
+
 	EventItems struct{} `cmd:"" help:"event-items"`
 	Earmarks   struct{} `cmd:"" help:"earmarks"`
 
