@@ -8,7 +8,9 @@ import (
 	"github.com/dropwhile/icbt/rpc"
 )
 
-const notifTpl = `- ref_id: {{.RefId}}
+const notifTpl = `
+{{- /* whitespace fix */ -}}
+- ref_id: {{.RefId}}
   message: {{.Message}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00" }}
 `

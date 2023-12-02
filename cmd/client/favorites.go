@@ -9,7 +9,9 @@ import (
 	"github.com/dropwhile/icbt/rpc"
 )
 
-const favoriteTpl = `- event_ref_id: {{.EventRefId}}
+const favoriteTpl = `
+{{- /* whitespace fix */ -}}
+- event_ref_id: {{.EventRefId}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 

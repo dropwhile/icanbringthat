@@ -12,7 +12,9 @@ import (
 	"github.com/dropwhile/icbt/rpc"
 )
 
-const eventTpl = `- ref_id: {{.RefId}}
+const eventTpl = `
+{{- /* whitespace fix */ -}}
+- ref_id: {{.RefId}}
   name: {{.Name}}
   description: {{.Description}}
   archived: {{.Archived}}
@@ -88,12 +90,16 @@ func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 	return nil
 }
 
-const eventItemTpl = `- event_item_ref_id: {{.RefId}}
+const eventItemTpl = `
+{{- /* whitespace fix */ -}}
+- event_item_ref_id: {{.RefId}}
   description: {{.Description}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 
-const earmarkTpl = `- ref_id: {{.RefId}}
+const earmarkTpl = `
+{{- /* whitespace fix */ -}}
+- ref_id: {{.RefId}}
   event_item_ref_id: {{.EventItemRefId}}
   note: {{.Note}}
   owner: {{.Owner}}
