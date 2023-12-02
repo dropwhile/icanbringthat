@@ -12,9 +12,20 @@ const earmarkTpl = `
 {{- /* whitespace fix */ -}}
 - ref_id: {{.RefId}}
   event_item_ref_id: {{.EventItemRefId}}
+  {{if .EventRefId}}{{.EventRefId}}{{end}}
   note: {{.Note}}
   owner: {{.Owner}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
+`
+
+const earmarkDetailTpl = `
+{{- /* whitespace fix */ -}}
+- ref_id: {{.Earmark.RefId}}
+  event_item_ref_id: {{.Earmark.EventItemRefId}}
+  event_ref_id: {{.EventRefId}}
+  note: {{.Earmark.Note}}
+  owner: {{.Earmark.Owner}}
+  created: {{.Earmark.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 
 type EarmarksCreateCmd struct {
@@ -54,8 +65,12 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t2 := template.Must(template.New("earmarkTpl").Parse(earmarkTpl))
-	if err := t2.Execute(os.Stdout, resp.Earmark); err != nil {
+	t2 := template.Must(template.New("earmarkDetailTpl").Parse(earmarkDetailTpl))
+	if err := t2.Execute(os.Stdout,
+		map[string]interface{}{
+			"Earmark":    resp.Earmark,
+			"EventRefId": resp.EventRefId,
+		}); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil

@@ -212,6 +212,7 @@ message GetEarmarkDetailsRequest {
 
 message GetEarmarkDetailsResponse {
   Earmark earmark = 1;
+  string event_ref_id = 2;
 }
 
 message ListEarmarksRequest {

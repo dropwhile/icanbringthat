@@ -55,7 +55,7 @@ type CLI struct {
 
 	Earmarks struct {
 		Create EarmarksCreateCmd     `cmd:"" help:"earmark an item"`
-		Detail EarmarksGetDetailsCmd `cmd:"" help:"get earmark details"`
+		Detail EarmarksGetDetailsCmd `cmd:"" aliases:"info,details" help:"get earmark details"`
 		Remove EarmarksRemoveCmd     `cmd:"" help:"remove an earmark"`
 		List   EarmarksListCmd       `cmd:"" help:"list earmarked items"`
 	} `cmd:"" help:"earmarks"`

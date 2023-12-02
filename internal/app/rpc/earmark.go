@@ -187,7 +187,26 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 	}
 
 	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("earmark not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	eventItem, err := model.GetEventItemByID(ctx, s.Db, earmark.EventItemID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("earmark not found")
+	case err != nil:
+		return nil, twirp.InternalError("db error")
+	}
+
+	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, twirp.NotFoundError("earmark not found")
+	case err != nil:
 		return nil, twirp.InternalError("db error")
 	}
 
@@ -196,7 +215,8 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 	response := &pb.GetEarmarkDetailsResponse{
-		Earmark: pbEarmark,
+		Earmark:    pbEarmark,
+		EventRefId: event.RefID.String(),
 	}
 	return response, nil
 }
