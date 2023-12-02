@@ -8,14 +8,14 @@ import (
 	"github.com/dropwhile/icbt/rpc"
 )
 
-type NotificationListCmd struct{}
-
 const notifTpl = `- ref_id: {{.RefId}}
   message: {{.Message}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00" }}
 `
 
-func (cmd *NotificationListCmd) Run(meta *RunArgs) error {
+type NotificationsListCmd struct{}
+
+func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
 	req := &rpc.ListNotificationsRequest{}
 	resp, err := client.ListNotifications(meta.ctx, req)
@@ -32,11 +32,11 @@ func (cmd *NotificationListCmd) Run(meta *RunArgs) error {
 	return nil
 }
 
-type NotificationDeleteCmd struct {
-	RefID string `nane:"ref-id" required:""`
+type NotificationsDeleteCmd struct {
+	RefID string `name:"ref-id" required:""`
 }
 
-func (cmd *NotificationDeleteCmd) Run(meta *RunArgs) error {
+func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
 	req := &rpc.DeleteNotificationRequest{
 		RefId: cmd.RefID,
@@ -48,9 +48,9 @@ func (cmd *NotificationDeleteCmd) Run(meta *RunArgs) error {
 	return nil
 }
 
-type NotificationDeleteAllCmd struct{}
+type NotificationsDeleteAllCmd struct{}
 
-func (cmd *NotificationDeleteAllCmd) Run(meta *RunArgs) error {
+func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
 	req := &rpc.DeleteAllNotificationsRequest{}
 	if _, err := client.DeleteAllNotifications(meta.ctx, req); err != nil {

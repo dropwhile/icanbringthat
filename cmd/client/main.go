@@ -37,10 +37,25 @@ type CLI struct {
 	AuthToken   string           `name:"auth-token" env:"AUTH_TOKEN" required:""`
 
 	// subcommands
+	Events struct {
+		Create EventsCreateCmd     `cmd:"" aliases:"add" help:"create new event"`
+		List   EventsListCmd       `cmd:"" aliases:"ls" help:"list events"`
+		Delete EventsDeleteCmd     `cmd:"" aliases:"rm" help:"delete event"`
+		Detail EventsGetDetailsCmd `cmd:"" aliases:"info" help:"get event details"`
+	} `cmd:"" help:"events"`
+	EventItems struct{} `cmd:"" help:"event-items"`
+	Earmarks   struct{} `cmd:"" help:"earmarks"`
+
+	Favorites struct {
+		Add    FavoritesAddCmd    `cmd:"" help:"add favorite"`
+		Remove FavoritesRemoveCmd `cmd:"" aliases:"rm" help:"remove favorite"`
+		List   FavoritesListCmd   `cmd:"" aliases:"ls" help:"list favorites"`
+	} `cmd:"" help:"favorites"`
+
 	Notifications struct {
-		List      NotificationListCmd      `cmd:"" help:"List notifications."`
-		Delete    NotificationDeleteCmd    `cmd:"" aliases:"rm" help:"Delete a single notification."`
-		DeleteAll NotificationDeleteAllCmd `cmd:"" aliases:"clear" help:"Delete all notifications."`
+		Delete    NotificationsDeleteCmd    `cmd:"" aliases:"rm" help:"Delete a single notification."`
+		DeleteAll NotificationsDeleteAllCmd `cmd:"" aliases:"clear" help:"Delete all notifications."`
+		List      NotificationsListCmd      `cmd:"" aliases:"ls" help:"List notifications."`
 	} `cmd:"" help:"notifications"`
 }
 

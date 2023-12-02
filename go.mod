@@ -54,11 +54,14 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
+	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/mock v0.3.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect

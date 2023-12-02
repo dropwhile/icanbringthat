@@ -12,15 +12,14 @@ service Rpc {
       returns (UpdateEventResponse);
   rpc DeleteEvent(DeleteEventRequest)
       returns (DeleteEventResponse);
+  rpc ListEvents(ListEventsRequest)
+      returns (ListEventsResponse);
   rpc GetEventDetails(GetEventDetailsRequest)
       returns (GetEventDetailsResponse);
-
   rpc ListEventItems(ListEventItemsRequest)
       returns (ListEventItemsResponse);
   rpc ListEventEarmarks(ListEventEarmarksRequest)
       returns (ListEventEarmarksResponse);
-  rpc ListEvents(ListEventsRequest)
-      returns (ListEventsResponse);
   // rpc UpdateEventItemsSorting : TODO
 
   // event-items
