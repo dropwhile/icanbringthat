@@ -141,18 +141,22 @@ func (s *Server) CreateEarmark(ctx context.Context,
 	}
 
 	// make sure no earmark exists yet
-	_, err = model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
+	earmark, err := model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		// good. this is what we want
 	case err == nil:
 		// earmark already exists!
-		return nil, twirp.PermissionDenied.Error("already earmarked by other user")
+		errStr := "already earmarked"
+		if earmark.UserID != user.ID {
+			errStr += " by other user"
+		}
+		return nil, twirp.PermissionDenied.Error(errStr)
 	default:
 		return nil, twirp.InternalError("db error")
 	}
 
-	earmark, err := model.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
+	earmark, err = model.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}

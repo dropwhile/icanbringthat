@@ -135,22 +135,6 @@ func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 	return nil
 }
 
-const eventItemTpl = `
-{{- /* whitespace fix */ -}}
-- event_item_ref_id: {{.RefId}}
-  description: {{.Description}}
-  created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
-`
-
-const earmarkTpl = `
-{{- /* whitespace fix */ -}}
-- ref_id: {{.RefId}}
-  event_item_ref_id: {{.EventItemRefId}}
-  note: {{.Note}}
-  owner: {{.Owner}}
-  created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
-`
-
 type EventsGetDetailsCmd struct {
 	RefID string `name:"ref-id" required:""`
 }

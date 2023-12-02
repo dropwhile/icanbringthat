@@ -47,8 +47,18 @@ type CLI struct {
 		ListEarmarks   EventsListEarmarksCmd `cmd:"" aliases:"earmarks,ls-earmarks" help:"list event earmarks"`
 	} `cmd:"" help:"events"`
 
-	EventItems struct{} `cmd:"" help:"event-items"`
-	Earmarks   struct{} `cmd:"" help:"earmarks"`
+	EventItems struct {
+		Add    EventItemsAddCmd    `cmd:"" help:"add item to event"`
+		Update EventItemsUpdateCmd `cmd:"" help:"update event item"`
+		Remove EventItemsRemoveCmd `cmd:"" aliases:"rm" help:"remove event item"`
+	} `cmd:"" help:"event-items"`
+
+	Earmarks struct {
+		Create EarmarksCreateCmd     `cmd:"" help:"earmark an item"`
+		Detail EarmarksGetDetailsCmd `cmd:"" help:"get earmark details"`
+		Remove EarmarksRemoveCmd     `cmd:"" help:"remove an earmark"`
+		List   EarmarksListCmd       `cmd:"" help:"list earmarked items"`
+	} `cmd:"" help:"earmarks"`
 
 	Favorites struct {
 		Add    FavoritesAddCmd    `cmd:"" help:"add favorite"`
