@@ -374,7 +374,6 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			user.ApiAccess = false
 		}
 	case "on":
-
 		if !user.ApiAccess {
 			if !user.Verified {
 				x.SessMgr.FlashAppend(ctx, "error", "Refusing to enable api access without a verified account")
