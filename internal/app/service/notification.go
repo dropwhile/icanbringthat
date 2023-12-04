@@ -10,12 +10,6 @@ import (
 	"github.com/dropwhile/icbt/internal/someerr"
 )
 
-type Pagination struct {
-	Limit  uint32
-	Offset uint32
-	Count  uint32
-}
-
 func GetNotifcationsPaginated(
 	ctx context.Context, db model.PgxHandle, userID int,
 	limit, offset int,

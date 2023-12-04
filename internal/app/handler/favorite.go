@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -9,12 +8,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/someerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -29,14 +29,14 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	notifCount, errx := service.GetNotificationCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
 
-	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	favoriteCount, errx := service.GetFavoriteEventsCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -63,14 +63,10 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetFavoriteEventsByUserPaginatedFiltered(
+	events, _, errx := service.GetFavoriteEventsPaginated(
 		ctx, x.Db, user.ID, 10, offset*10, archived,
 	)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for favorite events")
-		events = []*model.Event{}
-	case err != nil:
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -78,14 +74,12 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no rows for event items")
-		eventItemCounts = []*model.EventItemCount{}
-	case err != nil:
+	eventItemCounts, errx := service.GetEventItemsCount(
+		ctx, x.Db, user.ID, eventIDs)
+	if errx != nil {
 		x.DBError(w, err)
 		return
+
 	}
 
 	eventItemCountsMap := util.ToMapIndexedByFunc(
@@ -145,40 +139,25 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	// can't favorite your own event
-	if user.ID == event.UserID {
+	event, errx := service.AddFavorite(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
 		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id match")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	// check if already exists
-	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
-	switch {
-	case err != nil && !errors.Is(err, pgx.ErrNoRows):
-		x.DBError(w, err)
-		return
-	case err == nil:
-		x.BadRequestError(w, "already favorited")
-		return
-	}
-
-	_, err = model.CreateFavorite(ctx, x.Db, user.ID, event.ID)
-	if err != nil {
-		x.DBError(w, err)
+			Err(errx).
+			Msg("error adding favorite")
+		switch errx.Code() {
+		case someerr.AlreadyExists:
+			x.BadRequestError(w, "already favorited")
+		case someerr.Internal:
+			x.InternalServerError(w, errx.Msg())
+		case someerr.NotFound:
+			x.NotFoundError(w)
+		case someerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		case someerr.Unauthenticated:
+			x.BadSessionDataError(w)
+		default:
+			x.InternalServerError(w, "unexpected error")
+		}
 		return
 	}
 
@@ -214,29 +193,23 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	favorite, err := model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.BadRequestError(w, "not favorited")
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	err = model.DeleteFavorite(ctx, x.Db, favorite.ID)
-	if err != nil {
-		x.DBError(w, err)
+	errx := service.RemoveFavorite(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		log.Info().
+			Err(errx).
+			Msg("error deleting favorite")
+		switch errx.Code() {
+		case someerr.Internal:
+			x.InternalServerError(w, errx.Msg())
+		case someerr.NotFound:
+			x.NotFoundError(w)
+		case someerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		case someerr.Unauthenticated:
+			x.BadSessionDataError(w)
+		default:
+			x.InternalServerError(w, "unexpected error")
+		}
 		return
 	}
 
