@@ -1,18 +1,18 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/someerr"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -26,7 +26,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
+	notifCount, err := service.GetNotificationCount(ctx, x.Db, user.ID)
 	if err != nil {
 		x.DBError(w, err)
 		return
@@ -44,12 +44,8 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	notifs, err := model.GetNotificationsByUserPaginated(ctx, x.Db, user.ID, 10, offset*10)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for favorite events")
-		notifs = []*model.Notification{}
-	case err != nil:
+	notifs, _, errx := service.GetNotifcationsPaginated(ctx, x.Db, user.ID, 10, offset*10)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -90,34 +86,29 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifRefID, err := model.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
+	refID, err := model.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "notification", err)
 		return
 	}
 
-	notif, err := model.GetNotificationByRefID(ctx, x.Db, notifRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != notif.UserID {
+	errx := service.DeleteNotification(ctx, x.Db, user.ID, refID)
+	if errx != nil {
 		log.Info().
-			Int("user.ID", user.ID).
-			Int("notif.UserID", notif.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	err = model.DeleteNotification(ctx, x.Db, notif.ID)
-	if err != nil {
-		x.DBError(w, err)
+			Err(errx).
+			Msg("error deleting notification")
+		switch errx.Code() {
+		case someerr.Internal:
+			x.InternalServerError(w, errx.Msg())
+		case someerr.NotFound:
+			x.NotFoundError(w)
+		case someerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		case someerr.Unauthenticated:
+			x.BadSessionDataError(w)
+		default:
+			x.InternalServerError(w, "unexpected error")
+		}
 		return
 	}
 
@@ -138,9 +129,19 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = model.DeleteNotificationsByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	errx := service.DeleteAllNotifications(ctx, x.Db, user.ID)
+	if errx != nil {
+		log.Info().
+			Err(errx).
+			Msg("error deleting all notifications")
+		switch errx.Code() {
+		case someerr.Internal:
+			x.InternalServerError(w, errx.Msg())
+		case someerr.Unauthenticated:
+			x.BadSessionDataError(w)
+		default:
+			x.InternalServerError(w, "unexpected error")
+		}
 		return
 	}
 

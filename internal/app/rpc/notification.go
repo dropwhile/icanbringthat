@@ -2,14 +2,13 @@ package rpc
 
 import (
 	"context"
-	"errors"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc/dto"
+	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -27,31 +26,23 @@ func (s *Server) ListNotifications(ctx context.Context,
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
-
-		notifCount, err := model.GetNotificationCountByUser(ctx, s.Db, user.ID)
-		if err != nil {
-			return nil, twirp.InternalError("db error")
+		notifs, pagination, errx := service.GetNotifcationsPaginated(ctx, s.Db, user.ID, limit, offset)
+		if errx != nil {
+			return nil, dto.ToTwirpError(errx)
 		}
 
-		if notifCount > 0 {
-			notifications, err = model.GetNotificationsByUserPaginated(ctx, s.Db, user.ID, limit, offset)
-			switch {
-			case errors.Is(err, pgx.ErrNoRows):
-				notifications = []*model.Notification{}
-			case err != nil:
-				return nil, twirp.InternalError("db error")
-			}
-		}
+		notifications = notifs
 		paginationResult = &pb.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
-			Count:  uint32(notifCount),
+			Count:  pagination.Count,
 		}
 	} else {
-		notifications, err = model.GetNotificationsByUser(ctx, s.Db, user.ID)
+		notifs, errx := service.GetNotifications(ctx, s.Db, user.ID)
 		if err != nil {
-			return nil, twirp.InternalError("db error")
+			return nil, dto.ToTwirpError(errx)
 		}
+		notifications = notifs
 
 	}
 
@@ -76,21 +67,9 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
 	}
 
-	notification, err := model.GetNotificationByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("notification not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	if user.ID != notification.UserID {
-		return nil, twirp.PermissionDenied.Error("permission denied")
-	}
-
-	err = model.DeleteNotification(ctx, s.Db, notification.ID)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	errx := service.DeleteNotification(ctx, s.Db, user.ID, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteNotificationResponse{}
@@ -106,9 +85,9 @@ func (s *Server) DeleteAllNotifications(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	err = model.DeleteNotificationsByUser(ctx, s.Db, user.ID)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	errx := service.DeleteAllNotifications(ctx, s.Db, user.ID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteAllNotificationsResponse{}

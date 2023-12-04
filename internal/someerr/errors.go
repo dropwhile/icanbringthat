@@ -1,19 +1,19 @@
-package service
-
 // Copyright 2018 Twitch Interactive, Inc.  All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may not
 // use this file except in compliance with the License. A copy of the License is
 // located at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // or in the "license" file accompanying this file. This file is distributed on
 // an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 //
-// from: https://github.com/twitchtv/twirp/blob/3c51d65f753a1049c77bc51e0e8c7922b1fb7e4d/errors.go
+// originally from: https://github.com/twitchtv/twirp/blob/3c51d65f753a1049c77bc51e0e8c7922b1fb7e4d/errors.go
+// modified 2023
+package someerr
 
 import (
 	"fmt"
@@ -47,63 +47,61 @@ type Error interface {
 }
 
 // ErrorCode represents a Twirp error type.
-type ErrorCode string
+//
+//go:generate stringer -type=ErrorCode
+type ErrorCode byte
 
-// Valid Twirp error types. Most error types are equivalent to gRPC status codes
-// and follow the same semantics.
+// Valid error types. Most error types are equivalent to gRPC status codes
+// and follow similar semantics.
+// ref: https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 const (
+	// NoError is the zero-value, is considered an empty error and should not be
+	// used.
+	NoError ErrorCode = 0x00
+
 	// Canceled indicates the operation was cancelled (typically by the caller).
-	Canceled ErrorCode = "canceled"
+	Canceled ErrorCode = 0x01
 
 	// Unknown error. For example when handling errors raised by APIs that do not
 	// return enough error information.
-	Unknown ErrorCode = "unknown"
+	Unknown ErrorCode = 0x02
 
 	// InvalidArgument indicates client specified an invalid argument. It
 	// indicates arguments that are problematic regardless of the state of the
 	// system (i.e. a malformed file name, required argument, number out of range,
 	// etc.).
-	InvalidArgument ErrorCode = "invalid_argument"
-
-	// Malformed indicates an error occurred while decoding the client's request.
-	// This may mean that the message was encoded improperly, or that there is a
-	// disagreement in message format between the client and server.
-	Malformed ErrorCode = "malformed"
+	InvalidArgument ErrorCode = 0x03
 
 	// DeadlineExceeded means operation expired before completion. For operations
 	// that change the state of the system, this error may be returned even if the
 	// operation has completed successfully (timeout).
-	DeadlineExceeded ErrorCode = "deadline_exceeded"
+	DeadlineExceeded ErrorCode = 0x04
 
 	// NotFound means some requested entity was not found.
-	NotFound ErrorCode = "not_found"
+	NotFound ErrorCode = 0x05
 
 	// AlreadyExists means an attempt to create an entity failed because one
 	// already exists.
-	AlreadyExists ErrorCode = "already_exists"
+	AlreadyExists ErrorCode = 0x06
 
 	// PermissionDenied indicates the caller does not have permission to execute
 	// the specified operation. It must not be used if the caller cannot be
 	// identified (Unauthenticated).
-	PermissionDenied ErrorCode = "permission_denied"
-
-	// Unauthenticated indicates the request does not have valid authentication
-	// credentials for the operation.
-	Unauthenticated ErrorCode = "unauthenticated"
+	PermissionDenied ErrorCode = 0x07
 
 	// ResourceExhausted indicates some resource has been exhausted or rate-limited,
 	// perhaps a per-user quota, or perhaps the entire file system is out of space.
-	ResourceExhausted ErrorCode = "resource_exhausted"
+	ResourceExhausted ErrorCode = 0x08
 
 	// FailedPrecondition indicates operation was rejected because the system is
 	// not in a state required for the operation's execution. For example, doing
 	// an rmdir operation on a directory that is non-empty, or on a non-directory
 	// object, or when having conflicting read-modify-write on the same resource.
-	FailedPrecondition ErrorCode = "failed_precondition"
+	FailedPrecondition ErrorCode = 0x09
 
 	// Aborted indicates the operation was aborted, typically due to a concurrency
 	// issue like sequencer check failures, transaction aborts, etc.
-	Aborted ErrorCode = "aborted"
+	Aborted ErrorCode = 0x0a
 
 	// OutOfRange means operation was attempted past the valid range. For example,
 	// seeking or reading past end of a paginated collection.
@@ -115,30 +113,30 @@ const (
 	// We recommend using OutOfRange (the more specific error) when it applies so
 	// that callers who are iterating through a space can easily look for an
 	// OutOfRange error to detect when they are done.
-	OutOfRange ErrorCode = "out_of_range"
+	OutOfRange ErrorCode = 0x0b
 
 	// Unimplemented indicates operation is not implemented or not
 	// supported/enabled in this service.
-	Unimplemented ErrorCode = "unimplemented"
+	Unimplemented ErrorCode = 0x0c
 
 	// Internal errors. When some invariants expected by the underlying system
 	// have been broken. In other words, something bad happened in the library or
 	// backend service. Do not confuse with HTTP Internal Server Error; an
 	// Internal error could also happen on the client code, i.e. when parsing a
 	// server response.
-	Internal ErrorCode = "internal"
+	Internal ErrorCode = 0x0d
 
 	// Unavailable indicates the service is currently unavailable. This is a most
 	// likely a transient condition and may be corrected by retrying with a
 	// backoff.
-	Unavailable ErrorCode = "unavailable"
+	Unavailable ErrorCode = 0x0e
 
 	// DataLoss indicates unrecoverable data loss or corruption.
-	DataLoss ErrorCode = "data_loss"
+	DataLoss ErrorCode = 0x0f
 
-	// NoError is the zero-value, is considered an empty error and should not be
-	// used.
-	NoError ErrorCode = ""
+	// Unauthenticated indicates the request does not have valid authentication
+	// credentials for the operation.
+	Unauthenticated ErrorCode = 0x10
 )
 
 // code.Error(msg) builds a new Twirp error with code and msg. Example:
@@ -147,6 +145,13 @@ const (
 //	twirp.Internal.Error("Oops")
 func (code ErrorCode) Error(msg string) Error {
 	return NewError(code, msg)
+}
+
+func (code ErrorCode) Is(err error) bool {
+	if u, ok := err.(interface{ Code() ErrorCode }); ok {
+		return u.Code() == code
+	}
+	return false
 }
 
 // code.Errorf(msg, args...) builds a new Twirp error with code and formatted msg.
@@ -233,4 +238,11 @@ func (e *wraperr) Unwrap() error              { return e.cause }
 func (e *wraperr) Wrap(err error) Error       { return &wraperr{e, err} }
 func (e *wraperr) WithMeta(key string, val string) Error {
 	return &wraperr{e.wrapper.WithMeta(key, val), e.cause}
+}
+
+func (e *wraperr) Is(err error) bool {
+	if u, ok := err.(interface{ Code() ErrorCode }); ok {
+		return u.Code() == e.Code()
+	}
+	return false
 }

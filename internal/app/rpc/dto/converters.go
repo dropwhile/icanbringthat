@@ -6,7 +6,10 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/twitchtv/twirp"
+
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/someerr"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -61,4 +64,60 @@ func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *pb.Earmark, err e
 	dst.EventItemRefId = eventItem.RefID.String()
 	dst.Owner = emUser.Name
 	return
+}
+
+func ToTwirpError(src someerr.Error) twirp.Error {
+	var twErrCode twirp.ErrorCode
+	switch src.Code() {
+	/*
+		case someerr.BadRoute:
+			errString = "bad_route"
+		case someerr.Malformed:
+			errString = "malformed"
+	*/
+	case someerr.NoError:
+		twErrCode = twirp.NoError
+	case someerr.Canceled:
+		twErrCode = twirp.Canceled
+	case someerr.Unknown:
+		twErrCode = twirp.Unknown
+	case someerr.InvalidArgument:
+		twErrCode = twirp.InvalidArgument
+	case someerr.DeadlineExceeded:
+		twErrCode = twirp.DeadlineExceeded
+	case someerr.NotFound:
+		twErrCode = twirp.NotFound
+	case someerr.AlreadyExists:
+		twErrCode = twirp.AlreadyExists
+	case someerr.PermissionDenied:
+		twErrCode = twirp.PermissionDenied
+	case someerr.Unauthenticated:
+		twErrCode = twirp.Unauthenticated
+	case someerr.ResourceExhausted:
+		twErrCode = twirp.ResourceExhausted
+	case someerr.FailedPrecondition:
+		twErrCode = twirp.FailedPrecondition
+	case someerr.Aborted:
+		twErrCode = twirp.Aborted
+	case someerr.OutOfRange:
+		twErrCode = twirp.OutOfRange
+	case someerr.Unimplemented:
+		twErrCode = twirp.Unimplemented
+	case someerr.Internal:
+		twErrCode = twirp.Internal
+	case someerr.Unavailable:
+		twErrCode = twirp.Unavailable
+	case someerr.DataLoss:
+		twErrCode = twirp.DataLoss
+	}
+	twerr := twirp.NewError(twErrCode, src.Msg())
+	for k, v := range src.MetaMap() {
+		twerr = twerr.WithMeta(k, v)
+	}
+	if u, ok := src.(interface {
+		Unwrap() error
+	}); ok {
+		twerr = twirp.WrapError(twerr, u.Unwrap())
+	}
+	return twerr
 }
