@@ -104,10 +104,13 @@ ${GOBIN}/protoc-gen-twirp:
 ${GOBIN}/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
+${GOBIN}/go-errorlint:
+	go install github.com/polyfloyd/go-errorlint@latest
 
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
+CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/nilaway
 
 .PHONY: setup
 setup:
