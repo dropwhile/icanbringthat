@@ -1,15 +1,13 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
@@ -23,50 +21,42 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	eventCount, errx := service.GetEventsCount(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user.ID)
+	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
 	if err != nil {
-		x.DBError(w, err)
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	favoriteCount, err := model.GetFavoriteCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	favoriteCount, errx := service.GetFavoriteEventsCount(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	events, err := model.GetEventsComingSoonByUserPaginated(ctx, x.Db, user.ID, 10, 0)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Msg("no rows for events")
-		events = []*model.Event{}
-	case err != nil:
-		x.DBError(w, err)
+	events, _, errx := service.GetEventsComingSoonPaginated(ctx, x.Db, user.ID, 10, 0)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no rows for event items")
-		eventItemCounts = []*model.EventItemCount{}
-	case err != nil:
-		x.DBError(w, err)
+	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, user.ID, eventIDs)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 

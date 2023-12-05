@@ -26,7 +26,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := service.GetNotificationCount(ctx, x.Db, user.ID)
+	notifCount, err := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if err != nil {
 		x.DBError(w, err)
 		return

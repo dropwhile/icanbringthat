@@ -14,7 +14,7 @@ func GetNotifcationsPaginated(
 	ctx context.Context, db model.PgxHandle, userID int,
 	limit, offset int,
 ) ([]*model.Notification, *Pagination, somerr.Error) {
-	notifCount, errx := GetNotificationCount(ctx, db, userID)
+	notifCount, errx := GetNotificationsCount(ctx, db, userID)
 	if errx != nil {
 		return nil, nil, somerr.Internal.Error("db error")
 	}
@@ -39,7 +39,7 @@ func GetNotifcationsPaginated(
 	return notifications, pagination, nil
 }
 
-func GetNotificationCount(
+func GetNotificationsCount(
 	ctx context.Context, db model.PgxHandle, userID int,
 ) (int, somerr.Error) {
 	notifCount, err := model.GetNotificationCountByUser(ctx, db, userID)

@@ -231,6 +231,34 @@ func GetEventsPaginated(
 	return events, pagination, nil
 }
 
+func GetEventsComingSoonPaginated(
+	ctx context.Context, db model.PgxHandle, userID int,
+	limit, offset int,
+) ([]*model.Event, *Pagination, somerr.Error) {
+	eventCount, errx := GetEventsCount(ctx, db, userID)
+	if errx != nil {
+		return nil, nil, somerr.Internal.Error("db error")
+	}
+
+	events := []*model.Event{}
+	if eventCount.Current > 0 {
+		evts, err := model.GetEventsComingSoonByUserPaginated(ctx, db, userID, limit, offset)
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			evts = []*model.Event{}
+		case err != nil:
+			return nil, nil, somerr.Internal.Error("db error")
+		}
+		events = evts
+	}
+	pagination := &Pagination{
+		Limit:  uint32(limit),
+		Offset: uint32(offset),
+		Count:  uint32(eventCount.Current),
+	}
+	return events, pagination, nil
+}
+
 func GetEventsCount(
 	ctx context.Context, db model.PgxHandle, userID int,
 ) (*model.BifurcatedRowCounts, somerr.Error) {

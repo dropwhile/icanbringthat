@@ -31,7 +31,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationCount(ctx, x.Db, user.ID)
+	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -136,7 +136,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationCount(ctx, x.Db, user.ID)
+	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
 		x.DBError(w, err)
 		return

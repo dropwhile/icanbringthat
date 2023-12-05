@@ -23,3 +23,13 @@ func GetEarmarksByEventID(
 	}
 	return earmarks, nil
 }
+
+func GetEarmarksCount(
+	ctx context.Context, db model.PgxHandle, userID int,
+) (*model.BifurcatedRowCounts, somerr.Error) {
+	bifurCount, err := model.GetEarmarkCountByUser(ctx, db, userID)
+	if err != nil {
+		return nil, somerr.Internal.Error("db error")
+	}
+	return bifurCount, nil
+}
