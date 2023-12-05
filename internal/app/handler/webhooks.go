@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 type PostMarkRecord struct {
@@ -75,10 +75,10 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			log.Info().Err(err).Msg("no user found from callback")
 			w.WriteHeader(http.StatusOK)
-		case somerr.FailedPrecondition:
+		case errs.FailedPrecondition:
 			log.Info().
 				Any("postmark", pm).
 				Msg("reminders already disabled")

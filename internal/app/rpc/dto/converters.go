@@ -10,7 +10,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -67,7 +67,7 @@ func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *pb.Earmark, err e
 	return
 }
 
-func ToTwirpError(src somerr.Error) twirp.Error {
+func ToTwirpError(src errs.Error) twirp.Error {
 	var twErrCode twirp.ErrorCode
 	switch src.Code() {
 	/*
@@ -76,39 +76,39 @@ func ToTwirpError(src somerr.Error) twirp.Error {
 		case somerr.Malformed:
 			errString = "malformed"
 	*/
-	case somerr.NoError:
+	case errs.NoError:
 		twErrCode = twirp.NoError
-	case somerr.Canceled:
+	case errs.Canceled:
 		twErrCode = twirp.Canceled
-	case somerr.Unknown:
+	case errs.Unknown:
 		twErrCode = twirp.Unknown
-	case somerr.InvalidArgument:
+	case errs.InvalidArgument:
 		twErrCode = twirp.InvalidArgument
-	case somerr.DeadlineExceeded:
+	case errs.DeadlineExceeded:
 		twErrCode = twirp.DeadlineExceeded
-	case somerr.NotFound:
+	case errs.NotFound:
 		twErrCode = twirp.NotFound
-	case somerr.AlreadyExists:
+	case errs.AlreadyExists:
 		twErrCode = twirp.AlreadyExists
-	case somerr.PermissionDenied:
+	case errs.PermissionDenied:
 		twErrCode = twirp.PermissionDenied
-	case somerr.Unauthenticated:
+	case errs.Unauthenticated:
 		twErrCode = twirp.Unauthenticated
-	case somerr.ResourceExhausted:
+	case errs.ResourceExhausted:
 		twErrCode = twirp.ResourceExhausted
-	case somerr.FailedPrecondition:
+	case errs.FailedPrecondition:
 		twErrCode = twirp.FailedPrecondition
-	case somerr.Aborted:
+	case errs.Aborted:
 		twErrCode = twirp.Aborted
-	case somerr.OutOfRange:
+	case errs.OutOfRange:
 		twErrCode = twirp.OutOfRange
-	case somerr.Unimplemented:
+	case errs.Unimplemented:
 		twErrCode = twirp.Unimplemented
-	case somerr.Internal:
+	case errs.Internal:
 		twErrCode = twirp.Internal
-	case somerr.Unavailable:
+	case errs.Unavailable:
 		twErrCode = twirp.Unavailable
-	case somerr.DataLoss:
+	case errs.DataLoss:
 		twErrCode = twirp.DataLoss
 	}
 	twerr := twirp.NewError(twErrCode, src.Msg())

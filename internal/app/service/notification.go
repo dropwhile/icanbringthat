@@ -7,16 +7,16 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 func GetNotifcationsPaginated(
 	ctx context.Context, db model.PgxHandle, userID int,
 	limit, offset int,
-) ([]*model.Notification, *Pagination, somerr.Error) {
+) ([]*model.Notification, *Pagination, errs.Error) {
 	notifCount, errx := GetNotificationsCount(ctx, db, userID)
 	if errx != nil {
-		return nil, nil, somerr.Internal.Error("db error")
+		return nil, nil, errs.Internal.Error("db error")
 	}
 
 	notifications := []*model.Notification{}
@@ -27,7 +27,7 @@ func GetNotifcationsPaginated(
 		case errors.Is(err, pgx.ErrNoRows):
 			notifs = []*model.Notification{}
 		case err != nil:
-			return nil, nil, somerr.Internal.Error("db error")
+			return nil, nil, errs.Internal.Error("db error")
 		}
 		notifications = notifs
 	}
@@ -41,20 +41,20 @@ func GetNotifcationsPaginated(
 
 func GetNotificationsCount(
 	ctx context.Context, db model.PgxHandle, userID int,
-) (int, somerr.Error) {
+) (int, errs.Error) {
 	notifCount, err := model.GetNotificationCountByUser(ctx, db, userID)
 	if err != nil {
-		return 0, somerr.Internal.Error("db error")
+		return 0, errs.Internal.Error("db error")
 	}
 	return notifCount, nil
 }
 
 func GetNotifications(
 	ctx context.Context, db model.PgxHandle, userID int,
-) ([]*model.Notification, somerr.Error) {
+) ([]*model.Notification, errs.Error) {
 	notifications, err := model.GetNotificationsByUser(ctx, db, userID)
 	if err != nil {
-		return nil, somerr.Internal.Error("db error")
+		return nil, errs.Internal.Error("db error")
 	}
 	return notifications, nil
 }
@@ -62,30 +62,30 @@ func GetNotifications(
 func DeleteNotification(
 	ctx context.Context, db model.PgxHandle, userID int,
 	refID model.NotificationRefID,
-) somerr.Error {
+) errs.Error {
 	if userID == 0 {
-		return somerr.Unauthenticated.Error("invalid credentials")
+		return errs.Unauthenticated.Error("invalid credentials")
 	}
 
 	notification, err := model.GetNotificationByRefID(ctx, db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return somerr.NotFound.
+		return errs.NotFound.
 			Error("notification not found").
 			Wrap(err)
 	case err != nil:
-		return somerr.Internal.
+		return errs.Internal.
 			Error("db error").
 			Wrap(err)
 	}
 
 	if userID != notification.UserID {
-		return somerr.PermissionDenied.Error("permission denied")
+		return errs.PermissionDenied.Error("permission denied")
 	}
 
 	err = model.DeleteNotification(ctx, db, notification.ID)
 	if err != nil {
-		return somerr.Internal.
+		return errs.Internal.
 			Error("db error").
 			Wrap(err)
 	}
@@ -94,14 +94,14 @@ func DeleteNotification(
 
 func DeleteAllNotifications(
 	ctx context.Context, db model.PgxHandle, userID int,
-) somerr.Error {
+) errs.Error {
 	if userID == 0 {
-		return somerr.Unauthenticated.Error("invalid credentials")
+		return errs.Unauthenticated.Error("invalid credentials")
 	}
 
 	err := model.DeleteNotificationsByUser(ctx, db, userID)
 	if err != nil {
-		return somerr.Internal.Error("db error")
+		return errs.Internal.Error("db error")
 	}
 
 	return nil
@@ -110,10 +110,10 @@ func DeleteAllNotifications(
 func NewNotification(
 	ctx context.Context, db model.PgxHandle, userID int,
 	message string,
-) (*model.Notification, somerr.Error) {
+) (*model.Notification, errs.Error) {
 	notification, err := model.NewNotification(ctx, db, userID, message)
 	if err != nil {
-		return nil, somerr.Internal.Errorf("db error: %w", err)
+		return nil, errs.Internal.Errorf("db error: %w", err)
 	}
 	return notification, nil
 }

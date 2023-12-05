@@ -11,8 +11,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
-	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/resources"
 )
 
@@ -98,13 +98,13 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 			Err(errx).
 			Msg("error deleting notification")
 		switch errx.Code() {
-		case somerr.Internal:
+		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
-		case somerr.Unauthenticated:
+		case errs.Unauthenticated:
 			x.BadSessionDataError(w)
 		default:
 			x.InternalServerError(w, "unexpected error")
@@ -135,9 +135,9 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 			Err(errx).
 			Msg("error deleting all notifications")
 		switch errx.Code() {
-		case somerr.Internal:
+		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
-		case somerr.Unauthenticated:
+		case errs.Unauthenticated:
 			x.BadSessionDataError(w)
 		default:
 			x.InternalServerError(w, "unexpected error")

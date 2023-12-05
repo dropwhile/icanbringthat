@@ -14,7 +14,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.WebAuthn, error) {
@@ -299,7 +299,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	credential, errx := service.GetUserCredentialByRefID(ctx, x.Db, credentialRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			log.Info().Err(err).Msg("credential not found")
 			x.NotFoundError(w)
 		default:

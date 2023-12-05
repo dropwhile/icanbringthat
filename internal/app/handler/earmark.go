@@ -13,8 +13,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
-	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -155,7 +155,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.DBError(w, err)
@@ -166,7 +166,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.DBError(w, err)
@@ -221,7 +221,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.DBError(w, err)
@@ -249,7 +249,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.DBError(w, err)
@@ -270,7 +270,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// make sure no earmark exists yet
 	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, eventItem.ID)
 	if errx != nil {
-		if errx.Code() != somerr.NotFound {
+		if errx.Code() != errs.NotFound {
 			x.DBError(w, err)
 			return
 		}
@@ -291,7 +291,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	_, errx = service.NewEarmark(ctx, x.Db, eventItem.ID, user.ID, note)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.AlreadyExists:
+		case errs.AlreadyExists:
 			x.ForbiddenError(w, "already earmarked - access denied")
 		default:
 			x.DBError(w, err)
@@ -327,9 +327,9 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	errx := service.DeleteEarmarkByRefID(ctx, x.Db, user.ID, refID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			log.Info().
 				Int("user.ID", user.ID).
 				Err(errx).

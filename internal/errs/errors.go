@@ -13,7 +13,7 @@
 //
 // originally from: https://github.com/twitchtv/twirp/blob/3c51d65f753a1049c77bc51e0e8c7922b1fb7e4d/errors.go
 // modified 2023
-package somerr
+package errs
 
 import (
 	"fmt"

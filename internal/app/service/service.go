@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 type Pagination struct {
@@ -17,10 +17,10 @@ type Pagination struct {
 
 func TxnFunc(ctx context.Context, db model.PgxHandle,
 	dbfn func(pgx.Tx) error,
-) somerr.Error {
+) errs.Error {
 	err := pgx.BeginFunc(ctx, db, dbfn)
 	if err != nil {
-		return somerr.Internal.Errorf("db error: %w", err)
+		return errs.Internal.Errorf("db error: %w", err)
 	}
 	return nil
 }

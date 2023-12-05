@@ -9,7 +9,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -90,7 +90,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 			Count:  uint32(count),
 		}
 	} else {
-		var errx somerr.Error
+		var errx errs.Error
 		earmarks, errx = service.GetEarmarks(
 			ctx, s.Db, user.ID, showArchived)
 		if errx != nil {
@@ -132,7 +132,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, eventItem.ID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			// good. this is what we want
 		default:
 			return nil, dto.ToTwirpError(errx)

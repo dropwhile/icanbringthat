@@ -14,8 +14,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +146,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	user, errx := service.GetUserByEmail(ctx, x.Db, email)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			log.Info().Err(errx).Msg("no user found")
 			doFake = true
 		default:

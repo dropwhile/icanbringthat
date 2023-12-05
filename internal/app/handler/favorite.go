@@ -13,8 +13,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
-	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -144,15 +144,15 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 			Err(errx).
 			Msg("error adding favorite")
 		switch errx.Code() {
-		case somerr.AlreadyExists:
+		case errs.AlreadyExists:
 			x.BadRequestError(w, "already favorited")
-		case somerr.Internal:
+		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
-		case somerr.Unauthenticated:
+		case errs.Unauthenticated:
 			x.BadSessionDataError(w)
 		default:
 			x.InternalServerError(w, "unexpected error")
@@ -198,13 +198,13 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 			Err(errx).
 			Msg("error deleting favorite")
 		switch errx.Code() {
-		case somerr.Internal:
+		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
-		case somerr.Unauthenticated:
+		case errs.Unauthenticated:
 			x.BadSessionDataError(w)
 		default:
 			x.InternalServerError(w, "unexpected error")

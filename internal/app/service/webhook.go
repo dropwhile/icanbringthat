@@ -7,13 +7,13 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/somerr"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 func DisableRemindersWithNotification(
 	ctx context.Context, db model.PgxHandle,
 	email string, suppressionReason string,
-) somerr.Error {
+) errs.Error {
 	user, errx := GetUserByEmail(ctx, db, email)
 	if errx != nil {
 		return errx
@@ -21,7 +21,7 @@ func DisableRemindersWithNotification(
 
 	// if already disabled, no need to disable again
 	if !user.Settings.EnableReminders {
-		return somerr.FailedPrecondition.Error("reminders already disabled")
+		return errs.FailedPrecondition.Error("reminders already disabled")
 	}
 
 	// bounced email, marked spam, unsubscribed...etc

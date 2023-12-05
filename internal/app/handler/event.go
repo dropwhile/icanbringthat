@@ -15,8 +15,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
-	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -203,9 +203,9 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		favorited = true
 	} else {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			favorited = false
-		case somerr.Internal:
+		case errs.Internal:
 			x.DBError(w, err)
 			return
 		}
@@ -291,7 +291,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	event, errx := service.GetEvent(ctx, x.Db, refID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -367,9 +367,9 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		name, description, startTime, tz)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.InvalidArgument:
+		case errs.InvalidArgument:
 			x.BadFormDataError(w, err, errx.Meta("argument"))
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.ForbiddenError(w, errx.Msg())
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -441,13 +441,13 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.FailedPrecondition:
+		case errs.FailedPrecondition:
 			x.BadFormDataError(w, errx)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
-		case somerr.InvalidArgument:
+		case errs.InvalidArgument:
 			x.BadFormDataError(w, errx, errx.Meta("argument"))
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -502,13 +502,13 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
-		case somerr.FailedPrecondition:
+		case errs.FailedPrecondition:
 			x.BadFormDataError(w, errx, "sortOrder")
-		case somerr.Internal:
+		case errs.Internal:
 			x.DBError(w, err)
 		}
 		return
@@ -539,9 +539,9 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	if errx := service.DeleteEvent(ctx, x.Db, user.ID, refID); errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())

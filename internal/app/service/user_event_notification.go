@@ -14,7 +14,9 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-func NotifyUsersPendingEvents(db model.PgxHandle, mailer mail.MailSender, tplMap resources.TemplateMap, siteBaseUrl string) error {
+func NotifyUsersPendingEvents(db model.PgxHandle,
+	mailer mail.MailSender, tplMap resources.TemplateMap, siteBaseUrl string,
+) error {
 	ctx := context.Background()
 	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, db)
 	if err != nil {

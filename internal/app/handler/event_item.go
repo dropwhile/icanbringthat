@@ -11,8 +11,8 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
-	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -97,7 +97,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -117,7 +117,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -177,9 +177,9 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	_, errx := service.AddEventItem(ctx, x.Db, user.ID, eventRefID, description)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -219,7 +219,7 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -249,15 +249,15 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 			Err(errx).
 			Msg("failed to update eventitem")
 		switch errx.Code() {
-		case somerr.FailedPrecondition:
+		case errs.FailedPrecondition:
 			log.Info().
 				Int("user.ID", user.ID).
 				Int("event.ID", event.ID).
 				Msg("eventItem.EventID and event.ID mismatch")
 			x.NotFoundError(w)
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -303,7 +303,7 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -327,11 +327,11 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 			Err(errx).
 			Msg("failed to remove eventitem")
 		switch errx.Code() {
-		case somerr.FailedPrecondition:
+		case errs.FailedPrecondition:
 			x.NotFoundError(w)
-		case somerr.NotFound:
+		case errs.NotFound:
 			x.NotFoundError(w)
-		case somerr.PermissionDenied:
+		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
