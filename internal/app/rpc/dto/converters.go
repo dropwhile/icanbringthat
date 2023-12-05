@@ -9,6 +9,7 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/somerr"
 	pb "github.com/dropwhile/icbt/rpc"
 )
@@ -52,11 +53,11 @@ func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *pb.Earmark, err e
 	dst.Created = TimeToTimestamp(src.Created)
 
 	ctx := context.Background()
-	eventItem, err := model.GetEventItemByID(ctx, db, src.EventItemID)
+	eventItem, err := service.GetEventItemByID(ctx, db, src.EventItemID)
 	if err != nil {
 		return nil, err
 	}
-	emUser, err := model.GetUserByID(ctx, db, src.UserID)
+	emUser, err := service.GetUserByID(ctx, db, src.UserID)
 	if err != nil {
 		return nil, err
 	}

@@ -144,3 +144,16 @@ func DeleteUser(ctx context.Context, db model.PgxHandle,
 	}
 	return nil
 }
+
+func GetUserByApiKey(ctx context.Context, db model.PgxHandle,
+	token string,
+) (*model.User, somerr.Error) {
+	user, err := model.GetUserByApiKey(ctx, db, token)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, somerr.NotFound.Error("user not found")
+	case err != nil:
+		return nil, somerr.Internal.Error("db error")
+	}
+	return user, nil
+}

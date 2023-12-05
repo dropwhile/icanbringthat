@@ -26,6 +26,20 @@ func GetEvent(
 	return event, nil
 }
 
+func GetEventByID(
+	ctx context.Context, db model.PgxHandle, userID int,
+	ID int,
+) (*model.Event, somerr.Error) {
+	event, err := model.GetEventByID(ctx, db, ID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, somerr.NotFound.Error("event not found")
+	case err != nil:
+		return nil, somerr.Internal.Error("db error")
+	}
+	return event, nil
+}
+
 func DeleteEvent(
 	ctx context.Context, db model.PgxHandle, userID int,
 	refID model.EventRefID,
@@ -273,9 +287,12 @@ func GetEvents(
 	ctx context.Context, db model.PgxHandle, userID int,
 	archived bool,
 ) ([]*model.Event, somerr.Error) {
-	events, err := model.GetEventsByUserFiltered(ctx, db, userID, archived)
-	if err != nil {
+	elems, err := model.GetEventsByUserFiltered(ctx, db, userID, archived)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		elems = []*model.Event{}
+	case err != nil:
 		return nil, somerr.Internal.Error("db error")
 	}
-	return events, nil
+	return elems, nil
 }

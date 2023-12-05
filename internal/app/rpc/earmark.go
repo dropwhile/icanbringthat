@@ -2,14 +2,14 @@ package rpc
 
 import (
 	"context"
-	"errors"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc/dto"
+	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/somerr"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -27,20 +27,14 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	event, errx := service.GetEvent(ctx, s.Db, user.ID, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
-	earmarks, err := model.GetEarmarksByEvent(ctx, s.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, user.ID, event.ID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
@@ -73,9 +67,9 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
 
-		earmarkCounts, err := model.GetEarmarkCountByUser(ctx, s.Db, user.ID)
-		if err != nil {
-			return nil, twirp.InternalError("db error")
+		earmarkCounts, errx := service.GetEarmarksCount(ctx, s.Db, user.ID)
+		if errx != nil {
+			return nil, dto.ToTwirpError(errx)
 		}
 
 		count := earmarkCounts.Current
@@ -84,13 +78,10 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		}
 
 		if count > 0 {
-			earmarks, err = model.GetEarmarksByUserPaginatedFiltered(
+			earmarks, _, errx = service.GetEarmarksPaginated(
 				ctx, s.Db, user.ID, limit, offset, showArchived)
-			switch {
-			case errors.Is(err, pgx.ErrNoRows):
-				earmarks = []*model.Earmark{}
-			case err != nil:
-				return nil, twirp.InternalError("db error")
+			if errx != nil {
+				return nil, dto.ToTwirpError(errx)
 			}
 		}
 		paginationResult = &pb.PaginationResult{
@@ -99,12 +90,12 @@ func (s *Server) ListEarmarks(ctx context.Context,
 			Count:  uint32(count),
 		}
 	} else {
-		earmarks, err = model.GetEarmarksByUserFiltered(
+		var errx somerr.Error
+		earmarks, errx = service.GetEarmarks(
 			ctx, s.Db, user.ID, showArchived)
-		if err != nil {
-			return nil, twirp.InternalError("db error")
+		if errx != nil {
+			return nil, dto.ToTwirpError(errx)
 		}
-
 	}
 
 	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
@@ -132,33 +123,32 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event-item not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	eventItem, errx := service.GetEventItem(ctx, s.Db, user.ID, eventItemRefID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	// make sure no earmark exists yet
-	earmark, err := model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		// good. this is what we want
-	case err == nil:
+	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, user.ID, eventItem.ID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			// good. this is what we want
+		default:
+			return nil, dto.ToTwirpError(errx)
+		}
+	} else {
 		// earmark already exists!
 		errStr := "already earmarked"
 		if earmark.UserID != user.ID {
 			errStr += " by other user"
 		}
 		return nil, twirp.PermissionDenied.Error(errStr)
-	default:
-		return nil, twirp.InternalError("db error")
 	}
 
-	earmark, err = model.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	earmark, errx = service.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
@@ -186,28 +176,19 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("earmark not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	earmark, errx := service.GetEarmark(ctx, s.Db, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
-	eventItem, err := model.GetEventItemByID(ctx, s.Db, earmark.EventItemID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("earmark not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	eventItem, errx := service.GetEventItemByID(ctx, s.Db, earmark.EventItemID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
-	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("earmark not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	event, errx := service.GetEventByID(ctx, s.Db, user.ID, eventItem.EventID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
@@ -235,21 +216,18 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("earmark not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	earmark, errx := service.GetEarmark(ctx, s.Db, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	if earmark.UserID != user.ID {
 		return nil, twirp.PermissionDenied.Error("permission denied")
 	}
 
-	err = model.DeleteEarmark(ctx, s.Db, earmark.ID)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	errx = service.DeleteEarmark(ctx, s.Db, earmark.ID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	return &pb.RemoveEarmarkResponse{}, nil

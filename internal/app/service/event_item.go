@@ -69,6 +69,20 @@ func GetEventItem(
 	return eventItem, nil
 }
 
+func GetEventItemByID(
+	ctx context.Context, db model.PgxHandle,
+	eventItemID int,
+) (*model.EventItem, somerr.Error) {
+	eventItem, err := model.GetEventItemByID(ctx, db, eventItemID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, somerr.NotFound.Error("event-item not found")
+	case err != nil:
+		return nil, somerr.Internal.Error("db error")
+	}
+	return eventItem, nil
+}
+
 func RemoveEventItem(
 	ctx context.Context, db model.PgxHandle, userID int,
 	eventItemRefID model.EventItemRefID,
