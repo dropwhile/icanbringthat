@@ -37,6 +37,7 @@ func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interfa
 func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
+		log.Debug().Str("query", query).Interface("args", args).Msg("db error")
 		log.Info().Err(err).Msg("db query error")
 		return nil, err
 	}

@@ -254,14 +254,8 @@ func TestHandler_EventItem_Create(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("create missing description", func(t *testing.T) {
+	t.Run("create with missing description param should fail", func(t *testing.T) {
 		t.Parallel()
-
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -270,10 +264,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
 
 		data := url.Values{"descriptionxxx": {"some description"}}
 
@@ -350,11 +340,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	t.Run("update", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
 				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
@@ -377,10 +362,21 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
 			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
 			WithArgs(eventItem.ID).
 			WillReturnRows(earmarkRows)
@@ -519,12 +515,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	t.Run("update event owner not match", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -536,7 +526,25 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, 33, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_item_ ").
+			WithArgs(eventItem.RefID).
+			WillReturnRows(pgxmock.NewRows(eventItemColumns).
+				AddRow(
+					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
+					ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, 33, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 
 		data := url.Values{"description": {"new description"}}
 
@@ -558,12 +566,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	t.Run("update event archived", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				true, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -575,7 +577,25 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_item_ ").
+			WithArgs(eventItem.RefID).
+			WillReturnRows(pgxmock.NewRows(eventItemColumns).
+				AddRow(
+					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
+					ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 
 		data := url.Values{"description": {"new description"}}
 
@@ -596,11 +616,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	t.Run("update already earmarked by other user", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
 		eventItemRows := pgxmock.NewRows(eventItemColumns).
 			AddRow(
 				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
@@ -623,10 +638,21 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
 			WithArgs(eventItem.RefID).
 			WillReturnRows(eventItemRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
 			WithArgs(eventItem.ID).
 			WillReturnRows(earmarkRows)
@@ -656,16 +682,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 				event.ID, event.RefID, event.UserID, event.Name, event.Description,
 				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 			)
-		eventItemRows := pgxmock.NewRows(eventItemColumns).
-			AddRow(
-				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-				ts, ts,
-			)
-		earmarkRows := pgxmock.NewRows(earmarkColumns).
-			AddRow(
-				earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-				earmark.Note, ts, ts,
-			)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -679,12 +695,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
 			WillReturnRows(eventRows)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(eventItemRows)
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.ID).
-			WillReturnRows(earmarkRows)
 
 		data := url.Values{"descriptionxxxx": {"new description"}}
 
@@ -796,17 +806,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	t.Run("delete", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-		eventItemRows := pgxmock.NewRows(eventItemColumns).
-			AddRow(
-				eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-				ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -818,10 +817,25 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
 			WithArgs(eventItem.RefID).
-			WillReturnRows(eventItemRows)
+			WillReturnRows(pgxmock.NewRows(eventItemColumns).
+				AddRow(
+					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
+					ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^DELETE FROM event_item_").
@@ -973,12 +987,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	t.Run("delete user not owner", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, 33, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -990,7 +998,25 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, 33, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
+			WithArgs(eventItem.RefID).
+			WillReturnRows(pgxmock.NewRows(eventItemColumns).
+				AddRow(
+					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
+					ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_ ").
+			WithArgs(eventItem.EventID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, 33, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -1055,12 +1081,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	t.Run("delete event archived", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				true, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -1072,7 +1092,25 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
+			WithArgs(eventItem.RefID).
+			WillReturnRows(pgxmock.NewRows(eventItemColumns).
+				AddRow(
+					eventItem.ID, eventItem.RefID, event.UserID, eventItem.Description,
+					ts, ts,
+				))
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

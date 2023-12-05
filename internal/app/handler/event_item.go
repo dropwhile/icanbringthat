@@ -1,18 +1,18 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
@@ -31,13 +31,14 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.BadFormDataError(w, err)
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -93,13 +94,14 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -112,13 +114,14 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -160,34 +163,6 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		x.BadFormDataError(w, err)
 		return
@@ -199,13 +174,20 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = model.NewEventItem(ctx, x.Db, event.ID, description)
-	if err != nil {
-		x.DBError(w, err)
+	_, errx := service.AddEventItem(ctx, x.Db, user.ID, eventRefID, description)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/events/%s", eventRefID), http.StatusSeeOther)
 }
 
 func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
@@ -230,70 +212,19 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if eventItem.EventID != event.ID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.ID", event.ID).
-			Int("eventItem.EventID", eventItem.EventID).
-			Msg("eventItem.EventID and event.ID mismatch")
-		x.NotFoundError(w)
-		return
-	}
-
-	// check if earmark exists, and is marked by someone else
-	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, x.Db, eventItem.ID)
-	switch {
-	case err != nil && !errors.Is(err, pgx.ErrNoRows):
-		x.DBError(w, err)
-		return
-	case err == nil:
-		if earmark.UserID != user.ID {
-			log.Info().
-				Int("user.ID", user.ID).
-				Int("earmark.UserID", earmark.UserID).
-				Msg("user id mismatch")
-			x.ForbiddenError(w, "earmarked by other user")
-			return
+	// get event so we can ensure that the routing is valid..
+	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
+	// and not someone just putting in /yolo/yyyy and getting
+	// the expected result
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
 		}
+		return
 	}
 
 	if err := r.ParseForm(); err != nil {
@@ -307,10 +238,30 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem.Description = description
-	err = model.UpdateEventItem(ctx, x.Db, eventItem.ID, eventItem.Description)
-	if err != nil {
-		x.DBError(w, err)
+	_, errx = service.UpdateEventItem(
+		ctx, x.Db, user.ID, eventItemRefID, description,
+		func(ei *model.EventItem) bool {
+			return ei.EventID != event.ID
+		},
+	)
+	if errx != nil {
+		log.Debug().
+			Err(errx).
+			Msg("failed to update eventitem")
+		switch errx.Code() {
+		case somerr.FailedPrecondition:
+			log.Info().
+				Int("user.ID", user.ID).
+				Int("event.ID", event.ID).
+				Msg("eventItem.EventID and event.ID mismatch")
+			x.NotFoundError(w)
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -345,57 +296,46 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
+	// get event so we can ensure that the routing is valid..
+	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
+	// and not someone just putting in /yolo/yyyy and getting
+	// the expected result
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if eventItem.EventID != event.ID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.ID", event.ID).
-			Int("eventItem.EventID", eventItem.EventID).
-			Msg("eventItem.EventID and event.ID mismatch")
-		x.NotFoundError(w)
-		return
-	}
-
-	err = model.DeleteEventItem(ctx, x.Db, eventItem.ID)
-	if err != nil {
-		x.DBError(w, err)
+	errx = service.RemoveEventItem(
+		ctx, x.Db, user.ID, eventItemRefID,
+		func(ei *model.EventItem) bool {
+			log.Debug().
+				Int("user.ID", user.ID).
+				Int("event.ID", event.ID).
+				Int("eventItem.EventID", ei.EventID).
+				Msg("eventItem.EventID and event.ID comparison")
+			return ei.EventID != event.ID
+		},
+	)
+	if errx != nil {
+		log.Debug().
+			Err(errx).
+			Msg("failed to remove eventitem")
+		switch errx.Code() {
+		case somerr.FailedPrecondition:
+			x.NotFoundError(w)
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 

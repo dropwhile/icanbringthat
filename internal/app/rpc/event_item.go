@@ -2,15 +2,13 @@ package rpc
 
 import (
 	"context"
-	"errors"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc/dto"
+	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -28,20 +26,9 @@ func (s *Server) ListEventItems(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	items, err := model.GetEventItemsByEvent(ctx, s.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	items, errx := service.GetEventItemsByEvent(ctx, s.Db, user.ID, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.ListEventItemsResponse{
@@ -64,33 +51,9 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event-item not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	if event.UserID != user.ID {
-		return nil, twirp.PermissionDenied.Error("not event owner")
-	}
-
-	if event.Archived {
-		return nil, twirp.PermissionDenied.Error("event is archived")
-	}
-
-	err = model.DeleteEventItem(ctx, s.Db, eventItem.ID)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	errx := service.RemoveEventItem(ctx, s.Db, user.ID, refID, nil)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	return &pb.RemoveEventItemResponse{}, nil
@@ -110,25 +73,11 @@ func (s *Server) AddEventItem(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	if event.UserID != user.ID {
-		return nil, twirp.PermissionDenied.Error("not event owner")
-	}
-
-	if event.Archived {
-		return nil, twirp.PermissionDenied.Error("event is archived")
-	}
-
-	eventItem, err := model.NewEventItem(ctx, s.Db, event.ID, r.Description)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	eventItem, errx := service.AddEventItem(
+		ctx, s.Db, user.ID, refID, r.Description,
+	)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.AddEventItemResponse{
@@ -148,51 +97,14 @@ func (s *Server) UpdateEventItem(ctx context.Context,
 
 	refID, err := model.ParseEventItemRefID(r.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event-item not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	if event.UserID != user.ID {
-		return nil, twirp.PermissionDenied.Error("not event owner")
-	}
-
-	if event.Archived {
-		return nil, twirp.PermissionDenied.Error("event is archived")
-	}
-
-	// check if earmark exists, and is marked by someone else
-	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
-	switch {
-	case err != nil && !errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.InternalError("db error")
-	case err == nil && earmark.UserID != user.ID:
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("earmark.UserID", earmark.UserID).
-			Msg("user id mismatch")
-		return nil, twirp.PermissionDenied.Error("earmarked by other user")
-	}
-
-	eventItem.Description = r.Description
-	err = model.UpdateEventItem(ctx, s.Db, eventItem.ID, eventItem.Description)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	eventItem, errx := service.UpdateEventItem(
+		ctx, s.Db, user.ID, refID, r.Description, nil,
+	)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.UpdateEventItemResponse{
