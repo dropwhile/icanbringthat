@@ -27,9 +27,9 @@ type ApiKey struct {
 }
 
 func NewApiKey(ctx context.Context, db PgxHandle,
-	user *User,
+	userID int,
 ) (*ApiKey, error) {
-	if user == nil {
+	if userID == 0 {
 		return nil, fmt.Errorf("nil user supplied")
 	}
 	token := strings.Join(
@@ -39,7 +39,7 @@ func NewApiKey(ctx context.Context, db PgxHandle,
 		},
 		":",
 	)
-	return CreateApiKey(ctx, db, user.ID, token)
+	return CreateApiKey(ctx, db, userID, token)
 }
 
 func CreateApiKey(ctx context.Context, db PgxHandle,

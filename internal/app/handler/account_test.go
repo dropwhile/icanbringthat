@@ -637,7 +637,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("enable api access should succeed", func(t *testing.T) {
+	t.Run("enable api access with no existing key should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -659,6 +659,23 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		}
 
 		ctx = auth.ContextSet(ctx, "user", user)
+		mock.ExpectQuery("SELECT (.+) FROM api_key_").
+			WithArgs(user.ID).
+			WillReturnError(pgx.ErrNoRows)
+		mock.ExpectBegin()
+		mock.ExpectQuery("INSERT INTO api_key_ ").
+			WithArgs(pgx.NamedArgs{
+				"userID": user.ID,
+				"token":  pgxmock.AnyArg(),
+			}).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"user_id", "token", "created"},
+			).AddRow(
+				user.ID, "sometoken", ts,
+			))
+		mock.ExpectCommit()
+		// hidden rollback after commit due to beginfunc being used
+		mock.ExpectRollback()
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
 			WithArgs(pgx.NamedArgs{
@@ -698,6 +715,73 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
+	t.Run("enable api access with existing key should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.SessMgr.Load(ctx, "")
+
+		user := &model.User{
+			ID:           1,
+			RefID:        refID,
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       pwhash,
+			Verified:     true,
+			PWAuth:       true,
+			ApiAccess:    false,
+			WebAuthn:     false,
+			Created:      ts,
+			LastModified: ts,
+		}
+
+		ctx = auth.ContextSet(ctx, "user", user)
+		mock.ExpectQuery("SELECT (.+) FROM api_key_").
+			WithArgs(user.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"user_id", "token", "created"},
+			).AddRow(
+				user.ID, "sometoken", ts,
+			))
+		mock.ExpectBegin()
+		mock.ExpectExec("^UPDATE user_ SET (.+)").
+			WithArgs(pgx.NamedArgs{
+				"email":     user.Email,
+				"name":      user.Name,
+				"pwHash":    user.PWHash,
+				"verified":  user.Verified,
+				"pwAuth":    user.PWAuth,
+				"apiAccess": true,
+				"webAuthn":  user.WebAuthn,
+				"userID":    user.ID,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		// hidden rollback after commit due to beginfunc being used
+		mock.ExpectRollback()
+
+		data := url.Values{"api_access": {"on"}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.UpdateApiAuthSettings(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		messages := handler.SessMgr.FlashPopAll(ctx)
+		assert.Equal(t, len(messages["error"]), 0)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/settings",
+			"handler returned wrong redirect")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 	t.Run("enable api access without a verified account should fail", func(t *testing.T) {
 		t.Parallel()
 

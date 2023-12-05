@@ -377,6 +377,11 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			}
 			changes = true
 			user.ApiAccess = true
+			_, errx := service.NewApiKeyIfNotExists(ctx, x.Db, user.ID)
+			if errx != nil {
+				x.DBError(w, errx)
+				return
+			}
 		}
 	case "":
 		// nothing

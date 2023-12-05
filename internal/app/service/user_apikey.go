@@ -36,6 +36,33 @@ func GetUserByApiKey(ctx context.Context, db model.PgxHandle,
 	return user, nil
 }
 
+func NewApiKey(ctx context.Context, db model.PgxHandle,
+	userID int,
+) (*model.ApiKey, errs.Error) {
+	apikey, err := model.NewApiKey(ctx, db, userID)
+	if err != nil {
+		return nil, errs.Internal.Errorf("db error: %w", err)
+	}
+	return apikey, nil
+}
+
+func NewApiKeyIfNotExists(ctx context.Context, db model.PgxHandle,
+	userID int,
+) (*model.ApiKey, errs.Error) {
+	apikey, errx := GetApiKeyByUser(ctx, db, userID)
+	if errx == nil {
+		return apikey, nil
+	} else if errx.Code() != errs.NotFound {
+		return nil, errx
+	}
+
+	apikey, err := model.NewApiKey(ctx, db, userID)
+	if err != nil {
+		return nil, errs.Internal.Errorf("db error: %w", err)
+	}
+	return apikey, nil
+}
+
 func RotateApiKey(ctx context.Context, db model.PgxHandle,
 	userID int,
 ) (*model.ApiKey, errs.Error) {
