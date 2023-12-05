@@ -126,9 +126,72 @@ func GetEarmark(ctx context.Context, db model.PgxHandle,
 }
 
 func DeleteEarmark(ctx context.Context, db model.PgxHandle,
-	earmarkID int,
+	userID int, earmark *model.Earmark,
 ) somerr.Error {
-	err := model.DeleteEarmark(ctx, db, earmarkID)
+	eventItem, err := model.GetEventItemByID(ctx, db, earmark.EventItemID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return somerr.NotFound.Error("event-item not found")
+	case err != nil:
+		return somerr.Internal.Error("db error")
+	}
+
+	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return somerr.NotFound.Error("event not found")
+	case err != nil:
+		return somerr.Internal.Error("db error")
+	}
+
+	if event.Archived {
+		return somerr.PermissionDenied.Error("event is archived")
+	}
+
+	if earmark.UserID != userID {
+		return somerr.PermissionDenied.Error("permission denied")
+	}
+
+	err = model.DeleteEarmark(ctx, db, earmark.ID)
+	if err != nil {
+		return somerr.Internal.Error("db error")
+	}
+	return nil
+}
+
+func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle,
+	userID int, refID model.EarmarkRefID,
+) somerr.Error {
+	earmark, errx := GetEarmark(ctx, db, refID)
+	if errx != nil {
+		return errx
+	}
+
+	eventItem, err := model.GetEventItemByID(ctx, db, earmark.EventItemID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return somerr.NotFound.Error("event-item not found")
+	case err != nil:
+		return somerr.Internal.Error("db error")
+	}
+
+	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return somerr.NotFound.Error("event not found")
+	case err != nil:
+		return somerr.Internal.Error("db error")
+	}
+
+	if event.Archived {
+		return somerr.PermissionDenied.Error("event is archived")
+	}
+
+	if earmark.UserID != userID {
+		return somerr.PermissionDenied.Error("permission denied")
+	}
+
+	err = model.DeleteEarmark(ctx, db, earmark.ID)
 	if err != nil {
 		return somerr.Internal.Error("db error")
 	}

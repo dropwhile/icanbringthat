@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -9,12 +8,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -29,14 +29,14 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
 
-	earmarkCount, err := model.GetEarmarkCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -63,14 +63,10 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	earmarks, err := model.GetEarmarksByUserPaginatedFiltered(
+	earmarks, _, errx := service.GetEarmarksPaginated(
 		ctx, x.Db, user.ID, 10, offset, archived,
 	)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no earmarks")
-		earmarks = []*model.Earmark{}
-	case err != nil:
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -78,12 +74,8 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventItemIDs := util.ToListByFunc(earmarks, func(em *model.Earmark) int {
 		return em.EventItemID
 	})
-	eventItems, err := model.GetEventItemsByIDs(ctx, x.Db, eventItemIDs)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no event items")
-		eventItems = []*model.EventItem{}
-	case err != nil:
+	eventItems, errx := service.GetEventItemsByIDs(ctx, x.Db, eventItemIDs)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -91,12 +83,8 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(eventItems, func(e *model.EventItem) int {
 		return e.EventID
 	})
-	events, err := model.GetEventsByIDs(ctx, x.Db, eventIDs)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no events")
-		events = []*model.Event{}
-	case err != nil:
+	events, errx := service.GetEventsByIDs(ctx, x.Db, eventIDs)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -164,23 +152,25 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 
@@ -228,13 +218,14 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 
@@ -255,13 +246,14 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, x.Db, eventItemRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 
@@ -276,17 +268,15 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make sure no earmark exists yet
-	_, err = model.GetEarmarkByEventItem(ctx, x.Db, eventItem.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		// good. this is what we want
-	case err == nil:
+	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, user.ID, eventItem.ID)
+	if errx != nil {
+		if errx.Code() != somerr.NotFound {
+			x.DBError(w, err)
+			return
+		}
+	} else {
 		// earmark already exists!
-		x.ForbiddenError(w,
-			"already earmarked by other user - access denied")
-		return
-	default:
-		x.DBError(w, err)
+		x.ForbiddenError(w, "already earmarked - access denied")
 		return
 	}
 
@@ -298,9 +288,14 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// ok for note to be empty
 	note := r.FormValue("note")
 
-	_, err = model.NewEarmark(ctx, x.Db, eventItem.ID, user.ID, note)
-	if err != nil {
-		x.DBError(w, err)
+	_, errx = service.NewEarmark(ctx, x.Db, eventItem.ID, user.ID, note)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.AlreadyExists:
+			x.ForbiddenError(w, "already earmarked - access denied")
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 
@@ -329,43 +324,20 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	earmark, err := model.GetEarmarkByRefID(ctx, x.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != earmark.UserID {
-		x.AccessDeniedError(w)
-		return
-	}
-
-	event, err := model.GetEventByEarmark(ctx, x.Db, earmark)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	err = model.DeleteEarmark(ctx, x.Db, earmark.ID)
-	if err != nil {
-		x.DBError(w, err)
+	errx := service.DeleteEarmarkByRefID(ctx, x.Db, user.ID, refID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			log.Info().
+				Int("user.ID", user.ID).
+				Err(errx).
+				Msg("permission denied")
+			x.AccessDeniedError(w)
+		default:
+			x.DBError(w, err)
+		}
 		return
 	}
 

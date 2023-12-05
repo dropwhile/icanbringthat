@@ -216,16 +216,7 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	earmark, errx := service.GetEarmark(ctx, s.Db, refID)
-	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
-	}
-
-	if earmark.UserID != user.ID {
-		return nil, twirp.PermissionDenied.Error("permission denied")
-	}
-
-	errx = service.DeleteEarmark(ctx, s.Db, earmark.ID)
+	errx := service.DeleteEarmarkByRefID(ctx, s.Db, user.ID, refID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
