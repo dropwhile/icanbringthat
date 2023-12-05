@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"reflect"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -115,6 +116,42 @@ func UpdateEvent(
 	if !changes {
 		return nil, somerr.FailedPrecondition.Error("no changes")
 	}
+
+	if err := model.UpdateEvent(
+		ctx, db, event.ID,
+		event.Name, event.Description, event.ItemSortOrder,
+		event.StartTime, event.StartTimeTz,
+	); err != nil {
+		return nil, somerr.Internal.Error("db error")
+	}
+	return event, nil
+}
+
+func UpdateEventItemSorting(
+	ctx context.Context, db model.PgxHandle, userID int,
+	refID model.EventRefID, itemSortOrder []int,
+) (*model.Event, somerr.Error) {
+	event, err := model.GetEventByRefID(ctx, db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, somerr.NotFound.Error("event not found")
+	case err != nil:
+		return nil, somerr.Internal.Error("db error")
+	}
+
+	if userID != event.UserID {
+		return nil, somerr.PermissionDenied.Error("permission denied")
+	}
+
+	if event.Archived {
+		return nil, somerr.PermissionDenied.Error("event is archived")
+	}
+
+	if reflect.DeepEqual(event.ItemSortOrder, itemSortOrder) {
+		return nil, somerr.FailedPrecondition.Error("no changes")
+	}
+
+	event.ItemSortOrder = itemSortOrder
 
 	if err := model.UpdateEvent(
 		ctx, db, event.ID,

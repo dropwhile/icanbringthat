@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
@@ -33,14 +31,14 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	notifCount, errx := service.GetNotificationCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
 
-	eventCount, err := model.GetEventCountsByUser(ctx, x.Db, user.ID)
-	if err != nil {
+	eventCount, errx := service.GetEventsCount(ctx, x.Db, user.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -67,26 +65,16 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, err := model.GetEventsByUserPaginatedFiltered(
+	events, _, errx := service.GetFavoriteEventsPaginated(
 		ctx, x.Db, user.ID, 10, offset*10, archived)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event")
-		events = []*model.Event{}
-	case err != nil:
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
 
-	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
-		return e.ID
-	})
-	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, x.Db, eventIDs)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no rows for event items")
-		eventItemCounts = []*model.EventItemCount{}
-	case err != nil:
+	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
+	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, user.ID, eventIDs)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -142,36 +130,28 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
-		return
-	}
-
 	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
+	notifCount, errx := service.GetNotificationCount(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.DBError(w, err)
 		return
-	case err != nil:
+	}
+
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, refID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
 
 	owner := user.ID == event.UserID
 
-	eventItems, err := model.GetEventItemsByEvent(ctx, x.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event items")
-		eventItems = []*model.EventItem{}
-	case err != nil:
+	eventItems, err := service.GetEventItemsByEventID(ctx, x.Db, user.ID, event.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -195,12 +175,8 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = append(unsortedList, sortedList...)
 	}
 
-	earmarks, err := model.GetEarmarksByEvent(ctx, x.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no rows for earmarks")
-		earmarks = []*model.Earmark{}
-	case err != nil:
+	earmarks, errx := service.GetEarmarksByEventID(ctx, x.Db, user.ID, event.ID)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
@@ -215,21 +191,24 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	earmarkUsers, err := model.GetUsersByIDs(ctx, x.Db, userIDs)
-	if err != nil {
+	earmarkUsers, errx := service.GetUsersByIDs(ctx, x.Db, user.ID, userIDs)
+	if errx != nil {
 		x.DBError(w, err)
 		return
 	}
-	has_favorite := false
-	_, err = model.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		has_favorite = false
-	case err != nil:
-		x.DBError(w, err)
-		return
-	case err == nil:
-		has_favorite = true
+
+	favorited := false
+	_, errx = service.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
+	if errx == nil {
+		favorited = true
+	} else {
+		switch errx.Code() {
+		case somerr.NotFound:
+			favorited = false
+		case somerr.Internal:
+			x.DBError(w, err)
+			return
+		}
 	}
 
 	earmarksMap := util.ToMapIndexedByFunc(earmarks,
@@ -248,7 +227,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		"earmarksMap":     earmarksMap,
 		"earmarkUsersMap": earmarkUsersMap,
 		"notifCount":      notifCount,
-		"favorite":        has_favorite,
+		"favorite":        favorited,
 		"title":           "Event Details",
 		"nav":             "show-event",
 		csrf.TemplateTag:  csrf.TemplateField(r),
@@ -479,7 +458,6 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", refID), http.StatusSeeOther)
 }
 
-// TODO:
 func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -496,34 +474,6 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, eventRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		x.BadFormDataError(w, err)
 		return
@@ -534,8 +484,9 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		x.BadFormDataError(w, err, "sortOrder")
 		return
 	}
-	order := make([]int, 0)
+
 	// make sure values are ok
+	order := make([]int, 0)
 	for _, v := range sortOrder {
 		if i, err := strconv.Atoi(v); err != nil {
 			x.BadFormDataError(w, err, "sortOrder")
@@ -544,13 +495,24 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 			order = append(order, i)
 		}
 	}
-	event.ItemSortOrder = util.Uniq(order)
-	err = model.UpdateEvent(
-		ctx, x.Db, event.ID,
-		event.Name, event.Description,
-		event.ItemSortOrder,
-		event.StartTime, event.StartTimeTz,
+	order = util.Uniq(order)
+
+	_, errx := service.UpdateEventItemSorting(
+		ctx, x.Db, user.ID, eventRefID, order,
 	)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		case somerr.FailedPrecondition:
+			x.BadFormDataError(w, errx, "sortOrder")
+		case somerr.Internal:
+			x.DBError(w, err)
+		}
+		return
+	}
 	if err != nil {
 		x.DBError(w, err)
 		return

@@ -1246,13 +1246,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	t.Run("update update nothing", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.ItemSortOrder, event.StartTime,
-				event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -1260,10 +1253,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
 
 		data := url.Values{
 			"namexxx": {event.Name},
@@ -1287,13 +1276,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	t.Run("update bad values", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.ItemSortOrder, event.StartTime,
-				event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -1301,10 +1283,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
 
 		data := url.Values{
 			"sortOrder": {"a", "3", "2"},
@@ -1328,13 +1306,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	t.Run("update bad values 2", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.ItemSortOrder, event.StartTime,
-				event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -1342,10 +1313,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
 
 		data := url.Values{
 			"sortOrder": {"a123"},

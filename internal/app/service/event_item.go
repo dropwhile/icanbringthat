@@ -48,7 +48,7 @@ func GetEventItemsByEventID(
 	items, err := model.GetEventItemsByEvent(ctx, db, eventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return nil, somerr.NotFound.Error("event not found")
+		items = []*model.EventItem{}
 	case err != nil:
 		return nil, somerr.Internal.Error("db error")
 	}

@@ -126,3 +126,17 @@ func GetFavoriteEvents(
 	}
 	return events, nil
 }
+
+func GetFavoriteByUserEvent(
+	ctx context.Context, db model.PgxHandle, userID int,
+	eventID int,
+) (*model.Favorite, somerr.Error) {
+	favorite, err := model.GetFavoriteByUserEvent(ctx, db, userID, eventID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, somerr.NotFound.Error("favorite not found")
+	case err != nil:
+		return nil, somerr.Internal.Error("db error")
+	}
+	return favorite, nil
+}
