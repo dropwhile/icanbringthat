@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,12 +9,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.WebAuthn, error) {
@@ -248,8 +247,8 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return nil, fmt.Errorf("bad user id: %w", err)
 		}
-		user, err := model.GetUserByRefID(ctx, x.Db, refID)
-		if err != nil || user == nil {
+		user, errx := service.GetUser(ctx, x.Db, refID)
+		if errx != nil || user == nil {
 			return nil, fmt.Errorf("could not find user: %w", err)
 		}
 		if !user.WebAuthn {
@@ -297,14 +296,15 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credential, err := model.GetUserCredentialByRefID(ctx, x.Db, credentialRefID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("credential not found")
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	credential, errx := service.GetUserCredentialByRefID(ctx, x.Db, credentialRefID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			log.Info().Err(err).Msg("credential not found")
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -313,9 +313,9 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	count, errx := service.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
@@ -325,9 +325,9 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.DeleteUserCredential(ctx, x.Db, credential.ID)
-	if err != nil {
-		x.DBError(w, err)
+	errx = service.DeleteUserCredential(ctx, x.Db, credential.ID)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 

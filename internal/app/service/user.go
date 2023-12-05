@@ -29,7 +29,7 @@ func GetUsersByIDs(
 }
 
 func GetUser(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	refID model.UserRefID,
 ) (*model.User, somerr.Error) {
 	user, err := model.GetUserByRefID(ctx, db, refID)
