@@ -12,7 +12,7 @@ import (
 )
 
 func GetEventItemsCount(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	eventIDs []int,
 ) ([]*model.EventItemCount, somerr.Error) {
 	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, db, eventIDs)
@@ -27,7 +27,7 @@ func GetEventItemsCount(
 }
 
 func GetEventItemsByEvent(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	refID model.EventRefID,
 ) ([]*model.EventItem, somerr.Error) {
 	event, err := model.GetEventByRefID(ctx, db, refID)
@@ -38,11 +38,11 @@ func GetEventItemsByEvent(
 		return nil, somerr.Internal.Error("db error")
 	}
 
-	return GetEventItemsByEventID(ctx, db, userID, event.ID)
+	return GetEventItemsByEventID(ctx, db, event.ID)
 }
 
 func GetEventItemsByEventID(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	eventID int,
 ) ([]*model.EventItem, somerr.Error) {
 	items, err := model.GetEventItemsByEvent(ctx, db, eventID)
@@ -69,7 +69,7 @@ func GetEventItemsByIDs(ctx context.Context, db model.PgxHandle,
 }
 
 func GetEventItem(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	eventItemRefID model.EventItemRefID,
 ) (*model.EventItem, somerr.Error) {
 	eventItem, err := model.GetEventItemByRefID(ctx, db, eventItemRefID)

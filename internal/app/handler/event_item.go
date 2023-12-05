@@ -31,7 +31,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -94,7 +94,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -114,7 +114,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -216,7 +216,7 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
 	// and not someone just putting in /yolo/yyyy and getting
 	// the expected result
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -300,7 +300,7 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
 	// and not someone just putting in /yolo/yyyy and getting
 	// the expected result
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:

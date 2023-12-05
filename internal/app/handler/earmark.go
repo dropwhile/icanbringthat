@@ -152,7 +152,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -163,7 +163,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -218,7 +218,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, eventRefID)
+	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -246,7 +246,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventItem, errx := service.GetEventItem(ctx, x.Db, user.ID, eventItemRefID)
+	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -268,7 +268,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make sure no earmark exists yet
-	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, user.ID, eventItem.ID)
+	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, eventItem.ID)
 	if errx != nil {
 		if errx.Code() != somerr.NotFound {
 			x.DBError(w, err)

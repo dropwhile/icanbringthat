@@ -73,7 +73,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
-	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, user.ID, eventIDs)
+	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -142,7 +142,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, refID)
+	event, errx := service.GetEvent(ctx, x.Db, refID)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -150,7 +150,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	owner := user.ID == event.UserID
 
-	eventItems, err := service.GetEventItemsByEventID(ctx, x.Db, user.ID, event.ID)
+	eventItems, err := service.GetEventItemsByEventID(ctx, x.Db, event.ID)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -175,7 +175,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = append(unsortedList, sortedList...)
 	}
 
-	earmarks, errx := service.GetEarmarksByEventID(ctx, x.Db, user.ID, event.ID)
+	earmarks, errx := service.GetEarmarksByEventID(ctx, x.Db, event.ID)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -191,7 +191,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	earmarkUsers, errx := service.GetUsersByIDs(ctx, x.Db, user.ID, userIDs)
+	earmarkUsers, errx := service.GetUsersByIDs(ctx, x.Db, userIDs)
 	if errx != nil {
 		x.DBError(w, err)
 		return
@@ -288,7 +288,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, user.ID, refID)
+	event, errx := service.GetEvent(ctx, x.Db, refID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:

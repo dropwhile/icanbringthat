@@ -54,7 +54,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, user.ID, eventIDs)
+	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return

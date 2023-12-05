@@ -11,8 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/somerr"
 )
 
-func GetUsersByIDs(
-	ctx context.Context, db model.PgxHandle, userID int,
+func GetUsersByIDs(ctx context.Context, db model.PgxHandle,
 	userIDs []int,
 ) ([]*model.User, somerr.Error) {
 	if len(userIDs) == 0 {

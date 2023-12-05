@@ -26,7 +26,7 @@ func (s *Server) ListEventItems(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	items, errx := service.GetEventItemsByEvent(ctx, s.Db, user.ID, refID)
+	items, errx := service.GetEventItemsByEvent(ctx, s.Db, refID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}

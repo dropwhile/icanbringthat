@@ -12,7 +12,7 @@ import (
 )
 
 func GetEarmarksByEventID(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	eventID int,
 ) ([]*model.Earmark, somerr.Error) {
 	earmarks, err := model.GetEarmarksByEvent(ctx, db, eventID)
@@ -26,7 +26,7 @@ func GetEarmarksByEventID(
 }
 
 func GetEarmarkByEventItemID(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	eventItemID int,
 ) (*model.Earmark, somerr.Error) {
 	earmark, err := model.GetEarmarkByEventItem(ctx, db, eventItemID)
@@ -125,8 +125,8 @@ func GetEarmark(ctx context.Context, db model.PgxHandle,
 	return earmark, nil
 }
 
-func DeleteEarmark(ctx context.Context, db model.PgxHandle,
-	userID int, earmark *model.Earmark,
+func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
+	earmark *model.Earmark,
 ) somerr.Error {
 	event, err := model.GetEventByEarmarkID(ctx, db, earmark.ID)
 	switch {
@@ -151,8 +151,8 @@ func DeleteEarmark(ctx context.Context, db model.PgxHandle,
 	return nil
 }
 
-func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle,
-	userID int, refID model.EarmarkRefID,
+func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle, userID int,
+	refID model.EarmarkRefID,
 ) somerr.Error {
 	earmark, errx := GetEarmark(ctx, db, refID)
 	if errx != nil {

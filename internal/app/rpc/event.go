@@ -139,19 +139,19 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, errx := service.GetEvent(ctx, s.Db, user.ID, refID)
+	event, errx := service.GetEvent(ctx, s.Db, refID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
 	pbEvent := dto.ToPbEvent(event)
 
-	eventItems, errx := service.GetEventItemsByEventID(ctx, s.Db, user.ID, event.ID)
+	eventItems, errx := service.GetEventItemsByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
 	pbEventItems := dto.ToPbList(dto.ToPbEventItem, eventItems)
 
-	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, user.ID, event.ID)
+	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}

@@ -27,12 +27,12 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, errx := service.GetEvent(ctx, s.Db, user.ID, refID)
+	event, errx := service.GetEvent(ctx, s.Db, refID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
 
-	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, user.ID, event.ID)
+	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
@@ -123,13 +123,13 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	eventItem, errx := service.GetEventItem(ctx, s.Db, user.ID, eventItemRefID)
+	eventItem, errx := service.GetEventItem(ctx, s.Db, eventItemRefID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}
 
 	// make sure no earmark exists yet
-	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, user.ID, eventItem.ID)
+	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, eventItem.ID)
 	if errx != nil {
 		switch errx.Code() {
 		case somerr.NotFound:
@@ -186,7 +186,7 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, dto.ToTwirpError(errx)
 	}
 
-	event, errx := service.GetEventByID(ctx, s.Db, user.ID, eventItem.EventID)
+	event, errx := service.GetEventByID(ctx, s.Db, eventItem.EventID)
 	if errx != nil {
 		return nil, dto.ToTwirpError(errx)
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 func GetEvent(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	refID model.EventRefID,
 ) (*model.Event, somerr.Error) {
 	event, err := model.GetEventByRefID(ctx, db, refID)
@@ -27,7 +27,7 @@ func GetEvent(
 }
 
 func GetEventByID(
-	ctx context.Context, db model.PgxHandle, userID int,
+	ctx context.Context, db model.PgxHandle,
 	ID int,
 ) (*model.Event, somerr.Error) {
 	event, err := model.GetEventByID(ctx, db, ID)

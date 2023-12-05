@@ -25,8 +25,7 @@ func GetUserCredentialByRefID(ctx context.Context, db model.PgxHandle,
 	return cred, nil
 }
 
-func GetUserCredentialsByUser(ctx context.Context, db model.PgxHandle,
-	userID int,
+func GetUserCredentialsByUser(ctx context.Context, db model.PgxHandle, userID int,
 ) ([]*model.UserCredential, somerr.Error) {
 	creds, err := model.GetUserCredentialsByUser(ctx, db, userID)
 	if err != nil {
@@ -40,8 +39,7 @@ func GetUserCredentialsByUser(ctx context.Context, db model.PgxHandle,
 	return creds, nil
 }
 
-func GetUserCredentialCountByUser(ctx context.Context, db model.PgxHandle,
-	userID int,
+func GetUserCredentialCountByUser(ctx context.Context, db model.PgxHandle, userID int,
 ) (int, somerr.Error) {
 	count, err := model.GetUserCredentialCountByUser(ctx, db, userID)
 	if err != nil {
