@@ -510,17 +510,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
 			WillReturnRows(earmarkRows)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(earmark.EventItemID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.EventItemID,
-					refid.Must(model.NewEventItemRefID()),
-					event.ID, "some item", ts, ts,
-				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_").
 			WithArgs(earmark.ID).
 			WillReturnRows(eventRows)
@@ -599,17 +588,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
 			WillReturnRows(earmarkRows)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(earmark.EventItemID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.EventItemID,
-					refid.Must(model.NewEventItemRefID()),
-					event.ID, "some item", ts, ts,
-				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_").
 			WithArgs(earmark.ID).
 			WillReturnRows(eventRows)
@@ -785,17 +763,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
 			WillReturnRows(rows)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(earmark.EventItemID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.EventItemID,
-					refid.Must(model.NewEventItemRefID()),
-					event.ID, "some item", ts, ts,
-				))
 		mock.ExpectQuery("^SELECT (.+) FROM event_").
 			WithArgs(earmark.ID).
 			WillReturnRows(eventRows)

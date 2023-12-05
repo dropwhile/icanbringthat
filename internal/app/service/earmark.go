@@ -128,15 +128,7 @@ func GetEarmark(ctx context.Context, db model.PgxHandle,
 func DeleteEarmark(ctx context.Context, db model.PgxHandle,
 	userID int, earmark *model.Earmark,
 ) somerr.Error {
-	eventItem, err := model.GetEventItemByID(ctx, db, earmark.EventItemID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return somerr.NotFound.Error("event-item not found")
-	case err != nil:
-		return somerr.Internal.Error("db error")
-	}
-
-	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
+	event, err := model.GetEventByEarmarkID(ctx, db, earmark.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return somerr.NotFound.Error("event not found")
@@ -166,34 +158,5 @@ func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle,
 	if errx != nil {
 		return errx
 	}
-
-	eventItem, err := model.GetEventItemByID(ctx, db, earmark.EventItemID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return somerr.NotFound.Error("event-item not found")
-	case err != nil:
-		return somerr.Internal.Error("db error")
-	}
-
-	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return somerr.NotFound.Error("event not found")
-	case err != nil:
-		return somerr.Internal.Error("db error")
-	}
-
-	if event.Archived {
-		return somerr.PermissionDenied.Error("event is archived")
-	}
-
-	if earmark.UserID != userID {
-		return somerr.PermissionDenied.Error("permission denied")
-	}
-
-	err = model.DeleteEarmark(ctx, db, earmark.ID)
-	if err != nil {
-		return somerr.Internal.Error("db error")
-	}
-	return nil
+	return DeleteEarmark(ctx, db, userID, earmark)
 }

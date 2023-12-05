@@ -135,8 +135,8 @@ func GetEventByRefID(ctx context.Context, db PgxHandle,
 	return QueryOne[Event](ctx, db, q, refID)
 }
 
-func GetEventByEarmark(ctx context.Context, db PgxHandle,
-	earmark *Earmark,
+func GetEventByEarmarkID(ctx context.Context, db PgxHandle,
+	earmarkID int,
 ) (*Event, error) {
 	q := `
 		SELECT ev.*
@@ -146,7 +146,7 @@ func GetEventByEarmark(ctx context.Context, db PgxHandle,
 		JOIN earmark_ em ON
 			em.event_item_id = ei.id
 		WHERE em.id = $1`
-	return QueryOne[Event](ctx, db, q, earmark.ID)
+	return QueryOne[Event](ctx, db, q, earmarkID)
 }
 
 func GetEventsByUserFiltered(
