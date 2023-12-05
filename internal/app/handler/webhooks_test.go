@@ -199,16 +199,6 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
-		rows := pgxmock.NewRows(userCols).
-			AddRow(
-				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
-				user.LastModified, user.Settings,
-			)
-
-		mock.ExpectQuery("^SELECT (.+) FROM user_").
-			WithArgs(user.Email).
-			WillReturnRows(rows)
-
 		jsonData := []byte(`{  
 			"RecordType":"SubscriptionChange",
 			"MessageID": "883953f4-6105-42a2-a16a-77a8eac79483",

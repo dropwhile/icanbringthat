@@ -7,6 +7,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 )
 
 func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
@@ -32,11 +33,12 @@ func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		selfView = true
 		profileUser = user
 	} else {
-		profileUser, err = model.GetUserByRefID(ctx, x.Db, profileUserRefID)
-		if err != nil {
+		u, errx := service.GetUser(ctx, x.Db, user.ID, profileUserRefID)
+		if errx != nil {
 			x.NotFoundError(w)
 			return
 		}
+		profileUser = u
 	}
 
 	tplVars := MapSA{

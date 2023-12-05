@@ -2,16 +2,14 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"mime"
 	"net/http"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 type PostMarkRecord struct {
@@ -63,28 +61,8 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.GetUserByEmail(ctx, x.Db, pm.Recipient)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no user found from callback")
-		w.WriteHeader(http.StatusOK)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
 	// we only disable reminders, not re-enable them
 	if !pm.SuppressSending {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	// if already disabled, no need to disable again
-	if !user.Settings.EnableReminders {
-		log.Info().
-			Any("postmark", pm).
-			Msg("reminders already disabled")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -92,25 +70,22 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	log.Info().
 		Any("postmark", pm).
 		Msg("disabling reminders due to postmark callback")
-
-	// bounced email, marked spam, unsubscribed...etc
-	// so... disable reminders
-	user.Settings.EnableReminders = false
-	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := model.UpdateUserSettings(ctx, tx, &user.Settings, user.ID)
-		if innerErr != nil {
-			return innerErr
+	errx := service.DisableRemindersWithNotification(
+		ctx, x.Db, pm.Recipient, pm.SuppressionReason,
+	)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			log.Info().Err(err).Msg("no user found from callback")
+			w.WriteHeader(http.StatusOK)
+		case somerr.FailedPrecondition:
+			log.Info().
+				Any("postmark", pm).
+				Msg("reminders already disabled")
+			w.WriteHeader(http.StatusOK)
+		default:
+			x.InternalServerError(w, errx.Msg())
 		}
-		_, innerErr = model.NewNotification(ctx, tx, user.ID,
-			fmt.Sprintf("email notifications disabled due to '%s'", pm.SuppressionReason),
-		)
-		if innerErr != nil {
-			return innerErr
-		}
-		return nil
-	})
-	if err != nil {
-		x.DBError(w, err)
 		return
 	}
 }

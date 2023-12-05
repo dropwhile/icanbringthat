@@ -106,3 +106,14 @@ func DeleteAllNotifications(
 
 	return nil
 }
+
+func NewNotification(
+	ctx context.Context, db model.PgxHandle, userID int,
+	message string,
+) (*model.Notification, somerr.Error) {
+	notification, err := model.NewNotification(ctx, db, userID, message)
+	if err != nil {
+		return nil, somerr.Internal.Errorf("db error: %w", err)
+	}
+	return notification, nil
+}

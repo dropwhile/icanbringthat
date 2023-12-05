@@ -8,6 +8,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 )
 
 func (x *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +63,8 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find user...
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
-	if err != nil || user == nil {
+	user, errx := service.GetUserByEmail(ctx, x.Db, email)
+	if errx != nil || user == nil {
 		log.Debug().Err(err).Msg("invalid credentials: no user match")
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
