@@ -2,20 +2,20 @@ package handler
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/mail"
+	"github.com/dropwhile/icbt/internal/somerr"
 )
 
 func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
@@ -86,8 +86,8 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refID)
-	if err != nil {
+	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
+	if errx != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -99,7 +99,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = model.GetUserByID(ctx, x.Db, upw.UserID)
+	_, err = service.GetUserByID(ctx, x.Db, upw.UserID)
 	if err != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.BadRequestError(w, "Bad Request Data")
@@ -143,14 +143,15 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	// don't leak existence of user. if email doens't match,
 	// behave like we sent a reset anyway...
 	doFake := false
-	user, err := model.GetUserByEmail(ctx, x.Db, email)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no user found")
-		doFake = true
-	case err != nil:
-		x.DBError(w, err)
-		return
+	user, errx := service.GetUserByEmail(ctx, x.Db, email)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			log.Info().Err(errx).Msg("no user found")
+			doFake = true
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 	}
 
 	// if pw auth is disabled, behave the same as faking it
@@ -167,9 +168,9 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 
 	if !doFake {
 		// generate a upw
-		upw, err := model.NewUserPWReset(ctx, x.Db, user.ID)
-		if err != nil {
-			x.DBError(w, err)
+		upw, errx := service.NewUserPWReset(ctx, x.Db, user.ID)
+		if errx != nil {
+			x.InternalServerError(w, errx.Msg())
 			return
 		}
 		upwRefIDStr := upw.RefID.String()
@@ -193,7 +194,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		// construct email
 		subject := "Password reset"
 		var buf bytes.Buffer
-		err = x.TemplateExecute(&buf, "mail_password_reset.gotxt",
+		err := x.TemplateExecute(&buf, "mail_password_reset.gotxt",
 			MapSA{
 				"Subject":          subject,
 				"PasswordResetUrl": u.String(),
@@ -282,8 +283,8 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upw, err := model.GetUserPWResetByRefID(ctx, x.Db, refID)
-	if err != nil {
+	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
+	if errx != nil {
 		log.Debug().Err(err).Msg("no upw match")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -295,8 +296,8 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.GetUserByID(ctx, x.Db, upw.UserID)
-	if err != nil {
+	user, errx := service.GetUserByID(ctx, x.Db, upw.UserID)
+	if errx != nil {
 		log.Debug().Err(err).Msg("no user match")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -317,30 +318,9 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	user.PWHash = pwHash
 
-	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := model.UpdateUser(ctx, tx,
-			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiAccess,
-			user.WebAuthn, user.ID,
-		)
-		if innerErr != nil {
-			log.Debug().
-				Err(innerErr).
-				Msg("inner db error saving user")
-			return innerErr
-		}
-
-		innerErr = model.DeleteUserPWReset(ctx, tx, upw.RefID)
-		if innerErr != nil {
-			log.Debug().
-				Err(innerErr).
-				Msg("inner db error cleaning up pw reset token")
-			return innerErr
-		}
-		return nil
-	})
-	if err != nil {
-		x.DBError(w, err)
+	errx = service.UpdateUserPWReset(ctx, x.Db, user, upw)
+	if errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 

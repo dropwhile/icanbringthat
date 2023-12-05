@@ -1,16 +1,15 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/csrf"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
 )
 
@@ -52,25 +51,21 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentials, err := model.GetUserCredentialsByUser(ctx, x.Db, user.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event items")
-		credentials = []*model.UserCredential{}
-	case err != nil:
-		x.DBError(w, err)
+	credentials, errx := service.GetUserCredentialsByUser(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 
-	apikey, err := model.GetApiKeyByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	apikey, errx := service.GetApiKeyByUser(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 
-	notifCount, err := model.GetNotificationCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 
@@ -122,25 +117,25 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := model.NewUser(ctx, x.Db, email, name, []byte(passwd))
-	if err != nil {
-		log.Error().Err(err).Msg("error adding user")
+	user, errx := service.NewUser(ctx, x.Db, email, name, []byte(passwd))
+	if errx != nil {
+		log.Error().Err(errx).Msg("error adding user")
 		x.BadRequestError(w, "error adding user")
 		return
 	}
 
-	_, err = model.NewNotification(ctx, x.Db, user.ID,
+	_, errx = service.NewNotification(ctx, x.Db, user.ID,
 		`Account is not currently verified. Please verify account in link:/settings.`,
 	)
-	if err != nil {
+	if errx != nil {
 		// this is a nonfatal error
-		log.Error().Err(err).Msg("error adding account notification")
+		log.Error().Err(errx).Msg("error adding account notification")
 	}
 
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = x.SessMgr.RenewToken(ctx)
+	err := x.SessMgr.RenewToken(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error renewing session token")
 		x.InternalServerError(w, "Session Error")
@@ -219,13 +214,13 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		err = model.UpdateUser(ctx, x.Db,
+		errx := service.UpdateUser(ctx, x.Db,
 			user.Email, user.Name, user.PWHash,
 			user.Verified, user.PWAuth, user.ApiAccess,
 			user.WebAuthn, user.ID,
 		)
-		if err != nil {
-			log.Error().Err(err).Msg("error updating user")
+		if errx != nil {
+			log.Error().Err(errx).Msg("error updating user")
 			x.InternalServerError(w, "error updating user")
 			return
 		}
@@ -261,9 +256,9 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ensure we have at least one passkey first
-	pkCount, err := model.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	pkCount, errx := service.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	if errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 	hasPasskeys := false
@@ -329,13 +324,13 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.UpdateUser(ctx, x.Db,
+	errx = service.UpdateUser(ctx, x.Db,
 		user.Email, user.Name, user.PWHash,
 		user.Verified, user.PWAuth, user.ApiAccess,
 		user.WebAuthn, user.ID,
 	)
-	if err != nil {
-		log.Error().Err(err).Msg("error updating user auth")
+	if errx != nil {
+		log.Error().Err(errx).Msg("error updating user auth")
 		x.InternalServerError(w, "error updating user auth")
 		return
 	}
@@ -401,20 +396,20 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if rotateApiKey == "true" {
-		if _, err := model.RotateApiKey(ctx, x.Db, user.ID); err != nil {
-			log.Error().Err(err).Msg("error rotating api key")
+		if _, errx := service.RotateApiKey(ctx, x.Db, user.ID); errx != nil {
+			log.Error().Err(errx).Msg("error rotating api key")
 			x.InternalServerError(w, "error rotating api key")
 			return
 		}
 	}
 
 	if apiAccess != "" {
-		if err := model.UpdateUser(ctx, x.Db,
+		if errx := service.UpdateUser(ctx, x.Db,
 			user.Email, user.Name, user.PWHash,
 			user.Verified, user.PWAuth, user.ApiAccess,
 			user.WebAuthn, user.ID,
-		); err != nil {
-			log.Error().Err(err).Msg("error updating user auth")
+		); errx != nil {
+			log.Error().Err(errx).Msg("error updating user auth")
 			x.InternalServerError(w, "error updating user auth")
 			return
 		}
@@ -491,10 +486,8 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = model.UpdateUserSettings(ctx, x.Db,
-		&user.Settings, user.ID,
-	)
-	if err != nil {
+	if errx := service.UpdateUserSettings(
+		ctx, x.Db, user.ID, &user.Settings); errx != nil {
 		log.Error().Err(err).Msg("error updating user settings")
 		x.InternalServerError(w, "error updating user settings")
 		return
@@ -514,9 +507,8 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.DeleteUser(ctx, x.Db, user.ID)
-	if err != nil {
-		x.DBError(w, err)
+	if errx := service.DeleteUser(ctx, x.Db, user.ID); errx != nil {
+		x.DBError(w, errx)
 		return
 	}
 	// destroy session

@@ -7,11 +7,11 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/htmx"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -28,9 +28,9 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// generate a verifier
-	uv, err := model.NewUserVerify(ctx, x.Db, user)
-	if err != nil {
-		x.DBError(w, err)
+	uv, errx := service.NewUserVerify(ctx, x.Db, user)
+	if errx != nil {
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 	uvRefIDStr := uv.RefID.String()
@@ -134,8 +134,8 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verifier, err := model.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
-	if err != nil {
+	verifier, errx := service.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
+	if errx != nil {
 		log.Debug().Err(err).Msg("no verifier match")
 		x.NotFoundError(w)
 		return
@@ -148,27 +148,10 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Verified = true
-	err = pgx.BeginFunc(ctx, x.Db, func(tx pgx.Tx) error {
-		innerErr := model.UpdateUser(ctx, tx,
-			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiAccess,
-			user.WebAuthn, user.ID,
-		)
-		if innerErr != nil {
-			log.Debug().Err(innerErr).Msg("inner db error saving user")
-			return innerErr
-		}
-
-		innerErr = model.DeleteUserVerify(ctx, x.Db, verifier.RefID)
-		if innerErr != nil {
-			log.Debug().Err(innerErr).Msg("inner db error cleaning up verifier token")
-			return innerErr
-		}
-		return nil
-	})
-	if err != nil {
+	errx = service.SetUserVerified(ctx, x.Db, user, verifier)
+	if errx != nil {
 		log.Debug().Err(err).Msg("error saving verification")
-		x.DBError(w, err)
+		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
