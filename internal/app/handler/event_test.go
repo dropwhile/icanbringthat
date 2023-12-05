@@ -643,7 +643,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
+				"name":          event.Name + "x",
 				"description":   event.Description,
 				"itemSortOrder": pgxmock.AnyArg(),
 				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
@@ -655,7 +655,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectRollback()
 
 		data := url.Values{
-			"name": {event.Name},
+			"name": {event.Name + "x"},
 		}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
@@ -703,7 +703,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"name":          event.Name,
-				"description":   event.Description,
+				"description":   event.Description + "x",
 				"itemSortOrder": pgxmock.AnyArg(),
 				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
 				"startTimeTz":   event.StartTimeTz,
@@ -714,7 +714,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		mock.ExpectRollback()
 
 		data := url.Values{
-			"description": {event.Description},
+			"description": {event.Description + "x"},
 		}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
@@ -980,12 +980,6 @@ func TestHandler_Event_Update(t *testing.T) {
 	t.Run("update bad time", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -993,10 +987,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
 
 		data := url.Values{
 			"when":     {"It's ho-ho-ho time!"},

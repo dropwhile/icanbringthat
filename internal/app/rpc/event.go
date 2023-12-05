@@ -2,16 +2,14 @@ package rpc
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc/dto"
+	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 
@@ -35,38 +33,27 @@ func (s *Server) ListEvents(ctx context.Context,
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
 
-		eventCounts, err := model.GetEventCountsByUser(ctx, s.Db, user.ID)
-		if err != nil {
-			return nil, twirp.InternalError("db error")
+		evts, pagination, errx := service.GetEventsPaginated(
+			ctx, s.Db, user.ID, limit, offset, showArchived,
+		)
+		if errx != nil {
+			return nil, dto.ToTwirpError(errx)
 		}
 
-		count := eventCounts.Current
-		if showArchived {
-			count = eventCounts.Archived
-		}
-
-		if count > 0 {
-			events, err = model.GetEventsByUserPaginatedFiltered(
-				ctx, s.Db, user.ID, limit, offset, showArchived)
-			switch {
-			case errors.Is(err, pgx.ErrNoRows):
-				events = []*model.Event{}
-			case err != nil:
-				return nil, twirp.InternalError("db error")
-			}
-		}
+		events = evts
 		paginationResult = &pb.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
-			Count:  uint32(count),
+			Count:  uint32(pagination.Count),
 		}
 	} else {
-		events, err = model.GetEventsByUserFiltered(
-			ctx, s.Db, user.ID, showArchived)
-		if err != nil {
-			return nil, twirp.InternalError("db error")
+		evts, errx := service.GetEvents(
+			ctx, s.Db, user.ID, showArchived,
+		)
+		if errx != nil {
+			return nil, dto.ToTwirpError(errx)
 		}
-
+		events = evts
 	}
 
 	response := &pb.ListEventsResponse{
@@ -87,33 +74,13 @@ func (s *Server) CreateEvent(ctx context.Context,
 
 	name := r.Name
 	description := r.Description
-	when := r.When.Ts
+	when := r.When.Ts.AsTime()
 	tz := r.When.Tz
 
-	if name == "" {
-		return nil, twirp.RequiredArgumentError("name")
-	}
-	if description == "" {
-		return nil, twirp.RequiredArgumentError("description")
-	}
-	if when == nil {
-		return nil, twirp.RequiredArgumentError("when")
-	}
-	if tz == "" {
-		return nil, twirp.RequiredArgumentError("tz")
-	}
-
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		return nil, twirp.InvalidArgument.Error("unrecognized tz")
-	}
-
-	startTime := when.AsTime()
-
-	event, err := model.NewEvent(ctx, s.Db,
-		user.ID, name, description, startTime, &model.TimeZone{Location: loc})
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	event, errx := service.CreateEvent(ctx, s.Db, user,
+		name, description, when, tz)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.CreateEventResponse{
@@ -136,58 +103,20 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
+	var start_time *time.Time
+	var tz *string
 
-	if user.ID != event.UserID {
-		return nil, twirp.PermissionDenied.Error("permission denied")
-	}
-
-	if r.Name == nil && r.Description == nil && r.When == nil {
-		return nil, twirp.InvalidArgument.Error("missing fields")
-	}
-
-	changes := false
-	if r.Name != nil && *r.Name != event.Name {
-		if *r.Name == "" {
-			return nil, twirp.RequiredArgumentError("name")
-		}
-		event.Name = *r.Name
-		changes = true
-	}
-	if r.Description != nil && *r.Description != event.Description {
-		if *r.Description == "" {
-			return nil, twirp.RequiredArgumentError("description")
-		}
-		event.Description = *r.Description
-		changes = true
-	}
 	if r.When != nil {
-		loc, err := time.LoadLocation(r.When.Tz)
-		if err != nil {
-			return nil, twirp.InvalidArgument.Error("unrecognized tz")
-		}
-
-		event.StartTime = r.When.Ts.AsTime()
-		event.StartTimeTz = &model.TimeZone{Location: loc}
-		changes = true
+		t := r.When.Ts.AsTime()
+		start_time = &t
+		tz = &r.When.Tz
 	}
 
-	if !changes {
-		return nil, twirp.FailedPrecondition.Error("no changes")
-	}
-
-	if err := model.UpdateEvent(
-		ctx, s.Db, event.ID,
-		event.Name, event.Description, event.ItemSortOrder,
-		event.StartTime, event.StartTimeTz,
-	); err != nil {
-		return nil, twirp.InternalError("db error")
+	event, errx := service.UpdateEvent(ctx, s.Db, user.ID, refID,
+		r.Name, r.Description, start_time, tz,
+	)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.UpdateEventResponse{
@@ -210,39 +139,29 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	event, errx := service.GetEvent(ctx, s.Db, user.ID, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
+	pbEvent := dto.ToPbEvent(event)
 
-	eventItems, err := model.GetEventItemsByEvent(ctx, s.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		log.Debug().Err(err).Msg("no rows for event items")
-		eventItems = []*model.EventItem{}
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	eventItems, errx := service.GetEventItemsByEventID(ctx, s.Db, user.ID, event.ID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 	pbEventItems := dto.ToPbList(dto.ToPbEventItem, eventItems)
 
-	earmarks, err := model.GetEarmarksByEvent(ctx, s.Db, event.ID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
+	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, user.ID, event.ID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
-
 	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
 
 	response := &pb.GetEventDetailsResponse{
-		Event:    dto.ToPbEvent(event),
+		Event:    pbEvent,
 		Items:    pbEventItems,
 		Earmarks: pbEarmarks,
 	}
@@ -263,21 +182,9 @@ func (s *Server) DeleteEvent(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, err := model.GetEventByRefID(ctx, s.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, twirp.NotFoundError("event not found")
-	case err != nil:
-		return nil, twirp.InternalError("db error")
-	}
-
-	if user.ID != event.UserID {
-		return nil, twirp.PermissionDenied.Error("permission denied")
-	}
-
-	err = model.DeleteEvent(ctx, s.Db, event.ID)
-	if err != nil {
-		return nil, twirp.InternalError("db error")
+	errx := service.DeleteEvent(ctx, s.Db, user.ID, refID)
+	if errx != nil {
+		return nil, dto.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteEventResponse{}

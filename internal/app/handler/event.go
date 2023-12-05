@@ -16,7 +16,9 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/somerr"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/resources"
 )
@@ -307,13 +309,14 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
+	event, errx := service.GetEvent(ctx, x.Db, user.ID, refID)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 
@@ -353,12 +356,6 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !user.Verified {
-		x.ForbiddenError(w,
-			"Account must be verified before event creation is allowed.")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		x.BadFormDataError(w, err)
 		return
@@ -387,12 +384,20 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.NewEvent(ctx, x.Db,
-		user.ID, name, description, startTime, &model.TimeZone{Location: loc})
-	if err != nil {
-		x.DBError(w, err)
+	event, errx := service.CreateEvent(ctx, x.Db, user,
+		name, description, startTime, tz)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.InvalidArgument:
+			x.BadFormDataError(w, err, errx.Meta("argument"))
+		case somerr.PermissionDenied:
+			x.ForbiddenError(w, errx.Msg())
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
+
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
@@ -412,88 +417,69 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		x.AccessDeniedError(w)
-		return
-	}
-
-	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
-		x.AccessDeniedError(w)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		x.BadFormDataError(w, err)
 		return
 	}
 
-	name := r.PostFormValue("name")
-	description := r.PostFormValue("description")
-	when := r.PostFormValue("when")
-	tz := r.PostFormValue("timezone")
-	if name == "" && description == "" && when == "" && tz == "" {
-		x.BadFormDataError(w, err)
-		return
-	}
+	var (
+		name        *string
+		description *string
+		tz          *string
+		startTime   *time.Time
+	)
 
-	switch {
-	case when == "" && tz != "":
-		x.BadFormDataError(w, err, "when")
-		return
-	case when != "" && tz == "":
-		x.BadFormDataError(w, err, "tz")
-		return
-	case when != "" && tz != "":
-		loc, err := time.LoadLocation(tz)
+	pname := r.PostFormValue("name")
+	if pname != "" {
+		name = &pname
+	}
+	pdesc := r.PostFormValue("description")
+	if pdesc != "" {
+		description = &pdesc
+	}
+	ptz := r.PostFormValue("timezone")
+	when := r.PostFormValue("when")
+	if when != "" && ptz != "" {
+		loc, err := time.LoadLocation(ptz)
 		if err != nil {
 			log.Debug().Err(err).Msg("error loading tz")
-			tz = "Etc/UTC"
-			loc, _ = time.LoadLocation(tz)
+			ptz = "Etc/UTC"
+			loc, _ = time.LoadLocation(ptz)
 		}
-		startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
+		t, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 		if err != nil {
 			log.Debug().Err(err).Msg("error parsing start time")
 			x.BadFormDataError(w, err, "when")
 			return
 		}
-		event.StartTime = startTime
-		event.StartTimeTz = &model.TimeZone{Location: loc}
+		lc := loc.String()
+		tz = &lc
+		startTime = &t
 	}
 
-	if name != "" {
-		event.Name = name
-	}
-	if description != "" {
-		event.Description = description
-	}
-
-	err = model.UpdateEvent(
-		ctx, x.Db, event.ID,
-		event.Name, event.Description,
-		event.ItemSortOrder,
-		event.StartTime, event.StartTimeTz,
+	_, errx := service.UpdateEvent(ctx, x.Db, user.ID,
+		refID, name, description, startTime, tz,
 	)
-	if err != nil {
-		x.DBError(w, err)
+	if errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.FailedPrecondition:
+			x.BadFormDataError(w, errx)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		case somerr.InvalidArgument:
+			x.BadFormDataError(w, errx, errx.Meta("argument"))
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
+
+	http.Redirect(w, r, fmt.Sprintf("/events/%s", refID), http.StatusSeeOther)
 }
 
+// TODO:
 func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -589,28 +575,15 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := model.GetEventByRefID(ctx, x.Db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		x.NotFoundError(w)
-		return
-	case err != nil:
-		x.DBError(w, err)
-		return
-	}
-
-	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
-		x.AccessDeniedError(w)
-		return
-	}
-
-	err = model.DeleteEvent(ctx, x.Db, event.ID)
-	if err != nil {
-		x.DBError(w, err)
+	if errx := service.DeleteEvent(ctx, x.Db, user.ID, refID); errx != nil {
+		switch errx.Code() {
+		case somerr.NotFound:
+			x.NotFoundError(w)
+		case somerr.PermissionDenied:
+			x.AccessDeniedError(w)
+		default:
+			x.InternalServerError(w, errx.Msg())
+		}
 		return
 	}
 

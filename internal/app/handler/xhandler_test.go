@@ -31,7 +31,7 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-var tstTs time.Time = MustParseTime(time.RFC3339, "2023-01-01T03:04:05Z")
+var tstTs time.Time = MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
 
 func MustParseTime(layout, value string) time.Time {
 	ts, err := time.Parse(layout, value)
