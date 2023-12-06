@@ -847,20 +847,15 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 			LastModified: ts,
 		}
 
-		mock.ExpectQuery("SELECT (.+) FROM api_key_").
-			WithArgs(user.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{"user_id", "token", "created"},
-			).AddRow(
-				1, "00000000000000000000000000:11111111111111111111111111", ts,
-			))
 		mock.ExpectBegin()
-		mock.ExpectExec("^UPDATE api_key_ SET (.+)").
+		mock.ExpectQuery("^INSERT INTO api_key_ (.+)").
 			WithArgs(pgx.NamedArgs{
 				"userID": user.ID,
 				"token":  pgxmock.AnyArg(),
 			}).
-			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"user_id", "token", "created"},
+			).AddRow(user.ID, "blahblah", ts))
 		mock.ExpectCommit()
 		// hidden rollback after commit due to beginfunc being used
 		mock.ExpectRollback()
