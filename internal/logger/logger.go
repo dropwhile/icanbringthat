@@ -71,6 +71,20 @@ func NewLogger(w io.Writer) zerolog.Logger {
 				counter += 1
 			}
 		}
+
+		// prune from after @ to next /
+		atIdx := strings.Index(short, "@")
+		if atIdx >= 0 && atIdx+7 <= len(short) {
+			for i := atIdx; i < len(short); i++ {
+				if short[i] == '/' {
+					if i-atIdx > 7 {
+						short = short[:atIdx+7] + "..." + short[i:]
+					}
+					break
+				}
+			}
+		}
+
 		file = short
 		return file + ":" + strconv.Itoa(line)
 	}
