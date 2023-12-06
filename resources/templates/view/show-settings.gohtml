@@ -630,7 +630,7 @@
             type="text"
             maxlength="54"
             name="api_key"
-            value="{{.apikey.Token}}"
+            value="{{if .apikey}}{{.apikey.Token}}{{end}}"
             onfocus="this.setSelectionRange(0, this.value.length)"
             readonly
           >

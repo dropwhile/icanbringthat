@@ -50,42 +50,12 @@ func CreateApiKey(ctx context.Context, db PgxHandle,
 			user_id, token
 		)
 		VALUES (@userID, @token)
+		ON CONFLICT (user_id)
+		DO
+			UPDATE SET token = EXCLUDED.token
 		RETURNING *`
 	args := pgx.NamedArgs{"userID": userID, "token": token}
 	return QueryOneTx[ApiKey](ctx, db, q, args)
-}
-
-func RotateApiKey(ctx context.Context, db PgxHandle,
-	userID int,
-) (*ApiKey, error) {
-	key, err := GetApiKeyByUser(ctx, db, userID)
-	if err != nil {
-		return nil, err
-	}
-	key.Token = strings.Join(
-		[]string{
-			refid.Must(NewApiKeyRefID()).String(),
-			refid.Must(NewApiKeyRefID()).String(),
-		},
-		":",
-	)
-	err = UpdateApiKey(ctx, db, userID, key.Token)
-	return key, err
-}
-
-func UpdateApiKey(ctx context.Context, db PgxHandle,
-	userID int, token string,
-) error {
-	q := `
-		UPDATE api_key_
-		SET token = @token
-		WHERE user_id = @userID
-	`
-	args := pgx.NamedArgs{
-		"userID": userID,
-		"token":  token,
-	}
-	return ExecTx[ApiKey](ctx, db, q, args)
 }
 
 func GetUserByApiKey(ctx context.Context, db PgxHandle,

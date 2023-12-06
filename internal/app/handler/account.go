@@ -10,6 +10,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
 )
 
@@ -59,8 +60,10 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 
 	apikey, errx := service.GetApiKeyByUser(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, errx)
-		return
+		if errx.Code() != errs.NotFound {
+			x.DBError(w, errx)
+			return
+		}
 	}
 
 	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
@@ -401,7 +404,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if rotateApiKey == "true" {
-		if _, errx := service.RotateApiKey(ctx, x.Db, user.ID); errx != nil {
+		if _, errx := service.NewApiKey(ctx, x.Db, user.ID); errx != nil {
 			log.Error().Err(errx).Msg("error rotating api key")
 			x.InternalServerError(w, "error rotating api key")
 			return

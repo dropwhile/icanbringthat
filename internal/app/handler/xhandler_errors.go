@@ -23,7 +23,7 @@ func (x *Handler) BadSessionDataError(w http.ResponseWriter) {
 }
 
 func (x *Handler) BadFormDataError(w http.ResponseWriter, err error, hints ...string) {
-	log.Debug().Err(err).Msgf("error parsing form: %s", strings.Join(hints, ", "))
+	log.Debug().CallerSkipFrame(1).Err(err).Msgf("error parsing form: %s", strings.Join(hints, ", "))
 	errStr := "bad form data"
 	if len(hints) > 0 {
 		errStr = fmt.Sprintf("%s - %s", errStr, strings.Join(hints, ", "))
@@ -34,7 +34,7 @@ func (x *Handler) BadFormDataError(w http.ResponseWriter, err error, hints ...st
 /* not found */
 
 func (x *Handler) BadRefIDError(w http.ResponseWriter, reftyp string, err error) {
-	log.Debug().Err(err).Msgf("bad %s ref-id", reftyp)
+	log.Debug().CallerSkipFrame(1).Err(err).Msgf("bad %s ref-id", reftyp)
 	x.Error(w, fmt.Sprintf("Invalid %s-ref-id", reftyp), http.StatusNotFound)
 }
 
@@ -45,7 +45,7 @@ func (x *Handler) NotFoundError(w http.ResponseWriter) {
 /* internal server error */
 
 func (x *Handler) DBError(w http.ResponseWriter, err error) {
-	log.Info().Err(err).Msg("db error")
+	log.Info().CallerSkipFrame(1).Stack().Err(err).Msg("db error")
 	x.Error(w, "DB error", http.StatusInternalServerError)
 }
 
@@ -78,7 +78,7 @@ func (x *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	})
 	if err != nil {
 		// error rendering template, so just return a very basic status page
-		log.Debug().Err(err).Msg("custom error status page render issue")
+		log.Debug().CallerSkipFrame(1).Err(err).Msg("custom error status page render issue")
 		fmt.Fprintln(w, statusMsg)
 		return
 	}

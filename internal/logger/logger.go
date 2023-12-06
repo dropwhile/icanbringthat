@@ -9,6 +9,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 )
 
 func NewTestLogger(w io.Writer) zerolog.Logger {
@@ -57,12 +58,17 @@ func NewLogger(w io.Writer) zerolog.Logger {
 			TimeFormat: time.RFC3339,
 		},
 	).With().Caller().Logger()
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		short := file
+		counter := 0
 		for i := len(file) - 1; i > 0; i-- {
 			if file[i] == '/' {
-				short = file[i+1:]
-				break
+				if counter > 0 {
+					short = file[i+1:]
+					break
+				}
+				counter += 1
 			}
 		}
 		file = short

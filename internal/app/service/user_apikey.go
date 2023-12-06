@@ -62,13 +62,3 @@ func NewApiKeyIfNotExists(ctx context.Context, db model.PgxHandle,
 	}
 	return apikey, nil
 }
-
-func RotateApiKey(ctx context.Context, db model.PgxHandle,
-	userID int,
-) (*model.ApiKey, errs.Error) {
-	apiKey, err := model.RotateApiKey(ctx, db, userID)
-	if err != nil {
-		return nil, errs.Internal.Errorf("db error: %w", err)
-	}
-	return apiKey, nil
-}
