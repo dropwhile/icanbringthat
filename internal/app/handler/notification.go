@@ -46,7 +46,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	offset := pageNum - 1
 	notifs, _, errx := service.GetNotifcationsPaginated(ctx, x.Db, user.ID, 10, offset*10)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 

@@ -31,13 +31,13 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		ctx, x.Db, user.ID, 10, offset, archived,
 	)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	})
 	eventItems, errx := service.GetEventItemsByIDs(ctx, x.Db, eventItemIDs)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	})
 	events, errx := service.GetEventsByIDs(ctx, x.Db, eventIDs)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -158,7 +158,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}
@@ -169,7 +169,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}
@@ -224,7 +224,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}
@@ -252,7 +252,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}
@@ -271,7 +271,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, eventItem.ID)
 	if errx != nil {
 		if errx.Code() != errs.NotFound {
-			x.DBError(w, err)
+			x.DBError(w, errx)
 			return
 		}
 	} else {
@@ -294,7 +294,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		case errs.AlreadyExists:
 			x.ForbiddenError(w, "already earmarked - access denied")
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}
@@ -336,7 +336,7 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 				Msg("permission denied")
 			x.AccessDeniedError(w)
 		default:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
 		return
 	}

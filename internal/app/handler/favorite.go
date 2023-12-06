@@ -31,13 +31,13 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 
 	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	favoriteCount, errx := service.GetFavoriteEventsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		ctx, x.Db, user.ID, 10, offset*10, archived,
 	)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	})
 	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 
 	}

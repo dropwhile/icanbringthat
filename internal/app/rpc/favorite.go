@@ -48,7 +48,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 	} else {
 		favs, errx := service.GetFavoriteEvents(
 			ctx, s.Db, user.ID, showArchived)
-		if err != nil {
+		if errx != nil {
 			return nil, dto.ToTwirpError(errx)
 		}
 		events = favs

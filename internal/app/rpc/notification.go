@@ -39,7 +39,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 		}
 	} else {
 		notifs, errx := service.GetNotifications(ctx, s.Db, user.ID)
-		if err != nil {
+		if errx != nil {
 			return nil, dto.ToTwirpError(errx)
 		}
 		notifications = notifs

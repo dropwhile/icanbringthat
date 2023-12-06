@@ -33,13 +33,13 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	eventCount, errx := service.GetEventsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -68,14 +68,14 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	events, _, errx := service.GetFavoriteEventsPaginated(
 		ctx, x.Db, user.ID, 10, offset*10, archived)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
 	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -138,21 +138,21 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	event, errx := service.GetEvent(ctx, x.Db, refID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
 	owner := user.ID == event.UserID
 
-	eventItems, err := service.GetEventItemsByEventID(ctx, x.Db, event.ID)
+	eventItems, errx := service.GetEventItemsByEventID(ctx, x.Db, event.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -177,7 +177,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	earmarks, errx := service.GetEarmarksByEventID(ctx, x.Db, event.ID)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -193,7 +193,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	// now get the list of usrs ids and fetch the associated users
 	earmarkUsers, errx := service.GetUsersByIDs(ctx, x.Db, userIDs)
 	if errx != nil {
-		x.DBError(w, err)
+		x.DBError(w, errx)
 		return
 	}
 
@@ -206,7 +206,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			favorited = false
 		case errs.Internal:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 			return
 		}
 	}
@@ -509,12 +509,8 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		case errs.FailedPrecondition:
 			x.BadFormDataError(w, errx, "sortOrder")
 		case errs.Internal:
-			x.DBError(w, err)
+			x.DBError(w, errx)
 		}
-		return
-	}
-	if err != nil {
-		x.DBError(w, err)
 		return
 	}
 

@@ -34,7 +34,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
-	if err != nil {
+	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
