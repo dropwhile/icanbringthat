@@ -12,7 +12,7 @@ const earmarkTpl = `
 {{- /* whitespace fix */ -}}
 - ref_id: {{.RefId}}
   event_item_ref_id: {{.EventItemRefId}}
-  {{if .EventRefId}}{{.EventRefId}}{{end}}
+  {{- if (isset . "EventRefId")}}{{.EventRefId}}{{end}}
   note: {{.Note}}
   owner: {{.Owner}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
@@ -44,7 +44,9 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("earmarkTpl").Parse(earmarkTpl))
+	t := template.Must(template.New("earmarkTpl").
+		Funcs(funcMap).
+		Parse(earmarkTpl))
 	if err := t.Execute(os.Stdout, resp.Earmark); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -65,7 +67,9 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t2 := template.Must(template.New("earmarkDetailTpl").Parse(earmarkDetailTpl))
+	t2 := template.Must(template.New("earmarkDetailTpl").
+		Funcs(funcMap).
+		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
 		map[string]interface{}{
 			"Earmark":    resp.Earmark,
@@ -105,7 +109,9 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t2 := template.Must(template.New("earmarkTpl").Parse(earmarkTpl))
+	t2 := template.Must(template.New("earmarkTpl").
+		Funcs(funcMap).
+		Parse(earmarkTpl))
 	for _, earmark := range resp.Earmarks {
 		if err := t2.Execute(os.Stdout, earmark); err != nil {
 			return fmt.Errorf("executing template: %w", err)

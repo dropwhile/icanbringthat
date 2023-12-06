@@ -25,7 +25,9 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("notifTpl").Parse(notifTpl))
+	t := template.Must(template.New("notifTpl").
+		Funcs(funcMap).
+		Parse(notifTpl))
 	for _, notif := range resp.Notifications {
 		if err := t.Execute(os.Stdout, notif); err != nil {
 			return fmt.Errorf("executing template: %w", err)

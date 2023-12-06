@@ -147,6 +147,7 @@ var templateFuncMap = txttemplate.FuncMap{
 	},
 	// isset is a helper func from hugo
 	"isset": func(ac, kv reflect.Value) (bool, error) {
+	SWITCH:
 		switch ac.Kind() {
 		case reflect.Array, reflect.Slice:
 			k := 0
@@ -167,6 +168,11 @@ var templateFuncMap = txttemplate.FuncMap{
 			if ac.Len() > k {
 				return true, nil
 			}
+		case reflect.Ptr:
+			ac = ac.Elem()
+			goto SWITCH
+		case reflect.Struct:
+			ac.FieldByName(kv.String()).IsValid()
 		case reflect.Map:
 			if kv.Type() == ac.Type().Key() {
 				return ac.MapIndex(kv).IsValid(), nil
@@ -175,7 +181,6 @@ var templateFuncMap = txttemplate.FuncMap{
 			log.Info().
 				Msgf("calling IsSet with unsupported type %q (%T) will always return false", ac.Kind(), ac)
 		}
-
 		return false, nil
 	},
 	"eqorempty": func(arg0, arg1 reflect.Value) (bool, error) {

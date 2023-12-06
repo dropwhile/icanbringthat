@@ -29,7 +29,9 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").Parse(eventTpl))
+	t := template.Must(template.New("eventTpl").
+		Funcs(funcMap).
+		Parse(eventTpl))
 	for _, event := range resp.Events {
 		if err := t.Execute(os.Stdout, event); err != nil {
 			return fmt.Errorf("executing template: %w", err)
@@ -53,9 +55,9 @@ func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(
-		template.New("favoriteTpl").Parse(
-			strings.TrimLeft(favoriteTpl, "\n"),
-		),
+		template.New("favoriteTpl").
+			Funcs(funcMap).
+			Parse(strings.TrimLeft(favoriteTpl, "\n")),
 	)
 	if err := t.Execute(os.Stdout, resp.Favorite); err != nil {
 		return fmt.Errorf("executing template: %w", err)

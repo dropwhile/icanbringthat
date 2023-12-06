@@ -67,7 +67,7 @@ func GetUserByApiKey(ctx context.Context, db PgxHandle,
 		JOIN api_key_ ON
 			api_key_.user_id = user_.id
 		WHERE
-			user_.apikey = TRUE AND
+			user_.api_access = TRUE AND
 			api_key_.token = $1
 		`
 	return QueryOne[User](ctx, db, q, token)

@@ -31,7 +31,9 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventItemTpl").Parse(eventItemTpl))
+	t := template.Must(template.New("eventItemTpl").
+		Funcs(funcMap).
+		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -55,7 +57,9 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventItemTpl").Parse(eventItemTpl))
+	t := template.Must(template.New("eventItemTpl").
+		Funcs(funcMap).
+		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}

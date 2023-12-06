@@ -37,7 +37,9 @@ func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").Parse(eventTpl))
+	t := template.Must(template.New("eventTpl").
+		Funcs(funcMap).
+		Parse(eventTpl))
 	for _, event := range resp.Events {
 		if err := t.Execute(os.Stdout, event); err != nil {
 			return fmt.Errorf("executing template: %w", err)
@@ -68,7 +70,9 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").Parse(eventTpl))
+	t := template.Must(template.New("eventTpl").
+		Funcs(funcMap).
+		Parse(eventTpl))
 	if err := t.Execute(os.Stdout, resp.Event); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -113,7 +117,9 @@ func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").Parse(eventTpl))
+	t := template.Must(template.New("eventTpl").
+		Funcs(funcMap).
+		Parse(eventTpl))
 	if err := t.Execute(os.Stdout, resp.Event); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -152,14 +158,18 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	outWriter := indent.NewWriterPipe(os.Stdout, 2, nil)
 
 	fmt.Println("event:")
-	t := template.Must(template.New("eventTpl").Parse(eventTpl))
+	t := template.Must(template.New("eventTpl").
+		Funcs(funcMap).
+		Parse(eventTpl))
 	if err := t.Execute(outWriter, resp.Event); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 
 	fmt.Println("items:")
 	if len(resp.Items) > 0 {
-		t2 := template.Must(template.New("eventItemTpl").Parse(eventItemTpl))
+		t2 := template.Must(template.New("eventItemTpl").
+			Funcs(funcMap).
+			Parse(eventItemTpl))
 		for _, item := range resp.Items {
 			if err := t2.Execute(outWriter, item); err != nil {
 				return fmt.Errorf("executing template: %w", err)
@@ -169,7 +179,9 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("earmarks:")
 	if len(resp.Earmarks) > 0 {
-		t2 := template.Must(template.New("earmarkTpl").Parse(earmarkTpl))
+		t2 := template.Must(template.New("earmarkTpl").
+			Funcs(funcMap).
+			Parse(earmarkTpl))
 		for _, earmark := range resp.Earmarks {
 			if err := t2.Execute(outWriter, earmark); err != nil {
 				return fmt.Errorf("executing template: %w", err)
@@ -197,7 +209,9 @@ func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("items:")
 	if len(resp.Items) > 0 {
-		t2 := template.Must(template.New("eventItemTpl").Parse(eventItemTpl))
+		t2 := template.Must(template.New("eventItemTpl").
+			Funcs(funcMap).
+			Parse(eventItemTpl))
 		for _, item := range resp.Items {
 			if err := t2.Execute(outWriter, item); err != nil {
 				return fmt.Errorf("executing template: %w", err)
@@ -225,7 +239,9 @@ func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("earmarks:")
 	if len(resp.Earmarks) > 0 {
-		t2 := template.Must(template.New("earmarkTpl").Parse(earmarkTpl))
+		t2 := template.Must(template.New("earmarkTpl").
+			Funcs(funcMap).
+			Parse(earmarkTpl))
 		for _, earmark := range resp.Earmarks {
 			if err := t2.Execute(outWriter, earmark); err != nil {
 				return fmt.Errorf("executing template: %w", err)
