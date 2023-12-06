@@ -9,7 +9,6 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
 )
 
 func NewTestLogger(w io.Writer) zerolog.Logger {
@@ -58,7 +57,7 @@ func NewLogger(w io.Writer) zerolog.Logger {
 			TimeFormat: time.RFC3339,
 		},
 	).With().Caller().Logger()
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	// zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		short := file
 		counter := 0
