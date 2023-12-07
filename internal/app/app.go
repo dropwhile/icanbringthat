@@ -30,14 +30,14 @@ type App struct {
 	closers []func()
 }
 
-func (api *App) Close() {
-	for _, f := range api.closers {
+func (app *App) Close() {
+	for _, f := range app.closers {
 		f()
 	}
 }
 
-func (api *App) OnClose(f func()) {
-	api.closers = append(api.closers, f)
+func (app *App) OnClose(f func()) {
+	app.closers = append(app.closers, f)
 }
 
 func New(
@@ -58,11 +58,11 @@ func New(
 		IsProd:      conf.Production,
 	}
 
-	api := &App{Mux: chi.NewRouter(), handler: zh}
-	api.OnClose(zh.SessMgr.Close)
+	app := &App{Mux: chi.NewRouter(), handler: zh}
+	app.OnClose(zh.SessMgr.Close)
 
 	// Router/Middleware //
-	r := api.Mux
+	r := app.Mux
 	r.NotFound(zh.NotFoundHandler)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RedirectSlashes)
@@ -197,5 +197,5 @@ func New(
 		r.Mount("/", rpcServer.GenHandler(TwirpPrefix))
 	})
 
-	return api
+	return app
 }
