@@ -94,7 +94,7 @@ func main() {
 		},
 	)
 
-	header := make(http.Header)
+	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
 
 	reqCtx := context.Background()
