@@ -27,7 +27,7 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.16.0
-	golang.org/x/exp v0.0.0-20231127185646-65229373498e
+	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb
 	golang.org/x/text v0.14.0
 	google.golang.org/protobuf v1.31.0
 	gotest.tools/v3 v3.5.1
@@ -45,7 +45,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
-	github.com/google/pprof v0.0.0-20231127191134-f3a68a39ae15 // indirect
+	github.com/google/pprof v0.0.0-20231205033806-a5a03c77bf08 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect

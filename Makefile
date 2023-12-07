@@ -77,6 +77,9 @@ help:
 clean:
 	@rm -rf "${BUILDDIR}"
 
+${GOBIN}/benchstat:
+	go install golang.org/x/perf/cmd/benchstat@latest
+
 ${GOBIN}/stringer:
 	go install golang.org/x/tools/cmd/stringer@latest
 
@@ -107,6 +110,11 @@ ${GOBIN}/protoc-gen-go:
 ${GOBIN}/go-errorlint:
 	go install github.com/polyfloyd/go-errorlint@latest
 
+${GOBIN}/modd:
+	go install github.com/cortesi/modd/cmd/modd@latest
+
+BENCH_TOOLS := ${GOBIN}/benchstat 
+OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
@@ -121,8 +129,14 @@ setup-generate: ${GENERATE_TOOLS}
 .PHONY: setup-check
 setup-check: ${CHECK_TOOLS}
 
+.PHONY: setup-bench
+setup-bench: ${BENCH_TOOLS}
+
+.PHONY: setup-other
+setup-other: ${OTHER_TOOLS}
+
 .PHONY: setup
-setup: setup-build setup-generate setup-check
+setup: setup-build setup-generate setup-check setup-bench setup-other
 
 .PHONY: generate
 generate: setup-build setup-generate
@@ -145,7 +159,7 @@ test:
 	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
 
 .PHONY: bench
-bench:
+bench: setup-bench
 	@echo ">> Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
@@ -258,7 +272,7 @@ run: build
 	@exec ./build/bin/server
 
 .PHONY: devrun
-devrun:
+devrun: setup-other
 	@echo ">> Monitoring for change, runnging tests, and restarting..."
 	@modd -f .modd.conf
 
