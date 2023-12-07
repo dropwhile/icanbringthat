@@ -20,8 +20,8 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-// ServerVersion holds the server version string
-var ServerVersion = "no-version"
+// Version holds the server version string
+var Version = "no-version"
 
 type Job string
 
@@ -120,7 +120,7 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	log.Info().Msgf("server version: %s", ServerVersion)
+	log.Info().Msgf("server version: %s", Version)
 	log.Info().Msg("starting up...")
 
 	wg.Add(1)

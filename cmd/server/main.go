@@ -23,8 +23,8 @@ import (
 	"github.com/dropwhile/icbt/resources"
 )
 
-// ServerVersion holds the server version string
-var ServerVersion = "no-version"
+// Version holds the server version string
+var Version = "no-version"
 
 func main() {
 	//--------------//
@@ -150,7 +150,7 @@ func main() {
 	}()
 
 	// listen
-	log.Info().Msgf("server version: %s", ServerVersion)
+	log.Info().Msgf("server version: %s", Version)
 	log.Info().Msg("starting up...")
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {

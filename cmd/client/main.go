@@ -14,6 +14,9 @@ import (
 	"github.com/dropwhile/icbt/rpc"
 )
 
+// Version holds the server version string
+var Version = "no-version"
+
 type verboseFlag bool
 
 func (v verboseFlag) BeforeApply() error {
@@ -90,7 +93,7 @@ func main() {
 			Compact:      true,
 		}),
 		kong.Vars{
-			"version": "0.0.0",
+			"version": Version,
 		},
 	)
 
