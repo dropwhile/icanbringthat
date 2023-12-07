@@ -113,9 +113,13 @@ ${GOBIN}/go-errorlint:
 ${GOBIN}/modd:
 	go install github.com/cortesi/modd/cmd/modd@latest
 
+${GOBIN}/convergen:
+	go install github.com/reedom/convergen@latest
+
 BENCH_TOOLS := ${GOBIN}/benchstat 
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
+GENERATE_TOOLS += ${GOBIN}/convergen
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/nilaway

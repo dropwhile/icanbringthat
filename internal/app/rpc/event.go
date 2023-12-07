@@ -6,9 +6,9 @@ import (
 
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
@@ -37,7 +37,7 @@ func (s *Server) ListEvents(ctx context.Context,
 			ctx, s.Db, user.ID, limit, offset, showArchived,
 		)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 
 		events = evts
@@ -51,13 +51,13 @@ func (s *Server) ListEvents(ctx context.Context,
 			ctx, s.Db, user.ID, showArchived,
 		)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 		events = evts
 	}
 
 	response := &pb.ListEventsResponse{
-		Events:     dto.ToPbList(dto.ToPbEvent, events),
+		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
 	return response, nil
@@ -80,11 +80,11 @@ func (s *Server) CreateEvent(ctx context.Context,
 	event, errx := service.CreateEvent(ctx, s.Db, user,
 		name, description, when, tz)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.CreateEventResponse{
-		Event: dto.ToPbEvent(event),
+		Event: convert.ToPbEvent(event),
 	}
 	return response, nil
 }
@@ -116,11 +116,11 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		r.Name, r.Description, start_time, tz,
 	)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.UpdateEventResponse{
-		Event: dto.ToPbEvent(event),
+		Event: convert.ToPbEvent(event),
 	}
 	return response, nil
 }
@@ -141,21 +141,21 @@ func (s *Server) GetEventDetails(ctx context.Context,
 
 	event, errx := service.GetEvent(ctx, s.Db, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
-	pbEvent := dto.ToPbEvent(event)
+	pbEvent := convert.ToPbEvent(event)
 
 	eventItems, errx := service.GetEventItemsByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
-	pbEventItems := dto.ToPbList(dto.ToPbEventItem, eventItems)
+	pbEventItems := convert.ToPbList(convert.ToPbEventItem, eventItems)
 
 	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
-	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
+	pbEarmarks, err := convert.ToPbListWithDb(convert.ToPbEarmark, s.Db, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -184,7 +184,7 @@ func (s *Server) DeleteEvent(ctx context.Context,
 
 	errx := service.DeleteEvent(ctx, s.Db, user.ID, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteEventResponse{}

@@ -1,4 +1,4 @@
-package dto
+package convert
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"

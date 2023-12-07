@@ -5,9 +5,9 @@ import (
 
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
@@ -28,7 +28,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 		offset := int(r.Pagination.Offset)
 		notifs, pagination, errx := service.GetNotifcationsPaginated(ctx, s.Db, user.ID, limit, offset)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 
 		notifications = notifs
@@ -40,14 +40,14 @@ func (s *Server) ListNotifications(ctx context.Context,
 	} else {
 		notifs, errx := service.GetNotifications(ctx, s.Db, user.ID)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 		notifications = notifs
 
 	}
 
 	response := &pb.ListNotificationsResponse{
-		Notifications: dto.ToPbList(dto.ToPbNotification, notifications),
+		Notifications: convert.ToPbList(convert.ToPbNotification, notifications),
 		Pagination:    paginationResult,
 	}
 	return response, nil
@@ -69,7 +69,7 @@ func (s *Server) DeleteNotification(ctx context.Context,
 
 	errx := service.DeleteNotification(ctx, s.Db, user.ID, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteNotificationResponse{}
@@ -87,7 +87,7 @@ func (s *Server) DeleteAllNotifications(ctx context.Context,
 
 	errx := service.DeleteAllNotifications(ctx, s.Db, user.ID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.DeleteAllNotificationsResponse{}

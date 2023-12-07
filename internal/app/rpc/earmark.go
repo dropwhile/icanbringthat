@@ -5,9 +5,9 @@ import (
 
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	pb "github.com/dropwhile/icbt/rpc"
@@ -29,15 +29,15 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 
 	event, errx := service.GetEvent(ctx, s.Db, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	earmarks, errx := service.GetEarmarksByEventID(ctx, s.Db, event.ID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
+	pbEarmarks, err := convert.ToPbListWithDb(convert.ToPbEarmark, s.Db, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -69,7 +69,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 
 		earmarkCounts, errx := service.GetEarmarksCount(ctx, s.Db, user.ID)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 
 		count := earmarkCounts.Current
@@ -81,7 +81,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 			earmarks, _, errx = service.GetEarmarksPaginated(
 				ctx, s.Db, user.ID, limit, offset, showArchived)
 			if errx != nil {
-				return nil, dto.ToTwirpError(errx)
+				return nil, convert.ToTwirpError(errx)
 			}
 		}
 		paginationResult = &pb.PaginationResult{
@@ -94,11 +94,11 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		earmarks, errx = service.GetEarmarks(
 			ctx, s.Db, user.ID, showArchived)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 	}
 
-	pbEarmarks, err := dto.ToPbListWithDb(dto.ToPbEarmark, s.Db, earmarks)
+	pbEarmarks, err := convert.ToPbListWithDb(convert.ToPbEarmark, s.Db, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -125,7 +125,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 
 	eventItem, errx := service.GetEventItem(ctx, s.Db, eventItemRefID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	// make sure no earmark exists yet
@@ -135,7 +135,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		case errs.NotFound:
 			// good. this is what we want
 		default:
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 	} else {
 		// earmark already exists!
@@ -148,10 +148,10 @@ func (s *Server) CreateEarmark(ctx context.Context,
 
 	earmark, errx = service.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
+	pbEarmark, err := convert.ToPbEarmark(s.Db, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -178,20 +178,20 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 
 	earmark, errx := service.GetEarmark(ctx, s.Db, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	eventItem, errx := service.GetEventItemByID(ctx, s.Db, earmark.EventItemID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	event, errx := service.GetEventByID(ctx, s.Db, eventItem.EventID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := dto.ToPbEarmark(s.Db, earmark)
+	pbEarmark, err := convert.ToPbEarmark(s.Db, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -218,7 +218,7 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 
 	errx := service.DeleteEarmarkByRefID(ctx, s.Db, user.ID, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	return &pb.RemoveEarmarkResponse{}, nil

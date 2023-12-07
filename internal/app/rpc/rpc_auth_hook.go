@@ -5,9 +5,9 @@ import (
 
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 )
 
@@ -23,7 +23,7 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 		// lookup user
 		user, errx := service.GetUserByApiKey(ctx, db, apiKey)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 		if user == nil {
 			return ctx, twirp.Unauthenticated.Error("invalid auth")

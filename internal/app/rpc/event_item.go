@@ -5,9 +5,9 @@ import (
 
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
@@ -28,11 +28,11 @@ func (s *Server) ListEventItems(ctx context.Context,
 
 	items, errx := service.GetEventItemsByEvent(ctx, s.Db, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.ListEventItemsResponse{
-		Items: dto.ToPbList(dto.ToPbEventItem, items),
+		Items: convert.ToPbList(convert.ToPbEventItem, items),
 	}
 	return response, nil
 }
@@ -53,7 +53,7 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 
 	errx := service.RemoveEventItem(ctx, s.Db, user.ID, refID, nil)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	return &pb.RemoveEventItemResponse{}, nil
@@ -77,11 +77,11 @@ func (s *Server) AddEventItem(ctx context.Context,
 		ctx, s.Db, user.ID, refID, r.Description,
 	)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.AddEventItemResponse{
-		EventItem: dto.ToPbEventItem(eventItem),
+		EventItem: convert.ToPbEventItem(eventItem),
 	}
 	return response, nil
 }
@@ -104,11 +104,11 @@ func (s *Server) UpdateEventItem(ctx context.Context,
 		ctx, s.Db, user.ID, refID, r.Description, nil,
 	)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.UpdateEventItemResponse{
-		EventItem: dto.ToPbEventItem(eventItem),
+		EventItem: convert.ToPbEventItem(eventItem),
 	}
 	return response, nil
 }

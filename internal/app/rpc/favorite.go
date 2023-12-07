@@ -6,9 +6,9 @@ import (
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/rpc/dto"
 	"github.com/dropwhile/icbt/internal/app/service"
 	pb "github.com/dropwhile/icbt/rpc"
 )
@@ -36,7 +36,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		favs, pagination, errx := service.GetFavoriteEventsPaginated(
 			ctx, s.Db, user.ID, limit, offset, showArchived)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 
 		events = favs
@@ -49,13 +49,13 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		favs, errx := service.GetFavoriteEvents(
 			ctx, s.Db, user.ID, showArchived)
 		if errx != nil {
-			return nil, dto.ToTwirpError(errx)
+			return nil, convert.ToTwirpError(errx)
 		}
 		events = favs
 	}
 
 	response := &pb.ListFavoriteEventsResponse{
-		Events:     dto.ToPbList(dto.ToPbEvent, events),
+		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
 	return response, nil
@@ -77,7 +77,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 
 	errx := service.RemoveFavorite(ctx, s.Db, user.ID, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	return &pb.RemoveFavoriteResponse{}, nil
@@ -99,7 +99,7 @@ func (s *Server) AddFavorite(ctx context.Context,
 
 	favorite, errx := service.AddFavorite(ctx, s.Db, user.ID, refID)
 	if errx != nil {
-		return nil, dto.ToTwirpError(errx)
+		return nil, convert.ToTwirpError(errx)
 	}
 
 	response := &pb.CreateFavoriteResponse{
