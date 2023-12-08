@@ -8,7 +8,7 @@ require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8
 	github.com/alexedwards/scs/v2 v2.7.0
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/dropwhile/refid/v2 v2.0.0
+	github.com/dropwhile/refid/v2 v2.0.1
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httplog v0.3.2
 	github.com/go-webauthn/webauthn v0.9.4
