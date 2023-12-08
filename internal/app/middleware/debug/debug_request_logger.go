@@ -30,5 +30,5 @@ var defaultIgnoreHeaders = []string{
 
 func RequestLogger() func(next http.Handler) http.Handler {
 	httplog.DefaultOptions.SkipHeaders = defaultIgnoreHeaders
-	return httplog.RequestLogger(log.Logger)
+	return httplog.Handler(log.Logger)
 }

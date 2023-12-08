@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"

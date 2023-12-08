@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid"
-	"github.com/dropwhile/refid/reftag"
+	"github.com/dropwhile/refid/v2"
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 )
 

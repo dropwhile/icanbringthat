@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/v2"
 	"github.com/rs/zerolog/log"
 )
 

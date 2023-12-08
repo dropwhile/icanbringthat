@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid"
+	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"

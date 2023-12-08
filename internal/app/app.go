@@ -14,6 +14,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/middleware/debug"
+	"github.com/dropwhile/icbt/internal/app/middleware/header"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/crypto"
@@ -63,12 +64,12 @@ func New(
 
 	// Router/Middleware //
 	r := app.Mux
+	r.Use(middleware.Logger)
 	r.NotFound(zh.NotFoundHandler)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
+	r.Use(header.RequestID)
 	if log.Trace().Enabled() {
 		r.Use(debug.RequestLogger())
 	}
