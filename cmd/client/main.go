@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
@@ -108,7 +109,9 @@ func main() {
 	}
 
 	client := icbt.NewRpcProtobufClient(
-		cli.BaseURL, &http.Client{},
+		cli.BaseURL, &http.Client{
+			Transport: &http3.RoundTripper{},
+		},
 		twirp.WithClientPathPrefix(cli.TwirpPrefix),
 	)
 	err = ctx.Run(&RunArgs{
