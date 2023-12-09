@@ -1,9 +1,25 @@
 #!/bin/sh
 
+echo "list events"
 ./build/bin/client events list
-./build/bin/client earmarks list
-./build/bin/client favorites list
-./build/bin/client notifications list
+echo
 
+echo "list earmarks"
+./build/bin/client earmarks list
+echo
+
+echo "list favorites"
+./build/bin/client favorites list
+echo
+
+echo "list notifications"
+./build/bin/client notifications list
+echo
+
+echo "event detail"
 ./build/bin/client events detail --ref-id 0662e3hdgwf05n7hc0jzsbhwbw
+echo
+
+echo "earmark detail"
 ./build/bin/client earmarks detail --ref-id 0662e7ha4cr08jpaf483jcdvwr
+echo
