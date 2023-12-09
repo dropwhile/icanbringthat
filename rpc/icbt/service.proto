@@ -1,6 +1,6 @@
 syntax = "proto3";
-package icbt.rpc;
-option go_package = "github.com/dropwhile/icbt/rpc";
+package icbt.rpc.icbt;
+option go_package = "github.com/dropwhile/icbt/rpc/icbt";
 
 import "google/protobuf/timestamp.proto";
 

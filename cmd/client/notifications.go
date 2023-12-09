@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"os"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 const notifTpl = `
@@ -19,7 +19,7 @@ type NotificationsListCmd struct{}
 
 func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListNotificationsRequest{}
+	req := &icbt.ListNotificationsRequest{}
 	resp, err := client.ListNotifications(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -42,7 +42,7 @@ type NotificationsDeleteCmd struct {
 
 func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.DeleteNotificationRequest{
+	req := &icbt.DeleteNotificationRequest{
 		RefId: cmd.RefID,
 	}
 	if _, err := client.DeleteNotification(meta.ctx, req); err != nil {
@@ -56,7 +56,7 @@ type NotificationsDeleteAllCmd struct{}
 
 func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.DeleteAllNotificationsRequest{}
+	req := &icbt.DeleteAllNotificationsRequest{}
 	if _, err := client.DeleteAllNotifications(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}

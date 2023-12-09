@@ -9,19 +9,19 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func (s *Server) ListNotifications(ctx context.Context,
-	r *pb.ListNotificationsRequest,
-) (*pb.ListNotificationsResponse, error) {
+	r *icbt.ListNotificationsRequest,
+) (*icbt.ListNotificationsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	var paginationResult *pb.PaginationResult
+	var paginationResult *icbt.PaginationResult
 	var notifications []*model.Notification
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
@@ -32,7 +32,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 		}
 
 		notifications = notifs
-		paginationResult = &pb.PaginationResult{
+		paginationResult = &icbt.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
 			Count:  pagination.Count,
@@ -46,7 +46,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 
 	}
 
-	response := &pb.ListNotificationsResponse{
+	response := &icbt.ListNotificationsResponse{
 		Notifications: convert.ToPbList(convert.ToPbNotification, notifications),
 		Pagination:    paginationResult,
 	}
@@ -54,8 +54,8 @@ func (s *Server) ListNotifications(ctx context.Context,
 }
 
 func (s *Server) DeleteNotification(ctx context.Context,
-	r *pb.DeleteNotificationRequest,
-) (*pb.DeleteNotificationResponse, error) {
+	r *icbt.DeleteNotificationRequest,
+) (*icbt.DeleteNotificationResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -72,13 +72,13 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.DeleteNotificationResponse{}
+	response := &icbt.DeleteNotificationResponse{}
 	return response, nil
 }
 
 func (s *Server) DeleteAllNotifications(ctx context.Context,
-	r *pb.DeleteAllNotificationsRequest,
-) (*pb.DeleteAllNotificationsResponse, error) {
+	r *icbt.DeleteAllNotificationsRequest,
+) (*icbt.DeleteAllNotificationsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -90,6 +90,6 @@ func (s *Server) DeleteAllNotifications(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.DeleteAllNotificationsResponse{}
+	response := &icbt.DeleteAllNotificationsResponse{}
 	return response, nil
 }

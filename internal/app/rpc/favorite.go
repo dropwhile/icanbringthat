@@ -10,12 +10,12 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func (s *Server) ListFavoriteEvents(ctx context.Context,
-	r *pb.ListFavoriteEventsRequest,
-) (*pb.ListFavoriteEventsResponse, error) {
+	r *icbt.ListFavoriteEventsRequest,
+) (*icbt.ListFavoriteEventsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -27,7 +27,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		showArchived = true
 	}
 
-	var paginationResult *pb.PaginationResult
+	var paginationResult *icbt.PaginationResult
 	var events []*model.Event
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
@@ -40,7 +40,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		}
 
 		events = favs
-		paginationResult = &pb.PaginationResult{
+		paginationResult = &icbt.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
 			Count:  uint32(pagination.Count),
@@ -54,7 +54,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		events = favs
 	}
 
-	response := &pb.ListFavoriteEventsResponse{
+	response := &icbt.ListFavoriteEventsResponse{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
@@ -62,8 +62,8 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 }
 
 func (s *Server) RemoveFavorite(ctx context.Context,
-	r *pb.RemoveFavoriteRequest,
-) (*pb.RemoveFavoriteResponse, error) {
+	r *icbt.RemoveFavoriteRequest,
+) (*icbt.RemoveFavoriteResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -80,12 +80,12 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &pb.RemoveFavoriteResponse{}, nil
+	return &icbt.RemoveFavoriteResponse{}, nil
 }
 
 func (s *Server) AddFavorite(ctx context.Context,
-	r *pb.CreateFavoriteRequest,
-) (*pb.CreateFavoriteResponse, error) {
+	r *icbt.CreateFavoriteRequest,
+) (*icbt.CreateFavoriteResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -102,8 +102,8 @@ func (s *Server) AddFavorite(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.CreateFavoriteResponse{
-		Favorite: &pb.Favorite{
+	response := &icbt.CreateFavoriteResponse{
+		Favorite: &icbt.Favorite{
 			EventRefId: r.EventRefId,
 			Created:    timestamppb.New(favorite.Created),
 		},

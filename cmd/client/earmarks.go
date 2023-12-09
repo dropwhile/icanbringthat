@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"os"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 const earmarkTpl = `
@@ -35,7 +35,7 @@ type EarmarksCreateCmd struct {
 
 func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.CreateEarmarkRequest{
+	req := &icbt.CreateEarmarkRequest{
 		EventItemRefId: cmd.EventItemRefID,
 		Note:           cmd.Note,
 	}
@@ -59,7 +59,7 @@ type EarmarksGetDetailsCmd struct {
 
 func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.GetEarmarkDetailsRequest{
+	req := &icbt.GetEarmarkDetailsRequest{
 		RefId: cmd.RefID,
 	}
 	resp, err := client.GetEarmarkDetails(meta.ctx, req)
@@ -86,7 +86,7 @@ type EarmarksRemoveCmd struct {
 
 func (cmd *EarmarksRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.RemoveEarmarkRequest{
+	req := &icbt.RemoveEarmarkRequest{
 		RefId: cmd.RefID,
 	}
 	if _, err := client.RemoveEarmark(meta.ctx, req); err != nil {
@@ -101,7 +101,7 @@ type EarmarksListCmd struct {
 
 func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListEarmarksRequest{
+	req := &icbt.ListEarmarksRequest{
 		Archived: &cmd.Archived,
 	}
 	resp, err := client.ListEarmarks(meta.ctx, req)

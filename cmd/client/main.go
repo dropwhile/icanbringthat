@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 // Version holds the server version string
@@ -27,7 +27,7 @@ func (v verboseFlag) BeforeApply() error {
 
 type RunArgs struct {
 	cli    *CLI
-	client rpc.Rpc
+	client icbt.Rpc
 	ctx    context.Context
 }
 
@@ -107,7 +107,7 @@ func main() {
 		return
 	}
 
-	client := rpc.NewRpcProtobufClient(
+	client := icbt.NewRpcProtobufClient(
 		cli.BaseURL, &http.Client{},
 		twirp.WithClientPathPrefix(cli.TwirpPrefix),
 	)

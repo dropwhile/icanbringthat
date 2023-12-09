@@ -9,7 +9,7 @@ import (
 	"github.com/muesli/reflow/indent"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 const eventTpl = `
@@ -29,7 +29,7 @@ type EventsListCmd struct {
 
 func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListEventsRequest{
+	req := &icbt.ListEventsRequest{
 		Archived: &cmd.Archived,
 	}
 	resp, err := client.ListEvents(meta.ctx, req)
@@ -57,10 +57,10 @@ type EventsCreateCmd struct {
 
 func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.CreateEventRequest{
+	req := &icbt.CreateEventRequest{
 		Name:        cmd.Name,
 		Description: cmd.Description,
-		When: &rpc.TimestampTZ{
+		When: &icbt.TimestampTZ{
 			Ts: timestamppb.New(cmd.When),
 			Tz: cmd.Tz,
 		},
@@ -89,7 +89,7 @@ type EventsUpdateCmd struct {
 
 func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.UpdateEventRequest{
+	req := &icbt.UpdateEventRequest{
 		RefId: cmd.RefID,
 	}
 	if cmd.Name != nil {
@@ -103,7 +103,7 @@ func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("either both or neither of when and tz are required")
 	}
 	if cmd.When != nil {
-		req.When = &rpc.TimestampTZ{
+		req.When = &icbt.TimestampTZ{
 			Ts: timestamppb.New(*cmd.When),
 			Tz: *cmd.Tz,
 		}
@@ -132,7 +132,7 @@ type EventsDeleteCmd struct {
 
 func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.DeleteEventRequest{
+	req := &icbt.DeleteEventRequest{
 		RefId: cmd.RefID,
 	}
 	if _, err := client.DeleteEvent(meta.ctx, req); err != nil {
@@ -147,7 +147,7 @@ type EventsGetDetailsCmd struct {
 
 func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.GetEventDetailsRequest{
+	req := &icbt.GetEventDetailsRequest{
 		RefId: cmd.RefID,
 	}
 	resp, err := client.GetEventDetails(meta.ctx, req)
@@ -197,7 +197,7 @@ type EventsListItemsCmd struct {
 
 func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListEventItemsRequest{
+	req := &icbt.ListEventItemsRequest{
 		RefId: cmd.RefID,
 	}
 	resp, err := client.ListEventItems(meta.ctx, req)
@@ -227,7 +227,7 @@ type EventsListEarmarksCmd struct {
 
 func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListEventEarmarksRequest{
+	req := &icbt.ListEventEarmarksRequest{
 		RefId: cmd.RefID,
 	}
 	resp, err := client.ListEventEarmarks(meta.ctx, req)

@@ -11,7 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
@@ -38,16 +38,16 @@ func TimeToTimestamp(t time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(t)
 }
 
-func TimeToTimestampTZ(t time.Time) *pb.TimestampTZ {
-	pbtz := &pb.TimestampTZ{
+func TimeToTimestampTZ(t time.Time) *icbt.TimestampTZ {
+	pbtz := &icbt.TimestampTZ{
 		Ts: timestamppb.New(t),
 		Tz: t.Location().String(),
 	}
 	return pbtz
 }
 
-func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *pb.Earmark, err error) {
-	dst = &pb.Earmark{}
+func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *icbt.Earmark, err error) {
+	dst = &icbt.Earmark{}
 	dst.RefId = src.RefID.String()
 	dst.Note = src.Note
 	dst.Created = TimeToTimestamp(src.Created)

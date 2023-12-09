@@ -9,12 +9,12 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func (s *Server) ListEventItems(ctx context.Context,
-	r *pb.ListEventItemsRequest,
-) (*pb.ListEventItemsResponse, error) {
+	r *icbt.ListEventItemsRequest,
+) (*icbt.ListEventItemsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -31,15 +31,15 @@ func (s *Server) ListEventItems(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.ListEventItemsResponse{
+	response := &icbt.ListEventItemsResponse{
 		Items: convert.ToPbList(convert.ToPbEventItem, items),
 	}
 	return response, nil
 }
 
 func (s *Server) RemoveEventItem(ctx context.Context,
-	r *pb.RemoveEventItemRequest,
-) (*pb.RemoveEventItemResponse, error) {
+	r *icbt.RemoveEventItemRequest,
+) (*icbt.RemoveEventItemResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -56,12 +56,12 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &pb.RemoveEventItemResponse{}, nil
+	return &icbt.RemoveEventItemResponse{}, nil
 }
 
 func (s *Server) AddEventItem(ctx context.Context,
-	r *pb.AddEventItemRequest,
-) (*pb.AddEventItemResponse, error) {
+	r *icbt.AddEventItemRequest,
+) (*icbt.AddEventItemResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -80,15 +80,15 @@ func (s *Server) AddEventItem(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.AddEventItemResponse{
+	response := &icbt.AddEventItemResponse{
 		EventItem: convert.ToPbEventItem(eventItem),
 	}
 	return response, nil
 }
 
 func (s *Server) UpdateEventItem(ctx context.Context,
-	r *pb.UpdateEventItemRequest,
-) (*pb.UpdateEventItemResponse, error) {
+	r *icbt.UpdateEventItemRequest,
+) (*icbt.UpdateEventItemResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -107,7 +107,7 @@ func (s *Server) UpdateEventItem(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.UpdateEventItemResponse{
+	response := &icbt.UpdateEventItemResponse{
 		EventItem: convert.ToPbEventItem(eventItem),
 	}
 	return response, nil

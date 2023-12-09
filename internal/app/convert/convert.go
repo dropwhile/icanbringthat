@@ -2,7 +2,7 @@ package convert
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 //go:generate convergen
@@ -11,18 +11,18 @@ type Convergen interface {
 	// :stringer
 	// :case:off
 	// :conv TimeToTimestamp Created Created
-	ToPbNotification(*model.Notification) *pb.Notification
+	ToPbNotification(*model.Notification) *icbt.Notification
 
 	// :typecast
 	// :stringer
 	// :case:off
 	// :conv TimeToTimestamp Created Created
 	// :conv TimeToTimestampTZ When() When
-	ToPbEvent(*model.Event) *pb.Event
+	ToPbEvent(*model.Event) *icbt.Event
 
 	// :typecast
 	// :stringer
 	// :case:off
 	// :conv TimeToTimestamp Created Created
-	ToPbEventItem(*model.EventItem) *pb.EventItem
+	ToPbEventItem(*model.EventItem) *icbt.EventItem
 }

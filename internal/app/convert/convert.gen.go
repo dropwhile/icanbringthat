@@ -5,11 +5,11 @@ package convert
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
-func ToPbEvent(src *model.Event) (dst *pb.Event) {
-	dst = &pb.Event{}
+func ToPbEvent(src *model.Event) (dst *icbt.Event) {
+	dst = &icbt.Event{}
 	dst.RefId = src.RefID.String()
 	dst.Name = src.Name
 	dst.Description = src.Description
@@ -20,8 +20,8 @@ func ToPbEvent(src *model.Event) (dst *pb.Event) {
 	return
 }
 
-func ToPbEventItem(src *model.EventItem) (dst *pb.EventItem) {
-	dst = &pb.EventItem{}
+func ToPbEventItem(src *model.EventItem) (dst *icbt.EventItem) {
+	dst = &icbt.EventItem{}
 	dst.RefId = src.RefID.String()
 	dst.Description = src.Description
 	dst.Created = TimeToTimestamp(src.Created)
@@ -29,8 +29,8 @@ func ToPbEventItem(src *model.EventItem) (dst *pb.EventItem) {
 	return
 }
 
-func ToPbNotification(src *model.Notification) (dst *pb.Notification) {
-	dst = &pb.Notification{}
+func ToPbNotification(src *model.Notification) (dst *icbt.Notification) {
+	dst = &icbt.Notification{}
 	dst.RefId = src.RefID.String()
 	dst.Message = src.Message
 	dst.Created = TimeToTimestamp(src.Created)

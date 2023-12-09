@@ -8,7 +8,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
-	rpcdef "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 type Server struct {
@@ -21,8 +21,8 @@ type Server struct {
 	IsProd      bool
 }
 
-func (s *Server) GenHandler(prefix string) rpcdef.TwirpServer {
-	twirpHandler := rpcdef.NewRpcServer(
+func (s *Server) GenHandler(prefix string) icbt.TwirpServer {
+	twirpHandler := icbt.NewRpcServer(
 		s,
 		twirp.WithServerPathPrefix(prefix),
 		twirp.WithServerHooks(

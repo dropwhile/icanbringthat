@@ -10,12 +10,12 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func (s *Server) ListEvents(ctx context.Context,
-	r *pb.ListEventsRequest,
-) (*pb.ListEventsResponse, error) {
+	r *icbt.ListEventsRequest,
+) (*icbt.ListEventsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -27,7 +27,7 @@ func (s *Server) ListEvents(ctx context.Context,
 		showArchived = true
 	}
 
-	var paginationResult *pb.PaginationResult
+	var paginationResult *icbt.PaginationResult
 	var events []*model.Event
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
@@ -41,7 +41,7 @@ func (s *Server) ListEvents(ctx context.Context,
 		}
 
 		events = evts
-		paginationResult = &pb.PaginationResult{
+		paginationResult = &icbt.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
 			Count:  uint32(pagination.Count),
@@ -56,7 +56,7 @@ func (s *Server) ListEvents(ctx context.Context,
 		events = evts
 	}
 
-	response := &pb.ListEventsResponse{
+	response := &icbt.ListEventsResponse{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
@@ -64,8 +64,8 @@ func (s *Server) ListEvents(ctx context.Context,
 }
 
 func (s *Server) CreateEvent(ctx context.Context,
-	r *pb.CreateEventRequest,
-) (*pb.CreateEventResponse, error) {
+	r *icbt.CreateEventRequest,
+) (*icbt.CreateEventResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -83,15 +83,15 @@ func (s *Server) CreateEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.CreateEventResponse{
+	response := &icbt.CreateEventResponse{
 		Event: convert.ToPbEvent(event),
 	}
 	return response, nil
 }
 
 func (s *Server) UpdateEvent(ctx context.Context,
-	r *pb.UpdateEventRequest,
-) (*pb.UpdateEventResponse, error) {
+	r *icbt.UpdateEventRequest,
+) (*icbt.UpdateEventResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -119,15 +119,15 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.UpdateEventResponse{
+	response := &icbt.UpdateEventResponse{
 		Event: convert.ToPbEvent(event),
 	}
 	return response, nil
 }
 
 func (s *Server) GetEventDetails(ctx context.Context,
-	r *pb.GetEventDetailsRequest,
-) (*pb.GetEventDetailsResponse, error) {
+	r *icbt.GetEventDetailsRequest,
+) (*icbt.GetEventDetailsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -160,7 +160,7 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 
-	response := &pb.GetEventDetailsResponse{
+	response := &icbt.GetEventDetailsResponse{
 		Event:    pbEvent,
 		Items:    pbEventItems,
 		Earmarks: pbEarmarks,
@@ -169,8 +169,8 @@ func (s *Server) GetEventDetails(ctx context.Context,
 }
 
 func (s *Server) DeleteEvent(ctx context.Context,
-	r *pb.DeleteEventRequest,
-) (*pb.DeleteEventResponse, error) {
+	r *icbt.DeleteEventRequest,
+) (*icbt.DeleteEventResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -187,6 +187,6 @@ func (s *Server) DeleteEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &pb.DeleteEventResponse{}
+	response := &icbt.DeleteEventResponse{}
 	return response, nil
 }

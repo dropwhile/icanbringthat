@@ -10,12 +10,12 @@ import (
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
-	pb "github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 func (s *Server) ListEventEarmarks(ctx context.Context,
-	r *pb.ListEventEarmarksRequest,
-) (*pb.ListEventEarmarksResponse, error) {
+	r *icbt.ListEventEarmarksRequest,
+) (*icbt.ListEventEarmarksResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -41,15 +41,15 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &pb.ListEventEarmarksResponse{
+	response := &icbt.ListEventEarmarksResponse{
 		Earmarks: pbEarmarks,
 	}
 	return response, nil
 }
 
 func (s *Server) ListEarmarks(ctx context.Context,
-	r *pb.ListEarmarksRequest,
-) (*pb.ListEarmarksResponse, error) {
+	r *icbt.ListEarmarksRequest,
+) (*icbt.ListEarmarksResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -61,7 +61,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		showArchived = true
 	}
 
-	var paginationResult *pb.PaginationResult
+	var paginationResult *icbt.PaginationResult
 	var earmarks []*model.Earmark
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
@@ -84,7 +84,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 				return nil, convert.ToTwirpError(errx)
 			}
 		}
-		paginationResult = &pb.PaginationResult{
+		paginationResult = &icbt.PaginationResult{
 			Limit:  uint32(limit),
 			Offset: uint32(offset),
 			Count:  uint32(count),
@@ -102,7 +102,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &pb.ListEarmarksResponse{
+	response := &icbt.ListEarmarksResponse{
 		Earmarks:   pbEarmarks,
 		Pagination: paginationResult,
 	}
@@ -110,8 +110,8 @@ func (s *Server) ListEarmarks(ctx context.Context,
 }
 
 func (s *Server) CreateEarmark(ctx context.Context,
-	r *pb.CreateEarmarkRequest,
-) (*pb.CreateEarmarkResponse, error) {
+	r *icbt.CreateEarmarkRequest,
+) (*icbt.CreateEarmarkResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -156,15 +156,15 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 
-	response := &pb.CreateEarmarkResponse{
+	response := &icbt.CreateEarmarkResponse{
 		Earmark: pbEarmark,
 	}
 	return response, nil
 }
 
 func (s *Server) GetEarmarkDetails(ctx context.Context,
-	r *pb.GetEarmarkDetailsRequest,
-) (*pb.GetEarmarkDetailsResponse, error) {
+	r *icbt.GetEarmarkDetailsRequest,
+) (*icbt.GetEarmarkDetailsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -195,7 +195,7 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &pb.GetEarmarkDetailsResponse{
+	response := &icbt.GetEarmarkDetailsResponse{
 		Earmark:    pbEarmark,
 		EventRefId: event.RefID.String(),
 	}
@@ -203,8 +203,8 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 }
 
 func (s *Server) RemoveEarmark(ctx context.Context,
-	r *pb.RemoveEarmarkRequest,
-) (*pb.RemoveEarmarkResponse, error) {
+	r *icbt.RemoveEarmarkRequest,
+) (*icbt.RemoveEarmarkResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -221,5 +221,5 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &pb.RemoveEarmarkResponse{}, nil
+	return &icbt.RemoveEarmarkResponse{}, nil
 }

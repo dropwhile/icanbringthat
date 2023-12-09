@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"os"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 const eventItemTpl = `
@@ -22,7 +22,7 @@ type EventItemsAddCmd struct {
 
 func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.AddEventItemRequest{
+	req := &icbt.AddEventItemRequest{
 		EventRefId:  cmd.EventRefId,
 		Description: cmd.Description,
 	}
@@ -47,7 +47,7 @@ type EventItemsUpdateCmd struct {
 
 func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.UpdateEventItemRequest{
+	req := &icbt.UpdateEventItemRequest{
 		RefId:       cmd.RefId,
 		Description: cmd.Description,
 	}
@@ -72,7 +72,7 @@ type EventItemsRemoveCmd struct {
 
 func (cmd *EventItemsRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.RemoveEventItemRequest{
+	req := &icbt.RemoveEventItemRequest{
 		RefId: cmd.RefId,
 	}
 	if _, err := client.RemoveEventItem(meta.ctx, req); err != nil {

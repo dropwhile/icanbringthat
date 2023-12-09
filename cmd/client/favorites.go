@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dropwhile/icbt/rpc"
+	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
 const favoriteTpl = `
@@ -21,7 +21,7 @@ type FavoritesListCmd struct {
 
 func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.ListFavoriteEventsRequest{
+	req := &icbt.ListFavoriteEventsRequest{
 		Archived: &cmd.Archived,
 	}
 	resp, err := client.ListFavoriteEvents(meta.ctx, req)
@@ -46,7 +46,7 @@ type FavoritesAddCmd struct {
 
 func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.CreateFavoriteRequest{
+	req := &icbt.CreateFavoriteRequest{
 		EventRefId: cmd.EventRefID,
 	}
 	resp, err := client.AddFavorite(meta.ctx, req)
@@ -71,7 +71,7 @@ type FavoritesRemoveCmd struct {
 
 func (cmd *FavoritesRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &rpc.RemoveFavoriteRequest{
+	req := &icbt.RemoveFavoriteRequest{
 		EventRefId: cmd.EventRefID,
 	}
 	if _, err := client.RemoveFavorite(meta.ctx, req); err != nil {
