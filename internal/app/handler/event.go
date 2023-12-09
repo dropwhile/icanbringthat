@@ -13,12 +13,12 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
-	"github.com/dropwhile/icbt/resources"
 )
 
 func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {

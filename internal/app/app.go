@@ -13,6 +13,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -20,7 +21,6 @@ import (
 	"github.com/dropwhile/icbt/internal/middleware/debug"
 	"github.com/dropwhile/icbt/internal/middleware/header"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/resources"
 )
 
 const TwirpPrefix = "/api"

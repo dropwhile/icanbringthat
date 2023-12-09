@@ -10,8 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/resources"
 )
 
 func NotifyUsersPendingEvents(db model.PgxHandle,

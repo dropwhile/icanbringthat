@@ -13,11 +13,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/envconfig"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/resources"
 )
 
 // Version holds the server version string

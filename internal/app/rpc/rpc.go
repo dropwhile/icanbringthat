@@ -5,9 +5,9 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/resources"
 	rpcdef "github.com/dropwhile/icbt/rpc"
 )
 

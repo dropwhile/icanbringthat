@@ -23,12 +23,12 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/session"
-	"github.com/dropwhile/icbt/resources"
 )
 
 var tstTs time.Time = MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
