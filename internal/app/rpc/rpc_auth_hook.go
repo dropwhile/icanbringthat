@@ -23,7 +23,7 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 		// lookup user
 		user, errx := service.GetUserByApiKey(ctx, db, apiKey)
 		if errx != nil {
-			return nil, convert.ToTwirpError(errx)
+			return ctx, convert.ToTwirpError(errx)
 		}
 		if user == nil {
 			return ctx, twirp.Unauthenticated.Error("invalid auth")
