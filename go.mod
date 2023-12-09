@@ -14,7 +14,7 @@ require (
 	github.com/go-webauthn/webauthn v0.9.4
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
-	github.com/jackc/pgx/v5 v5.5.0
+	github.com/jackc/pgx/v5 v5.5.1
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v3 v3.2.0
