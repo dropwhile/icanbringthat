@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
 func (x *Handler) ShowIndex(w http.ResponseWriter, r *http.Request) {

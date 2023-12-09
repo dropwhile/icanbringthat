@@ -6,9 +6,9 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/convert"
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
 func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error) {

@@ -10,12 +10,12 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog/log"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/mail"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
 func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {

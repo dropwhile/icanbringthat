@@ -6,10 +6,10 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/convert"
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 	pb "github.com/dropwhile/icbt/rpc"
 )
 

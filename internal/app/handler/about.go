@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
 func (x *Handler) ShowAbout(w http.ResponseWriter, r *http.Request) {

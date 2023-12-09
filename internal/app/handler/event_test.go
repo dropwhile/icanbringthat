@@ -15,8 +15,8 @@ import (
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
-	"github.com/dropwhile/icbt/internal/app/middleware/auth"
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
