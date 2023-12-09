@@ -71,7 +71,7 @@ func New(
 	r.Use(middleware.GetHead)
 	r.Use(header.RequestID)
 	if log.Trace().Enabled() {
-		r.Use(debug.RequestLogger())
+		r.Use(debug.RequestLogger(log.Logger))
 	}
 	r.Use(middleware.Recoverer)
 

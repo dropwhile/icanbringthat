@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/httplog"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 var defaultIgnoreHeaders = []string{
@@ -28,7 +28,7 @@ var defaultIgnoreHeaders = []string{
 	"x-csrf-token",
 }
 
-func RequestLogger() func(next http.Handler) http.Handler {
+func RequestLogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
 	httplog.DefaultOptions.SkipHeaders = defaultIgnoreHeaders
-	return httplog.Handler(log.Logger)
+	return httplog.Handler(logger)
 }
