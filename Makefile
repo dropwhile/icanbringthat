@@ -268,7 +268,7 @@ docker-build:
 		-t icbt:latest \
 		-f docker/Dockerfile \
 		.
-	@${DOCKER_POSTBUILD}
+	@eval ${DOCKER_POSTBUILD}
 
 .PHONY: run
 run: build
