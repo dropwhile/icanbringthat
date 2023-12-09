@@ -100,6 +100,7 @@ func main() {
 
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
+	header.Set("User-Agent", fmt.Sprintf("api-client %s", Version))
 
 	reqCtx := context.Background()
 	reqCtx, err := twirp.WithHTTPRequestHeaders(reqCtx, header)
