@@ -71,7 +71,6 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		x.DBError(w, errx)
 		return
 	}
-	fmt.Println(events)
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
 	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
