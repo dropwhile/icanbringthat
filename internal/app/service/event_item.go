@@ -15,6 +15,9 @@ func GetEventItemsCount(
 	ctx context.Context, db model.PgxHandle,
 	eventIDs []int,
 ) ([]*model.EventItemCount, errs.Error) {
+	if len(eventIDs) == 0 {
+		return []*model.EventItemCount{}, nil
+	}
 	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, db, eventIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -58,6 +61,9 @@ func GetEventItemsByEventID(
 func GetEventItemsByIDs(ctx context.Context, db model.PgxHandle,
 	eventItemIDs []int,
 ) ([]*model.EventItem, errs.Error) {
+	if len(eventItemIDs) == 0 {
+		return []*model.EventItem{}, nil
+	}
 	items, err := model.GetEventItemsByIDs(ctx, db, eventItemIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):

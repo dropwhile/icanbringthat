@@ -65,12 +65,13 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := service.GetFavoriteEventsPaginated(
+	events, _, errx := service.GetEventsPaginated(
 		ctx, x.Db, user.ID, 10, offset*10, archived)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
+	fmt.Println(events)
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
 	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)

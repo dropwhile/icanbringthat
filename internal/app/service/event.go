@@ -43,6 +43,9 @@ func GetEventByID(
 func GetEventsByIDs(ctx context.Context, db model.PgxHandle,
 	eventIDs []int,
 ) ([]*model.Event, errs.Error) {
+	if len(eventIDs) == 0 {
+		return []*model.Event{}, nil
+	}
 	elems, err := model.GetEventsByIDs(ctx, db, eventIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
