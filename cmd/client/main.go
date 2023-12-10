@@ -35,6 +35,7 @@ type RunArgs struct {
 type CLI struct {
 	// global options
 	Verbose     verboseFlag      `name:"verbose" short:"v" help:"enable verbose logging"`
+	Quic        bool             `name:"quic" help:"connect with http3/quic"`
 	Version     kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
 	BaseURL     string           `name:"base-url" short:"b" env:"BASE_URL" required:""`
 	TwirpPrefix string           `name:"api-prefix" short:"p" env:"API_PREFIX" default:"/api"`
@@ -109,10 +110,13 @@ func main() {
 		return
 	}
 
+	hc := &http.Client{}
+	if cli.Quic {
+		hc.Transport = &http3.RoundTripper{}
+	}
+
 	client := icbt.NewRpcProtobufClient(
-		cli.BaseURL, &http.Client{
-			Transport: &http3.RoundTripper{},
-		},
+		cli.BaseURL, hc,
 		twirp.WithClientPathPrefix(cli.TwirpPrefix),
 	)
 	err = ctx.Run(&RunArgs{

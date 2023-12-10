@@ -116,6 +116,9 @@ ${GOBIN}/modd:
 ${GOBIN}/convergen:
 	go install github.com/reedom/convergen@latest
 
+${GOBIN}/goose:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
 BENCH_TOOLS := ${GOBIN}/benchstat 
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
@@ -123,12 +126,16 @@ GENERATE_TOOLS += ${GOBIN}/convergen
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/nilaway
+MIGRATE_TOOLS += ${GOBIN}/goose
 
 .PHONY: setup-build
 setup-build: ${BUILD_TOOLS}
 
 .PHONY: setup-generate
 setup-generate: ${GENERATE_TOOLS}
+
+.PHONY: setup-migrate
+setup-migrate: ${MIGRATE_TOOLS}
 
 .PHONY: setup-check
 setup-check: ${CHECK_TOOLS}
@@ -206,7 +213,7 @@ update-go-deps:
 	@go mod tidy
 
 .PHONY: migrate
-migrate:
+migrate: setup-migrate
 	@echo ">> running migrations..."
 	@goose up
 
