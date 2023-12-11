@@ -10,7 +10,7 @@ func LoadAuthToken(next http.Handler) http.Handler {
 		ctx := r.Context()
 		authHeader := r.Header.Get("Authorization")
 		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
-			token := authHeader[7:]
+			token := strings.TrimSpace(authHeader[7:])
 			if token != "" {
 				ctx = ContextSet(ctx, "apikey", token)
 			}

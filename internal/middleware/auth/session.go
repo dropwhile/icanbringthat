@@ -34,26 +34,23 @@ func ContextSet(ctx context.Context, key string, value any) context.Context {
 }
 
 func IsLoggedIn(ctx context.Context) bool {
-	v, ok := ContextGet[bool](ctx, "auth")
-	return ok && v
+	v, ok := ContextGet[*model.User](ctx, "user")
+	return ok && v != nil
 }
 
 func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			if sessMgr.Exists(ctx, "user-id") {
-				userID := sessMgr.GetInt(ctx, "user-id")
+			userID := sessMgr.GetInt(ctx, "user-id")
+			if userID != 0 {
 				user, err := model.GetUserByID(ctx, db, userID)
 				if err != nil {
 					log.Err(err).Msg("authorization failure")
-					http.Error(w, "authorization failure", http.StatusInternalServerError)
+					http.Error(w, "authorization failure", http.StatusUnauthorized)
 					return
 				}
-				ctx = ContextSet(ctx, "auth", true)
 				ctx = ContextSet(ctx, "user", user)
-			} else {
-				ctx = ContextSet(ctx, "auth", false)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

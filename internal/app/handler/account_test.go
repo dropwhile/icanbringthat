@@ -1111,7 +1111,6 @@ func TestHandler_Account_Create(t *testing.T) {
 			LastModified: tstTs,
 		}
 		ctx = auth.ContextSet(ctx, "user", user)
-		ctx = auth.ContextSet(ctx, "auth", true)
 
 		data := url.Values{
 			"email":            {"user@example.com"},
