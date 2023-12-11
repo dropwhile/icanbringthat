@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Masterminds/sprig/v3"
+
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -30,7 +32,7 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(template.New("eventTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
 	for _, event := range resp.Events {
 		if err := t.Execute(os.Stdout, event); err != nil {
@@ -56,7 +58,7 @@ func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 
 	t := template.Must(
 		template.New("favoriteTpl").
-			Funcs(funcMap).
+			Funcs(sprig.FuncMap()).
 			Parse(strings.TrimLeft(favoriteTpl, "\n")),
 	)
 	if err := t.Execute(os.Stdout, resp.Favorite); err != nil {

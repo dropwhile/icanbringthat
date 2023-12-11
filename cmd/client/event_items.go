@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/Masterminds/sprig/v3"
+
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -32,7 +34,7 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(template.New("eventItemTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)
@@ -58,7 +60,7 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(template.New("eventItemTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)

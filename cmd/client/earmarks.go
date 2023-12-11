@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/Masterminds/sprig/v3"
+
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -12,7 +14,6 @@ const earmarkTpl = `
 {{- /* whitespace fix */ -}}
 - ref_id: {{.RefId}}
   event_item_ref_id: {{.EventItemRefId}}
-  {{- if (isset . "EventRefId")}}{{.EventRefId}}{{end}}
   note: {{.Note}}
   owner: {{.Owner}}
   created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
@@ -45,7 +46,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(template.New("earmarkTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
 	if err := t.Execute(os.Stdout, resp.Earmark); err != nil {
 		return fmt.Errorf("executing template: %w", err)
@@ -68,7 +69,7 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 	}
 
 	t2 := template.Must(template.New("earmarkDetailTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
 		map[string]interface{}{
@@ -110,7 +111,7 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	}
 
 	t2 := template.Must(template.New("earmarkTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
 	for _, earmark := range resp.Earmarks {
 		if err := t2.Execute(os.Stdout, earmark); err != nil {

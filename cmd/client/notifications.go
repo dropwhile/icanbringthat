@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/Masterminds/sprig/v3"
+
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -26,7 +28,7 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	}
 
 	t := template.Must(template.New("notifTpl").
-		Funcs(funcMap).
+		Funcs(sprig.FuncMap()).
 		Parse(notifTpl))
 	for _, notif := range resp.Notifications {
 		if err := t.Execute(os.Stdout, notif); err != nil {

@@ -6,18 +6,14 @@ import (
 	htmltemplate "html/template"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	txttemplate "text/template"
 	"time"
 
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/rs/zerolog/log"
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
 	"github.com/yuin/goldmark/renderer/html"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 )
@@ -51,32 +47,7 @@ func linkReplaceFunc(s string) string {
 	return s
 }
 
-func truncateString(s string, size int) string {
-	asRunes := []rune(s)
-	if len(asRunes) > size {
-		asRunes = asRunes[:size]
-		if size > 3 {
-			asRunes = append(asRunes[:size-3], []rune("...")...)
-		}
-	}
-	return string(asRunes)
-}
-
 var templateFuncMap = txttemplate.FuncMap{
-	"titlecase": cases.Title(language.English).String,
-	"lowercase": func(s fmt.Stringer) string {
-		return cases.Lower(language.English).String(s.String())
-	},
-	"truncate": truncateString,
-	"truncate30": func(s string) string {
-		return truncateString(s, 30)
-	},
-	"truncate45": func(s string) string {
-		return truncateString(s, 45)
-	},
-	"truncate60": func(s string) string {
-		return truncateString(s, 60)
-	},
 	"formatTS": func(t time.Time) string {
 		return t.UTC().Format("2006-01-02T15:04Z07:00")
 	},
@@ -119,69 +90,6 @@ var templateFuncMap = txttemplate.FuncMap{
 			HasNext: current < maxPage,
 		}
 		return s
-	},
-	"mod": func(i, j int) int {
-		return i % j
-	},
-	"add": func(i, j int) int {
-		return i + j
-	},
-	"mult": func(i, j int) int {
-		return i * j
-	},
-	"min": func(i, j int) int {
-		return min(i, j)
-	},
-	"subt": func(i, j int) int {
-		return i - j
-	},
-	"set": func(ac, k, v reflect.Value) error {
-		switch ac.Kind() {
-		case reflect.Map:
-			if k.Type() == ac.Type().Key() {
-				ac.SetMapIndex(k, v)
-				return nil
-			}
-		}
-		return fmt.Errorf("calling set with unsupported type %q (%T) -> %q (%T)", ac.Kind(), ac, k.Kind(), k)
-	},
-	// isset is a helper func from hugo
-	"isset": func(ac, kv reflect.Value) (bool, error) {
-	SWITCH:
-		switch ac.Kind() {
-		case reflect.Array, reflect.Slice:
-			k := 0
-			switch kv.Kind() {
-			case reflect.Int | reflect.Int8 | reflect.Int16 | reflect.Int32 | reflect.Int64:
-				k = int(kv.Int())
-			case reflect.Uint | reflect.Uint8 | reflect.Uint16 | reflect.Uint32 | reflect.Uint64:
-				k = int(kv.Uint())
-			case reflect.String:
-				v, err := strconv.ParseInt(kv.String(), 0, 0)
-				if err != nil {
-					return false, fmt.Errorf("unable to cast %#v of type %T to int64", kv, kv)
-				}
-				k = int(v)
-			default:
-				return false, fmt.Errorf("unable to cast %#v of type %T to int", kv, kv)
-			}
-			if ac.Len() > k {
-				return true, nil
-			}
-		case reflect.Ptr:
-			ac = ac.Elem()
-			goto SWITCH
-		case reflect.Struct:
-			ac.FieldByName(kv.String()).IsValid()
-		case reflect.Map:
-			if kv.Type() == ac.Type().Key() {
-				return ac.MapIndex(kv).IsValid(), nil
-			}
-		default:
-			log.Info().
-				Msgf("calling IsSet with unsupported type %q (%T) will always return false", ac.Kind(), ac)
-		}
-		return false, nil
 	},
 	"eqorempty": func(arg0, arg1 reflect.Value) (bool, error) {
 		k1 := arg0.Kind()
