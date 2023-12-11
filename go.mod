@@ -3,6 +3,7 @@ module github.com/dropwhile/icbt
 go 1.21.1
 
 require (
+	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/alecthomas/kong v0.8.1
 	github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8
 	github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8
@@ -34,6 +35,8 @@ require (
 )
 
 require (
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -49,6 +52,8 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/huandu/xstrings v1.4.0 // indirect
+	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
@@ -56,12 +61,16 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/spf13/cast v1.6.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/mock v0.3.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
@@ -70,3 +79,5 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/tools v0.16.0 // indirect
 )
+
+replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16

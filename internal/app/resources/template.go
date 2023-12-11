@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	txttemplate "text/template"
+
+	"github.com/Masterminds/sprig/v3"
 )
 
 //go:embed templates
@@ -52,11 +54,14 @@ func ParseHtmlTemplates(templatesDir string) (TemplateMap, error) {
 		return templates, err
 	}
 
-	nonViewHtmlTemplates, err := htmltemplate.New("").Funcs(templateFuncMap).ParseFS(
-		templateFS,
-		"html/layout/*.gohtml",
-		"html/partial/*.gohtml",
-	)
+	nonViewHtmlTemplates, err := htmltemplate.New("").
+		Funcs(templateFuncMap).
+		Funcs(sprig.FuncMap()).
+		ParseFS(
+			templateFS,
+			"html/layout/*.gohtml",
+			"html/partial/*.gohtml",
+		)
 	if err != nil {
 		return templates, err
 	}
@@ -73,9 +78,12 @@ func ParseHtmlTemplates(templatesDir string) (TemplateMap, error) {
 			if err != nil {
 				return err
 			}
-			t, err := c.New(name).Funcs(templateFuncMap).ParseFS(
-				templateFS, fmt.Sprintf("html/view/%s", name),
-			)
+			t, err := c.New(name).
+				Funcs(templateFuncMap).
+				Funcs(sprig.FuncMap()).
+				ParseFS(
+					templateFS, fmt.Sprintf("html/view/%s", name),
+				)
 			if err != nil {
 				return err
 			}
@@ -98,7 +106,9 @@ func ParseTxtTemplates(templatesDir string) (TemplateMap, error) {
 	if err != nil {
 		return templates, err
 	}
-	nonViewTxtTemplates := txttemplate.New("").Funcs(templateFuncMap)
+	nonViewTxtTemplates := txttemplate.New("").
+		Funcs(templateFuncMap).
+		Funcs(sprig.FuncMap())
 
 	err = fs.WalkDir(viewSub, ".", func(p string, d fs.DirEntry, err error) error {
 		if filepath.Ext(p) == ".gotxt" {
@@ -107,9 +117,12 @@ func ParseTxtTemplates(templatesDir string) (TemplateMap, error) {
 			if err != nil {
 				return err
 			}
-			t, err := c.New(name).Funcs(templateFuncMap).ParseFS(
-				templateFS, fmt.Sprintf("txt/%s", name),
-			)
+			t, err := c.New(name).
+				Funcs(templateFuncMap).
+				Funcs(sprig.FuncMap()).
+				ParseFS(
+					templateFS, fmt.Sprintf("txt/%s", name),
+				)
 			if err != nil {
 				return err
 			}
