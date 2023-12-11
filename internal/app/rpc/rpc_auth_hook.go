@@ -14,7 +14,7 @@ import (
 func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error) {
 	return func(ctx context.Context) (context.Context, error) {
 		// get apikey from context
-		apiKey, ok := auth.ContextGet[string](ctx, "apikey")
+		apiKey, ok := auth.ContextGet[string](ctx, "api-key")
 		if !ok {
 			// auth missing: either middleware wasn't run, or it wasnt in the req
 			return ctx, twirp.Unauthenticated.Error("invalid auth")

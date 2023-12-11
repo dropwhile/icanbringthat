@@ -12,7 +12,7 @@ func LoadAuthToken(next http.Handler) http.Handler {
 		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 			token := strings.TrimSpace(authHeader[7:])
 			if token != "" {
-				ctx = ContextSet(ctx, "apikey", token)
+				ctx = ContextSet(ctx, "api-key", token)
 			}
 		}
 		next.ServeHTTP(w, r.WithContext(ctx))
