@@ -5,7 +5,6 @@ import (
 	_ "database/sql"
 	"errors"
 	"log"
-	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -27,8 +26,6 @@ import (
 var Version = "no-version"
 
 func main() {
-	ctx := context.Background()
-
 	//--------------//
 	// parse config //
 	//--------------//
@@ -45,39 +42,27 @@ func main() {
 		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
 
-	if config.Production {
-		// trace level not allowed in prod mode,
-		// as it may expose private data in sql
-		// queries
-	}
 	logger.SetLevel(config.LogLevel)
-	logger.Info(ctx, "setting log level",
-		slog.Any("level", config.LogLevel))
+	logger.Info("setting log level", "level", config.LogLevel)
 
 	if config.TemplateDir == "embed" {
-		logger.Debug(ctx, "templates",
-			slog.String("location", "embedded"))
+		logger.Debug("templates", "location", "embedded")
 	} else {
-		logger.Debug(ctx, "templates",
-			slog.String("location", config.TemplateDir))
+		logger.Debug("templates", "location", config.TemplateDir)
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		logger.Fatal(ctx, "failed to parse templates",
-			logger.Err(err))
+		logger.Fatal("failed to parse templates", "error", err)
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		logger.Debug(ctx, "static",
-			slog.String("location", "embedded"))
+		logger.Debug("static", "location", "embedded")
 	} else {
-		logger.Debug(ctx, "static",
-			slog.String("location", config.StaticDir))
+		logger.Debug("static", "location", config.StaticDir)
 	}
 
-	logger.Info(ctx, "prod mode",
-		slog.Bool("mode", config.Production))
+	logger.Info("prod mode", "mode", config.Production)
 
 	//--------------------//
 	// configure services //
@@ -86,16 +71,14 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
-		logger.Fatal(ctx, "failed to connect to database",
-			logger.Err(err))
+		logger.Fatal("failed to connect to database", "error", err)
 		return
 	}
 	defer dbpool.Close()
 
 	redisOpt, err := redis.ParseURL(config.RedisDSN)
 	if err != nil {
-		logger.Fatal(ctx, "failed to connect to redis",
-			logger.Err(err))
+		logger.Fatal("failed to connect to redis", "error", err)
 		return
 	}
 
@@ -154,25 +137,22 @@ func main() {
 		<-signals
 
 		// We received an interrupt signal, shut down.
-		logger.Info(ctx, "Server shutting down...")
+		logger.Info("Server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			logger.Error(ctx, "HTTP server shutdown error",
-				logger.Err(err))
+			logger.Error("HTTP server shutdown error", "error", err)
 		}
 		if quicServer != nil {
 			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
 				// Error from closing listeners, or context timeout:
-				logger.Error(ctx, "HTTP/3 server shutdown error",
-					logger.Err(err))
+				logger.Error("HTTP/3 server shutdown error", "error", err)
 			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
-	logger.Info(ctx, "starting up...",
-		slog.String("version", Version))
+	logger.Info("starting up...", "version", Version)
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
 			// add quic headers to https/tls server
@@ -186,34 +166,31 @@ func main() {
 
 			// start up http3/quic server
 			go func() {
-				logger.Info(ctx, "listening",
-					slog.String("proto", "https/quic"),
-					slog.String("listen", config.Listen))
+				logger.Info("listening",
+					"proto", "https/quic",
+					"listen", config.Listen)
 				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
-					logger.Fatal(ctx, "HTTP/3 server error",
-						logger.Err(err))
+					logger.Fatal("HTTP/3 server error", "error", err)
 					return
 				}
 			}()
 		}
 		// startup https3/tls server
 		go func() {
-			logger.Info(ctx, "listening",
-				slog.String("proto", "https/tls"),
-				slog.String("listen", config.Listen))
+			logger.Info("listening",
+				"proto", "https/tls",
+				"listen", config.Listen)
 			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				logger.Fatal(ctx, "HTTP server error",
-					logger.Err(err))
+				logger.Fatal("HTTP server error", "error", err)
 				return
 			}
 		}()
 	} else {
-		logger.Info(ctx, "listening",
-			slog.String("proto", "http"),
-			slog.String("listen", config.Listen))
+		logger.Info("listening",
+			"proto", "http",
+			"listen", config.Listen)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Fatal(ctx, "HTTP server error",
-				logger.Err(err))
+			logger.Fatal("HTTP server error", "error", err)
 			return
 		}
 	}

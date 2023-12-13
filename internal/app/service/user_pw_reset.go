@@ -46,14 +46,14 @@ func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
 			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
-			logger.Debug(ctx, "inner db error saving user",
+			logger.DebugCtx(ctx, "inner db error saving user",
 				logger.Err(innerErr))
 			return innerErr
 		}
 
 		innerErr = model.DeleteUserPWReset(ctx, tx, upw.RefID)
 		if innerErr != nil {
-			logger.Debug(ctx, "inner db error cleaning up pw reset token",
+			logger.DebugCtx(ctx, "inner db error cleaning up pw reset token",
 				logger.Err(innerErr))
 			return innerErr
 		}

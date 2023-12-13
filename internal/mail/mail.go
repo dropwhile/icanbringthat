@@ -69,13 +69,13 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 	buf.WriteString(fmt.Sprintf("\r\n--%s--", boundary))
 
 	message := buf.String()
-	logger.Debug(context.Background(),
+	logger.DebugCtx(context.Background(),
 		"sending email",
 		slog.String("message", message),
 	)
 	err := smtp.SendMail(m.hostPort, m.auth, mail.Sender, mail.To, []byte(message))
 	if err != nil {
-		logger.Error(context.Background(),
+		logger.ErrorCtx(context.Background(),
 			"error sending email",
 			logger.Err(err))
 	}
@@ -101,7 +101,7 @@ func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtm
 	go func() {
 		err := m.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 		if err != nil {
-			logger.Error(context.Background(),
+			logger.ErrorCtx(context.Background(),
 				"error sending email",
 				logger.Err(err))
 		}

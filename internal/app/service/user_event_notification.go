@@ -124,7 +124,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 
 		messagePlain := bufPlain.String()
 		messageHtml := bufHtml.String()
-		logger.Debug(ctx, "email content",
+		logger.DebugCtx(ctx, "email content",
 			slog.String("plain", messagePlain),
 			slog.String("html", messageHtml),
 		)

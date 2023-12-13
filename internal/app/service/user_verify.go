@@ -46,14 +46,14 @@ func SetUserVerified(ctx context.Context, db model.PgxHandle,
 			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
-			logger.Debug(ctx, "inner db error saving user",
+			logger.DebugCtx(ctx, "inner db error saving user",
 				logger.Err(innerErr))
 			return innerErr
 		}
 
 		innerErr = model.DeleteUserVerify(ctx, tx, verifier.RefID)
 		if innerErr != nil {
-			logger.Debug(ctx, "inner db error cleaning up verifier token",
+			logger.DebugCtx(ctx, "inner db error cleaning up verifier token",
 				logger.Err(innerErr))
 			return innerErr
 		}

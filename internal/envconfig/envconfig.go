@@ -149,7 +149,7 @@ func Parse() (*EnvConfig, error) {
 		}
 	}
 
-	if config.Production && config.LogLevel.Level() == logger.LevelTrace {
+	if config.Production && config.LogLevel.Covers(logger.LevelTrace) {
 		// trace level not allowed in prod mode,
 		// as it may expose private data in sql
 		// queries.

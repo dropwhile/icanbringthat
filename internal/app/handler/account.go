@@ -122,7 +122,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	user, errx := service.NewUser(ctx, x.Db, email, name, []byte(passwd))
 	if errx != nil {
-		logger.Error(ctx, "error adding user",
+		logger.ErrorCtx(ctx, "error adding user",
 			logger.Err(errx))
 		x.BadRequestError(w, "error adding user")
 		return
@@ -133,7 +133,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	)
 	if errx != nil {
 		// this is a nonfatal error
-		logger.Error(ctx, "error adding account notification",
+		logger.ErrorCtx(ctx, "error adding account notification",
 			logger.Err(errx))
 	}
 
@@ -142,7 +142,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	//   #renew-the-session-id-after-any-privilege-level-change
 	err := x.SessMgr.RenewToken(ctx)
 	if err != nil {
-		logger.Error(ctx, "error renewing session token",
+		logger.ErrorCtx(ctx, "error renewing session token",
 			logger.Err(err))
 		x.InternalServerError(w, "Session Error")
 		return
@@ -208,7 +208,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			} else {
 				pwhash, err := model.HashPass(ctx, []byte(newPasswd))
 				if err != nil {
-					logger.Error(ctx, "error setting user password",
+					logger.ErrorCtx(ctx, "error setting user password",
 						logger.Err(err))
 					x.InternalServerError(w, "error updating user")
 					return
@@ -227,7 +227,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			user.WebAuthn, user.ID,
 		)
 		if errx != nil {
-			logger.Error(ctx, "error updating user",
+			logger.ErrorCtx(ctx, "error updating user",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user")
 			return
@@ -338,7 +338,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		user.WebAuthn, user.ID,
 	)
 	if errx != nil {
-		logger.Error(ctx, "error updating user auth",
+		logger.ErrorCtx(ctx, "error updating user auth",
 			logger.Err(errx))
 		x.InternalServerError(w, "error updating user auth")
 		return
@@ -411,7 +411,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 
 	if rotateApiKey == "true" {
 		if _, errx := service.NewApiKey(ctx, x.Db, user.ID); errx != nil {
-			logger.Error(ctx, "error rotating api key",
+			logger.ErrorCtx(ctx, "error rotating api key",
 				logger.Err(errx))
 			x.InternalServerError(w, "error rotating api key")
 			return
@@ -424,7 +424,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			user.Verified, user.PWAuth, user.ApiAccess,
 			user.WebAuthn, user.ID,
 		); errx != nil {
-			logger.Error(ctx, "error updating user auth",
+			logger.ErrorCtx(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")
 			return
@@ -504,7 +504,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 
 	if errx := service.UpdateUserSettings(
 		ctx, x.Db, user.ID, &user.Settings); errx != nil {
-		logger.Error(ctx, "error updating user settings",
+		logger.ErrorCtx(ctx, "error updating user settings",
 			logger.Err(errx))
 		x.InternalServerError(w, "error updating user settings")
 		return
@@ -533,7 +533,7 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// not a fatal error (do not return 500 to user), since the user deleted
 		// sucessfully already. just log the oddity
-		logger.Error(ctx, "error destroying session",
+		logger.ErrorCtx(ctx, "error destroying session",
 			logger.Err(err))
 	}
 	if htmx.Hx(r).Request() {

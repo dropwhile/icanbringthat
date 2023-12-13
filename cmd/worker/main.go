@@ -1,10 +1,8 @@
 package main
 
 import (
-	"context"
 	_ "database/sql"
 	"log"
-	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -36,8 +34,6 @@ type WorkerConfig struct {
 }
 
 func main() {
-	ctx := context.Background()
-
 	//--------------//
 	// parse config //
 	//--------------//
@@ -54,32 +50,26 @@ func main() {
 		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
 	logger.SetLevel(config.LogLevel)
-	logger.Info(ctx, "setting log level",
-		slog.Any("level", config.LogLevel))
+	logger.Info("setting log level", "level", config.LogLevel)
 
 	if config.TemplateDir == "embed" {
-		logger.Debug(ctx, "templates",
-			slog.String("location", "embedded"))
+		logger.Debug("templates", "location", "embedded")
 	} else {
-		logger.Debug(ctx, "templates",
-			slog.String("location", config.TemplateDir))
+		logger.Debug("templates", "location", config.TemplateDir)
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		logger.Fatal(ctx, "failed to parse templates")
+		logger.Fatal("failed to parse templates")
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		logger.Debug(ctx, "static",
-			slog.String("location", "embedded"))
+		logger.Debug("static", "location", "embedded")
 	} else {
-		logger.Debug(ctx, "static",
-			slog.String("location", config.StaticDir))
+		logger.Debug("static", "location", config.StaticDir)
 	}
 
-	logger.Info(ctx, "prod mode",
-		slog.Bool("mode", config.Production))
+	logger.Info("prod mode", "mode", config.Production)
 
 	//--------------------//
 	// configure services //
@@ -88,8 +78,8 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
-		logger.Fatal(ctx, "failed to connect to database",
-			logger.Err(err))
+		logger.Fatal("failed to connect to database",
+			"error", err)
 		return
 	}
 	defer dbpool.Close()
@@ -99,20 +89,17 @@ func main() {
 	//----------------//
 	workerConfig := &WorkerConfig{}
 	if err := env.Parse(workerConfig); err != nil {
-		logger.Fatal(ctx, "failed to parse config",
-			logger.Err(err))
+		logger.Fatal("failed to parse config", "error", err)
 		return
 	}
 
 	jobList := NewJobList()
 	err = jobList.AddByName(workerConfig.Jobs...)
 	if err != nil {
-		logger.Fatal(ctx, "error adding worker jobs",
-			logger.Err(err))
+		logger.Fatal("error adding worker jobs", "error", err)
 		return
 	}
-	logger.Info(ctx, "configured workers",
-		slog.String("worklist", jobList.String()))
+	logger.Info("configured workers", "worklist", jobList.String())
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -135,8 +122,7 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	logger.Info(ctx, "starting up...",
-		slog.String("version", Version))
+	logger.Info("starting up...", "version", Version)
 
 	wg.Add(1)
 	go func() {
@@ -144,23 +130,20 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				logger.Info(ctx, "Got",
-					slog.String("signal", sig.String()))
-				logger.Info(ctx, "Program will terminate now.")
+				logger.Info("Got", "signal", sig.String())
+				logger.Info("Program will terminate now.")
 				return
 			case <-timer.C:
 				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
-						logger.Error(ctx, "notifier error!!",
-							logger.Err(err))
+						logger.Error("notifier error!!", "error", err)
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
-						logger.Error(ctx, "archiver error!!",
-							logger.Err(err))
+						logger.Error("archiver error!!", "error", err)
 					}
 				}
 				timer.Reset(timerInterval)

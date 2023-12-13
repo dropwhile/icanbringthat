@@ -45,7 +45,7 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 			if userID != 0 {
 				user, err := model.GetUserByID(ctx, db, userID)
 				if err != nil {
-					logger.Info(ctx, "authorization failure", logger.Err(err))
+					logger.InfoCtx(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)
 					return
 				}
