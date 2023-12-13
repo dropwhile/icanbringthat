@@ -7,8 +7,9 @@ import (
 	"strings"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/rs/zerolog"
 	"golang.org/x/crypto/argon2"
+
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 // env vars that are used to derive EnvConfig values later
@@ -25,8 +26,8 @@ type EnvConfig struct {
 	Production bool   `env:"PRODUCTION" envDefault:"true"`
 	BaseURL    string `env:"BASE_URL,required"`
 	// logging
-	LogFormat string        `env:"LOG_FORMAT" envDefault:"json"`
-	LogLevel  zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	LogFormat string             `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel  logger.LoggerLevel `env:"LOG_LEVEL" envDefault:"info"`
 	// tls/quic
 	TLSCert  string `env:"TLS_CERT,unset"`
 	TLSKey   string `env:"TLS_KEY,unset"`

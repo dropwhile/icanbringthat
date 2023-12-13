@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
-	"os"
 
 	"github.com/alecthomas/kong"
 	"github.com/quic-go/quic-go/http3"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/twitchtv/twirp"
 
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -21,8 +20,8 @@ var Version = "no-version"
 type verboseFlag bool
 
 func (v verboseFlag) BeforeApply() error {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	log.Debug().Msg("debug logging enabled")
+	logger.SetLevel(logger.LevelDebug)
+	slog.Debug("debug logging enabled")
 	return nil
 }
 
@@ -79,10 +78,7 @@ type CLI struct {
 }
 
 func main() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{
-		Out:          os.Stderr,
-		PartsExclude: []string{zerolog.TimestampFieldName},
-	})
+	logger.SetupLogging(logger.NewConsoleLogger, nil)
 
 	cli := CLI{}
 	ctx := kong.Parse(&cli,

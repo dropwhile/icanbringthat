@@ -5,11 +5,12 @@ import (
 	"embed"
 	"io"
 	"io/fs"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 var (
@@ -49,18 +50,22 @@ func ServeSingle(fsys fs.FS, filePath string) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		f, err := fsys.Open(filePath)
 		if err != nil {
-			log.Debug().Err(err).
-				Str("filepath", filePath).
-				Msg("cant open file for reading")
+			logger.Debug(r.Context(),
+				"cant open file for reading",
+				slog.String("filepath", filePath),
+				logger.Err(err),
+			)
 			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
 		defer f.Close()
 		b, err := io.ReadAll(f)
 		if err != nil {
-			log.Debug().Err(err).
-				Str("filepath", filePath).
-				Msg("cant read file")
+			logger.Debug(r.Context(),
+				"cant read file",
+				slog.String("filepath", filePath),
+				logger.Err(err),
+			)
 			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}

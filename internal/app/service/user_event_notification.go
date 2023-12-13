@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
@@ -124,10 +124,10 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 
 		messagePlain := bufPlain.String()
 		messageHtml := bufHtml.String()
-		log.Debug().
-			Str("plain", messagePlain).
-			Str("html", messageHtml).
-			Msg("email content")
+		logger.Debug(ctx, "email content",
+			slog.String("plain", messagePlain),
+			slog.String("html", messageHtml),
+		)
 
 		err = mailer.Send("", []string{user.Email},
 			vars["Subject"].(string),

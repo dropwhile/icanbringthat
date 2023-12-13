@@ -4,6 +4,8 @@ import (
 	"context"
 	_ "database/sql"
 	"errors"
+	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,8 +14,6 @@ import (
 
 	"github.com/quic-go/quic-go/http3"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -27,40 +27,51 @@ import (
 var Version = "no-version"
 
 func main() {
+	ctx := context.Background()
+
 	//--------------//
 	// parse config //
 	//--------------//
 
 	config, err := envconfig.Parse()
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse config")
+		log.Fatalf("failed to parse config: %s", err)
 		return
 	}
 
 	if config.LogFormat == "plain" {
-		log.Logger = logger.NewLogger(os.Stderr)
+		logger.SetupLogging(logger.NewConsoleLogger, nil)
+	} else {
+		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
-	zerolog.SetGlobalLevel(config.LogLevel)
-	log.Info().Msgf("setting log level: %s", config.LogLevel.String())
+	logger.SetLevel(config.LogLevel)
+	logger.Info(ctx, "setting log level",
+		slog.Any("level", config.LogLevel))
 
 	if config.TemplateDir == "embed" {
-		log.Debug().Msg("templates: embedded")
+		logger.Debug(ctx, "templates",
+			slog.String("location", "embedded"))
 	} else {
-		log.Debug().Msgf("templates: dir=%s", config.TemplateDir)
+		logger.Debug(ctx, "templates",
+			slog.String("location", config.TemplateDir))
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse templates")
+		logger.Fatal(ctx, "failed to parse templates",
+			logger.Err(err))
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		log.Debug().Msgf("static: embedded")
+		logger.Debug(ctx, "static",
+			slog.String("location", "embedded"))
 	} else {
-		log.Debug().Msgf("static: dir=%s", config.StaticDir)
+		logger.Debug(ctx, "static",
+			slog.String("location", config.StaticDir))
 	}
 
-	log.Info().Msgf("prod mode: %t", config.Production)
+	logger.Info(ctx, "prod mode",
+		slog.Bool("mode", config.Production))
 
 	//--------------------//
 	// configure services //
@@ -69,14 +80,16 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to database")
+		logger.Fatal(ctx, "failed to connect to database",
+			logger.Err(err))
 		return
 	}
 	defer dbpool.Close()
 
 	redisOpt, err := redis.ParseURL(config.RedisDSN)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to redis")
+		logger.Fatal(ctx, "failed to connect to redis",
+			logger.Err(err))
 		return
 	}
 
@@ -135,23 +148,25 @@ func main() {
 		<-signals
 
 		// We received an interrupt signal, shut down.
-		log.Info().Msg("Server shutting down...")
+		logger.Info(ctx, "Server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			log.Error().Err(err).Msg("HTTP server shutdown error")
+			logger.Error(ctx, "HTTP server shutdown error",
+				logger.Err(err))
 		}
 		if quicServer != nil {
 			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
 				// Error from closing listeners, or context timeout:
-				log.Error().Err(err).Msg("HTTP/3 server shutdown error")
+				logger.Error(ctx, "HTTP/3 server shutdown error",
+					logger.Err(err))
 			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
-	log.Info().Msgf("server version: %s", Version)
-	log.Info().Msg("starting up...")
+	logger.Info(ctx, "starting up...",
+		slog.String("version", Version))
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
 			// add quic headers to https/tls server
@@ -165,25 +180,34 @@ func main() {
 
 			// start up http3/quic server
 			go func() {
-				log.Info().Msgf("listening(https/quic): %s", config.Listen)
+				logger.Info(ctx, "listening",
+					slog.String("proto", "https/quic"),
+					slog.String("listen", config.Listen))
 				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
-					log.Fatal().Err(err).Msg("HTTP/3 server error")
+					logger.Fatal(ctx, "HTTP/3 server error",
+						logger.Err(err))
 					return
 				}
 			}()
 		}
 		// startup https3/tls server
 		go func() {
-			log.Info().Msgf("listening(https/tls):  %s", config.Listen)
+			logger.Info(ctx, "listening",
+				slog.String("proto", "https/tls"),
+				slog.String("listen", config.Listen))
 			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Fatal().Err(err).Msg("HTTP server error")
+				logger.Fatal(ctx, "HTTP server error",
+					logger.Err(err))
 				return
 			}
 		}()
 	} else {
-		log.Info().Msgf("listening(http): %s", config.Listen)
+		logger.Info(ctx, "listening",
+			slog.String("proto", "http"),
+			slog.String("listen", config.Listen))
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatal().Err(err).Msg("HTTP server error")
+			logger.Fatal(ctx, "HTTP server error",
+				logger.Err(err))
 			return
 		}
 	}

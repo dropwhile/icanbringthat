@@ -20,10 +20,12 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v3 v3.2.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
+	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.40.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/rs/zerolog v1.31.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
+	github.com/veqryn/slog-context v0.3.0
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
@@ -41,6 +43,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
+	github.com/go-chi/httplog/v2 v2.0.8 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/go-webauthn/x v0.1.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect

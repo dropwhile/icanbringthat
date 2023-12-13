@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 func GetUserPWResetByRefID(ctx context.Context, db model.PgxHandle,
@@ -46,17 +46,15 @@ func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
 			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
-			log.Debug().
-				Err(innerErr).
-				Msg("inner db error saving user")
+			logger.Debug(ctx, "inner db error saving user",
+				logger.Err(innerErr))
 			return innerErr
 		}
 
 		innerErr = model.DeleteUserPWReset(ctx, tx, upw.RefID)
 		if innerErr != nil {
-			log.Debug().
-				Err(innerErr).
-				Msg("inner db error cleaning up pw reset token")
+			logger.Debug(ctx, "inner db error cleaning up pw reset token",
+				logger.Err(innerErr))
 			return innerErr
 		}
 		return nil

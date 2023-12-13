@@ -2,19 +2,20 @@ package handler
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -238,10 +239,10 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if event.Archived {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("event is archived")
+		logger.Info(ctx, "event is archived",
+			slog.Int("user.ID", user.ID),
+			slog.Int("event.UserID", event.UserID),
+		)
 		x.AccessDeniedError(w)
 		return
 	}
@@ -258,11 +259,11 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if eventItem.EventID != event.ID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.ID", event.ID).
-			Int("eventItem.EventID", eventItem.EventID).
-			Msg("eventItem.EventID and event.ID mismatch")
+		logger.Info(ctx, "eventItem.EventID and event.ID mismatch",
+			slog.Int("user.ID", user.ID),
+			slog.Int("event.ID", event.ID),
+			slog.Int("eventItem.EventID", eventItem.EventID),
+		)
 		x.NotFoundError(w)
 		return
 	}
@@ -330,10 +331,10 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		case errs.PermissionDenied:
-			log.Info().
-				Int("user.ID", user.ID).
-				Err(errx).
-				Msg("permission denied")
+			logger.Info(ctx, "permission denied",
+				slog.Int("user.ID", user.ID),
+				logger.Err(errx),
+			)
 			x.AccessDeniedError(w)
 		default:
 			x.DBError(w, errx)

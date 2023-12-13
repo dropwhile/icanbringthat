@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	_ "database/sql"
+	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -9,8 +12,6 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
@@ -35,40 +36,50 @@ type WorkerConfig struct {
 }
 
 func main() {
+	ctx := context.Background()
+
 	//--------------//
 	// parse config //
 	//--------------//
 
 	config, err := envconfig.Parse()
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse config")
+		log.Fatal("failed to parse config")
 		return
 	}
 
 	if config.LogFormat == "plain" {
-		log.Logger = logger.NewLogger(os.Stderr)
+		logger.SetupLogging(logger.NewConsoleLogger, nil)
+	} else {
+		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
-	zerolog.SetGlobalLevel(config.LogLevel)
-	log.Info().Msgf("setting log level: %s", config.LogLevel.String())
+	logger.SetLevel(config.LogLevel)
+	logger.Info(ctx, "setting log level",
+		slog.Any("level", config.LogLevel))
 
 	if config.TemplateDir == "embed" {
-		log.Debug().Msg("templates: embedded")
+		logger.Debug(ctx, "templates",
+			slog.String("location", "embedded"))
 	} else {
-		log.Debug().Msgf("templates: dir=%s", config.TemplateDir)
+		logger.Debug(ctx, "templates",
+			slog.String("location", config.TemplateDir))
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse templates")
+		logger.Fatal(ctx, "failed to parse templates")
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		log.Debug().Msgf("static: embedded")
+		logger.Debug(ctx, "static",
+			slog.String("location", "embedded"))
 	} else {
-		log.Debug().Msgf("static: dir=%s", config.StaticDir)
+		logger.Debug(ctx, "static",
+			slog.String("location", config.StaticDir))
 	}
 
-	log.Info().Msgf("prod mode: %t", config.Production)
+	logger.Info(ctx, "prod mode",
+		slog.Bool("mode", config.Production))
 
 	//--------------------//
 	// configure services //
@@ -77,7 +88,8 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to database")
+		logger.Fatal(ctx, "failed to connect to database",
+			logger.Err(err))
 		return
 	}
 	defer dbpool.Close()
@@ -87,17 +99,20 @@ func main() {
 	//----------------//
 	workerConfig := &WorkerConfig{}
 	if err := env.Parse(workerConfig); err != nil {
-		log.Fatal().Err(err).Msg("failed to parse config")
+		logger.Fatal(ctx, "failed to parse config",
+			logger.Err(err))
 		return
 	}
 
 	jobList := NewJobList()
 	err = jobList.AddByName(workerConfig.Jobs...)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error adding worker jobs")
+		logger.Fatal(ctx, "error adding worker jobs",
+			logger.Err(err))
 		return
 	}
-	log.Info().Msgf("configured workers: %s", jobList.String())
+	logger.Info(ctx, "configured workers",
+		slog.String("worklist", jobList.String()))
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -120,8 +135,8 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	log.Info().Msgf("server version: %s", Version)
-	log.Info().Msg("starting up...")
+	logger.Info(ctx, "starting up...",
+		slog.String("version", Version))
 
 	wg.Add(1)
 	go func() {
@@ -129,21 +144,23 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				log.Info().
-					Msgf("Got %s.", sig.String())
-				log.Info().Msg("Program will terminate now.")
+				logger.Info(ctx, "Got",
+					slog.String("signal", sig.String()))
+				logger.Info(ctx, "Program will terminate now.")
 				return
 			case <-timer.C:
 				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
-						log.Error().Err(err).Msg("notifier error!!")
+						logger.Error(ctx, "notifier error!!",
+							logger.Err(err))
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
-						log.Error().Err(err).Msg("archiver error!!")
+						logger.Error(ctx, "archiver error!!",
+							logger.Err(err))
 					}
 				}
 				timer.Reset(timerInterval)

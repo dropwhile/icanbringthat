@@ -9,13 +9,13 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/middleware/debug"
@@ -70,8 +70,8 @@ func New(
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)
 	r.Use(header.RequestID)
-	if log.Trace().Enabled() {
-		r.Use(debug.RequestLogger(log.Logger))
+	if logger.Enabled(logger.LevelTrace) {
+		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)
 

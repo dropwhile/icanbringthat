@@ -7,9 +7,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/session"
 )
 
@@ -46,7 +45,7 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 			if userID != 0 {
 				user, err := model.GetUserByID(ctx, db, userID)
 				if err != nil {
-					log.Err(err).Msg("authorization failure")
+					logger.Info(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)
 					return
 				}

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 type WebAuthnUser struct {
@@ -52,17 +52,20 @@ func (u *WebAuthnUser) WebAuthnDisplayName() string {
 
 // WebAuthnCredentials provides the list of Credential objects owned by the user.
 func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
+	ctx := context.Background()
 	res := make([]webauthn.Credential, 0)
-	credentials, err := model.GetUserCredentialsByUser(context.Background(), u.db, u.ID)
+	credentials, err := model.GetUserCredentialsByUser(ctx, u.db, u.ID)
 	if err != nil {
-		log.Info().Err(err).Msg("error retrieving credentials from db")
+		logger.Info(ctx, "error retrieving credentials from db",
+			logger.Err(err))
 		return res
 	}
 	for _, c := range credentials {
 		var cred webauthn.Credential
 		err := json.Unmarshal(c.Credential, &cred)
 		if err != nil {
-			log.Info().Err(err).Msg("error unmarshalling webauthn credential")
+			logger.Info(ctx, "error unmarshalling webauthn credential",
+				logger.Err(err))
 			continue
 		}
 		res = append(res, cred)
@@ -79,14 +82,17 @@ func (u *WebAuthnUser) WebAuthnIcon() string {
 }
 
 func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Credential) error {
+	ctx := context.Background()
 	credBytes, err := json.Marshal(credential)
 	if err != nil {
-		log.Info().Err(err).Msg("error marshalling webauthn credential")
+		logger.Info(ctx, "error marshalling webauthn credential",
+			logger.Err(err))
 		return err
 	}
-	_, err = model.NewUserCredential(context.Background(), u.db, u.ID, keyName, credBytes)
+	_, err = model.NewUserCredential(ctx, u.db, u.ID, keyName, credBytes)
 	if err != nil {
-		log.Info().Err(err).Msg("db error creating credential")
+		logger.Info(ctx, "db error creating credential",
+			logger.Err(err))
 		return err
 	}
 	return nil

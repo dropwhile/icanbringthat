@@ -37,6 +37,8 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 // RequestIDHeader is the name of the HTTP Header which contains the request id.
@@ -67,6 +69,7 @@ func RequestID(next http.Handler) http.Handler {
 			requestID = fmt.Sprintf("%s-%06d", prefix, myid)
 		}
 		ctx = context.WithValue(ctx, middleware.RequestIDKey, requestID)
+		ctx = logger.PrependAttr(ctx, "request_id", requestID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 	return http.HandlerFunc(fn)
@@ -88,3 +91,14 @@ func GetReqID(ctx context.Context) string {
 func NextRequestID() uint64 {
 	return atomic.AddUint64(&reqid, 1)
 }
+
+/*
+// type AttrExtractor func(ctx context.Context, recordT time.Time, recordLvl slog.Level, recordMsg string) []slog.Attr
+func RequestIDExtractor(ctx context.Context, _ time.Time, _ slog.Level, _ string) []slog.Attr {
+	reqID := GetReqID(ctx)
+	if reqID != "" {
+		return []slog.Attr{slog.String("request_id", reqID)}
+	}
+	return nil
+}
+*/

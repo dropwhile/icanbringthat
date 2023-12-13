@@ -19,7 +19,6 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"
 	pg_query "github.com/pganalyze/pg_query_go/v4"
-	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -198,6 +197,6 @@ func FormData(values url.Values) *strings.Reader {
 func TestMain(m *testing.M) {
 	// call flag.Parse() here if TestMain uses flags
 	flag.Parse()
-	log.Logger = logger.NewTestLogger(os.Stderr)
+	logger.SetupLogging(logger.NewTestLogger, nil)
 	os.Exit(m.Run())
 }
