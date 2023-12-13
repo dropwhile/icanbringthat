@@ -183,9 +183,11 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 
 		switch a.Key {
 		case slog.TimeKey:
-			a.Key = "ts"
-			if !opts.UseLocalTime {
-				a.Value = slog.TimeValue(a.Value.Time().UTC())
+			if v, ok := a.Value.Any().(time.Time); ok {
+				a.Key = "ts"
+				if !opts.UseLocalTime {
+					a.Value = slog.TimeValue(v.UTC())
+				}
 			}
 		// Remove the directory from the source's filename.
 		case slog.SourceKey:

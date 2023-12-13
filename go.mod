@@ -11,10 +11,9 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.1
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-chi/httplog v0.3.2
+	github.com/go-chi/httplog/v2 v2.0.8
 	github.com/go-webauthn/webauthn v0.9.4
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
@@ -43,7 +42,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
-	github.com/go-chi/httplog/v2 v2.0.8 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/go-webauthn/x v0.1.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
