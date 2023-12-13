@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"runtime"
 	"strings"
@@ -52,8 +51,8 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 			// fn := runtime.FuncForPC(pc)
 			// funcName := fn.Name()
 			// file, line := fn.FileLine(pc - 1)
-			file, line := runtime.FuncForPC(pc).FileLine(pc - 1)
-			fmt.Printf("%s:%d\n", file, line)
+			file, _ := runtime.FuncForPC(pc).FileLine(pc - 1)
+			// fmt.Printf("%s:%d\n", file, line)
 			if strings.HasPrefix(file, "github.com/jackc/pgx") {
 				continue
 			}
