@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/alecthomas/kong"
@@ -19,8 +20,8 @@ var Version = "no-version"
 type verboseFlag bool
 
 func (v verboseFlag) BeforeApply() error {
-	logger.SetLevel(logger.LevelDebug)
-	logger.Debug("debug logging enabled")
+	logger.SetLevel(slog.LevelDebug)
+	slog.Debug("debug logging enabled")
 	return nil
 }
 

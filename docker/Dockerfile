@@ -28,7 +28,8 @@ ENV TPL_DIR=embed
 ENV STATIC_DIR=embed
 ENV TPL_DIR="embed"
 ENV STATIC_DIR="embed"
-ENV LOG_LEVEL=trace
+ENV LOG_LEVEL=debug
+ENV LOG_TRACE=false
 ENV LOG_FORMAT=plain
 # production (sets cookies to secure, etc)
 ENV PRODUCTION=false

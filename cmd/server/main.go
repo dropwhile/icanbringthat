@@ -5,6 +5,7 @@ import (
 	_ "database/sql"
 	"errors"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -43,12 +44,12 @@ func main() {
 	}
 
 	logger.SetLevel(config.LogLevel)
-	logger.Info("setting log level", "level", config.LogLevel)
+	slog.Info("setting log level", "level", config.LogLevel)
 
 	if config.TemplateDir == "embed" {
-		logger.Debug("templates", "location", "embedded")
+		slog.Debug("templates", "location", "embedded")
 	} else {
-		logger.Debug("templates", "location", config.TemplateDir)
+		slog.Debug("templates", "location", config.TemplateDir)
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
@@ -57,19 +58,19 @@ func main() {
 	}
 
 	if config.StaticDir == "embed" {
-		logger.Debug("static", "location", "embedded")
+		slog.Debug("static", "location", "embedded")
 	} else {
-		logger.Debug("static", "location", config.StaticDir)
+		slog.Debug("static", "location", config.StaticDir)
 	}
 
-	logger.Info("prod mode", "mode", config.Production)
+	slog.Info("prod mode", "mode", config.Production)
 
 	//--------------------//
 	// configure services //
 	//--------------------//
 
 	// setup dbpool pool & models
-	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
+	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
 		logger.Fatal("failed to connect to database", "error", err)
 		return
@@ -98,11 +99,12 @@ func main() {
 
 	// routing/handlers
 	appConfig := &app.Config{
-		WebhookCreds: config.WebhookCreds,
-		CSRFKeyBytes: config.CSRFKeyBytes,
-		HMACKeyBytes: config.HMACKeyBytes,
-		Production:   config.Production,
-		BaseURL:      config.BaseURL,
+		WebhookCreds:   config.WebhookCreds,
+		CSRFKeyBytes:   config.CSRFKeyBytes,
+		HMACKeyBytes:   config.HMACKeyBytes,
+		Production:     config.Production,
+		BaseURL:        config.BaseURL,
+		RequestLogging: config.LogTrace,
 	}
 	r := app.New(dbpool, rdb, templates, mailer, appConfig)
 	defer r.Close()
@@ -137,22 +139,22 @@ func main() {
 		<-signals
 
 		// We received an interrupt signal, shut down.
-		logger.Info("Server shutting down...")
+		slog.Info("Server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			logger.Error("HTTP server shutdown error", "error", err)
+			slog.Error("HTTP server shutdown error", "error", err)
 		}
 		if quicServer != nil {
 			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
 				// Error from closing listeners, or context timeout:
-				logger.Error("HTTP/3 server shutdown error", "error", err)
+				slog.Error("HTTP/3 server shutdown error", "error", err)
 			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
-	logger.Info("starting up...", "version", Version)
+	slog.Info("starting up...", "version", Version)
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
 			// add quic headers to https/tls server
@@ -166,7 +168,7 @@ func main() {
 
 			// start up http3/quic server
 			go func() {
-				logger.Info("listening",
+				slog.Info("listening",
 					"proto", "https/quic",
 					"listen", config.Listen)
 				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -177,7 +179,7 @@ func main() {
 		}
 		// startup https3/tls server
 		go func() {
-			logger.Info("listening",
+			slog.Info("listening",
 				"proto", "https/tls",
 				"listen", config.Listen)
 			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -186,7 +188,7 @@ func main() {
 			}
 		}()
 	} else {
-		logger.Info("listening",
+		slog.Info("listening",
 			"proto", "http",
 			"listen", config.Listen)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

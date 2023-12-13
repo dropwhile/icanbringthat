@@ -12,8 +12,6 @@ import (
 
 var re = regexp.MustCompile(`^v[0-9]+@`)
 
-type AttrExtractor = slogcontext.AttrExtractor
-
 func trimFilePath(file string) string {
 	short := file
 	counter := 0
@@ -55,33 +53,27 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 
 		switch a.Key {
 		case slog.TimeKey:
-			if v, ok := a.Value.Any().(time.Time); ok {
-				a.Key = "ts"
-				if !opts.UseLocalTime {
-					a.Value = slog.TimeValue(v.UTC())
+			if len(groups) == 0 {
+				if v, ok := a.Value.Any().(time.Time); ok {
+					a.Key = "ts"
+					if !opts.UseLocalTime {
+						a.Value = slog.TimeValue(v.UTC())
+					}
 				}
 			}
 		// Remove the directory from the source's filename.
 		case slog.SourceKey:
-			a.Key = "src"
-			source := a.Value.Any().(*slog.Source)
-			source.File = trimFilePath(source.File)
+			if len(groups) == 0 {
+				a.Key = "src"
+				source := a.Value.Any().(*slog.Source)
+				source.File = trimFilePath(source.File)
+			}
 		// Customize the name of the level key and the output string, including
 		// custom level values.
 		case slog.LevelKey:
-			if v, ok := a.Value.Any().(slog.Level); ok {
-				a.Key = "lvl"
-				switch v {
-				case LevelTrace:
-					a.Value = LevelTraceStr
-				case LevelDebug:
-					a.Value = LevelDebugStr
-				case LevelError:
-					a.Value = LevelErrorStr
-				case LevelFatal:
-					a.Value = LevelFatalStr
-				default:
-					a.Value = LevelInfoStr
+			if len(groups) == 0 {
+				if _, ok := a.Value.Any().(slog.Level); ok {
+					a.Key = "lvl"
 				}
 			}
 		}

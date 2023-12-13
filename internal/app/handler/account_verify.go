@@ -75,7 +75,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 	messageHtml := buf.String()
 
-	logger.DebugCtx(ctx, "email content",
+	slog.DebugContext(ctx, "email content",
 		slog.String("plain", messagePlain),
 		slog.String("html", messageHtml),
 	)
@@ -109,7 +109,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	hmacStr := chi.URLParam(r, "hmac")
 	refIDStr := chi.URLParam(r, "uvRefID")
 	if hmacStr == "" || refIDStr == "" {
-		logger.DebugCtx(ctx, "missing url query data")
+		slog.DebugContext(ctx, "missing url query data")
 		x.NotFoundError(w)
 		return
 	}
@@ -117,13 +117,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// decode hmac
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
-		logger.DebugCtx(ctx, "error decoding hmac data", logger.Err(err))
+		slog.DebugContext(ctx, "error decoding hmac data", logger.Err(err))
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
-		logger.DebugCtx(ctx, "invalid hmac!")
+		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
@@ -137,13 +137,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	verifier, errx := service.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
 	if errx != nil {
-		logger.DebugCtx(ctx, "no verifier match", logger.Err(errx))
+		slog.DebugContext(ctx, "no verifier match", logger.Err(errx))
 		x.NotFoundError(w)
 		return
 	}
 
 	if model.IsExpired(verifier.RefID, model.UserVerifyExpiry) {
-		logger.DebugCtx(ctx, "verifier is expired")
+		slog.DebugContext(ctx, "verifier is expired")
 		x.NotFoundError(w)
 		return
 	}
@@ -151,7 +151,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	user.Verified = true
 	errx = service.SetUserVerified(ctx, x.Db, user, verifier)
 	if errx != nil {
-		logger.DebugCtx(ctx, "error saving verification", logger.Err(errx))
+		slog.DebugContext(ctx, "error saving verification", logger.Err(errx))
 		x.InternalServerError(w, errx.Msg())
 		return
 	}

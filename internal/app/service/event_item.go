@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -21,7 +21,6 @@ func GetEventItemsCount(
 	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, db, eventIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		log.Info().Err(err).Msg("no rows for event items")
 		eventItemCounts = []*model.EventItemCount{}
 	case err != nil:
 		return nil, errs.Internal.Error("db error")
@@ -188,12 +187,10 @@ func UpdateEventItem(
 		return nil, errs.Internal.Error("db error")
 	}
 
-	log.Debug().Msg("here1")
 	if failIfChecks != nil && failIfChecks(eventItem) {
 		return nil, errs.FailedPrecondition.Error("extra checks failed")
 	}
 
-	log.Debug().Msg("here")
 	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -202,7 +199,6 @@ func UpdateEventItem(
 		return nil, errs.Internal.Error("db error")
 	}
 
-	log.Debug().Msg("here-after")
 	if event.UserID != userID {
 		return nil, errs.PermissionDenied.Error("not event owner")
 	}
@@ -218,10 +214,10 @@ func UpdateEventItem(
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.Internal.Error("db error")
 	case err == nil && earmark.UserID != userID:
-		log.Info().
-			Int("user.ID", userID).
-			Int("earmark.UserID", earmark.UserID).
-			Msg("user id mismatch")
+		slog.InfoContext(ctx, "user id mismatch",
+			slog.Int("user.ID", userID),
+			slog.Int("earmark.UserID", earmark.UserID),
+		)
 		return nil, errs.PermissionDenied.Error("earmarked by other user")
 	}
 

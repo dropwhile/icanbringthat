@@ -50,7 +50,7 @@ func ServeSingle(fsys fs.FS, filePath string) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		f, err := fsys.Open(filePath)
 		if err != nil {
-			logger.DebugCtx(r.Context(),
+			slog.DebugContext(r.Context(),
 				"cant open file for reading",
 				slog.String("filepath", filePath),
 				logger.Err(err),
@@ -61,7 +61,7 @@ func ServeSingle(fsys fs.FS, filePath string) http.HandlerFunc {
 		defer f.Close()
 		b, err := io.ReadAll(f)
 		if err != nil {
-			logger.DebugCtx(r.Context(),
+			slog.DebugContext(r.Context(),
 				"cant read file",
 				slog.String("filepath", filePath),
 				logger.Err(err),

@@ -10,7 +10,6 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
-	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
@@ -124,7 +123,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 
 		messagePlain := bufPlain.String()
 		messageHtml := bufHtml.String()
-		logger.DebugCtx(ctx, "email content",
+		slog.DebugContext(ctx, "email content",
 			slog.String("plain", messagePlain),
 			slog.String("html", messageHtml),
 		)

@@ -2,14 +2,13 @@ package envconfig
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/caarlos0/env/v10"
 	"golang.org/x/crypto/argon2"
-
-	"github.com/dropwhile/icbt/internal/logger"
 )
 
 // env vars that are used to derive EnvConfig values later
@@ -26,8 +25,9 @@ type EnvConfig struct {
 	Production bool   `env:"PRODUCTION" envDefault:"true"`
 	BaseURL    string `env:"BASE_URL,required"`
 	// logging
-	LogFormat string             `env:"LOG_FORMAT" envDefault:"json"`
-	LogLevel  logger.LoggerLevel `env:"LOG_LEVEL" envDefault:"info"`
+	LogFormat string     `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel  slog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	LogTrace  bool       `env:"LOG_TRACE" envDDefault:"false"`
 	// tls/quic
 	TLSCert  string `env:"TLS_CERT,unset"`
 	TLSKey   string `env:"TLS_KEY,unset"`
@@ -149,8 +149,8 @@ func Parse() (*EnvConfig, error) {
 		}
 	}
 
-	if config.Production && config.LogLevel.Covers(logger.LevelTrace) {
-		// trace level not allowed in prod mode,
+	if config.Production && config.LogTrace {
+		// trace logging not allowed in prod mode,
 		// as it may expose private data in sql
 		// queries.
 		// in that case, set to debug level

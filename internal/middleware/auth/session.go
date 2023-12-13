@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -45,7 +46,7 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 			if userID != 0 {
 				user, err := model.GetUserByID(ctx, db, userID)
 				if err != nil {
-					logger.InfoCtx(ctx, "authorization failure", logger.Err(err))
+					slog.InfoContext(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)
 					return
 				}

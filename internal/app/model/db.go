@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -28,8 +29,8 @@ func (db *DB) GetPool() *pgxpool.Pool {
 func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (T, error) {
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
-		logger.ErrorCtx(ctx, "db query error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "db query error", logger.Err(err))
 		return *new(T), err
 	}
 	// note: collectonerow closes rows
@@ -39,8 +40,8 @@ func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interfa
 func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
-		logger.ErrorCtx(ctx, "db query error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "db query error", logger.Err(err))
 		return nil, err
 	}
 	// note: collectonerow closes rows
@@ -50,8 +51,8 @@ func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...in
 func Query[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
-		logger.ErrorCtx(ctx, "db query error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "db query error", logger.Err(err))
 		return nil, err
 	}
 	// note: collectrows closes rows
@@ -63,13 +64,14 @@ func QueryOneTx[T any](ctx context.Context, db PgxHandle, query string, args ...
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
 		t, errIn = QueryOne[T](ctx, tx, query, args...)
 		if errIn != nil {
-			logger.ErrorCtx(ctx, "inner db tx error",
-				logger.Err(errIn))
+			logger.LogSkip(slog.Default(), 1, slog.LevelError,
+				ctx, "inner db tx error", logger.Err(errIn))
 		}
 		return errIn
 	})
 	if err != nil {
-		logger.ErrorCtx(ctx, "outer db tx error",
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "outer db tx error",
 			logger.Err(err))
 	}
 	return t, err
@@ -80,14 +82,14 @@ func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...int
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
 		t, errIn = Query[T](ctx, tx, query, args...)
 		if errIn != nil {
-			logger.ErrorCtx(ctx, "inner db tx error",
-				logger.Err(errIn))
+			logger.LogSkip(slog.Default(), 1, slog.LevelError,
+				ctx, "inner db tx error", logger.Err(errIn))
 		}
 		return errIn
 	})
 	if err != nil {
-		logger.ErrorCtx(ctx, "outer db tx error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "outer db tx error", logger.Err(err))
 	}
 	return t, err
 }
@@ -95,12 +97,13 @@ func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...int
 func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
 	commandTag, err := db.Exec(ctx, query, args...)
 	if err != nil {
-		logger.ErrorCtx(ctx, "db exec error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "db exec error", logger.Err(err))
 		return err
 	}
 	if commandTag.RowsAffected() == 0 {
-		logger.DebugCtx(ctx, "query affected zero rows!")
+		logger.LogSkip(slog.Default(), 1, slog.LevelDebug,
+			ctx, "query affected zero rows!")
 		// return errors.New("no rows affected")
 	}
 	return nil
@@ -110,14 +113,14 @@ func ExecTx[T any](ctx context.Context, db PgxHandle, query string, args ...inte
 	err := pgx.BeginFunc(ctx, db, func(tx pgx.Tx) (errIn error) {
 		errIn = Exec[T](ctx, tx, query, args...)
 		if errIn != nil {
-			logger.ErrorCtx(ctx, "inner db tx error",
-				logger.Err(errIn))
+			logger.LogSkip(slog.Default(), 1, slog.LevelError,
+				ctx, "inner db tx error", logger.Err(errIn))
 		}
 		return errIn
 	})
 	if err != nil {
-		logger.ErrorCtx(ctx, "outer db tx error",
-			logger.Err(err))
+		logger.LogSkip(slog.Default(), 1, slog.LevelError,
+			ctx, "outer db tx error", logger.Err(err))
 	}
 	return err
 }

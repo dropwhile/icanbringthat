@@ -6,9 +6,10 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-
-	slogcontext "github.com/veqryn/slog-context"
 )
+
+// defaults to info level
+var logLevel = &slog.LevelVar{}
 
 type Options struct {
 	UseLocalTime bool
@@ -20,23 +21,11 @@ type Options struct {
 }
 
 func newContextHandler(next slog.Handler, opts Options) *slog.Logger {
-	prependers := []AttrExtractor{
-		slogcontext.ExtractPrepended,
-	}
-	prependers = append(prependers, opts.Prependers...)
-
-	appenders := []AttrExtractor{
-		slogcontext.ExtractAppended,
-	}
-	appenders = append(appenders, opts.Appenders...)
-
-	h := slogcontext.NewHandler(
+	h := &ContextHandler{
 		next,
-		&slogcontext.HandlerOptions{
-			Prependers: prependers,
-			Appenders:  appenders,
-		},
-	)
+		opts.Prependers,
+		opts.Appenders,
+	}
 	return slog.New(h)
 }
 
@@ -87,12 +76,10 @@ func NewTestLogger(opts Options) *slog.Logger {
 	)
 
 	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
-	case "trace":
-		logLevel.Set(LevelTrace)
 	case "debug":
-		logLevel.Set(LevelDebug)
+		logLevel.Set(slog.LevelDebug)
 	default:
-		logLevel.Set(LevelInfo)
+		logLevel.Set(slog.LevelInfo)
 	}
 
 	return newContextHandler(logHandler, opts)
@@ -109,4 +96,8 @@ func SetupLogging(mkLogger func(Options) *slog.Logger, opts *Options) {
 	slog.SetDefault(logger)
 	log.SetOutput(&logWriter{opts.Sink})
 	log.SetFlags(log.Lshortfile)
+}
+
+func SetLevel(level slog.Level) {
+	logLevel.Set(level)
 }

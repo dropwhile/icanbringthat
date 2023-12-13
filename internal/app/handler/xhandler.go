@@ -1,17 +1,18 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
 )
@@ -34,19 +35,19 @@ func (x *Handler) Template(name string) (resources.TemplateIf, error) {
 func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
-		log.Info().
-			Err(err).
-			Str("tpl", name).
-			Msg("template locate error")
+		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
+			context.Background(),
+			"template locate error",
+			"error", err,
+			"tpl", name)
 		return err
 	}
 	err = tpl.Execute(w, vars)
 	if err != nil {
-		log.Info().
-			Err(err).
-			Str("tpl", name).
-			Dict("vars", zerolog.Dict().Fields(vars)).
-			Msg("template execute error")
+		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
+			context.Background(),
+			"template execute error",
+			"error", err, "tpl", name, "vars", vars)
 		return err
 	}
 	return nil
@@ -55,21 +56,18 @@ func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
 	tpl, err := x.TemplateMap.Get(name)
 	if err != nil {
-		log.Info().
-			Err(err).
-			Str("tpl", name).
-			Str("sub", subname).
-			Msg("template locate error")
+		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
+			context.Background(),
+			"template locate error",
+			"error", err, "tpl", name, "sub", subname)
 		return err
 	}
 	err = tpl.ExecuteTemplate(w, subname, vars)
 	if err != nil {
-		log.Info().
-			Err(err).
-			Str("tpl", name).
-			Str("sub", subname).
-			Dict("vars", zerolog.Dict().Fields(vars)).
-			Msg("template execute error")
+		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
+			context.Background(),
+			"template execute error",
+			"error", err, "tpl", name, "sub", subname, "vars", vars)
 		return err
 	}
 	return nil
@@ -78,7 +76,10 @@ func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars Map
 func (x *Handler) Json(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
-		log.Info().Err(err).Msg("json encoding error")
+		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
+			context.Background(),
+			"json encoding error",
+			"error", err)
 		x.Error(w, "encoding error", http.StatusInternalServerError)
 		return
 	}

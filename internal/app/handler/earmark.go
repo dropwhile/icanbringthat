@@ -239,7 +239,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if event.Archived {
-		logger.InfoCtx(ctx, "event is archived",
+		slog.InfoContext(ctx, "event is archived",
 			slog.Int("user.ID", user.ID),
 			slog.Int("event.UserID", event.UserID),
 		)
@@ -259,7 +259,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if eventItem.EventID != event.ID {
-		logger.InfoCtx(ctx, "eventItem.EventID and event.ID mismatch",
+		slog.InfoContext(ctx, "eventItem.EventID and event.ID mismatch",
 			slog.Int("user.ID", user.ID),
 			slog.Int("event.ID", event.ID),
 			slog.Int("eventItem.EventID", eventItem.EventID),
@@ -331,7 +331,7 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		case errs.PermissionDenied:
-			logger.InfoCtx(ctx, "permission denied",
+			slog.InfoContext(ctx, "permission denied",
 				slog.Int("user.ID", user.ID),
 				logger.Err(errx),
 			)

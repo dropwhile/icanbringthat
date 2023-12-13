@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 
@@ -56,7 +57,7 @@ func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
 	res := make([]webauthn.Credential, 0)
 	credentials, err := model.GetUserCredentialsByUser(ctx, u.db, u.ID)
 	if err != nil {
-		logger.InfoCtx(ctx, "error retrieving credentials from db",
+		slog.InfoContext(ctx, "error retrieving credentials from db",
 			logger.Err(err))
 		return res
 	}
@@ -64,7 +65,7 @@ func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
 		var cred webauthn.Credential
 		err := json.Unmarshal(c.Credential, &cred)
 		if err != nil {
-			logger.InfoCtx(ctx, "error unmarshalling webauthn credential",
+			slog.InfoContext(ctx, "error unmarshalling webauthn credential",
 				logger.Err(err))
 			continue
 		}
@@ -85,13 +86,13 @@ func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Creden
 	ctx := context.Background()
 	credBytes, err := json.Marshal(credential)
 	if err != nil {
-		logger.InfoCtx(ctx, "error marshalling webauthn credential",
+		slog.InfoContext(ctx, "error marshalling webauthn credential",
 			logger.Err(err))
 		return err
 	}
 	_, err = model.NewUserCredential(ctx, u.db, u.ID, keyName, credBytes)
 	if err != nil {
-		logger.InfoCtx(ctx, "db error creating credential",
+		slog.InfoContext(ctx, "db error creating credential",
 			logger.Err(err))
 		return err
 	}

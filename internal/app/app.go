@@ -15,7 +15,6 @@ import (
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/crypto"
-	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/middleware/debug"
@@ -70,7 +69,7 @@ func New(
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)
 	r.Use(header.RequestID)
-	if logger.Enabled(logger.LevelTrace) {
+	if conf.RequestLogging {
 		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)

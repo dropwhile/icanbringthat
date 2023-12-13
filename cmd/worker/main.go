@@ -3,6 +3,7 @@ package main
 import (
 	_ "database/sql"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -50,12 +51,12 @@ func main() {
 		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
 	logger.SetLevel(config.LogLevel)
-	logger.Info("setting log level", "level", config.LogLevel)
+	slog.Info("setting log level", "level", config.LogLevel)
 
 	if config.TemplateDir == "embed" {
-		logger.Debug("templates", "location", "embedded")
+		slog.Debug("templates", "location", "embedded")
 	} else {
-		logger.Debug("templates", "location", config.TemplateDir)
+		slog.Debug("templates", "location", config.TemplateDir)
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
@@ -64,19 +65,19 @@ func main() {
 	}
 
 	if config.StaticDir == "embed" {
-		logger.Debug("static", "location", "embedded")
+		slog.Debug("static", "location", "embedded")
 	} else {
-		logger.Debug("static", "location", config.StaticDir)
+		slog.Debug("static", "location", config.StaticDir)
 	}
 
-	logger.Info("prod mode", "mode", config.Production)
+	slog.Info("prod mode", "mode", config.Production)
 
 	//--------------------//
 	// configure services //
 	//--------------------//
 
 	// setup dbpool pool & models
-	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
+	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
 		logger.Fatal("failed to connect to database",
 			"error", err)
@@ -99,7 +100,7 @@ func main() {
 		logger.Fatal("error adding worker jobs", "error", err)
 		return
 	}
-	logger.Info("configured workers", "worklist", jobList.String())
+	slog.Info("configured workers", "worklist", jobList.String())
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -122,7 +123,7 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	logger.Info("starting up...", "version", Version)
+	slog.Info("starting up...", "version", Version)
 
 	wg.Add(1)
 	go func() {
@@ -130,20 +131,20 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				logger.Info("Got", "signal", sig.String())
-				logger.Info("Program will terminate now.")
+				slog.Info("Got", "signal", sig.String())
+				slog.Info("Program will terminate now.")
 				return
 			case <-timer.C:
 				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
-						logger.Error("notifier error!!", "error", err)
+						slog.Error("notifier error!!", "error", err)
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
-						logger.Error("archiver error!!", "error", err)
+						slog.Error("archiver error!!", "error", err)
 					}
 				}
 				timer.Reset(timerInterval)

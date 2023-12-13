@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
@@ -46,14 +47,14 @@ func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
 			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
-			logger.DebugCtx(ctx, "inner db error saving user",
+			slog.DebugContext(ctx, "inner db error saving user",
 				logger.Err(innerErr))
 			return innerErr
 		}
 
 		innerErr = model.DeleteUserPWReset(ctx, tx, upw.RefID)
 		if innerErr != nil {
-			logger.DebugCtx(ctx, "inner db error cleaning up pw reset token",
+			slog.DebugContext(ctx, "inner db error cleaning up pw reset token",
 				logger.Err(innerErr))
 			return innerErr
 		}

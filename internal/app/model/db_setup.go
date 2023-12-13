@@ -9,12 +9,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/tracelog"
-
-	"github.com/dropwhile/icbt/internal/logger"
 )
 
-func SetupDBPool(dbDSN string) (*pgxpool.Pool, error) {
-	if !logger.Enabled(logger.LevelTrace) {
+func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
+	if !tracing {
 		return pgxpool.New(context.Background(), dbDSN)
 	}
 
@@ -65,7 +63,7 @@ func SetupDBPool(dbDSN string) (*pgxpool.Pool, error) {
 			}
 		}
 
-		r := slog.NewRecord(time.Now(), logger.LevelTrace, msg, pcs[0])
+		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
 		r.AddAttrs(attrs...)
 		_ = slog.Default().Handler().WithGroup("sql").Handle(ctx, r)
 	}
