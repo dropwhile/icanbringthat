@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -27,10 +26,6 @@ func (db *DB) GetPool() *pgxpool.Pool {
 }
 
 func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (T, error) {
-	logger.Debug(ctx, "db query",
-		slog.String("query", query),
-		slog.Any("args", args),
-	)
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		logger.Error(ctx, "db query error",
@@ -42,10 +37,6 @@ func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interfa
 }
 
 func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (*T, error) {
-	logger.Debug(ctx, "db query",
-		slog.String("query", query),
-		slog.Any("args", args),
-	)
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		logger.Error(ctx, "db query error",
@@ -57,10 +48,6 @@ func QueryOne[T any](ctx context.Context, db PgxHandle, query string, args ...in
 }
 
 func Query[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) ([]*T, error) {
-	logger.Debug(ctx, "db query",
-		slog.String("query", query),
-		slog.Any("args", args),
-	)
 	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		logger.Error(ctx, "db query error",
@@ -106,10 +93,6 @@ func QueryTx[T any](ctx context.Context, db PgxHandle, query string, args ...int
 }
 
 func Exec[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) error {
-	logger.Debug(ctx, "db exec query",
-		slog.String("query", query),
-		slog.Any("args", args),
-	)
 	commandTag, err := db.Exec(ctx, query, args...)
 	if err != nil {
 		logger.Error(ctx, "db exec error",

@@ -71,6 +71,10 @@ func (l LoggerLevel) String() string {
 	}
 }
 
+func (l LoggerLevel) Level() slog.Level {
+	return slog.Level(l)
+}
+
 func (l LoggerLevel) LogValuer() slog.Value {
 	return slog.StringValue(l.String())
 }
@@ -342,8 +346,8 @@ func SetupLogging(mkLogger func(Options) *slog.Logger, opts *Options) {
 	log.SetFlags(log.Lshortfile)
 }
 
-func SetLevel[T ~int](level T) {
-	logLevel.Set(slog.Level(level))
+func SetLevel(level slog.Leveler) {
+	logLevel.Set(level.Level())
 }
 
 func PrependAttr(ctx context.Context, args ...any) context.Context {

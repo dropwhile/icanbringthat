@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -36,12 +37,37 @@ func SetupDBPool(dbDSN string) (*pgxpool.Pool, error) {
 		}
 
 		var pcs [1]uintptr
+		pcz := make([]uintptr, 12)
+
 		// skip [runtime.Callers, this function, this function's caller]
-		runtime.Callers(2, pcs[:])
+		// how many frames to get out of pgx??
+		// either 8 or 9?
+		runtime.Callers(2, pcz[:])
+
+		for ctr, pc := range pcz {
+			if pc == 0 {
+				continue
+			}
+			// fn := runtime.FuncForPC(pc)
+			// funcName := fn.Name()
+			// file, line := fn.FileLine(pc - 1)
+			// fmt.Printf("%s:%d %s\n", file, line, funcName)
+			file, _ := runtime.FuncForPC(pc).FileLine(pc - 1)
+			if strings.HasPrefix(file, "github.com/jackc/pgx") {
+				continue
+			}
+			if strings.HasPrefix(file, "github.com/dropwhile") {
+				pcs[0] = pcz[ctr]
+				if strings.HasSuffix(file, "model/db.go") {
+					continue
+				}
+				break
+			}
+		}
 
 		r := slog.NewRecord(time.Now(), logger.LevelTrace, msg, pcs[0])
 		r.AddAttrs(attrs...)
-		_ = slog.Default().Handler().Handle(ctx, r)
+		_ = slog.Default().Handler().WithGroup("sql").Handle(ctx, r)
 	}
 
 	config.ConnConfig.Tracer = &tracelog.TraceLog{

@@ -149,5 +149,15 @@ func Parse() (*EnvConfig, error) {
 		}
 	}
 
+	if config.Production && config.LogLevel.Level() == logger.LevelTrace {
+		// trace level not allowed in prod mode,
+		// as it may expose private data in sql
+		// queries.
+		// in that case, set to debug level
+		return nil, fmt.Errorf(
+			"disallowing running in production mode with trace logging, " +
+				"as it will emit in unsanitized data")
+	}
+
 	return config, nil
 }

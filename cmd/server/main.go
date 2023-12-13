@@ -44,6 +44,12 @@ func main() {
 	} else {
 		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
+
+	if config.Production {
+		// trace level not allowed in prod mode,
+		// as it may expose private data in sql
+		// queries
+	}
 	logger.SetLevel(config.LogLevel)
 	logger.Info(ctx, "setting log level",
 		slog.Any("level", config.LogLevel))
