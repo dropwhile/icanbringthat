@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"runtime"
 	"strings"
@@ -42,15 +43,17 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 		// either 8 or 9?
 		runtime.Callers(2, pcz[:])
 
+		sz := 0
 		for ctr, pc := range pcz {
 			if pc == 0 {
-				continue
+				break
 			}
+			sz += 1
 			// fn := runtime.FuncForPC(pc)
 			// funcName := fn.Name()
 			// file, line := fn.FileLine(pc - 1)
-			// fmt.Printf("%s:%d %s\n", file, line, funcName)
-			file, _ := runtime.FuncForPC(pc).FileLine(pc - 1)
+			file, line := runtime.FuncForPC(pc).FileLine(pc - 1)
+			fmt.Printf("%s:%d\n", file, line)
 			if strings.HasPrefix(file, "github.com/jackc/pgx") {
 				continue
 			}
@@ -61,6 +64,10 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 				}
 				break
 			}
+		}
+		fallbackLookback := 3
+		if pcs[0] == 0 && sz >= fallbackLookback {
+			pcs[0] = pcz[len(pcz)-(len(pcz)-sz)-fallbackLookback]
 		}
 
 		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
