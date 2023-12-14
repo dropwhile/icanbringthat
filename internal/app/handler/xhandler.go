@@ -18,22 +18,22 @@ import (
 )
 
 type Handler struct {
-	Db          model.PgxHandle
-	Redis       *redis.Client
-	TemplateMap resources.TemplateMap
-	SessMgr     *session.SessionMgr
-	Mailer      mail.MailSender
-	MAC         *crypto.MAC
-	BaseURL     string
-	IsProd      bool
+	Db        model.PgxHandle
+	Redis     *redis.Client
+	Templates resources.TGetter
+	SessMgr   *session.SessionMgr
+	Mailer    mail.MailSender
+	MAC       *crypto.MAC
+	BaseURL   string
+	IsProd    bool
 }
 
 func (x *Handler) Template(name string) (resources.TemplateIf, error) {
-	return x.TemplateMap.Get(name)
+	return x.Templates.Get(name)
 }
 
 func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
-	tpl, err := x.TemplateMap.Get(name)
+	tpl, err := x.Templates.Get(name)
 	if err != nil {
 		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
 			context.Background(),
@@ -54,7 +54,7 @@ func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 }
 
 func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
-	tpl, err := x.TemplateMap.Get(name)
+	tpl, err := x.Templates.Get(name)
 	if err != nil {
 		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
 			context.Background(),

@@ -118,12 +118,12 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	t.Cleanup(func() { mock.Close(ctx) })
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
-		Db:          mock,
-		TemplateMap: resources.TemplateMap{"error-page.gohtml": tpl},
-		SessMgr:     session.NewTestSessionManager(),
-		Mailer:      &TestMailer{make([]*mail.Mail, 0)},
-		MAC:         crypto.NewMAC([]byte("test-hmac-key")),
-		BaseURL:     "http://example.com",
+		Db:        mock,
+		Templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
+		SessMgr:   session.NewTestSessionManager(),
+		Mailer:    &TestMailer{make([]*mail.Mail, 0)},
+		MAC:       crypto.NewMAC([]byte("test-hmac-key")),
+		BaseURL:   "http://example.com",
 	}
 	mux := chi.NewMux()
 	mux.Use(h.SessMgr.LoadAndSave)

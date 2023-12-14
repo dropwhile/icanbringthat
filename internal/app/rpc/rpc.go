@@ -12,13 +12,13 @@ import (
 )
 
 type Server struct {
-	Db          model.PgxHandle
-	Redis       *redis.Client
-	TemplateMap resources.TemplateMap
-	Mailer      mail.MailSender
-	MAC         *crypto.MAC
-	BaseURL     string
-	IsProd      bool
+	Db        model.PgxHandle
+	Redis     *redis.Client
+	Templates resources.TGetter
+	Mailer    mail.MailSender
+	MAC       *crypto.MAC
+	BaseURL   string
+	IsProd    bool
 }
 
 func (s *Server) GenHandler(prefix string) icbt.TwirpServer {

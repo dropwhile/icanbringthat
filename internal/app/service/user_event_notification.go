@@ -14,7 +14,8 @@ import (
 )
 
 func NotifyUsersPendingEvents(db model.PgxHandle,
-	mailer mail.MailSender, tplMap resources.TemplateMap, siteBaseUrl string,
+	mailer mail.MailSender, tplContainer *resources.TContainer,
+	siteBaseUrl string,
 ) error {
 	ctx := context.Background()
 	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, db)
@@ -22,11 +23,11 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 		return err
 	}
 
-	tplHtml, err := tplMap.Get("mail_reminder.gohtml")
+	tplHtml, err := tplContainer.Get("mail_reminder.gohtml")
 	if err != nil {
 		return fmt.Errorf("template get error: %w", err)
 	}
-	tplPlain, err := tplMap.Get("mail_reminder.gotxt")
+	tplPlain, err := tplContainer.Get("mail_reminder.gotxt")
 	if err != nil {
 		return fmt.Errorf("template get error: %w", err)
 	}

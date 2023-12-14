@@ -43,19 +43,19 @@ func (app *App) OnClose(f func()) {
 func New(
 	db *pgxpool.Pool,
 	rdb *redis.Client,
-	templateMap resources.TemplateMap,
+	templates resources.TGetter,
 	mailer *mail.Mailer,
 	conf *Config,
 ) *App {
 	zh := &handler.Handler{
-		Db:          model.SetupFromDbPool(db),
-		Redis:       rdb,
-		TemplateMap: templateMap,
-		SessMgr:     session.NewRedisSessionManager(rdb, conf.Production),
-		Mailer:      mailer,
-		MAC:         crypto.NewMAC(conf.HMACKeyBytes),
-		BaseURL:     strings.TrimSuffix(conf.BaseURL, "/"),
-		IsProd:      conf.Production,
+		Db:        model.SetupFromDbPool(db),
+		Redis:     rdb,
+		Templates: templates,
+		SessMgr:   session.NewRedisSessionManager(rdb, conf.Production),
+		Mailer:    mailer,
+		MAC:       crypto.NewMAC(conf.HMACKeyBytes),
+		BaseURL:   strings.TrimSuffix(conf.BaseURL, "/"),
+		IsProd:    conf.Production,
 	}
 
 	app := &App{Mux: chi.NewRouter(), handler: zh}
@@ -179,13 +179,13 @@ func New(
 
 	// rpc api
 	rpcServer := &rpc.Server{
-		Db:          zh.Db,
-		Redis:       zh.Redis,
-		TemplateMap: zh.TemplateMap,
-		Mailer:      zh.Mailer,
-		MAC:         zh.MAC,
-		BaseURL:     zh.BaseURL,
-		IsProd:      zh.IsProd,
+		Db:        zh.Db,
+		Redis:     zh.Redis,
+		Templates: zh.Templates,
+		Mailer:    zh.Mailer,
+		MAC:       zh.MAC,
+		BaseURL:   zh.BaseURL,
+		IsProd:    zh.IsProd,
 	}
 	r.Route(TwirpPrefix, func(r chi.Router) {
 		// add auth token middleware here instead,

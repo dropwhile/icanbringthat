@@ -17,6 +17,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
@@ -64,8 +65,11 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.TemplateMap["mail_account_email_verify.gohtml"] = verifyTpl
-		handler.TemplateMap["mail_account_email_verify.gotxt"] = verifyTpl
+		handler.Templates = resources.MockTContainer(
+			resources.TemplateMap{
+				"mail_account_email_verify.gohtml": verifyTpl,
+				"mail_account_email_verify.gotxt":  verifyTpl,
+			})
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectBegin()

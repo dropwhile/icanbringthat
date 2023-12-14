@@ -18,6 +18,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
@@ -548,8 +549,11 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.TemplateMap["mail_password_reset.gohtml"] = passResetTpl
-		handler.TemplateMap["mail_password_reset.gotxt"] = passResetTpl
+		handler.Templates = resources.MockTContainer(
+			resources.TemplateMap{
+				"mail_password_reset.gohtml": passResetTpl,
+				"mail_password_reset.gotxt":  passResetTpl,
+			})
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
@@ -603,7 +607,11 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.SessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.TemplateMap["mail_password_reset.gohtml"] = passResetTpl
+		handler.Templates = resources.MockTContainer(
+			resources.TemplateMap{
+				"mail_password_reset.gohtml": passResetTpl,
+				"mail_password_reset.gotxt":  passResetTpl,
+			})
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
