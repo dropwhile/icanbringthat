@@ -171,7 +171,9 @@ func main() {
 				slog.Info("listening",
 					"proto", "https/quic",
 					"listen", config.Listen)
-				if err := quicServer.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				if err := quicServer.ListenAndServeTLS(
+					config.TLSCert, config.TLSKey,
+				); err != nil && !errors.Is(err, http.ErrServerClosed) {
 					logger.Fatal("HTTP/3 server error", "error", err)
 					return
 				}
@@ -182,7 +184,9 @@ func main() {
 			slog.Info("listening",
 				"proto", "https/tls",
 				"listen", config.Listen)
-			if err := server.ListenAndServeTLS(config.TLSCert, config.TLSKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			if err := server.ListenAndServeTLS(
+				config.TLSCert, config.TLSKey,
+			); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				logger.Fatal("HTTP server error", "error", err)
 				return
 			}

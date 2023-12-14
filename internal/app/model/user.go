@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/dropwhile/refid/v2"
@@ -38,6 +39,22 @@ type User struct {
 	PWAuth       bool
 	ApiAccess    bool `db:"api_access"`
 	WebAuthn     bool
+}
+
+func (u User) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Time("created", u.Created),
+		slog.Time("last_modified", u.LastModified),
+		slog.String("email", "_OMITTED_"),
+		slog.String("pwhash", "_OMITTED_"),
+		slog.Int("id", u.ID),
+		slog.String("refid", u.RefID.String()),
+		slog.Bool("verified", u.Verified),
+		slog.Bool("pwauth", u.PWAuth),
+		slog.Bool("api_access", u.ApiAccess),
+		slog.Bool("webauthn", u.WebAuthn),
+		slog.Any("settings", u.Settings),
+	)
 }
 
 func HashPass(ctx context.Context, rawPass []byte) ([]byte, error) {
