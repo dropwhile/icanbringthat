@@ -45,32 +45,47 @@ func main() {
 		return
 	}
 
-	if config.LogFormat == "plain" {
-		logger.SetupLogging(logger.NewConsoleLogger, nil)
-	} else {
-		logger.SetupLogging(logger.NewJsonLogger, nil)
+	// omit src line in production logs
+	opts := &logger.Options{
+		OmitSource: config.Production,
 	}
+
+	switch config.LogFormat {
+	case "plain":
+		logger.SetupLogging(logger.NewConsoleLogger, opts)
+	default:
+		logger.SetupLogging(logger.NewJsonLogger, opts)
+	}
+
 	logger.SetLevel(config.LogLevel)
-	slog.Info("setting log level", "level", config.LogLevel)
+	slog.With("level", config.LogLevel).
+		Info("setting log level")
 
 	if config.TemplateDir == "embed" {
-		slog.Debug("templates", "location", "embedded")
+		slog.With("location", "embedded").
+			Debug("templates")
 	} else {
-		slog.Debug("templates", "location", config.TemplateDir)
+		slog.With("location", config.TemplateDir).
+			Debug("templates")
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		logger.Fatal("failed to parse templates")
+		slog.With("error", err).
+			Error("failed to parse templates")
+		os.Exit(1)
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		slog.Debug("static", "location", "embedded")
+		slog.With("location", "embedded").
+			Debug("static")
 	} else {
-		slog.Debug("static", "location", config.StaticDir)
+		slog.With("location", config.StaticDir).
+			Debug("static")
 	}
 
-	slog.Info("prod mode", "mode", config.Production)
+	slog.With("mode", config.Production).
+		Info("prod mode")
 
 	//--------------------//
 	// configure services //
@@ -79,8 +94,9 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
-		logger.Fatal("failed to connect to database",
-			"error", err)
+		slog.With("error", err).
+			Error("failed to connect to database")
+		os.Exit(1)
 		return
 	}
 	defer dbpool.Close()
@@ -90,7 +106,9 @@ func main() {
 	//----------------//
 	workerConfig := &WorkerConfig{}
 	if err := env.Parse(workerConfig); err != nil {
-		logger.Fatal("failed to parse config", "error", err)
+		slog.With("error", err).
+			Error("failed to parse config")
+		os.Exit(1)
 		return
 	}
 
@@ -100,7 +118,8 @@ func main() {
 		logger.Fatal("error adding worker jobs", "error", err)
 		return
 	}
-	slog.Info("configured workers", "worklist", jobList)
+	slog.With("worklist", jobList).
+		Info("configured workers")
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -123,7 +142,8 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	slog.Info("starting up...", "version", Version)
+	slog.With("version", Version).
+		Info("starting up...")
 
 	wg.Add(1)
 	go func() {
@@ -131,7 +151,8 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				slog.Info("Got", "signal", sig.String())
+				slog.With("signal", sig.String()).
+					Info("Got signal")
 				slog.Info("Program will terminate now.")
 				return
 			case <-timer.C:
@@ -139,12 +160,14 @@ func main() {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
-						slog.Error("notifier error!!", "error", err)
+						slog.With("erorr", err).
+							Error("notifier error!!")
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
-						slog.Error("archiver error!!", "error", err)
+						slog.With("erorr", err).
+							Error("archiver error!!")
 					}
 				}
 				timer.Reset(timerInterval)
