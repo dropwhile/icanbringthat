@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
@@ -94,9 +94,7 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 
 	errx := service.DeleteNotification(ctx, x.Db, user.ID, refID)
 	if errx != nil {
-		log.Info().
-			Err(errx).
-			Msg("error deleting notification")
+		slog.InfoContext(ctx, "error deleting notification", "error", errx)
 		switch errx.Code() {
 		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
@@ -131,9 +129,7 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 
 	errx := service.DeleteAllNotifications(ctx, x.Db, user.ID)
 	if errx != nil {
-		log.Info().
-			Err(errx).
-			Msg("error deleting all notifications")
+		slog.InfoContext(ctx, "error deleting all notifications", "error", errx)
 		switch errx.Code() {
 		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())

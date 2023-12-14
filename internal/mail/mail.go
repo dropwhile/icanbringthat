@@ -2,12 +2,14 @@ package mail
 
 import (
 	"fmt"
+	"log/slog"
 	"net/smtp"
 	"strconv"
 	"strings"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/rs/zerolog/log"
+
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 type MailHeader map[string]string
@@ -66,12 +68,10 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 	buf.WriteString(fmt.Sprintf("\r\n--%s--", boundary))
 
 	message := buf.String()
-	log.Debug().
-		Str("message", message).
-		Msg("sending email")
+	slog.Debug("sending email", slog.String("message", message))
 	err := smtp.SendMail(m.hostPort, m.auth, mail.Sender, mail.To, []byte(message))
 	if err != nil {
-		log.Info().Err(err).Msg("error sending email")
+		slog.Error("error sending email", logger.Err(err))
 	}
 	return err
 }
@@ -95,7 +95,7 @@ func (m *Mailer) SendAsync(from string, to []string, subject, bodyPlain, bodyHtm
 	go func() {
 		err := m.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 		if err != nil {
-			log.Info().Err(err).Msg("error sending email")
+			slog.Error("error sending email", logger.Err(err))
 		}
 	}()
 }

@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
-	"github.com/rs/zerolog/log"
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 /*** specific errors ***/
@@ -23,7 +25,10 @@ func (x *Handler) BadSessionDataError(w http.ResponseWriter) {
 }
 
 func (x *Handler) BadFormDataError(w http.ResponseWriter, err error, hints ...string) {
-	log.Debug().CallerSkipFrame(1).Err(err).Msgf("error parsing form: %s", strings.Join(hints, ", "))
+	logger.LogSkip(slog.Default(), 1, slog.LevelDebug,
+		context.Background(),
+		"error parsing form",
+		"hints", strings.Join(hints, ", "), "error", err)
 	errStr := "bad form data"
 	if len(hints) > 0 {
 		errStr = fmt.Sprintf("%s - %s", errStr, strings.Join(hints, ", "))
@@ -34,7 +39,9 @@ func (x *Handler) BadFormDataError(w http.ResponseWriter, err error, hints ...st
 /* not found */
 
 func (x *Handler) BadRefIDError(w http.ResponseWriter, reftyp string, err error) {
-	log.Debug().CallerSkipFrame(1).Err(err).Msgf("bad %s ref-id", reftyp)
+	logger.LogSkip(slog.Default(), 1, slog.LevelDebug,
+		context.Background(),
+		"bad ref-id", "type", reftyp, "error", err)
 	x.Error(w, fmt.Sprintf("Invalid %s-ref-id", reftyp), http.StatusNotFound)
 }
 
@@ -45,7 +52,9 @@ func (x *Handler) NotFoundError(w http.ResponseWriter) {
 /* internal server error */
 
 func (x *Handler) DBError(w http.ResponseWriter, err error) {
-	log.Info().CallerSkipFrame(1).Stack().Err(err).Msg("db error")
+	logger.LogSkip(slog.Default(), 1, slog.LevelDebug,
+		context.Background(),
+		"db error", "error", err)
 	x.Error(w, "DB error", http.StatusInternalServerError)
 }
 
@@ -78,7 +87,9 @@ func (x *Handler) Error(w http.ResponseWriter, statusMsg string, code int) {
 	})
 	if err != nil {
 		// error rendering template, so just return a very basic status page
-		log.Debug().CallerSkipFrame(1).Err(err).Msg("custom error status page render issue")
+		logger.LogSkip(slog.Default(), 1, slog.LevelDebug,
+			context.Background(),
+			"custom error status page render issue", "error", err)
 		fmt.Fprintln(w, statusMsg)
 		return
 	}

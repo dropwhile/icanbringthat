@@ -2,90 +2,93 @@ package logger
 
 import (
 	"io"
+	"log"
+	"log/slog"
 	"os"
-	"strconv"
 	"strings"
-	"time"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
-func NewTestLogger(w io.Writer) zerolog.Logger {
-	// don't log timestamps for test logs,
-	// to enable log matching if desired.
-	logger := log.Output(
-		zerolog.ConsoleWriter{
-			Out:          w,
-			PartsExclude: []string{zerolog.TimestampFieldName},
-		},
-	).With().Caller().Logger()
-	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-		short := file
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
-		}
-		file = short
-		return file + ":" + strconv.Itoa(line)
+// defaults to info level
+var logLevel = &slog.LevelVar{}
+
+type Options struct {
+	UseLocalTime bool
+	OmitTime     bool
+	OmitSource   bool
+	Sink         io.Writer
+	Prependers   []AttrExtractor
+	Appenders    []AttrExtractor
+}
+
+func NewConsoleLogger(opts Options) *slog.Logger {
+	if opts.Sink == nil {
+		opts.Sink = os.Stderr
 	}
+	logHandler := slog.NewTextHandler(
+		opts.Sink,
+		&slog.HandlerOptions{
+			Level:       logLevel,
+			AddSource:   !opts.OmitSource,
+			ReplaceAttr: replaceAttr(opts),
+		},
+	)
+	return NewContextHandler(logHandler, opts)
+}
+
+func NewJsonLogger(opts Options) *slog.Logger {
+	if opts.Sink == nil {
+		opts.Sink = os.Stderr
+	}
+	logHandler := slog.NewJSONHandler(
+		opts.Sink,
+		&slog.HandlerOptions{
+			Level:       logLevel,
+			AddSource:   !opts.OmitSource,
+			ReplaceAttr: replaceAttr(opts),
+		},
+	)
+	return NewContextHandler(logHandler, opts)
+}
+
+func NewTestLogger(opts Options) *slog.Logger {
+	if opts.Sink == nil {
+		opts.Sink = os.Stderr
+	}
+	// always omit time for test logs,
+	// to enable log matching if desired.
+	opts.OmitTime = true
+	logHandler := slog.NewTextHandler(
+		opts.Sink,
+		&slog.HandlerOptions{
+			Level:       logLevel,
+			AddSource:   !opts.OmitSource,
+			ReplaceAttr: replaceAttr(opts),
+		},
+	)
 
 	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
 	case "debug":
-		logger = logger.Level(zerolog.DebugLevel)
-		logger.Debug().Msg("setting log level to debug")
-	case "trace":
-		logger = logger.Level(zerolog.TraceLevel)
-		logger.Trace().Msg("setting log level to trace")
+		logLevel.Set(slog.LevelDebug)
 	default:
-		logger = logger.Level(zerolog.InfoLevel)
-		logger.Info().Msgf("unexpected LOG_LEVEL env var set to '%s'",
-			strings.ToLower(os.Getenv("LOG_LEVEL")))
-		logger.Info().Msg("setting log level to info")
+		logLevel.Set(slog.LevelInfo)
 	}
-	return logger
+
+	return NewContextHandler(logHandler, opts)
 }
 
-func NewLogger(w io.Writer) zerolog.Logger {
-	// don't log timestamps for test logs,
-	// to enable log matching if desired.
-	logger := log.Output(
-		zerolog.ConsoleWriter{
-			Out:        w,
-			TimeFormat: time.RFC3339,
-		},
-	).With().Caller().Logger()
-	// zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-		short := file
-		counter := 0
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				if counter > 0 {
-					short = file[i+1:]
-					break
-				}
-				counter += 1
-			}
-		}
-
-		// prune from after @ to next /
-		atIdx := strings.Index(short, "@")
-		if atIdx >= 0 && atIdx+7 <= len(short) {
-			for i := atIdx; i < len(short); i++ {
-				if short[i] == '/' {
-					if i-atIdx > 7 {
-						short = short[:atIdx+7] + "..." + short[i:]
-					}
-					break
-				}
-			}
-		}
-
-		file = short
-		return file + ":" + strconv.Itoa(line)
+func SetupLogging(mkLogger func(Options) *slog.Logger, opts *Options) {
+	if opts == nil {
+		opts = &Options{}
 	}
-	return logger
+	if opts.Sink == nil {
+		opts.Sink = os.Stderr
+	}
+	logger := mkLogger(*opts)
+	slog.SetDefault(logger)
+	log.SetOutput(&logWriter{opts.Sink})
+	log.SetFlags(log.Lshortfile)
+}
+
+func SetLevel(level slog.Level) {
+	logLevel.Set(level)
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
-	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -53,7 +53,8 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
-		log.Debug().Str("body", string(out)).Msg("response")
+		slog.DebugContext(ctx, "response",
+			slog.String("body", string(out)))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -83,7 +84,8 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
-		log.Debug().Str("body", string(out)).Msg("response")
+		slog.DebugContext(ctx, "response",
+			slog.String("body", string(out)))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -112,7 +114,8 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
-		log.Debug().Str("body", string(out)).Msg("response")
+		slog.DebugContext(ctx, "response",
+			slog.String("body", string(out)))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
@@ -155,7 +158,8 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	response := rr.Result()
 	out, err := io.ReadAll(response.Body)
 	assert.NilError(t, err)
-	log.Debug().Str("body", string(out)).Msg("response")
+	slog.DebugContext(ctx, "response",
+		slog.String("body", string(out)))
 
 	// Check the status code is what we expect.
 	AssertStatusEqual(t, rr, http.StatusSeeOther)

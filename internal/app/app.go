@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/handler"
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -70,8 +69,8 @@ func New(
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.GetHead)
 	r.Use(header.RequestID)
-	if log.Trace().Enabled() {
-		r.Use(debug.RequestLogger(log.Logger))
+	if conf.RequestLogging {
+		r.Use(debug.RequestLogger())
 	}
 	r.Use(middleware.Recoverer)
 

@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/logger"
 )
 
 func GetUserVerifyByRefID(ctx context.Context, db model.PgxHandle,
@@ -46,13 +47,15 @@ func SetUserVerified(ctx context.Context, db model.PgxHandle,
 			user.WebAuthn, user.ID,
 		)
 		if innerErr != nil {
-			log.Debug().Err(innerErr).Msg("inner db error saving user")
+			slog.DebugContext(ctx, "inner db error saving user",
+				logger.Err(innerErr))
 			return innerErr
 		}
 
 		innerErr = model.DeleteUserVerify(ctx, tx, verifier.RefID)
 		if innerErr != nil {
-			log.Debug().Err(innerErr).Msg("inner db error cleaning up verifier token")
+			slog.DebugContext(ctx, "inner db error cleaning up verifier token",
+				logger.Err(innerErr))
 			return innerErr
 		}
 		return nil

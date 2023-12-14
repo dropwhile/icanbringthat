@@ -3,13 +3,14 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/session"
 )
 
@@ -44,9 +45,9 @@ func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handle
 			ctx := r.Context()
 			userID := sessMgr.GetInt(ctx, "user-id")
 			if userID != 0 {
-				user, err := model.GetUserByID(ctx, db, userID)
+				user, err := service.GetUserByID(ctx, db, userID)
 				if err != nil {
-					log.Err(err).Msg("authorization failure")
+					slog.InfoContext(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)
 					return
 				}

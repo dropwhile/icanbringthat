@@ -2,11 +2,11 @@ package handler
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -43,10 +43,11 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	}
 
 	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
+		slog.InfoContext(ctx,
+			"user id mismatch",
+			slog.Int("user.ID", user.ID),
+			slog.Int("event.UserID", event.UserID),
+		)
 		x.AccessDeniedError(w)
 		return
 	}
@@ -106,10 +107,10 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if user.ID != event.UserID {
-		log.Info().
-			Int("user.ID", user.ID).
-			Int("event.UserID", event.UserID).
-			Msg("user id mismatch")
+		slog.InfoContext(ctx, "user id mismatch",
+			slog.Int("user.ID", user.ID),
+			slog.Int("event.UserID", event.UserID),
+		)
 		x.AccessDeniedError(w)
 		return
 	}
@@ -245,15 +246,16 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if errx != nil {
-		log.Debug().
-			Err(errx).
-			Msg("failed to update eventitem")
+		slog.DebugContext(ctx,
+			"failed to update eventitem",
+			"error", errx)
 		switch errx.Code() {
 		case errs.FailedPrecondition:
-			log.Info().
-				Int("user.ID", user.ID).
-				Int("event.ID", event.ID).
-				Msg("eventItem.EventID and event.ID mismatch")
+			slog.InfoContext(ctx,
+				"eventItem.EventID and event.ID mismatch",
+				slog.Int("user.ID", user.ID),
+				slog.Int("event.ID", event.ID),
+			)
 			x.NotFoundError(w)
 		case errs.NotFound:
 			x.NotFoundError(w)
@@ -314,18 +316,18 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	errx = service.RemoveEventItem(
 		ctx, x.Db, user.ID, eventItemRefID,
 		func(ei *model.EventItem) bool {
-			log.Debug().
-				Int("user.ID", user.ID).
-				Int("event.ID", event.ID).
-				Int("eventItem.EventID", ei.EventID).
-				Msg("eventItem.EventID and event.ID comparison")
+			slog.DebugContext(ctx,
+				"eventItem.EventID and event.ID comparison",
+				slog.Int("user.ID", user.ID),
+				slog.Int("event.ID", event.ID),
+				slog.Int("eventItem.EventID", ei.EventID),
+			)
 			return ei.EventID != event.ID
 		},
 	)
 	if errx != nil {
-		log.Debug().
-			Err(errx).
-			Msg("failed to remove eventitem")
+		slog.DebugContext(ctx, "failed to remove eventitem",
+			"error", errx)
 		switch errx.Code() {
 		case errs.FailedPrecondition:
 			x.NotFoundError(w)

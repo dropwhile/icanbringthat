@@ -2,6 +2,8 @@ package main
 
 import (
 	_ "database/sql"
+	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -9,8 +11,6 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
@@ -41,43 +41,46 @@ func main() {
 
 	config, err := envconfig.Parse()
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse config")
+		log.Fatal("failed to parse config")
 		return
 	}
 
 	if config.LogFormat == "plain" {
-		log.Logger = logger.NewLogger(os.Stderr)
+		logger.SetupLogging(logger.NewConsoleLogger, nil)
+	} else {
+		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
-	zerolog.SetGlobalLevel(config.LogLevel)
-	log.Info().Msgf("setting log level: %s", config.LogLevel.String())
+	logger.SetLevel(config.LogLevel)
+	slog.Info("setting log level", "level", config.LogLevel)
 
 	if config.TemplateDir == "embed" {
-		log.Debug().Msg("templates: embedded")
+		slog.Debug("templates", "location", "embedded")
 	} else {
-		log.Debug().Msgf("templates: dir=%s", config.TemplateDir)
+		slog.Debug("templates", "location", config.TemplateDir)
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse templates")
+		logger.Fatal("failed to parse templates")
 		return
 	}
 
 	if config.StaticDir == "embed" {
-		log.Debug().Msgf("static: embedded")
+		slog.Debug("static", "location", "embedded")
 	} else {
-		log.Debug().Msgf("static: dir=%s", config.StaticDir)
+		slog.Debug("static", "location", config.StaticDir)
 	}
 
-	log.Info().Msgf("prod mode: %t", config.Production)
+	slog.Info("prod mode", "mode", config.Production)
 
 	//--------------------//
 	// configure services //
 	//--------------------//
 
 	// setup dbpool pool & models
-	dbpool, err := model.SetupDBPool(config.DatabaseDSN)
+	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to database")
+		logger.Fatal("failed to connect to database",
+			"error", err)
 		return
 	}
 	defer dbpool.Close()
@@ -87,17 +90,17 @@ func main() {
 	//----------------//
 	workerConfig := &WorkerConfig{}
 	if err := env.Parse(workerConfig); err != nil {
-		log.Fatal().Err(err).Msg("failed to parse config")
+		logger.Fatal("failed to parse config", "error", err)
 		return
 	}
 
 	jobList := NewJobList()
 	err = jobList.AddByName(workerConfig.Jobs...)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error adding worker jobs")
+		logger.Fatal("error adding worker jobs", "error", err)
 		return
 	}
-	log.Info().Msgf("configured workers: %s", jobList.String())
+	slog.Info("configured workers", "worklist", jobList.String())
 
 	// configure mailer
 	mailConfig := &mail.Config{
@@ -120,8 +123,7 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	log.Info().Msgf("server version: %s", Version)
-	log.Info().Msg("starting up...")
+	slog.Info("starting up...", "version", Version)
 
 	wg.Add(1)
 	go func() {
@@ -129,21 +131,20 @@ func main() {
 		for {
 			select {
 			case sig := <-signals:
-				log.Info().
-					Msgf("Got %s.", sig.String())
-				log.Info().Msg("Program will terminate now.")
+				slog.Info("Got", "signal", sig.String())
+				slog.Info("Program will terminate now.")
 				return
 			case <-timer.C:
 				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
 						dbpool, mailer, templates, config.BaseURL,
 					); err != nil {
-						log.Error().Err(err).Msg("notifier error!!")
+						slog.Error("notifier error!!", "error", err)
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
 					if err := service.ArchiveOldEvents(dbpool); err != nil {
-						log.Error().Err(err).Msg("archiver error!!")
+						slog.Error("archiver error!!", "error", err)
 					}
 				}
 				timer.Reset(timerInterval)

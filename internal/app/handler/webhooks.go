@@ -2,11 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"mime"
 	"net/http"
 	"strings"
-
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -50,13 +49,13 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	var pm PostMarkRecord
 	err := dec.Decode(&pm)
 	if err != nil {
-		log.Info().Err(err).Msg("webhook error")
+		slog.InfoContext(ctx, "webhook error", "error", err)
 		x.BadRequestError(w, "bad webhook data")
 		return
 	}
 
 	if pm.RecordType != "SubscriptionChange" {
-		log.Info().Any("postmark", pm).Msg("unexpecte RecordType")
+		slog.InfoContext(ctx, "unexpecte RecordType", "postmark", pm)
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -67,21 +66,21 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info().
-		Any("postmark", pm).
-		Msg("disabling reminders due to postmark callback")
+	slog.DebugContext(ctx,
+		"disabling reminders due to postmark callback",
+		"postmark", pm)
 	errx := service.DisableRemindersWithNotification(
 		ctx, x.Db, pm.Recipient, pm.SuppressionReason,
 	)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
-			log.Info().Err(err).Msg("no user found from callback")
+			slog.InfoContext(ctx, "no user found from callback",
+				"error", err)
 			w.WriteHeader(http.StatusOK)
 		case errs.FailedPrecondition:
-			log.Info().
-				Any("postmark", pm).
-				Msg("reminders already disabled")
+			slog.InfoContext(ctx, "reminders already disabled",
+				"postmark", pm)
 			w.WriteHeader(http.StatusOK)
 		default:
 			x.InternalServerError(w, errx.Msg())

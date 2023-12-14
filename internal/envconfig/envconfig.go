@@ -2,12 +2,12 @@ package envconfig
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/rs/zerolog"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -25,8 +25,9 @@ type EnvConfig struct {
 	Production bool   `env:"PRODUCTION" envDefault:"true"`
 	BaseURL    string `env:"BASE_URL,required"`
 	// logging
-	LogFormat string        `env:"LOG_FORMAT" envDefault:"json"`
-	LogLevel  zerolog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	LogFormat string     `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel  slog.Level `env:"LOG_LEVEL" envDefault:"info"`
+	LogTrace  bool       `env:"LOG_TRACE" envDDefault:"false"`
 	// tls/quic
 	TLSCert  string `env:"TLS_CERT,unset"`
 	TLSKey   string `env:"TLS_KEY,unset"`
@@ -146,6 +147,16 @@ func Parse() (*EnvConfig, error) {
 		if err != nil && os.IsNotExist(err) {
 			return nil, fmt.Errorf("tls cert does not exist or is not readable: %s", config.TLSKey)
 		}
+	}
+
+	if config.Production && config.LogTrace {
+		// trace logging not allowed in prod mode,
+		// as it may expose private data in sql
+		// queries.
+		// in that case, set to debug level
+		return nil, fmt.Errorf(
+			"disallowing running in production mode with trace logging, " +
+				"as it will emit in unsanitized data")
 	}
 
 	return config, nil

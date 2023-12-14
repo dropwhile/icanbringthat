@@ -3,16 +3,17 @@ package handler
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
@@ -74,10 +75,10 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 	messageHtml := buf.String()
 
-	log.Debug().
-		Str("plain", messagePlain).
-		Str("html", messageHtml).
-		Msg("email content")
+	slog.DebugContext(ctx, "email content",
+		slog.String("plain", messagePlain),
+		slog.String("html", messageHtml),
+	)
 
 	_ = user
 	x.Mailer.SendAsync("", []string{user.Email},
@@ -108,7 +109,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	hmacStr := chi.URLParam(r, "hmac")
 	refIDStr := chi.URLParam(r, "uvRefID")
 	if hmacStr == "" || refIDStr == "" {
-		log.Debug().Msg("missing url query data")
+		slog.DebugContext(ctx, "missing url query data")
 		x.NotFoundError(w)
 		return
 	}
@@ -116,13 +117,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// decode hmac
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
-		log.Debug().Err(err).Msg("error decoding hmac data")
+		slog.DebugContext(ctx, "error decoding hmac data", logger.Err(err))
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
-		log.Debug().Msg("invalid hmac!")
+		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
@@ -136,13 +137,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	verifier, errx := service.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
 	if errx != nil {
-		log.Debug().Err(err).Msg("no verifier match")
+		slog.DebugContext(ctx, "no verifier match", logger.Err(errx))
 		x.NotFoundError(w)
 		return
 	}
 
 	if model.IsExpired(verifier.RefID, model.UserVerifyExpiry) {
-		log.Debug().Err(err).Msg("verifier is expired")
+		slog.DebugContext(ctx, "verifier is expired")
 		x.NotFoundError(w)
 		return
 	}
@@ -150,7 +151,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	user.Verified = true
 	errx = service.SetUserVerified(ctx, x.Db, user, verifier)
 	if errx != nil {
-		log.Debug().Err(err).Msg("error saving verification")
+		slog.DebugContext(ctx, "error saving verification", logger.Err(errx))
 		x.InternalServerError(w, errx.Msg())
 		return
 	}

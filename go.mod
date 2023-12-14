@@ -11,18 +11,17 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.1
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-chi/httplog v0.3.2
+	github.com/go-chi/httplog/v2 v2.0.8
 	github.com/go-webauthn/webauthn v0.9.4
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v3 v3.2.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
-	github.com/quic-go/quic-go v0.40.0
+	github.com/pkg/errors v0.9.1
+	github.com/quic-go/quic-go v0.40.1
 	github.com/redis/go-redis/v9 v9.3.0
-	github.com/rs/zerolog v1.31.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-emoji v1.0.2
@@ -47,8 +46,8 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
-	github.com/google/pprof v0.0.0-20231205033806-a5a03c77bf08 // indirect
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/pprof v0.0.0-20231212022811-ec68065c825e // indirect
+	github.com/google/uuid v1.5.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
@@ -57,8 +56,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -77,7 +74,7 @@ require (
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.16.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16

@@ -8,13 +8,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
+	"golang.org/x/exp/slog"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -140,9 +141,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 
 	event, errx := service.AddFavorite(ctx, x.Db, user.ID, eventRefID)
 	if errx != nil {
-		log.Info().
-			Err(errx).
-			Msg("error adding favorite")
+		slog.InfoContext(ctx, "error adding favorite", logger.Err(errx))
 		switch errx.Code() {
 		case errs.AlreadyExists:
 			x.BadRequestError(w, "already favorited")
@@ -194,9 +193,7 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 
 	errx := service.RemoveFavorite(ctx, x.Db, user.ID, eventRefID)
 	if errx != nil {
-		log.Info().
-			Err(errx).
-			Msg("error deleting favorite")
+		slog.InfoContext(ctx, "error deleting favorite", logger.Err(errx))
 		switch errx.Code() {
 		case errs.Internal:
 			x.InternalServerError(w, errx.Msg())
