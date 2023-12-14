@@ -74,7 +74,6 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 		case slog.LevelKey:
 			if len(groups) == 0 {
 				if v, ok := a.Value.Any().(slog.Level); ok {
-					a.Key = "lev"
 					switch v {
 					case slog.LevelDebug:
 						a.Value = slog.StringValue("DBG")

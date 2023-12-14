@@ -50,34 +50,26 @@ func main() {
 	}
 
 	logger.SetLevel(config.LogLevel)
-	slog.With(
-		"level", config.LogLevel,
-		"trace", config.LogTrace,
-	).Info("setting log level")
 
-	if config.TemplateDir == "embed" {
-		slog.With("location", "embedded").
-			Debug("templates")
-	} else {
-		slog.With("location", config.TemplateDir).
-			Debug("templates")
-	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
 		logger.Fatal("failed to parse templates", "error", err)
 		return
 	}
 
-	if config.StaticDir == "embed" {
-		slog.With("location", "embedded").
-			Debug("static")
-	} else {
-		slog.With("location", config.StaticDir).
-			Debug("static")
-	}
-
-	slog.With("mode", config.Production).
-		Info("prod mode")
+	slog.With(
+		slog.Group("logging",
+			"level", config.LogLevel,
+			"trace", config.LogTrace,
+		),
+		slog.Group("templates",
+			"location", config.TemplateDir,
+		),
+		slog.Group("static",
+			"location", config.StaticDir,
+		),
+		slog.Bool("production", config.Production),
+	).Info("startup configuration")
 
 	//--------------------//
 	// configure services //
