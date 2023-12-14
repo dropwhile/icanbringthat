@@ -70,8 +70,8 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 		}
 
 		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
-		r.AddAttrs(attrs...)
-		_ = slog.Default().Handler().WithGroup("sql").Handle(ctx, r)
+		r.AddAttrs(slog.Attr{Key: "sql", Value: slog.GroupValue(attrs...)})
+		_ = slog.Default().Handler().Handle(ctx, r)
 	}
 
 	config.ConnConfig.Tracer = &tracelog.TraceLog{

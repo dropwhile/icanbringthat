@@ -21,9 +21,13 @@ type Options struct {
 }
 
 func newContextHandler(next slog.Handler, opts Options) *slog.Logger {
+	// add defaults
+	prependers := []AttrExtractor{ContextExtractor}
+	// add custom additions
+	prependers = append(prependers, opts.Prependers...)
 	h := &ContextHandler{
 		next,
-		opts.Prependers,
+		prependers,
 		opts.Appenders,
 	}
 	return slog.New(h)

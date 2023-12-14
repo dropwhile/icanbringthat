@@ -1,16 +1,13 @@
 package logger
 
 import (
-	"context"
 	"log/slog"
 	"regexp"
 	"strings"
 	"time"
-
-	slogcontext "github.com/veqryn/slog-context"
 )
 
-var re = regexp.MustCompile(`^v[0-9]+@`)
+var versionyRE = regexp.MustCompile(`^v[0-9]+@`)
 
 func trimFilePath(file string) string {
 	short := file
@@ -19,7 +16,7 @@ func trimFilePath(file string) string {
 		if file[i] == '/' {
 			if counter > 0 {
 				short = file[i+1:]
-				if re.MatchString(short) {
+				if versionyRE.MatchString(short) {
 					continue
 				}
 				break
@@ -89,10 +86,6 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 
 		return a
 	}
-}
-
-func PrependAttr(ctx context.Context, args ...any) context.Context {
-	return slogcontext.Prepend(ctx, args...)
 }
 
 func Err(err error) slog.Attr {
