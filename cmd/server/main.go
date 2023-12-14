@@ -50,8 +50,10 @@ func main() {
 	}
 
 	logger.SetLevel(config.LogLevel)
-	slog.With("level", config.LogLevel).
-		Info("setting log level")
+	slog.With(
+		"level", config.LogLevel,
+		"trace", config.LogTrace,
+	).Info("setting log level")
 
 	if config.TemplateDir == "embed" {
 		slog.With("location", "embedded").
