@@ -112,13 +112,24 @@ func LogSkip(logger *slog.Logger, skip int, level slog.Level,
 		return
 	}
 
+	handler := logger.Handler()
+	addSrc := true
+	if ctxhandler, ok := handler.(*ContextHandler); ok {
+		if ctxhandler.opts.OmitSource {
+			addSrc = false
+		}
+	}
+
 	var pcs [1]uintptr
-	// skip [runtime.Callers, this function, this function's caller]
-	runtime.Callers(2+skip, pcs[:]) // skip [Callers, log, wrapper]
+	// skip runtime caller overhead if not actually adding emitting src
+	if addSrc {
+		// skip [runtime.Callers, this function, this function's caller]
+		runtime.Callers(2+skip, pcs[:]) // skip [Callers, log, wrapper]
+	}
 
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.Add(args...)
-	_ = logger.Handler().Handle(ctx, r)
+	_ = handler.Handle(ctx, r)
 }
 
 func LogAttrsSkip(logger *slog.Logger, skip int, level slog.Level,
@@ -131,9 +142,20 @@ func LogAttrsSkip(logger *slog.Logger, skip int, level slog.Level,
 		return
 	}
 
+	handler := logger.Handler()
+	addSrc := true
+	if ctxhandler, ok := handler.(*ContextHandler); ok {
+		if ctxhandler.opts.OmitSource {
+			addSrc = false
+		}
+	}
+
 	var pcs [1]uintptr
-	// skip [runtime.Callers, this function, this function's caller]
-	runtime.Callers(2+skip, pcs[:])
+	// skip runtime caller overhead if not actually adding emitting src
+	if addSrc {
+		// skip [runtime.Callers, this function, this function's caller]
+		runtime.Callers(2+skip, pcs[:])
+	}
 
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.AddAttrs(attrs...)
