@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"slices"
@@ -10,13 +11,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/htmx"
+	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -158,9 +159,12 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	// sort if needed
 	if len(event.ItemSortOrder) > 0 {
-		log.Trace().
-			Str("sortOrder", fmt.Sprintf("%v", event.ItemSortOrder)).
-			Msg("sorting")
+		slog.DebugContext(ctx, "item sorting",
+			slog.Any("sortOrder",
+				logger.DeferOperation(event.ItemSortOrder, func(i []int) string {
+					return fmt.Sprintf("%v", i)
+				})),
+		)
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
 		eventItemLen := len(eventItems)
 		sortedList := make([]*model.EventItem, len(event.ItemSortOrder))
@@ -351,14 +355,14 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
-		log.Debug().Err(err).Msg("error loading tz")
+		slog.DebugContext(ctx, "error loading tz", "error", err)
 		tz = "Etc/UTC"
 		loc, _ = time.LoadLocation(tz)
 	}
 
 	startTime, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 	if err != nil {
-		log.Debug().Err(err).Msg("error parsing start time")
+		slog.DebugContext(ctx, "error parsing start time", "error", err)
 		x.BadFormDataError(w, err, "when", "loc")
 		return
 	}
@@ -421,13 +425,13 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	if when != "" && ptz != "" {
 		loc, err := time.LoadLocation(ptz)
 		if err != nil {
-			log.Debug().Err(err).Msg("error loading tz")
+			slog.DebugContext(ctx, "error loading tz", "error", err)
 			ptz = "Etc/UTC"
 			loc, _ = time.LoadLocation(ptz)
 		}
 		t, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 		if err != nil {
-			log.Debug().Err(err).Msg("error parsing start time")
+			slog.DebugContext(ctx, "error parsing start time", "error", err)
 			x.BadFormDataError(w, err, "when")
 			return
 		}

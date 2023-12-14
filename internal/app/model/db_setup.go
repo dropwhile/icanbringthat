@@ -33,6 +33,7 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 		for k, v := range data {
 			attrs = append(attrs, slog.Any(k, v))
 		}
+		groupAttr := slog.Attr{Key: "sql", Value: slog.GroupValue(attrs...)}
 
 		var pcs [1]uintptr
 		pcz := make([]uintptr, 12)
@@ -70,7 +71,7 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 		}
 
 		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
-		r.AddAttrs(slog.Attr{Key: "sql", Value: slog.GroupValue(attrs...)})
+		r.AddAttrs(groupAttr)
 		_ = slog.Default().Handler().Handle(ctx, r)
 	}
 

@@ -3,12 +3,12 @@ package handler
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -66,13 +66,13 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	// decode hmac
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
-		log.Debug().Err(err).Msg("error decoding hmac data")
+		slog.DebugContext(ctx, "error decoding hmac data", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
-		log.Debug().Msg("invalid hmac!")
+		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
@@ -80,7 +80,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	// hmac checks out. ok to parse refid now.
 	refID, err := model.ParseUserPWResetRefID(refIDStr)
 	if err != nil {
-		log.Debug().Err(err).Msg("bad refid")
+		slog.DebugContext(ctx, "bad refid", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
 		x.BadRefIDError(w, "verify", err)
 		return
@@ -88,20 +88,20 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 
 	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
 	if errx != nil {
-		log.Debug().Err(err).Msg("no upw match")
+		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 
 	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
-		log.Debug().Err(err).Msg("token expired")
+		slog.DebugContext(ctx, "token expired")
 		x.NotFoundError(w)
 		return
 	}
 
 	_, err = service.GetUserByID(ctx, x.Db, upw.UserID)
 	if err != nil {
-		log.Debug().Err(err).Msg("no user match")
+		slog.DebugContext(ctx, "no user match", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
@@ -147,7 +147,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
-			log.Info().Err(errx).Msg("no user found")
+			slog.InfoContext(ctx, "no user found", "error", errx)
 			doFake = true
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -161,9 +161,10 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	}
 
 	if doFake {
-		log.Info().
-			Str("email", email).
-			Msg("pretending to sent password reset email")
+		slog.InfoContext(ctx,
+			"pretending to sent password reset email",
+			slog.String("email", email),
+		)
 	}
 
 	if !doFake {
@@ -219,10 +220,10 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		}
 		messageHtml := buf.String()
 
-		log.Debug().
-			Str("plain", messagePlain).
-			Str("html", messageHtml).
-			Msg("email content")
+		slog.DebugContext(ctx, "email content",
+			slog.String("plain", messagePlain),
+			slog.String("html", messageHtml),
+		)
 
 		_ = user
 		x.Mailer.SendAsync("", []string{user.Email},
@@ -250,7 +251,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	hmacStr := chi.URLParam(r, "hmac")
 	refIDStr := chi.URLParam(r, "upwRefID")
 	if hmacStr == "" || refIDStr == "" {
-		log.Debug().Msg("missing url query data")
+		slog.DebugContext(ctx, "missing url query data")
 		x.NotFoundError(w)
 		return
 	}
@@ -265,13 +266,13 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// decode hmac
 	hmacBytes, err := encoder.Base32DecodeString(hmacStr)
 	if err != nil {
-		log.Debug().Err(err).Msg("error decoding hmac data")
+		slog.DebugContext(ctx, "error decoding hmac data", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 	// check hmac
 	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
-		log.Debug().Msg("invalid hmac!")
+		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
@@ -285,34 +286,34 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 
 	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
 	if errx != nil {
-		log.Debug().Err(err).Msg("no upw match")
+		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 
 	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
-		log.Debug().Err(err).Msg("token expired")
+		slog.DebugContext(ctx, "token expired")
 		x.NotFoundError(w)
 		return
 	}
 
 	user, errx := service.GetUserByID(ctx, x.Db, upw.UserID)
 	if errx != nil {
-		log.Debug().Err(err).Msg("no user match")
+		slog.DebugContext(ctx, "no user match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
 		return
 	}
 
 	// if pw auth is disabled, do not send email either
 	if !user.PWAuth {
-		log.Info().Msg("pw reset attempt but pw auth disabled")
+		slog.InfoContext(ctx, "pw reset attempt but pw auth disabled")
 		x.AccessDeniedError(w)
 		return
 	}
 
 	pwHash, err := model.HashPass(ctx, []byte(newPasswd))
 	if err != nil {
-		log.Debug().Err(err).Msg("error updating password")
+		slog.DebugContext(ctx, "error updating password", "error", err)
 		x.InternalServerError(w, "error updating user password")
 		return
 	}

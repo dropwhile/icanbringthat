@@ -3,13 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -57,7 +57,7 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
@@ -99,14 +99,14 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 		webauthn.WithExclusions(excludeList),
 	)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
 	val, err := json.Marshal(sessionData)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
@@ -126,7 +126,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
@@ -135,7 +135,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 
 	keyName := r.FormValue("key_name")
 	if keyName == "" {
-		log.Debug().Msg("missing param data")
+		slog.DebugContext(ctx, "missing param data")
 		x.BadFormDataError(w, err, "key_name")
 		return
 	}
@@ -143,19 +143,22 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 	var sessionData webauthn.SessionData
 	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:register").([]byte)
 	if err := json.Unmarshal(sessionBytes, &sessionData); err != nil {
-		log.Info().Err(err).Msg("error decoding json webauthn session")
+		slog.InfoContext(ctx, "error decoding json webauthn session",
+			"error", err)
 		x.BadSessionDataError(w)
 		return
 	}
 
 	credential, err := authnInstance.FinishRegistration(authNUser, sessionData, r)
 	if err != nil {
-		log.Info().Err(err).Msg("error finishing webauthn registration")
+		slog.InfoContext(ctx, "error finishing webauthn registration",
+			"error", err)
 		x.InternalServerError(w, "webauthn registration error")
 		return
 	}
 	if err := authNUser.AddCredential(keyName, credential); err != nil {
-		log.Info().Err(err).Msg("error finishing webauthn registration")
+		slog.InfoContext(ctx, "error finishing webauthn registration",
+			"error", err)
 		x.InternalServerError(w, "webauthn registration error")
 		return
 	}
@@ -176,7 +179,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
 			MapSA{"error": "Passkey login failed"},
 		)
@@ -188,7 +191,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	options, sessionData, err := authnInstance.BeginDiscoverableLogin(opts...)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusBadRequest,
 			MapSA{"error": "Passkey login failed"},
 		)
@@ -197,7 +200,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 
 	val, err := json.Marshal(sessionData)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
 			MapSA{"error": "Passkey login failed"},
 		)
@@ -220,7 +223,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 
 	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
 	if err != nil {
-		log.Info().Err(err).Msg("webauthn error")
+		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
 			MapSA{"error": "Passkey login failed"},
 		)
@@ -230,7 +233,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	var sessionData webauthn.SessionData
 	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:login").([]byte)
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
-		log.Info().Err(err).Msg("error decoding json webauthn session")
+		slog.ErrorContext(ctx, "error decoding json webauthn session", "error", err)
 		x.Json(w, http.StatusBadRequest,
 			MapSA{"error": "bad session data"},
 		)
@@ -261,7 +264,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = authnInstance.FinishDiscoverableLogin(handler, sessionData, r)
 	if err != nil {
-		log.Info().Err(err).Msg("error finishing webauthn login")
+		slog.InfoContext(ctx, "error finishing webauthn login", "error", err)
 		x.Json(w, http.StatusForbidden, MapSA{"error": "Passkey login failed"})
 		return
 	}
@@ -300,7 +303,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
-			log.Info().Err(err).Msg("credential not found")
+			slog.InfoContext(ctx, "credential not found", "error", err)
 			x.NotFoundError(w)
 		default:
 			x.InternalServerError(w, errx.Msg())
@@ -320,7 +323,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if count == 1 && user.WebAuthn {
-		log.Debug().Msg("refusing to remove last passkey when password auth disabled")
+		slog.DebugContext(ctx, "refusing to remove last passkey when password auth disabled")
 		x.BadRequestError(w, "pre-condition failed")
 		return
 	}

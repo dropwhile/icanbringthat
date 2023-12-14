@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog/log"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -65,7 +65,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	// find user...
 	user, errx := service.GetUserByEmail(ctx, x.Db, email)
 	if errx != nil || user == nil {
-		log.Debug().Err(err).Msg("invalid credentials: no user match")
+		slog.DebugContext(ctx, "invalid credentials: no user match", "error", err)
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -73,9 +73,10 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if !user.PWAuth {
 		// no valid auth flow
-		log.Warn().
-			Int("userID", user.ID).
-			Msg("invalid credentials: no valid auth flow")
+		slog.WarnContext(ctx,
+			"invalid credentials: no valid auth flow",
+			slog.Int("userID", user.ID),
+		)
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -83,7 +84,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		// validate credentials...
 		ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
 		if err != nil || !ok {
-			log.Debug().Err(err).Msg("invalid credentials: pass check fail")
+			slog.DebugContext(ctx, "invalid credentials: pass check fail", "error", err)
 			x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
