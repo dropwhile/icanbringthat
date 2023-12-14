@@ -37,9 +37,10 @@ func main() {
 		return
 	}
 
-	if config.LogFormat == "plain" {
+	switch config.LogFormat {
+	case "plain":
 		logger.SetupLogging(logger.NewConsoleLogger, nil)
-	} else {
+	default:
 		logger.SetupLogging(logger.NewJsonLogger, nil)
 	}
 
