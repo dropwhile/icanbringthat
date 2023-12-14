@@ -100,7 +100,7 @@ func main() {
 		logger.Fatal("error adding worker jobs", "error", err)
 		return
 	}
-	slog.Info("configured workers", "worklist", jobList.String())
+	slog.Info("configured workers", "worklist", jobList)
 
 	// configure mailer
 	mailConfig := &mail.Config{
