@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"strings"
 
 	"github.com/dropwhile/icbt/internal/util"
@@ -44,12 +43,12 @@ func (jl *JobList) AddByName(jobnames ...string) error {
 	return nil
 }
 
-func (jl *JobList) LogValuer() slog.Value {
+func (jl *JobList) String() string {
 	names := make([]string, 0)
 	for _, job := range jl.jobs {
 		names = append(names, string(job))
 	}
-	return slog.StringValue(strings.Join(names, ","))
+	return strings.Join(names, ",")
 }
 
 func (jl *JobList) Contains(job Job) bool {
