@@ -20,19 +20,6 @@ type Options struct {
 	Appenders    []AttrExtractor
 }
 
-func newContextHandler(next slog.Handler, opts Options) *slog.Logger {
-	// add defaults
-	prependers := []AttrExtractor{ContextExtractor}
-	// add custom additions
-	prependers = append(prependers, opts.Prependers...)
-	h := &ContextHandler{
-		next,
-		prependers,
-		opts.Appenders,
-	}
-	return slog.New(h)
-}
-
 func NewConsoleLogger(opts Options) *slog.Logger {
 	if opts.Sink == nil {
 		opts.Sink = os.Stderr
@@ -45,7 +32,7 @@ func NewConsoleLogger(opts Options) *slog.Logger {
 			ReplaceAttr: replaceAttr(opts),
 		},
 	)
-	return newContextHandler(logHandler, opts)
+	return NewContextHandler(logHandler, opts)
 }
 
 func NewJsonLogger(opts Options) *slog.Logger {
@@ -60,7 +47,7 @@ func NewJsonLogger(opts Options) *slog.Logger {
 			ReplaceAttr: replaceAttr(opts),
 		},
 	)
-	return newContextHandler(logHandler, opts)
+	return NewContextHandler(logHandler, opts)
 }
 
 func NewTestLogger(opts Options) *slog.Logger {
@@ -86,7 +73,7 @@ func NewTestLogger(opts Options) *slog.Logger {
 		logLevel.Set(slog.LevelInfo)
 	}
 
-	return newContextHandler(logHandler, opts)
+	return NewContextHandler(logHandler, opts)
 }
 
 func SetupLogging(mkLogger func(Options) *slog.Logger, opts *Options) {

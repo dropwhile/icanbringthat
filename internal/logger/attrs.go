@@ -49,6 +49,8 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 		}
 
 		switch a.Key {
+		// change time keyname, as well as use UTC when
+		// the option is not set to localtime
 		case slog.TimeKey:
 			if len(groups) == 0 {
 				if v, ok := a.Value.Any().(time.Time); ok {
@@ -59,26 +61,40 @@ func replaceAttr(opts Options) func([]string, slog.Attr) slog.Attr {
 				}
 			}
 		// Remove the directory from the source's filename.
+		// remove function name as well
 		case slog.SourceKey:
 			if len(groups) == 0 {
 				a.Key = "src"
 				source := a.Value.Any().(*slog.Source)
 				source.File = trimFilePath(source.File)
+				source.Function = ""
 			}
 		// Customize the name of the level key and the output string, including
 		// custom level values.
 		case slog.LevelKey:
 			if len(groups) == 0 {
-				if _, ok := a.Value.Any().(slog.Level); ok {
-					a.Key = "lvl"
+				if v, ok := a.Value.Any().(slog.Level); ok {
+					a.Key = "lev"
+					switch v {
+					case slog.LevelDebug:
+						a.Value = slog.StringValue("DBG")
+					case slog.LevelInfo:
+						a.Value = slog.StringValue("INF")
+					case slog.LevelWarn:
+						a.Value = slog.StringValue("WRN")
+					case slog.LevelError:
+						a.Value = slog.StringValue("ERR")
+					default:
+						a.Value = slog.StringValue(v.String())
+					}
 				}
 			}
 		}
 
 		switch a.Value.Kind() {
-		// other cases
 		case slog.KindAny:
 			switch v := a.Value.Any().(type) {
+			// some additiona formatting for error traces?
 			case error:
 				a.Value = fmtErr(v)
 			}

@@ -93,3 +93,16 @@ func (h *ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 func (h *ContextHandler) WithGroup(name string) slog.Handler {
 	return &ContextHandler{h.Handler.WithGroup(name), h.Prependers, h.Appenders}
 }
+
+func NewContextHandler(next slog.Handler, opts Options) *slog.Logger {
+	// add defaults
+	prependers := []AttrExtractor{ContextExtractor}
+	// add custom additions
+	prependers = append(prependers, opts.Prependers...)
+	h := &ContextHandler{
+		next,
+		prependers,
+		opts.Appenders,
+	}
+	return slog.New(h)
+}
