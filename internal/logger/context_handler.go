@@ -10,6 +10,7 @@ type AttrExtractor func(context.Context, time.Time, slog.Level, string) []slog.A
 
 type ContextHandler struct {
 	slog.Handler
+	opts       Options
 	Prependers []AttrExtractor
 	Appenders  []AttrExtractor
 }
@@ -68,7 +69,12 @@ func (h *ContextHandler) Handle(ctx context.Context, r slog.Record) error {
 // both the receiver's attributes and the arguments.
 // The Handler owns the slice: it may retain, modify or discard it.
 func (h *ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &ContextHandler{h.Handler.WithAttrs(attrs), h.Prependers, h.Appenders}
+	return &ContextHandler{
+		h.Handler.WithAttrs(attrs),
+		h.opts,
+		h.Prependers,
+		h.Appenders,
+	}
 }
 
 // WithGroup returns a new Handler with the given group appended to
@@ -91,7 +97,16 @@ func (h *ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 //
 // If the name is empty, WithGroup returns the receiver.
 func (h *ContextHandler) WithGroup(name string) slog.Handler {
-	return &ContextHandler{h.Handler.WithGroup(name), h.Prependers, h.Appenders}
+	return &ContextHandler{
+		h.Handler.WithGroup(name),
+		h.opts,
+		h.Prependers,
+		h.Appenders,
+	}
+}
+
+func (h *ContextHandler) Options() Options {
+	return h.opts
 }
 
 func NewContextHandler(next slog.Handler, opts Options) *slog.Logger {
@@ -101,6 +116,7 @@ func NewContextHandler(next slog.Handler, opts Options) *slog.Logger {
 	prependers = append(prependers, opts.Prependers...)
 	h := &ContextHandler{
 		next,
+		opts,
 		prependers,
 		opts.Appenders,
 	}

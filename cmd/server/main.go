@@ -37,20 +37,28 @@ func main() {
 		return
 	}
 
+	// omit src line in production logs
+	opts := &logger.Options{
+		OmitSource: config.Production,
+	}
+
 	switch config.LogFormat {
 	case "plain":
-		logger.SetupLogging(logger.NewConsoleLogger, nil)
+		logger.SetupLogging(logger.NewConsoleLogger, opts)
 	default:
-		logger.SetupLogging(logger.NewJsonLogger, nil)
+		logger.SetupLogging(logger.NewJsonLogger, opts)
 	}
 
 	logger.SetLevel(config.LogLevel)
-	slog.Info("setting log level", "level", config.LogLevel)
+	slog.With("level", config.LogLevel).
+		Info("setting log level")
 
 	if config.TemplateDir == "embed" {
-		slog.Debug("templates", "location", "embedded")
+		slog.With("location", "embedded").
+			Debug("templates")
 	} else {
-		slog.Debug("templates", "location", config.TemplateDir)
+		slog.With("location", config.TemplateDir).
+			Debug("templates")
 	}
 	templates, err := resources.ParseTemplates(config.TemplateDir)
 	if err != nil {
@@ -59,12 +67,15 @@ func main() {
 	}
 
 	if config.StaticDir == "embed" {
-		slog.Debug("static", "location", "embedded")
+		slog.With("location", "embedded").
+			Debug("static")
 	} else {
-		slog.Debug("static", "location", config.StaticDir)
+		slog.With("location", config.StaticDir).
+			Debug("static")
 	}
 
-	slog.Info("prod mode", "mode", config.Production)
+	slog.With("mode", config.Production).
+		Info("prod mode")
 
 	//--------------------//
 	// configure services //
@@ -73,14 +84,18 @@ func main() {
 	// setup dbpool pool & models
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
-		logger.Fatal("failed to connect to database", "error", err)
+		slog.With("error", err).
+			Error("failed to connect to database")
+		os.Exit(1)
 		return
 	}
 	defer dbpool.Close()
 
 	redisOpt, err := redis.ParseURL(config.RedisDSN)
 	if err != nil {
-		logger.Fatal("failed to connect to redis", "error", err)
+		slog.With("error", err).
+			Error("failed to connect to redis")
+		os.Exit(1)
 		return
 	}
 
@@ -143,19 +158,22 @@ func main() {
 		slog.Info("Server shutting down...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			slog.Error("HTTP server shutdown error", "error", err)
+			slog.With("error", err).
+				Error("HTTP server shutdown error")
 		}
 		if quicServer != nil {
 			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
 				// Error from closing listeners, or context timeout:
-				slog.Error("HTTP/3 server shutdown error", "error", err)
+				slog.With("error", err).
+					Error("HTTP/3 server shutdown error")
 			}
 		}
 		close(idleConnsClosed)
 	}()
 
 	// listen
-	slog.Info("starting up...", "version", Version)
+	slog.With("version", Version).
+		Info("starting up...")
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
 			// add quic headers to https/tls server
@@ -169,35 +187,44 @@ func main() {
 
 			// start up http3/quic server
 			go func() {
-				slog.Info("listening",
-					"proto", "https/quic",
-					"listen", config.Listen)
+				slog.With(
+					slog.String("proto", "https/quic"),
+					slog.String("listen", config.Listen),
+				).Info("listening")
 				if err := quicServer.ListenAndServeTLS(
 					config.TLSCert, config.TLSKey,
 				); err != nil && !errors.Is(err, http.ErrServerClosed) {
-					logger.Fatal("HTTP/3 server error", "error", err)
+					slog.With("error", err).
+						Error("HTTP/3 server error")
+					os.Exit(1)
 					return
 				}
 			}()
 		}
 		// startup https3/tls server
 		go func() {
-			slog.Info("listening",
-				"proto", "https/tls",
-				"listen", config.Listen)
+			slog.With(
+				slog.String("proto", "https/tls"),
+				slog.String("listen", config.Listen),
+			).Info("listening")
 			if err := server.ListenAndServeTLS(
 				config.TLSCert, config.TLSKey,
 			); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				logger.Fatal("HTTP server error", "error", err)
+				slog.With("error", err).
+					Error("HTTPS server error")
+				os.Exit(1)
 				return
 			}
 		}()
 	} else {
-		slog.Info("listening",
-			"proto", "http",
-			"listen", config.Listen)
+		slog.With(
+			slog.String("proto", "http"),
+			slog.String("listen", config.Listen),
+		).Info("listening")
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Fatal("HTTP server error", "error", err)
+			slog.With("error", err).
+				Error("HTTP server error")
+			os.Exit(1)
 			return
 		}
 	}
