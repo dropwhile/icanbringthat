@@ -33,8 +33,10 @@ func (tm *TemplateMap) Get(name string) (TemplateIf, error) {
 	return nil, fmt.Errorf("template not found for name %s", name)
 }
 
+type ttype int
+
 const (
-	tmapIdxHtml = iota
+	tmapIdxHtml ttype = iota
 	tmapIdxTxt
 )
 
@@ -42,22 +44,6 @@ type TContainer struct {
 	tmaps [2]TemplateMap
 	tfs   fs.FS
 	embed bool
-}
-
-type TGetter interface {
-	Get(string) (TemplateIf, error)
-}
-
-type anonGetter struct {
-	tpls TemplateMap
-}
-
-func (ag *anonGetter) Get(name string) (TemplateIf, error) {
-	return ag.tpls.Get(name)
-}
-
-func MockTContainer(tplm TemplateMap) TGetter {
-	return &anonGetter{tplm}
 }
 
 func (tc *TContainer) Get(name string) (TemplateIf, error) {
@@ -125,24 +111,57 @@ func getTemplateFS(templatesDir string) (fs.FS, error) {
 	return templateFS, nil
 }
 
-func getBaseHtmlTpl(tfs fs.FS) (*htmltemplate.Template, fs.FS, error) {
-	baseTpls, err := htmltemplate.New("").
-		Funcs(templateFuncMap).
-		Funcs(sprig.FuncMap()).
-		ParseFS(
-			tfs,
-			"html/layout/*.gohtml",
-			"html/partial/*.gohtml",
-		)
-	if err != nil {
-		return nil, nil, err
+func getBaseTpl(tfs fs.FS, tt ttype) (any, fs.FS, error) {
+	var t any
+	var subdir string
+	switch tt {
+	case tmapIdxHtml:
+		baseTpls, err := htmltemplate.New("").
+			Funcs(templateFuncMap).
+			Funcs(sprig.FuncMap()).
+			ParseFS(
+				tfs,
+				"html/layout/*.gohtml",
+				"html/partial/*.gohtml",
+			)
+		if err != nil {
+			return nil, nil, err
+		}
+		t = baseTpls
+		subdir = "html/view"
+	case tmapIdxTxt:
+		baseTpls := txttemplate.New("").
+			Funcs(templateFuncMap).
+			Funcs(sprig.FuncMap())
+		t = baseTpls
+		subdir = "txt"
+	default:
+		return nil, nil, fmt.Errorf("unknown type")
 	}
 
-	viewSub, err := fs.Sub(tfs, "html/view")
+	viewSub, err := fs.Sub(tfs, subdir)
 	if err != nil {
 		return nil, nil, err
 	}
-	return baseTpls, viewSub, nil
+	return t, viewSub, nil
+}
+
+func getBaseHtmlTpl(tfs fs.FS) (*htmltemplate.Template, fs.FS, error) {
+	tpl, sub, err := getBaseTpl(tfs, tmapIdxHtml)
+	if err != nil {
+		return nil, nil, err
+	}
+	t := tpl.(*htmltemplate.Template)
+	return t, sub, err
+}
+
+func getBaseTxtTpl(tfs fs.FS) (*txttemplate.Template, fs.FS, error) {
+	tpl, sub, err := getBaseTpl(tfs, tmapIdxHtml)
+	if err != nil {
+		return nil, nil, err
+	}
+	t := tpl.(*txttemplate.Template)
+	return t, sub, err
 }
 
 func ParseHtmlTemplates(tfs fs.FS) (TemplateMap, error) {
@@ -175,18 +194,6 @@ func ParseHtmlTemplates(tfs fs.FS) (TemplateMap, error) {
 	})
 
 	return templates, err
-}
-
-func getBaseTxtTpl(tfs fs.FS) (*txttemplate.Template, fs.FS, error) {
-	baseTpls := txttemplate.New("").
-		Funcs(templateFuncMap).
-		Funcs(sprig.FuncMap())
-
-	viewSub, err := fs.Sub(tfs, "txt")
-	if err != nil {
-		return nil, nil, err
-	}
-	return baseTpls, viewSub, nil
 }
 
 func ParseTxtTemplates(tfs fs.FS) (TemplateMap, error) {
