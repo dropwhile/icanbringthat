@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
@@ -18,6 +19,8 @@ func GetApiKeyByUser(ctx context.Context, db model.PgxHandle,
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
 	case err != nil:
+		slog.ErrorContext(ctx,
+			"error getting api key by user", "error", err)
 		return nil, errs.Internal.Error("db error")
 	}
 	return apiKey, nil
@@ -31,6 +34,8 @@ func GetUserByApiKey(ctx context.Context, db model.PgxHandle,
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
 	case err != nil:
+		slog.ErrorContext(ctx,
+			"error getting user by key", "error", err)
 		return nil, errs.Internal.Error("db error")
 	}
 	return user, nil
@@ -41,6 +46,8 @@ func NewApiKey(ctx context.Context, db model.PgxHandle,
 ) (*model.ApiKey, errs.Error) {
 	apikey, err := model.NewApiKey(ctx, db, userID)
 	if err != nil {
+		slog.ErrorContext(ctx,
+			"error generating new api key", "error", err)
 		return nil, errs.Internal.Errorf("db error: %w", err)
 	}
 	return apikey, nil
