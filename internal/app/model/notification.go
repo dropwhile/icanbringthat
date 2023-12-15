@@ -108,7 +108,8 @@ func GetNotificationsByUserPaginated(ctx context.Context, db PgxHandle,
 		read = FALSE
 	ORDER BY 
 		created DESC
-	LIMIT @limit OFFSET @offset
+	LIMIT @limit
+	OFFSET @offset
 	`
 	args := pgx.NamedArgs{
 		"userID": userID,

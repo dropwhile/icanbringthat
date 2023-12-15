@@ -1,17 +1,12 @@
 package rpc
 
 import (
-	"context"
 	"flag"
-	"fmt"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/pashagolub/pgxmock/v3"
-	pg_query "github.com/pganalyze/pg_query_go/v4"
 	"github.com/twitchtv/twirp"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/logger"
 )
@@ -24,29 +19,6 @@ func MustParseTime(layout, value string) time.Time {
 		panic(err)
 	}
 	return ts
-}
-
-func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
-	t.Helper()
-
-	var queryMatcher pgxmock.QueryMatcher = pgxmock.QueryMatcherFunc(func(expectedSQL, actualSQL string) error {
-		err := pgxmock.QueryMatcherRegexp.Match(expectedSQL, actualSQL)
-		if err != nil {
-			return err
-		}
-		_, err = pg_query.Parse(actualSQL)
-		if err != nil {
-			return fmt.Errorf("error parsing sql '%s': %w", actualSQL, err)
-		}
-
-		return nil
-	})
-
-	mock, err := pgxmock.NewConn(
-		pgxmock.QueryMatcherOption(queryMatcher),
-	)
-	assert.NilError(t, err)
-	return mock
 }
 
 func assertTwirpError(t *testing.T, err error, code twirp.ErrorCode, msg string) {

@@ -21,7 +21,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
+		mock := model.SetupDBMock(t, ctx)
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
@@ -31,7 +31,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
+		mock := model.SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
@@ -46,15 +46,14 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
+		mock := model.SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
 			AddRow(1, refID, "user@example.com", "user", false, true, tstTs, tstTs)
-		// mock.ExpectQuery("SELECT (.+) FROM user_").
-		mock.ExpectQuery("^").
+		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
 			WillReturnRows(rows)
 
@@ -66,15 +65,14 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
+		mock := model.SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
 			AddRow(1, refID, "user@example.com", "user", true, false, tstTs, tstTs)
-		// mock.ExpectQuery("SELECT (.+) FROM user_").
-		mock.ExpectQuery("^").
+		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
 			WillReturnRows(rows)
 
@@ -86,15 +84,14 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
+		mock := model.SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
 		rows := pgxmock.NewRows(
 			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
 			AddRow(1, refID, "user@example.com", "user", true, true, tstTs, tstTs)
-		// mock.ExpectQuery("SELECT (.+) FROM user_").
-		mock.ExpectQuery("^").
+		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
 			WillReturnRows(rows)
 
