@@ -64,7 +64,7 @@ func (s *Server) DeleteNotification(ctx context.Context,
 
 	refID, err := model.ParseNotificationRefID(r.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
 	errx := service.DeleteNotification(ctx, s.Db, user.ID, refID)
