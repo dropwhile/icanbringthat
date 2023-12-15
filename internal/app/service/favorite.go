@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
@@ -94,6 +95,7 @@ func GetFavoriteEventsPaginated(
 		case errors.Is(err, pgx.ErrNoRows):
 			favs = []*model.Event{}
 		case err != nil:
+			slog.Error("db error", "error", err)
 			return nil, nil, errs.Internal.Error("db error")
 		}
 		events = favs

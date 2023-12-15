@@ -27,11 +27,13 @@ func (tz *TimeZone) Scan(src interface{}) error {
 	case string:
 		// uu, err := FromString(src)
 		loc, err := time.LoadLocation(src)
-		*tz = TimeZone{loc}
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to convert TimeZone: %w", err)
+		}
+		tz.Location = loc
+		return nil
 	}
-
-	return fmt.Errorf("refid: cannot convert %T to RefID", src)
+	return fmt.Errorf("TimeZone: cannot convert %T to TimeZone", src)
 }
 
 func ParseTimeZone(tz string) (*TimeZone, error) {
