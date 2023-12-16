@@ -21,7 +21,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
@@ -31,7 +31,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
@@ -46,7 +46,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
@@ -65,7 +65,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
@@ -84,7 +84,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 

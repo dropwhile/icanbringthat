@@ -42,7 +42,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -91,7 +91,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -150,7 +150,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -167,7 +167,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -188,7 +188,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -221,7 +221,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}
@@ -275,7 +275,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := model.SetupDBMock(t, ctx)
+		mock := SetupDBMock(t, ctx)
 		server := &Server{
 			Db: mock,
 		}

@@ -96,7 +96,7 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
 	t.Helper()
 
-	mock := model.SetupDBMock(t, ctx)
+	mock := SetupDBMock(t, ctx)
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
 		Db:        mock,
