@@ -156,7 +156,7 @@ func getBaseHtmlTpl(tfs fs.FS) (*htmltemplate.Template, fs.FS, error) {
 }
 
 func getBaseTxtTpl(tfs fs.FS) (*txttemplate.Template, fs.FS, error) {
-	tpl, sub, err := getBaseTpl(tfs, tmapIdxHtml)
+	tpl, sub, err := getBaseTpl(tfs, tmapIdxTxt)
 	if err != nil {
 		return nil, nil, err
 	}
