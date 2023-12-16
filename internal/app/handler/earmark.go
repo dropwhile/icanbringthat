@@ -219,6 +219,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check to ensure routing param exists for event
 	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
@@ -230,23 +231,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// non-owner must be verified before earmarking.
-	// it is fine for owner to self-earmark though
-	if !user.Verified && event.UserID != user.ID {
-		x.ForbiddenError(w,
-			"Account must be verified before earmarking is allowed.")
-		return
-	}
-
-	if event.Archived {
-		slog.InfoContext(ctx, "event is archived",
-			slog.Int("user.ID", user.ID),
-			slog.Int("event.UserID", event.UserID),
-		)
-		x.AccessDeniedError(w)
-		return
-	}
-
+	// check to ensure routing param exists for event-item
 	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
@@ -258,6 +243,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure routing params are actually related/linked
 	if eventItem.EventID != event.ID {
 		slog.InfoContext(ctx, "eventItem.EventID and event.ID mismatch",
 			slog.Int("user.ID", user.ID),
@@ -265,19 +251,6 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 			slog.Int("eventItem.EventID", eventItem.EventID),
 		)
 		x.NotFoundError(w)
-		return
-	}
-
-	// make sure no earmark exists yet
-	_, errx = service.GetEarmarkByEventItemID(ctx, x.Db, eventItem.ID)
-	if errx != nil {
-		if errx.Code() != errs.NotFound {
-			x.DBError(w, errx)
-			return
-		}
-	} else {
-		// earmark already exists!
-		x.ForbiddenError(w, "already earmarked - access denied")
 		return
 	}
 

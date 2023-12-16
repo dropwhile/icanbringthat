@@ -351,11 +351,77 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "already earmarked")
+		assertTwirpError(t, err, twirp.AlreadyExists, "already earmarked")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
+	t.Run("add earmark user not verified should fail", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:           1,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     false,
+			Created:      tstTs,
+			LastModified: tstTs,
+		}
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		// earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		eventItemID := 33
+		eventID := 22
+
+		mock.ExpectQuery("SELECT (.+) FROM event_item_").
+			WithArgs(eventItemRefID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id",
+						"event_id", "description",
+						"created", "last_modified",
+					}).
+					AddRow(
+						eventItemID, eventItemRefID,
+						eventID, "some description",
+						tstTs, tstTs,
+					),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM earmark_").
+			WithArgs(eventItemID).
+			WillReturnError(pgx.ErrNoRows)
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventItemID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "name", "description",
+						"archived", "created", "last_modified",
+					}).
+					AddRow(
+						eventID, refid.Must(model.NewEventRefID()), 33,
+						"event name", "event desc",
+						false, tstTs, tstTs,
+					),
+			)
+
+		request := &icbt.CreateEarmarkRequest{
+			EventItemRefId: eventItemRefID.String(),
+			Note:           "some note",
+		}
+		_, err := server.CreateEarmark(ctx, request)
+		assertTwirpError(t, err, twirp.PermissionDenied,
+			"Account must be verified before earmarking is allowed.")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 	t.Run("add earmark for already earmarked by other should fail", func(t *testing.T) {
 		t.Parallel()
 
@@ -404,7 +470,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "already earmarked by other user")
+		assertTwirpError(t, err, twirp.AlreadyExists, "already earmarked by other user")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

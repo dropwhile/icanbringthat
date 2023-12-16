@@ -102,6 +102,25 @@ func GetEarmarks(
 func NewEarmark(ctx context.Context, db model.PgxHandle,
 	user *model.User, eventItemID int, note string,
 ) (*model.Earmark, errs.Error) {
+	// make sure no earmark exists yet
+	em, errx := GetEarmarkByEventItemID(ctx, db, eventItemID)
+	if errx != nil {
+		switch errx.Code() {
+		case errs.NotFound:
+			// good. this is what we want
+		default:
+			slog.Error("db error", "error", errx)
+			return nil, errs.Internal.Error("db error")
+		}
+	} else {
+		// earmark already exists!
+		errStr := "already earmarked"
+		if em.UserID != user.ID {
+			errStr += " by other user"
+		}
+		return nil, errs.AlreadyExists.Error(errStr)
+	}
+
 	// disallow earmarking archived event
 	event, err := model.GetEventByEventItemID(ctx, db, eventItemID)
 	switch {

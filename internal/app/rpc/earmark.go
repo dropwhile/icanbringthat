@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/twitchtv/twirp"
 
@@ -114,26 +113,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	// make sure no earmark exists yet
-	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, eventItem.ID)
-	if errx != nil {
-		switch errx.Code() {
-		case errs.NotFound:
-			// good. this is what we want
-		default:
-			slog.Error("db error", "error", errx)
-			return nil, convert.ToTwirpError(errx)
-		}
-	} else {
-		// earmark already exists!
-		errStr := "already earmarked"
-		if earmark.UserID != user.ID {
-			errStr += " by other user"
-		}
-		return nil, twirp.PermissionDenied.Error(errStr)
-	}
-
-	earmark, errx = service.NewEarmark(ctx, s.Db, user, eventItem.ID, r.Note)
+	earmark, errx := service.NewEarmark(ctx, s.Db, user, eventItem.ID, r.Note)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
