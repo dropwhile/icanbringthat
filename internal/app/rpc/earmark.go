@@ -114,8 +114,6 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	// TODO: disallow earmarking archived event
-
 	// make sure no earmark exists yet
 	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, eventItem.ID)
 	if errx != nil {
@@ -135,7 +133,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.PermissionDenied.Error(errStr)
 	}
 
-	earmark, errx = service.NewEarmark(ctx, s.Db, eventItem.ID, user.ID, r.Note)
+	earmark, errx = service.NewEarmark(ctx, s.Db, user, eventItem.ID, r.Note)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

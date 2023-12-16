@@ -224,6 +224,21 @@ func TestRpc_AddEarmark(t *testing.T) {
 			WithArgs(eventItemID).
 			WillReturnError(pgx.ErrNoRows)
 
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventItemID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "name", "description",
+						"archived", "created", "last_modified",
+					}).
+					AddRow(
+						eventID, refid.Must(model.NewEventRefID()), user.ID,
+						"event name", "event desc",
+						false, tstTs, tstTs,
+					),
+			)
+
 		mock.ExpectBegin()
 		mock.ExpectQuery("INSERT INTO earmark_").
 			WithArgs(pgx.NamedArgs{
@@ -455,7 +470,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 					),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(earmarkID).
+			WithArgs(eventItemID).
 			WillReturnRows(
 				pgxmock.NewRows(
 					[]string{
@@ -565,7 +580,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 					),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(earmarkID).
+			WithArgs(eventItemID).
 			WillReturnRows(
 				pgxmock.NewRows(
 					[]string{

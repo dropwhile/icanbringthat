@@ -119,6 +119,19 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(eventItem.ID).
 			WillReturnError(pgx.ErrNoRows)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "name", "description",
+						"start_time", "start_time_tz", "created", "last_modified",
+					}).
+					AddRow(
+						event.ID, event.RefID, event.UserID, event.Name, event.Description,
+						event.StartTime, event.StartTimeTz, ts, ts,
+					),
+			)
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO earmark_").

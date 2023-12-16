@@ -289,9 +289,11 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// ok for note to be empty
 	note := r.FormValue("note")
 
-	_, errx = service.NewEarmark(ctx, x.Db, eventItem.ID, user.ID, note)
+	_, errx = service.NewEarmark(ctx, x.Db, user, eventItem.ID, note)
 	if errx != nil {
 		switch errx.Code() {
+		case errs.PermissionDenied:
+			x.ForbiddenError(w, errx.Msg())
 		case errs.AlreadyExists:
 			x.ForbiddenError(w, "already earmarked - access denied")
 		default:

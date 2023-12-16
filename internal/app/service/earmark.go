@@ -100,10 +100,29 @@ func GetEarmarks(
 }
 
 func NewEarmark(ctx context.Context, db model.PgxHandle,
-	eventItemID, userID int, note string,
+	user *model.User, eventItemID int, note string,
 ) (*model.Earmark, errs.Error) {
-	// TODO: disallow earmarking archived event
-	earmark, err := model.NewEarmark(ctx, db, eventItemID, userID, note)
+	// disallow earmarking archived event
+	event, err := model.GetEventByEventItemID(ctx, db, eventItemID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, errs.NotFound.Error("event not found")
+	case err != nil:
+		return nil, errs.Internal.Error("db error")
+	}
+
+	if event.Archived {
+		return nil, errs.PermissionDenied.Error("event is archived")
+	}
+
+	// non-owner must be verified before earmarking.
+	// it is fine for owner to self-earmark though
+	if !user.Verified && event.UserID != user.ID {
+		return nil, errs.PermissionDenied.Error(
+			"Account must be verified before earmarking is allowed.")
+	}
+
+	earmark, err := model.NewEarmark(ctx, db, eventItemID, user.ID, note)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -136,7 +155,7 @@ func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
 		return errs.PermissionDenied.Error("permission denied")
 	}
 
-	event, err := model.GetEventByEarmarkID(ctx, db, earmark.ID)
+	event, err := model.GetEventByEventItemID(ctx, db, earmark.EventItemID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
