@@ -36,6 +36,7 @@ func AddFavorite(
 
 	_, err = model.CreateFavorite(ctx, db, userID, event.ID)
 	if err != nil {
+		slog.Error("db error", "error", err)
 		return nil, errs.Internal.Error("db error")
 	}
 
