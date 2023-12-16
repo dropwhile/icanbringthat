@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/twitchtv/twirp"
 
@@ -64,31 +65,16 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	var paginationResult *icbt.PaginationResult
 	var earmarks []*model.Earmark
 	if r.Pagination != nil {
-		limit := int(r.Pagination.Limit)
-		offset := int(r.Pagination.Offset)
-
-		earmarkCounts, errx := service.GetEarmarksCount(ctx, s.Db, user.ID)
+		ems, pgResult, errx := service.GetEarmarksPaginated(
+			ctx, s.Db, user.ID,
+			int(r.Pagination.Limit),
+			int(r.Pagination.Offset),
+			showArchived)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
-
-		count := earmarkCounts.Current
-		if showArchived {
-			count = earmarkCounts.Archived
-		}
-
-		if count > 0 {
-			earmarks, _, errx = service.GetEarmarksPaginated(
-				ctx, s.Db, user.ID, limit, offset, showArchived)
-			if errx != nil {
-				return nil, convert.ToTwirpError(errx)
-			}
-		}
-		paginationResult = &icbt.PaginationResult{
-			Limit:  uint32(limit),
-			Offset: uint32(offset),
-			Count:  uint32(count),
-		}
+		paginationResult = convert.ToPbPagination(pgResult)
+		earmarks = ems
 	} else {
 		var errx errs.Error
 		earmarks, errx = service.GetEarmarks(
@@ -128,6 +114,8 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
+	// TODO: disallow earmarking archived event
+
 	// make sure no earmark exists yet
 	earmark, errx := service.GetEarmarkByEventItemID(ctx, s.Db, eventItem.ID)
 	if errx != nil {
@@ -135,6 +123,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		case errs.NotFound:
 			// good. this is what we want
 		default:
+			slog.Error("db error", "error", errx)
 			return nil, convert.ToTwirpError(errx)
 		}
 	} else {

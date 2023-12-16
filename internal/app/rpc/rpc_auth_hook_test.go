@@ -25,6 +25,8 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("auth hook with api-key not finding user should fail", func(t *testing.T) {
@@ -40,6 +42,8 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("auth hook with user ApiAccess disabled should fail", func(t *testing.T) {
@@ -59,6 +63,8 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("auth hook with user not verified disabled should fail", func(t *testing.T) {
@@ -78,6 +84,8 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "account not verified")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("auth hook should succeed", func(t *testing.T) {
@@ -99,5 +107,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		assert.NilError(t, err)
 		_, ok := auth.ContextGet[*model.User](ctx, "user")
 		assert.Check(t, ok, "user is a *mode.user")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }

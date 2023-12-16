@@ -80,6 +80,8 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Check(t, len(response.Events) == 1)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("list favorite events non-paginated should succeed", func(t *testing.T) {
@@ -123,6 +125,8 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Check(t, len(response.Events) == 1)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
@@ -202,6 +206,8 @@ func TestRpc_AddFavorite(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, response.Favorite.EventRefId, eventRefID.String())
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("add favorite for own event should fail", func(t *testing.T) {
@@ -238,6 +244,8 @@ func TestRpc_AddFavorite(t *testing.T) {
 		}
 		_, err := server.AddFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.PermissionDenied, "can't favorite own event")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("add favorite for already favorited should fail", func(t *testing.T) {
@@ -290,6 +298,8 @@ func TestRpc_AddFavorite(t *testing.T) {
 		}
 		_, err := server.AddFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.AlreadyExists, "favorite already exists")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("add favorite with bad event refid should fail", func(t *testing.T) {
@@ -299,49 +309,14 @@ func TestRpc_AddFavorite(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		server := &Server{Db: mock}
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
-
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventRefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						33, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM favorite_").
-			WithArgs(pgx.NamedArgs{
-				"userID":  user.ID,
-				"eventID": pgxmock.AnyArg(),
-			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "user_id",
-						"event_id", "created",
-					}).
-					AddRow(
-						1, user.ID,
-						1, tstTs,
-					),
-			)
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: "hodor",
 		}
 		_, err := server.AddFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
@@ -416,6 +391,8 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		assert.NilError(t, err)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("remove favorite with bad refid should fail", func(t *testing.T) {
@@ -431,6 +408,8 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("remove favorite with event not found should fail", func(t *testing.T) {
@@ -451,5 +430,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.NotFound, "event not found")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }

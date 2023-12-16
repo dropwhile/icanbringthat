@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -55,6 +56,7 @@ func GetEarmarksPaginated(
 ) ([]*model.Earmark, *Pagination, errs.Error) {
 	bifurCount, errx := GetEarmarksCount(ctx, db, userID)
 	if errx != nil {
+		slog.Error("db error", "error", errx)
 		return nil, nil, errs.Internal.Error("db error")
 	}
 	count := bifurCount.Current
@@ -70,6 +72,7 @@ func GetEarmarksPaginated(
 		case errors.Is(err, pgx.ErrNoRows):
 			elems = []*model.Earmark{}
 		case err != nil:
+			slog.Error("db error", "error", err)
 			return nil, nil, errs.Internal.Error("db error")
 		}
 		earmarks = elems
@@ -99,6 +102,7 @@ func GetEarmarks(
 func NewEarmark(ctx context.Context, db model.PgxHandle,
 	eventItemID, userID int, note string,
 ) (*model.Earmark, errs.Error) {
+	// TODO: disallow earmarking archived event
 	earmark, err := model.NewEarmark(ctx, db, eventItemID, userID, note)
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -128,6 +132,10 @@ func GetEarmark(ctx context.Context, db model.PgxHandle,
 func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
 	earmark *model.Earmark,
 ) errs.Error {
+	if earmark.UserID != userID {
+		return errs.PermissionDenied.Error("permission denied")
+	}
+
 	event, err := model.GetEventByEarmarkID(ctx, db, earmark.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -138,10 +146,6 @@ func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
 
 	if event.Archived {
 		return errs.PermissionDenied.Error("event is archived")
-	}
-
-	if earmark.UserID != userID {
-		return errs.PermissionDenied.Error("permission denied")
 	}
 
 	err = model.DeleteEarmark(ctx, db, earmark.ID)
@@ -158,5 +162,6 @@ func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle, userID int,
 	if errx != nil {
 		return errx
 	}
+
 	return DeleteEarmark(ctx, db, userID, earmark)
 }

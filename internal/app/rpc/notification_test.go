@@ -85,6 +85,8 @@ func TestRpc_ListNotifications(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Check(t, len(response.Notifications) == 1)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("list notifications non-paginated should succeed", func(t *testing.T) {
@@ -120,6 +122,8 @@ func TestRpc_ListNotifications(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Check(t, len(response.Notifications) == 1)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
@@ -161,6 +165,8 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("delete notification with no matching refid should fail", func(t *testing.T) {
@@ -182,6 +188,8 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assertTwirpError(t, err, twirp.NotFound, "notification not found")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("delete notification for different user should fail", func(t *testing.T) {
@@ -215,6 +223,8 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 
 	t.Run("delete notification should succeed", func(t *testing.T) {
@@ -254,6 +264,8 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assert.NilError(t, err)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
@@ -291,5 +303,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 		request := &icbt.DeleteAllNotificationsRequest{}
 		_, err := server.DeleteAllNotifications(ctx, request)
 		assert.NilError(t, err)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }

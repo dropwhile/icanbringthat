@@ -2,6 +2,7 @@ package convert
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -25,4 +26,9 @@ type Convergen interface {
 	// :case:off
 	// :conv TimeToTimestamp Created Created
 	ToPbEventItem(*model.EventItem) *icbt.EventItem
+
+	// :typecast
+	// :stringer
+	// :case:off
+	ToPbPagination(*service.Pagination) *icbt.PaginationResult
 }

@@ -5,6 +5,7 @@ package convert
 
 import (
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -34,6 +35,15 @@ func ToPbNotification(src *model.Notification) (dst *icbt.Notification) {
 	dst.RefId = src.RefID.String()
 	dst.Message = src.Message
 	dst.Created = TimeToTimestamp(src.Created)
+
+	return
+}
+
+func ToPbPagination(src *service.Pagination) (dst *icbt.PaginationResult) {
+	dst = &icbt.PaginationResult{}
+	dst.Limit = src.Limit
+	dst.Offset = src.Offset
+	dst.Count = src.Count
 
 	return
 }
