@@ -41,7 +41,7 @@ func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
 	mock, err := pgxmock.NewConn(
 		pgxmock.QueryMatcherOption(queryMatcher),
 	)
-	t.Cleanup(func() { mock.Close(ctx) })
+	t.Cleanup(func() { _ = mock.Close(ctx) })
 	assert.NilError(t, err)
 	return mock
 }
