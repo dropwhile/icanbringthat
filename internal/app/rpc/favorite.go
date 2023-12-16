@@ -72,7 +72,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 
 	refID, err := model.ParseEventRefID(r.EventRefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
 	errx := service.RemoveFavorite(ctx, s.Db, user.ID, refID)
@@ -94,7 +94,7 @@ func (s *Server) AddFavorite(ctx context.Context,
 
 	refID, err := model.ParseEventRefID(r.EventRefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad notification ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
 	favorite, errx := service.AddFavorite(ctx, s.Db, user.ID, refID)

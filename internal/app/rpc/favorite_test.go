@@ -291,4 +291,165 @@ func TestRpc_AddFavorite(t *testing.T) {
 		_, err := server.AddFavorite(ctx, request)
 		assertTwirpError(t, err, twirp.AlreadyExists, "favorite already exists")
 	})
+
+	t.Run("add favorite with bad event refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := model.SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id",
+						"user_id", "archived",
+						"name", "description",
+						"start_time", "start_time_tz",
+						"created", "last_modified",
+					}).
+					AddRow(
+						1, eventRefID,
+						33, false,
+						"some name", "some description",
+						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+						tstTs, tstTs,
+					),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM favorite_").
+			WithArgs(pgx.NamedArgs{
+				"userID":  user.ID,
+				"eventID": pgxmock.AnyArg(),
+			}).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "user_id",
+						"event_id", "created",
+					}).
+					AddRow(
+						1, user.ID,
+						1, tstTs,
+					),
+			)
+
+		request := &icbt.CreateFavoriteRequest{
+			EventRefId: "hodor",
+		}
+		_, err := server.AddFavorite(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+	})
+}
+
+func TestRpc_RemoveFavorite(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("remove favorite should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := model.SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventRefID).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id",
+						"user_id", "archived",
+						"name", "description",
+						"start_time", "start_time_tz",
+						"created", "last_modified",
+					}).
+					AddRow(
+						1, eventRefID,
+						33, false,
+						"some name", "some description",
+						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+						tstTs, tstTs,
+					),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM favorite_").
+			WithArgs(pgx.NamedArgs{
+				"userID":  user.ID,
+				"eventID": pgxmock.AnyArg(),
+			}).
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "user_id",
+						"event_id", "created",
+					}).
+					AddRow(
+						1, user.ID,
+						1, tstTs,
+					),
+			)
+
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM favorite_").
+			WithArgs(1).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.RemoveFavoriteRequest{
+			EventRefId: eventRefID.String(),
+		}
+		_, err := server.RemoveFavorite(ctx, request)
+		assert.NilError(t, err)
+	})
+
+	t.Run("remove favorite with bad refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := model.SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.RemoveFavoriteRequest{
+			EventRefId: "hodor",
+		}
+		_, err := server.RemoveFavorite(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+	})
+
+	t.Run("remove favorite with event not found should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := model.SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventRefID).
+			WillReturnError(pgx.ErrNoRows)
+
+		request := &icbt.RemoveFavoriteRequest{
+			EventRefId: eventRefID.String(),
+		}
+		_, err := server.RemoveFavorite(ctx, request)
+		assertTwirpError(t, err, twirp.NotFound, "event not found")
+	})
 }
