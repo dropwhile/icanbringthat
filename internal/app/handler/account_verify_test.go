@@ -75,9 +75,8 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 				"refID":  model.UserVerifyRefIDMatcher,
 				"userID": user.ID,
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(uvColumns).
-					AddRow(uv.RefID, uv.UserID, ts),
+			WillReturnRows(pgxmock.NewRows(uvColumns).
+				AddRow(uv.RefID, uv.UserID, ts),
 			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -161,9 +160,8 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(uv.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(uvColumns).
-					AddRow(uv.RefID, uv.UserID, uv.Created),
+			WillReturnRows(pgxmock.NewRows(uvColumns).
+				AddRow(uv.RefID, uv.UserID, uv.Created),
 			)
 		// start outer tx
 		mock.ExpectBegin()
@@ -359,9 +357,8 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(model.UserVerifyRefIDMatcher).
-			WillReturnRows(
-				pgxmock.NewRows(uvColumns).
-					AddRow(refID, uv.UserID, uv.Created),
+			WillReturnRows(pgxmock.NewRows(uvColumns).
+				AddRow(refID, uv.UserID, uv.Created),
 			)
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
@@ -404,9 +401,8 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(uv.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(uvColumns).
-					AddRow(uv.RefID, uv.UserID, uv.Created),
+			WillReturnRows(pgxmock.NewRows(uvColumns).
+				AddRow(uv.RefID, uv.UserID, uv.Created),
 			)
 		// start outer tx
 		mock.ExpectBegin()

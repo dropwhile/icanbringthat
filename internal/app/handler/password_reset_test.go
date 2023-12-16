@@ -53,11 +53,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset", func(t *testing.T) {
 		t.Parallel()
 
-		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
-		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -75,10 +70,15 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
 			WithArgs(pwr.RefID).
-			WillReturnRows(pwrRows)
+			WillReturnRows(pgxmock.NewRows(pwColumns).
+				AddRow(pwr.RefID, pwr.UserID, pwr.Created))
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.ID).
-			WillReturnRows(userRows)
+			WillReturnRows(pgxmock.NewRows(userColumns).
+				AddRow(
+					user.ID, user.RefID, user.Email,
+					user.Name, user.PWHash, user.PWAuth,
+				))
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
@@ -331,9 +331,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset user not found", func(t *testing.T) {
 		t.Parallel()
 
-		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -351,7 +348,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
 			WithArgs(pwr.RefID).
-			WillReturnRows(pwrRows)
+			WillReturnRows(pgxmock.NewRows(pwColumns).
+				AddRow(pwr.RefID, pwr.UserID, pwr.Created))
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.ID).
 			WillReturnError(pgx.ErrNoRows)
@@ -396,13 +394,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		rctx.URLParams.Add("hmac", macStr)
 
-		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(refID, pwr.UserID, pwr.Created)
-
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
 			WithArgs(model.UserPWResetRefIDMatcher).
-			WillReturnRows(pwrRows)
+			WillReturnRows(pgxmock.NewRows(pwColumns).
+				AddRow(refID, pwr.UserID, pwr.Created))
 
 		data := url.Values{
 			"password":         {"newpass"},
@@ -427,11 +423,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset with user upw delete failure", func(t *testing.T) {
 		t.Parallel()
 
-		pwrRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserID, pwr.Created)
-		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -449,10 +440,12 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
 			WithArgs(pwr.RefID).
-			WillReturnRows(pwrRows)
+			WillReturnRows(pgxmock.NewRows(pwColumns).
+				AddRow(pwr.RefID, pwr.UserID, pwr.Created))
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.ID).
-			WillReturnRows(userRows)
+			WillReturnRows(pgxmock.NewRows(userColumns).
+				AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth))
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
@@ -539,11 +532,6 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	t.Run("send pw reset email", func(t *testing.T) {
 		t.Parallel()
 
-		userRows := pgxmock.NewRows(userColumns).
-			AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth)
-		upwRows := pgxmock.NewRows(pwColumns).
-			AddRow(pwr.RefID, pwr.UserID, ts)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -558,14 +546,16 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_ ").
 			WithArgs(user.Email).
-			WillReturnRows(userRows)
+			WillReturnRows(pgxmock.NewRows(userColumns).
+				AddRow(user.ID, user.RefID, user.Email, user.Name, user.PWHash, user.PWAuth))
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
 			WithArgs(pgx.NamedArgs{
 				"refID":  model.UserPWResetRefIDMatcher,
 				"userID": user.ID,
 			}).
-			WillReturnRows(upwRows)
+			WillReturnRows(pgxmock.NewRows(pwColumns).
+				AddRow(pwr.RefID, pwr.UserID, ts))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 

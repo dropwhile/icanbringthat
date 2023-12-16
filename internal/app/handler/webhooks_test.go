@@ -53,12 +53,11 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
-			WillReturnRows(
-				pgxmock.NewRows(userCols).
-					AddRow(
-						user.ID, user.RefID, user.Email, user.PWHash, user.Created,
-						user.LastModified, user.Settings,
-					),
+			WillReturnRows(pgxmock.NewRows(userCols).
+				AddRow(
+					user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+					user.LastModified, user.Settings,
+				),
 			)
 		// start outer tx
 		mock.ExpectBegin()
@@ -81,9 +80,9 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 				"userID":  user.ID,
 				"message": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(
-				pgxmock.NewRows([]string{"id", "ref_id", "user_id", "message"}).
-					AddRow(1, refid.Must(model.NewNotificationRefID()), user.ID, "hodor"),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"id", "ref_id", "user_id", "message"}).
+				AddRow(1, refid.Must(model.NewNotificationRefID()), user.ID, "hodor"),
 			)
 		// commit+rollback second inner tx
 		mock.ExpectCommit()
@@ -148,12 +147,11 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
-			WillReturnRows(
-				pgxmock.NewRows(userCols).
-					AddRow(
-						user.ID, user.RefID, user.Email, user.PWHash, user.Created,
-						user.LastModified, user.Settings,
-					),
+			WillReturnRows(pgxmock.NewRows(userCols).
+				AddRow(
+					user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+					user.LastModified, user.Settings,
+				),
 			)
 
 		jsonData := []byte(`{  

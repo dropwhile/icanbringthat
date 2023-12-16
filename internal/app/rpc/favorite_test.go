@@ -42,10 +42,9 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM favorite_").
 			WithArgs(user.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{"current", "archived"}).
-					AddRow(1, 1),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"current", "archived"}).
+				AddRow(1, 1),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM event_").
 			WithArgs(pgx.NamedArgs{
@@ -54,22 +53,21 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 				"offset":   pgxmock.AnyArg(),
 				"archived": false,
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						user.ID, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.ListFavoriteEventsRequest{
@@ -100,22 +98,21 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 				"userID":   user.ID,
 				"archived": false,
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						user.ID, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.ListFavoriteEventsRequest{
@@ -155,22 +152,21 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM event_").
 			WithArgs(eventRefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						33, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					33, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM favorite_").
 			WithArgs(pgx.NamedArgs{
@@ -185,16 +181,15 @@ func TestRpc_AddFavorite(t *testing.T) {
 				"userID":  user.ID,
 				"eventID": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "user_id",
-						"event_id", "created",
-					}).
-					AddRow(
-						1, user.ID,
-						1, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "user_id",
+					"event_id", "created",
+				}).
+				AddRow(
+					1, user.ID,
+					1, tstTs,
+				),
 			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -221,22 +216,21 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM event_").
 			WithArgs(eventRefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						user.ID, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.CreateFavoriteRequest{
@@ -259,38 +253,36 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM event_").
 			WithArgs(eventRefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						33, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					33, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM favorite_").
 			WithArgs(pgx.NamedArgs{
 				"userID":  user.ID,
 				"eventID": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "user_id",
-						"event_id", "created",
-					}).
-					AddRow(
-						1, user.ID,
-						1, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "user_id",
+					"event_id", "created",
+				}).
+				AddRow(
+					1, user.ID,
+					1, tstTs,
+				),
 			)
 
 		request := &icbt.CreateFavoriteRequest{
@@ -345,38 +337,36 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(eventRefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "archived",
-						"name", "description",
-						"start_time", "start_time_tz",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, eventRefID,
-						33, false,
-						"some name", "some description",
-						tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, eventRefID,
+					33, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM favorite_").
 			WithArgs(pgx.NamedArgs{
 				"userID":  user.ID,
 				"eventID": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "user_id",
-						"event_id", "created",
-					}).
-					AddRow(
-						1, user.ID,
-						1, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "user_id",
+					"event_id", "created",
+				}).
+				AddRow(
+					1, user.ID,
+					1, tstTs,
+				),
 			)
 
 		mock.ExpectBegin()

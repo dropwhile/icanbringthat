@@ -50,10 +50,9 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 		mock.ExpectQuery("SELECT count(.+) FROM notification_").
 			WithArgs(user.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{"count"}).
-					AddRow(1),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"count"}).
+				AddRow(1),
 			)
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
 			WithArgs(pgx.NamedArgs{
@@ -61,18 +60,17 @@ func TestRpc_ListNotifications(t *testing.T) {
 				"limit":  pgxmock.AnyArg(),
 				"offset": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "message",
-						"read", "created", "last_modified",
-					}).
-					AddRow(
-						notification.ID, notification.RefID,
-						user.ID, notification.Message,
-						notification.Read, tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "message",
+					"read", "created", "last_modified",
+				}).
+				AddRow(
+					notification.ID, notification.RefID,
+					user.ID, notification.Message,
+					notification.Read, tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.ListNotificationsRequest{
@@ -103,18 +101,17 @@ func TestRpc_ListNotifications(t *testing.T) {
 			WithArgs(pgx.NamedArgs{
 				"userID": user.ID,
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "message",
-						"read", "created", "last_modified",
-					}).
-					AddRow(
-						notification.ID, notification.RefID,
-						user.ID, notification.Message,
-						notification.Read, tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "message",
+					"read", "created", "last_modified",
+				}).
+				AddRow(
+					notification.ID, notification.RefID,
+					user.ID, notification.Message,
+					notification.Read, tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.ListNotificationsRequest{}
@@ -204,18 +201,17 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
 			WithArgs(notification.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "message",
-						"read", "created", "last_modified",
-					}).
-					AddRow(
-						notification.ID, notification.RefID,
-						33, notification.Message,
-						notification.Read, tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "message",
+					"read", "created", "last_modified",
+				}).
+				AddRow(
+					notification.ID, notification.RefID,
+					33, notification.Message,
+					notification.Read, tstTs, tstTs,
+				),
 			)
 
 		request := &icbt.DeleteNotificationRequest{
@@ -239,18 +235,17 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
 			WithArgs(notification.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id",
-						"user_id", "message",
-						"read", "created", "last_modified",
-					}).
-					AddRow(
-						notification.ID, notification.RefID,
-						user.ID, notification.Message,
-						notification.Read, tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "message",
+					"read", "created", "last_modified",
+				}).
+				AddRow(
+					notification.ID, notification.RefID,
+					user.ID, notification.Message,
+					notification.Read, tstTs, tstTs,
+				),
 			)
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM notification_").

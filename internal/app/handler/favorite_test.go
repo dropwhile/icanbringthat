@@ -61,20 +61,17 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
-		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.ID, event.ID, ts)
-
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
 			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(favoriteRows)
+			WillReturnRows(pgxmock.NewRows(favoriteColumns).
+				AddRow(33, user.ID, event.ID, ts))
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM favorite_").
 			WithArgs(33).
@@ -192,15 +189,14 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
-
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name,
+					event.Description, event.StartTime, event.StartTimeTz,
+					ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
 			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnError(pgx.ErrNoRows)
@@ -263,24 +259,21 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
-		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.ID, event.ID, ts)
-
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
 			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
 			WillReturnError(pgx.ErrNoRows)
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO favorite_").
 			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(favoriteRows)
+			WillReturnRows(pgxmock.NewRows(favoriteColumns).
+				AddRow(33, user.ID, event.ID, ts))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -365,14 +358,13 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, user.ID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, user.ID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				))
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -400,20 +392,17 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		eventRows := pgxmock.NewRows(eventColumns).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
-		favoriteRows := pgxmock.NewRows(favoriteColumns).
-			AddRow(33, user.ID, event.ID, ts)
-
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(pgxmock.NewRows(eventColumns).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				))
 		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
 			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(favoriteRows)
+			WillReturnRows(pgxmock.NewRows(favoriteColumns).
+				AddRow(33, user.ID, event.ID, ts))
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

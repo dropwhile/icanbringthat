@@ -56,16 +56,15 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "email", "name", "api_access", "verified",
-						"created", "last_modified",
-					}).
-					AddRow(
-						1, refID, "user@example.com", "user", false, true,
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name", "api_access", "verified",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, refID, "user@example.com", "user", false, true,
+					tstTs, tstTs,
+				),
 			)
 
 		_, err := AuthHook(mock)(ctx)
@@ -84,17 +83,16 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "email", "name", "api_access",
-						"verified", "created", "last_modified",
-					},
-				).
-					AddRow(
-						1, refID, "user@example.com", "user", true, false,
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name", "api_access",
+					"verified", "created", "last_modified",
+				},
+			).
+				AddRow(
+					1, refID, "user@example.com", "user", true, false,
+					tstTs, tstTs,
+				),
 			)
 
 		_, err := AuthHook(mock)(ctx)
@@ -113,17 +111,16 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "email", "name", "api_access",
-						"verified", "created", "last_modified",
-					},
-				).
-					AddRow(
-						1, refID, "user@example.com", "user", true, true,
-						tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name", "api_access",
+					"verified", "created", "last_modified",
+				},
+			).
+				AddRow(
+					1, refID, "user@example.com", "user", true, true,
+					tstTs, tstTs,
+				),
 			)
 
 		ctx, err := AuthHook(mock)(ctx)

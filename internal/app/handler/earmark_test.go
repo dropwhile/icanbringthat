@@ -77,44 +77,41 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_id", "description", "created", "last_modified",
-					}).
-					AddRow(
-						eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-						ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_id", "description", "created", "last_modified",
+				}).
+				AddRow(
+					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
+					ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(eventItem.ID).
 			WillReturnError(pgx.ErrNoRows)
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(eventItem.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
@@ -125,15 +122,14 @@ func TestHandler_Earmark_Create(t *testing.T) {
 				"userID":      earmark.UserID,
 				"note":        "some note",
 			}).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-					}).
-					AddRow(
-						earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-						earmark.Note, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+					earmark.Note, ts, ts,
+				),
 			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
@@ -318,16 +314,15 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description", "archived",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
@@ -364,28 +359,26 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description", "archived",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_id", "description", "created", "last_modified",
-					}).
-					AddRow(
-						eventItem.ID, eventItem.RefID, 33, eventItem.Description,
-						ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_id", "description", "created", "last_modified",
+				}).
+				AddRow(
+					eventItem.ID, eventItem.RefID, 33, eventItem.Description,
+					ts, ts,
+				),
 			)
 
 		data := url.Values{"note": {"some note"}}
@@ -430,16 +423,15 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description", "archived",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
@@ -457,17 +449,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 		mock.ExpectQuery("SELECT (.+) FROM event_").
 			WithArgs(eventItem.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description",
-						"archived", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, refid.Must(model.NewEventRefID()), 34,
-						"event name", "event desc",
-						false, tstTs, tstTs,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"archived", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, refid.Must(model.NewEventRefID()), 34,
+					"event name", "event desc",
+					false, tstTs, tstTs,
+				),
 			)
 
 		data := url.Values{"note": {"some note"}}
@@ -538,28 +529,26 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-					}).
-					AddRow(
-						earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-						earmark.Note, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+					earmark.Note, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_").
 			WithArgs(earmark.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description", "archived",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM earmark_").
@@ -618,28 +607,26 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-					}).
-					AddRow(
-						earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-						earmark.Note, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
+					earmark.Note, ts, ts,
+				),
 			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_").
 			WithArgs(earmark.ID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "user_id", "name", "description", "archived",
-						"start_time", "start_time_tz", "created", "last_modified",
-					}).
-					AddRow(
-						event.ID, event.RefID, event.UserID, event.Name, event.Description,
-						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
 			)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
@@ -788,16 +775,15 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmark.RefID).
-			WillReturnRows(
-				pgxmock.NewRows(
-					[]string{
-						"id", "ref_id", "event_item_id", "user_id", "note",
-						"created", "last_modified",
-					}).
-					AddRow(
-						earmark.ID, earmark.RefID, earmark.EventItemID,
-						user.ID+1, earmark.Note, ts, ts,
-					),
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note",
+					"created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID,
+					user.ID+1, earmark.Note, ts, ts,
+				),
 			)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
