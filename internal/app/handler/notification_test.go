@@ -52,13 +52,20 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "user_id", "message", "read", "created", "last_modified"}).
-			AddRow(notification.ID, notification.RefID, user.ID, notification.Message, notification.Read, ts, ts)
-
 		mock.ExpectQuery("^SELECT (.+) FROM notification_").
 			WithArgs(notification.RefID).
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "message", "read",
+						"created", "last_modified",
+					},
+				).
+					AddRow(
+						notification.ID, notification.RefID, user.ID,
+						notification.Message, notification.Read, ts, ts,
+					),
+			)
 		mock.ExpectBegin()
 		mock.ExpectExec("^DELETE FROM notification_").
 			WithArgs(notification.ID).
@@ -200,13 +207,20 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "user_id", "message", "read", "created", "last_modified"}).
-			AddRow(notification.ID, notification.RefID, user.ID+1, notification.Message, notification.Read, ts, ts)
-
 		mock.ExpectQuery("^SELECT (.+) FROM notification_").
 			WithArgs(notification.RefID).
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "message", "read",
+						"created", "last_modified",
+					},
+				).
+					AddRow(
+						notification.ID, notification.RefID, user.ID+1,
+						notification.Message, notification.Read, ts, ts,
+					),
+			)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()

@@ -54,12 +54,19 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
-			AddRow(1, refID, "user@example.com", "user", false, true, tstTs, tstTs)
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "email", "name", "api_access", "verified",
+						"created", "last_modified",
+					}).
+					AddRow(
+						1, refID, "user@example.com", "user", false, true,
+						tstTs, tstTs,
+					),
+			)
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
@@ -75,12 +82,20 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
-			AddRow(1, refID, "user@example.com", "user", true, false, tstTs, tstTs)
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "email", "name", "api_access",
+						"verified", "created", "last_modified",
+					},
+				).
+					AddRow(
+						1, refID, "user@example.com", "user", true, false,
+						tstTs, tstTs,
+					),
+			)
 
 		_, err := AuthHook(mock)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "account not verified")
@@ -96,12 +111,20 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "email", "name", "api_access", "verified", "created", "last_modified"}).
-			AddRow(1, refID, "user@example.com", "user", true, true, tstTs, tstTs)
 		mock.ExpectQuery("SELECT (.+) FROM user_").
 			WithArgs("user-123").
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "email", "name", "api_access",
+						"verified", "created", "last_modified",
+					},
+				).
+					AddRow(
+						1, refID, "user@example.com", "user", true, true,
+						tstTs, tstTs,
+					),
+			)
 
 		ctx, err := AuthHook(mock)(ctx)
 		assert.NilError(t, err)

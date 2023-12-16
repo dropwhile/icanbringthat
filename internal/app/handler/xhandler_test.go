@@ -127,14 +127,22 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *
 	})
 
 	refID := refid.Must(model.NewUserRefID())
-	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "email", "name", "pwhash", "created", "last_modified"}).
-		AddRow(userID, refID, "user@example.com", "user", []byte("00x00"), ts, ts)
 
 	// mock.ExpectBegin()
 	mock.ExpectQuery("^SELECT (.+) FROM user_").
 		WithArgs(1).
-		WillReturnRows(rows)
+		WillReturnRows(
+			pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name", "pwhash",
+					"created", "last_modified",
+				},
+			).
+				AddRow(
+					userID, refID, "user@example.com", "user", []byte("00x00"),
+					ts, ts,
+				),
+		)
 
 	// create request to set up session/cookies
 	req, err := http.NewRequest("GET", "/dummy", nil)

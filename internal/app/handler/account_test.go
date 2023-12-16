@@ -948,12 +948,6 @@ func TestHandler_Account_Create(t *testing.T) {
 		}
 
 		pwhash, _ := crypto.HashPW([]byte("00x00"))
-		rows := pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "email", "pwhash", "created", "last_modified",
-			}).AddRow(
-			1, refid.Must(model.NewUserRefID()), "user@example.com", pwhash, tstTs, tstTs,
-		)
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
@@ -965,7 +959,14 @@ func TestHandler_Account_Create(t *testing.T) {
 				"pwAuth":   true,
 				"settings": pgxmock.AnyArg(),
 			}).
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "email", "pwhash", "created", "last_modified",
+					}).AddRow(
+					1, refid.Must(model.NewUserRefID()), "user@example.com", pwhash, tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 

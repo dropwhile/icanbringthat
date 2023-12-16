@@ -52,9 +52,6 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	t.Run("send verification email", func(t *testing.T) {
 		t.Parallel()
 
-		uvRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserID, ts)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -78,7 +75,10 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 				"refID":  model.UserVerifyRefIDMatcher,
 				"userID": user.ID,
 			}).
-			WillReturnRows(uvRows)
+			WillReturnRows(
+				pgxmock.NewRows(uvColumns).
+					AddRow(uv.RefID, uv.UserID, ts),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -139,9 +139,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	t.Run("verify", func(t *testing.T) {
 		t.Parallel()
 
-		uvRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserID, uv.Created)
-
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -164,7 +161,10 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(uv.RefID).
-			WillReturnRows(uvRows)
+			WillReturnRows(
+				pgxmock.NewRows(uvColumns).
+					AddRow(uv.RefID, uv.UserID, uv.Created),
+			)
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
@@ -356,13 +356,13 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		rctx.URLParams.Add("hmac", macStr)
 
-		pwrRows := pgxmock.NewRows(uvColumns).
-			AddRow(refID, uv.UserID, uv.Created)
-
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(model.UserVerifyRefIDMatcher).
-			WillReturnRows(pwrRows)
+			WillReturnRows(
+				pgxmock.NewRows(uvColumns).
+					AddRow(refID, uv.UserID, uv.Created),
+			)
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -381,9 +381,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 	t.Run("verify with user_verify delete failure", func(t *testing.T) {
 		t.Parallel()
-
-		pwrRows := pgxmock.NewRows(uvColumns).
-			AddRow(uv.RefID, uv.UserID, uv.Created)
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
@@ -407,7 +404,10 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
 			WithArgs(uv.RefID).
-			WillReturnRows(pwrRows)
+			WillReturnRows(
+				pgxmock.NewRows(uvColumns).
+					AddRow(uv.RefID, uv.UserID, uv.Created),
+			)
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update

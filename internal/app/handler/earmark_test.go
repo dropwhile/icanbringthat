@@ -66,15 +66,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	t.Run("create earmark", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "user_id", "name", "description",
-				"start_time", "start_time_tz", "created", "last_modified",
-			}).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.StartTime, event.StartTimeTz, ts, ts,
-			)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -86,7 +77,17 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "name", "description",
+						"start_time", "start_time_tz", "created", "last_modified",
+					}).
+					AddRow(
+						event.ID, event.RefID, event.UserID, event.Name, event.Description,
+						event.StartTime, event.StartTimeTz, ts, ts,
+					),
+			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
 			WillReturnRows(
@@ -352,23 +353,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	t.Run("create earmark eventitem not matching event", func(t *testing.T) {
 		t.Parallel()
 
-		eventRows := pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "user_id", "name", "description", "archived",
-				"start_time", "start_time_tz", "created", "last_modified",
-			}).
-			AddRow(
-				event.ID, event.RefID, event.UserID, event.Name, event.Description,
-				event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-			)
-		eventItemRows := pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "event_id", "description", "created", "last_modified",
-			}).
-			AddRow(
-				eventItem.ID, eventItem.RefID, 33, eventItem.Description,
-				ts, ts,
-			)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.SessMgr.Load(ctx, "")
@@ -380,10 +364,29 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
 			WithArgs(event.RefID).
-			WillReturnRows(eventRows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "user_id", "name", "description", "archived",
+						"start_time", "start_time_tz", "created", "last_modified",
+					}).
+					AddRow(
+						event.ID, event.RefID, event.UserID, event.Name, event.Description,
+						event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+					),
+			)
 		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
 			WithArgs(eventItem.RefID).
-			WillReturnRows(eventItemRows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "event_id", "description", "created", "last_modified",
+					}).
+					AddRow(
+						eventItem.ID, eventItem.RefID, 33, eventItem.Description,
+						ts, ts,
+					),
+			)
 
 		data := url.Values{"note": {"some note"}}
 

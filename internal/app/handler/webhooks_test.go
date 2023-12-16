@@ -47,19 +47,19 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
-		rows := pgxmock.NewRows(userCols).
-			AddRow(
-				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
-				user.LastModified, user.Settings,
-			)
-
 		expectedSettings := model.UserSettings{
 			EnableReminders: false,
 		}
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(userCols).
+					AddRow(
+						user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+						user.LastModified, user.Settings,
+					),
+			)
 		// start outer tx
 		mock.ExpectBegin()
 		// begin first inner tx for user update
@@ -146,15 +146,15 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
-		rows := pgxmock.NewRows(userCols).
-			AddRow(
-				user.ID, user.RefID, user.Email, user.PWHash, user.Created,
-				user.LastModified, user.Settings,
-			)
-
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs(user.Email).
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(userCols).
+					AddRow(
+						user.ID, user.RefID, user.Email, user.PWHash, user.Created,
+						user.LastModified, user.Settings,
+					),
+			)
 
 		jsonData := []byte(`{  
 			"RecordType":"SubscriptionChange",

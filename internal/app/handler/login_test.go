@@ -31,12 +31,19 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
 
-		rows := pgxmock.NewRows(
-			[]string{"id", "ref_id", "email", "name", "pwhash", "pwauth", "created", "last_modified"}).
-			AddRow(1, refID, "user@example.com", "user", pwhash, true, ts, ts)
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs("user@example.com").
-			WillReturnRows(rows)
+			WillReturnRows(
+				pgxmock.NewRows(
+					[]string{
+						"id", "ref_id", "email", "name", "pwhash", "pwauth",
+						"created", "last_modified",
+					}).
+					AddRow(
+						1, refID, "user@example.com", "user", pwhash, true,
+						ts, ts,
+					),
+			)
 
 		// bad password
 		data := url.Values{
@@ -134,14 +141,21 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
-	rows := pgxmock.NewRows(
-		[]string{"id", "ref_id", "email", "name", "pwhash", "pwauth", "created", "last_modified"}).
-		AddRow(1, refID, "user@example.com", "user", pwhash, true, ts, ts)
 
 	// mock.ExpectBegin()
 	mock.ExpectQuery("^SELECT (.+) FROM user_").
 		WithArgs("user@example.com").
-		WillReturnRows(rows)
+		WillReturnRows(
+			pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name", "pwhash", "pwauth",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, refID, "user@example.com", "user", pwhash, true,
+					ts, ts,
+				),
+		)
 
 	data := url.Values{
 		"email":    {"user@example.com"},
