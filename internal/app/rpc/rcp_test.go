@@ -21,7 +21,7 @@ func MustParseTime(layout, value string) time.Time {
 	return ts
 }
 
-func assertTwirpError(t *testing.T, err error, code twirp.ErrorCode, msg string) {
+func assertTwirpError(t *testing.T, err error, code twirp.ErrorCode, msg string, meta ...map[string]string) {
 	t.Helper()
 	twerr, ok := err.(twirp.Error)
 	if !ok {
@@ -33,6 +33,15 @@ func assertTwirpError(t *testing.T, err error, code twirp.ErrorCode, msg string)
 	}
 	if twerr.Msg() != msg {
 		t.Errorf("wrong msg. have=%q, want=%q", twerr.Msg(), msg)
+	}
+	for _, m := range meta {
+		for k, v := range m {
+			x := twerr.Meta(k)
+			if x != v {
+				t.Errorf("meta value %q mismatch. have=%q, want=%q",
+					k, x, v)
+			}
+		}
 	}
 }
 

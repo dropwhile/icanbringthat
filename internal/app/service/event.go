@@ -208,9 +208,15 @@ func CreateEvent(
 	if description == "" {
 		return nil, errs.InvalidArgumentError("description", "bad empty value")
 	}
+	// check for zero time
 	if when.IsZero() {
 		return nil, errs.InvalidArgumentError("start_time", "bad empty value")
 	}
+	// check for unix epoch
+	if when.UTC().Equal(time.Unix(0, 0).UTC()) {
+		return nil, errs.InvalidArgumentError("start_time", "bad value")
+	}
+
 	if tz == "" {
 		return nil, errs.InvalidArgumentError("tz", "bad empty value")
 	}

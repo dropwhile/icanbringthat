@@ -72,6 +72,10 @@ func (s *Server) CreateEvent(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
+	if !r.When.Ts.IsValid() {
+		return nil, twirp.InvalidArgumentError("start_time", "bad empty value")
+	}
+
 	name := r.Name
 	description := r.Description
 	when := r.When.Ts.AsTime()

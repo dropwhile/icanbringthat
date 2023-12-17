@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
@@ -10,8 +11,10 @@ import (
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
+	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -277,6 +280,168 @@ func TestServer_GetEventDetails(t *testing.T) {
 }
 
 func TestServer_CreateEvent(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		Archived:     false,
+		StartTime:    tstTs,
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("create event should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectQuery("INSERT INTO event_ ").
+			WithArgs(pgx.NamedArgs{
+				"refID":       model.EventRefIDMatcher,
+				"userID":      event.UserID,
+				"name":        event.Name,
+				"description": event.Description,
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"archived", "start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name,
+					event.Description, event.Archived,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.CreateEventRequest{
+			Name:        event.Name,
+			Description: event.Description,
+			When: convert.TimeToTimestampTZ(
+				event.StartTime.In(event.StartTimeTz.Location)),
+		}
+		response, err := server.CreateEvent(ctx, request)
+		assert.NilError(t, err)
+
+		assert.Equal(t, response.Event.Name, event.Name)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create event with empty TZ should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.CreateEventRequest{
+			Name:        event.Name,
+			Description: event.Description,
+			When: &icbt.TimestampTZ{
+				Ts: convert.TimeToTimestamp(event.StartTime),
+				Tz: "",
+			},
+		}
+		_, err := server.CreateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+			map[string]string{"argument": "tz"})
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create event with empty ts should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.CreateEventRequest{
+			Name:        event.Name,
+			Description: event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: "UTC",
+			},
+		}
+		_, err := server.CreateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "start_time bad empty value",
+			map[string]string{"argument": "start_time"})
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create event with empty name should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.CreateEventRequest{
+			Name:        "",
+			Description: event.Description,
+			When: convert.TimeToTimestampTZ(
+				event.StartTime.In(event.StartTimeTz.Location)),
+		}
+		_, err := server.CreateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+			map[string]string{"argument": "name"})
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create event with empty description should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.CreateEventRequest{
+			Name:        event.Name,
+			Description: "",
+			When: convert.TimeToTimestampTZ(
+				event.StartTime.In(event.StartTimeTz.Location)),
+		}
+		_, err := server.CreateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+			map[string]string{"argument": "description"})
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
 
 func TestServer_UpdateEvent(t *testing.T) {
