@@ -918,4 +918,161 @@ func TestServer_UpdateEvent(t *testing.T) {
 }
 
 func TestServer_DeleteEvent(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("delete event should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("DELETE FROM event_ ").
+			WithArgs(eventID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.DeleteEventRequest{
+			RefId: eventRefID.String(),
+		}
+		_, err := server.DeleteEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete archived event should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, true,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("DELETE FROM event_ ").
+			WithArgs(eventID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.DeleteEventRequest{
+			RefId: eventRefID.String(),
+		}
+		_, err := server.DeleteEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete event with bad refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.DeleteEventRequest{
+			RefId: "hodor",
+		}
+		_, err := server.DeleteEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete event owned by other user should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					33, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.DeleteEventRequest{
+			RefId: eventRefID.String(),
+		}
+		_, err := server.DeleteEvent(ctx, request)
+		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
