@@ -48,7 +48,7 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 
 	refID, err := model.ParseEventItemRefID(r.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
+		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
 	errx := service.RemoveEventItem(ctx, s.Db, user.ID, refID, nil)

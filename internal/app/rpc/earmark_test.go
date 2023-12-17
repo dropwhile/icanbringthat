@@ -207,7 +207,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 					"archived", "created", "last_modified",
 				}).
 				AddRow(
-					eventID, refid.Must(model.NewEventRefID()), user.ID,
+					eventID, eventRefID, user.ID,
 					"event name", "event desc",
 					false, tstTs, tstTs,
 				),
