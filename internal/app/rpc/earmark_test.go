@@ -172,6 +172,243 @@ func TestRpc_ListEarmarks(t *testing.T) {
 	})
 }
 
+func TestRpc_ListEventEarmarks(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("list event earmarks should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{
+			Db: mock,
+		}
+		ctx = auth.ContextSet(ctx, "user", user)
+		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"archived", "created", "last_modified",
+				}).
+				AddRow(
+					eventID, refid.Must(model.NewEventRefID()), user.ID,
+					"event name", "event desc",
+					false, tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM earmark_").
+			WithArgs(eventID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id",
+					"event_item_id", "note",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, earmarkRefID, user.ID,
+					12, "some note",
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM event_item_").
+			WithArgs(12).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"event_id", "description",
+					"created", "last_modified",
+				}).
+				AddRow(
+					12, refid.Must(model.NewEventItemRefID()),
+					10, "some description",
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM user_").
+			WithArgs(user.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name",
+					"created", "last_modified",
+				}).
+				AddRow(
+					user.ID, user.RefID, "user@example.com", "user",
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.ListEventEarmarksRequest{
+			RefId: eventRefID.String(),
+		}
+		response, err := server.ListEventEarmarks(ctx, request)
+		assert.NilError(t, err)
+
+		assert.Check(t, len(response.Earmarks) == 1)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("list event earmarks bad refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{
+			Db: mock,
+		}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.ListEventEarmarksRequest{
+			RefId: "hodor",
+		}
+		_, err := server.ListEventEarmarks(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+}
+
+func TestRpc_GetEarmarkDetails(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("get earmark details should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{
+			Db: mock,
+		}
+		ctx = auth.ContextSet(ctx, "user", user)
+		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM earmark_").
+			WithArgs(earmarkRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id",
+					"event_item_id", "note",
+					"created", "last_modified",
+				}).
+				AddRow(
+					1, earmarkRefID, user.ID,
+					12, "some note",
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM event_item_").
+			WithArgs(12).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"event_id", "description",
+					"created", "last_modified",
+				}).
+				AddRow(
+					12, refid.Must(model.NewEventItemRefID()),
+					eventID, "some description",
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"archived", "created", "last_modified",
+				}).
+				AddRow(
+					eventID, refid.Must(model.NewEventRefID()), user.ID,
+					"event name", "event desc",
+					false, tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM event_item_").
+			WithArgs(12).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"event_id", "description",
+					"created", "last_modified",
+				}).
+				AddRow(
+					12, refid.Must(model.NewEventItemRefID()),
+					eventID, "some description",
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectQuery("SELECT (.+) FROM user_").
+			WithArgs(user.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "email", "name",
+					"created", "last_modified",
+				}).
+				AddRow(
+					user.ID, user.RefID, "user@example.com", "user",
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.GetEarmarkDetailsRequest{
+			RefId: earmarkRefID.String(),
+		}
+		response, err := server.GetEarmarkDetails(ctx, request)
+		assert.NilError(t, err)
+
+		assert.Equal(t, response.Earmark.RefId, earmarkRefID.String())
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("get earmark details bad refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{
+			Db: mock,
+		}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.GetEarmarkDetailsRequest{
+			RefId: "hodor",
+		}
+		_, err := server.GetEarmarkDetails(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+}
+
 func TestRpc_AddEarmark(t *testing.T) {
 	t.Parallel()
 
