@@ -111,9 +111,13 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	var tz *string
 
 	if r.When != nil {
-		t := r.When.Ts.AsTime()
-		start_time = &t
-		tz = &r.When.Tz
+		if r.When.Ts.IsValid() {
+			t := r.When.Ts.AsTime()
+			start_time = &t
+		}
+		if r.When.Tz != "" {
+			tz = &r.When.Tz
+		}
 	}
 
 	event, errx := service.UpdateEvent(ctx, s.Db, user.ID, refID,

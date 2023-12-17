@@ -445,6 +445,476 @@ func TestServer_CreateEvent(t *testing.T) {
 }
 
 func TestServer_UpdateEvent(t *testing.T) {
+	t.Parallel()
+
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		Archived:     false,
+		StartTime:    tstTs,
+		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("update event should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("UPDATE event_ ").
+			WithArgs(pgx.NamedArgs{
+				"eventID":       eventID,
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Name:        &event.Name,
+			Description: &event.Description,
+			When: convert.TimeToTimestampTZ(
+				event.StartTime.In(event.StartTimeTz.Location)),
+		}
+		response, err := server.UpdateEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Equal(t, response.Event.Name, event.Name)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with empty TZ should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("UPDATE event_ ").
+			WithArgs(pgx.NamedArgs{
+				"eventID":       eventID,
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Name:        &event.Name,
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Ts: convert.TimeToTimestamp(event.StartTime),
+				Tz: "",
+			},
+		}
+		response, err := server.UpdateEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Equal(t, response.Event.Name, event.Name)
+		// tz not updated/changed
+		assert.Equal(t, response.Event.When.Tz, event.StartTimeTz.String())
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with empty Ts should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					"some name", "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("UPDATE event_ ").
+			WithArgs(pgx.NamedArgs{
+				"eventID":       eventID,
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Name:        &event.Name,
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		response, err := server.UpdateEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Equal(t, response.Event.Name, event.Name)
+		// ts not updated/changed
+		assert.Equal(t, response.Event.When.Ts.AsTime(), event.StartTime)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with empty name should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					event.Name, "some description",
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("UPDATE event_ ").
+			WithArgs(pgx.NamedArgs{
+				"eventID":       eventID,
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		response, err := server.UpdateEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Equal(t, response.Event.Name, event.Name)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with empty description should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					event.Name, event.Description,
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+		mock.ExpectBegin()
+		// refid as anyarg because new refid is created on call to create
+		mock.ExpectExec("UPDATE event_ ").
+			WithArgs(pgx.NamedArgs{
+				"eventID":       eventID,
+				"name":          event.Name,
+				"description":   event.Description,
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.CloseTimeMatcher{
+					Value: event.StartTime, Within: time.Minute,
+				},
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		request := &icbt.UpdateEventRequest{
+			RefId: eventRefID.String(),
+			Name:  &event.Name,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		response, err := server.UpdateEvent(ctx, request)
+		assert.NilError(t, err)
+		assert.Equal(t, response.Event.Description, event.Description)
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with no data should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					event.Name, event.Description,
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.UpdateEventRequest{
+			RefId: eventRefID.String(),
+		}
+		_, err := server.UpdateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "missing fields")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update archived event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, true,
+					event.Name, event.Description,
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		_, err := server.UpdateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event owned by other user should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+		eventID := 1
+
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					33, false,
+					event.Name, event.Description,
+					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, tstTs,
+				),
+			)
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       eventRefID.String(),
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		_, err := server.UpdateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update event with bad refid should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		request := &icbt.UpdateEventRequest{
+			RefId:       "hodor",
+			Description: &event.Description,
+			When: &icbt.TimestampTZ{
+				Tz: event.StartTimeTz.String(),
+			},
+		}
+		_, err := server.UpdateEvent(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
 
 func TestServer_DeleteEvent(t *testing.T) {
