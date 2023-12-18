@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -178,7 +177,6 @@ func New(
 		r.Post("/webhooks/pm", zh.PostmarkCallback)
 	})
 
-	fmt.Printf("%#v\n", conf)
 	if conf.RpcApi {
 		// rpc api
 		rpcServer := &rpc.Server{

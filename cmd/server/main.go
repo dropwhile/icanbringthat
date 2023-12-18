@@ -69,6 +69,7 @@ func main() {
 			"location", config.StaticDir,
 		),
 		slog.Bool("production", config.Production),
+		slog.Bool("rpc_api", config.RpcApi),
 	).Info("startup configuration")
 
 	//--------------------//
