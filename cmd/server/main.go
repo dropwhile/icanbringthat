@@ -115,6 +115,7 @@ func main() {
 		Production:     config.Production,
 		BaseURL:        config.BaseURL,
 		RequestLogging: config.LogTrace,
+		RpcApi:         config.RpcApi,
 	}
 	r := app.New(dbpool, rdb, templates, mailer, appConfig)
 	defer r.Close()

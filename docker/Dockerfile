@@ -33,6 +33,7 @@ ENV LOG_TRACE=false
 ENV LOG_FORMAT=plain
 # production (sets cookies to secure, etc)
 ENV PRODUCTION=false
+ENV ENABLE_RPC=false
 # csrf key
 ENV HMAC_KEY=""
 # mail hostname

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -177,25 +178,28 @@ func New(
 		r.Post("/webhooks/pm", zh.PostmarkCallback)
 	})
 
-	// rpc api
-	rpcServer := &rpc.Server{
-		Db:        zh.Db,
-		Redis:     zh.Redis,
-		Templates: zh.Templates,
-		Mailer:    zh.Mailer,
-		MAC:       zh.MAC,
-		BaseURL:   zh.BaseURL,
-		IsProd:    zh.IsProd,
+	fmt.Printf("%#v\n", conf)
+	if conf.RpcApi {
+		// rpc api
+		rpcServer := &rpc.Server{
+			Db:        zh.Db,
+			Redis:     zh.Redis,
+			Templates: zh.Templates,
+			Mailer:    zh.Mailer,
+			MAC:       zh.MAC,
+			BaseURL:   zh.BaseURL,
+			IsProd:    zh.IsProd,
+		}
+		r.Route(TwirpPrefix, func(r chi.Router) {
+			// add auth token middleware here instead,
+			// which pulls an auth token from a header,
+			// looks it up in the db, and sets the user in the context
+			r.NotFound(http.NotFound)
+			r.Use(middleware.NoCache)
+			r.Use(auth.LoadAuthToken)
+			r.Mount("/", rpcServer.GenHandler(TwirpPrefix))
+		})
 	}
-	r.Route(TwirpPrefix, func(r chi.Router) {
-		// add auth token middleware here instead,
-		// which pulls an auth token from a header,
-		// looks it up in the db, and sets the user in the context
-		r.NotFound(http.NotFound)
-		r.Use(middleware.NoCache)
-		r.Use(auth.LoadAuthToken)
-		r.Mount("/", rpcServer.GenHandler(TwirpPrefix))
-	})
 
 	return app
 }

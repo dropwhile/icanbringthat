@@ -7,4 +7,5 @@ type Config struct {
 	HMACKeyBytes   []byte
 	Production     bool
 	RequestLogging bool
+	RpcApi         bool
 }

@@ -23,6 +23,7 @@ type deriveConfig struct {
 type EnvConfig struct {
 	// general
 	Production bool   `env:"PRODUCTION" envDefault:"true"`
+	RpcApi     bool   `env:"ENABLE_RPC" envDefault:"false"`
 	BaseURL    string `env:"BASE_URL,required"`
 	// logging
 	LogFormat string     `env:"LOG_FORMAT" envDefault:"json"`
