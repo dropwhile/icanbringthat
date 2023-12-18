@@ -119,13 +119,16 @@ ${GOBIN}/convergen:
 ${GOBIN}/deadcode:
 	go install golang.org/x/tools/cmd/deadcode@latest
 
+${GOBIN}/go-licenses:
+	go install github.com/google/go-licenses@latest
+
 ${GOBIN}/goose:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
 BENCH_TOOLS := ${GOBIN}/benchstat
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
-GENERATE_TOOLS += ${GOBIN}/convergen
+GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode
@@ -156,6 +159,13 @@ setup: setup-build setup-generate setup-check setup-bench setup-other
 generate: setup-build setup-generate
 	@echo ">> Generating..."
 	@go generate ./...
+
+.PHONY: emit-license-deps
+emit-license-deps: setup-build setup-generate
+	@go-licenses report \
+		--template internal/app/resources/templates/license.tpl \
+		./... \
+		> LICENSE-backend.md
 
 .PHONY: build
 build: setup-build
