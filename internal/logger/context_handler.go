@@ -10,9 +10,9 @@ type AttrExtractor func(context.Context, time.Time, slog.Level, string) []slog.A
 
 type ContextHandler struct {
 	slog.Handler
-	opts       Options
 	Prependers []AttrExtractor
 	Appenders  []AttrExtractor
+	opts       Options
 }
 
 // Handle handles the Record.

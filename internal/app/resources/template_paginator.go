@@ -94,7 +94,13 @@ func NewPgInput(max, step, current int, baseUrl string, extraQargs url.Values) *
 	if len(extraQargs) > 0 {
 		extra = "&" + extraQargs.Encode()
 	}
-	return &PgInput{baseUrl, max, step, current, template.URL(extra)} // #nosec G203 -- not a user supplied input
+	return &PgInput{
+		BaseUrl:    baseUrl,
+		ExtraQargs: template.URL(extra), // #nosec G203 -- not a user supplied input
+		Max:        max,
+		Step:       step,
+		Current:    current,
+	}
 }
 
 func CalculateMaxPageNum(size, step int) int {
