@@ -119,6 +119,9 @@ ${GOBIN}/convergen:
 ${GOBIN}/deadcode:
 	go install golang.org/x/tools/cmd/deadcode@latest
 
+${GOBIN}/betteralign:
+	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+
 ${GOBIN}/go-licenses:
 	go install github.com/google/go-licenses@latest
 
@@ -132,6 +135,7 @@ GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode
+CHECK_TOOLS += ${GOBIN}/betteralign
 MIGRATE_TOOLS += ${GOBIN}/goose
 
 .PHONY: setup-build
@@ -224,6 +228,12 @@ deadcode: setup-check
 	@echo ">> Running deadcode (will have some false positives)..."
 	@echo "... deadcode ..."
 	@${GOBIN}/deadcode -test ./...
+
+.PHONY: betteralign
+betteralign: setup-check
+	@echo ">> Running betteralign (will have some false positives)..."
+	@echo "... betteralign ..."
+	@${GOBIN}/betteralign ./...
 
 .PHONY: update-go-deps
 update-go-deps:
