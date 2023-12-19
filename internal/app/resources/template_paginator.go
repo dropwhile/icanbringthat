@@ -83,10 +83,10 @@ type PaginationResult struct {
 type PgInput struct {
 	// baseurl to work around some funky issues with browser pushstate
 	BaseUrl    string
+	ExtraQargs template.URL
 	Max        int
 	Step       int
 	Current    int
-	ExtraQargs template.URL
 }
 
 func NewPgInput(max, step, current int, baseUrl string, extraQargs url.Values) *PgInput {

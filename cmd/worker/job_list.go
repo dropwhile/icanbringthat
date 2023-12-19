@@ -8,8 +8,8 @@ import (
 )
 
 type JobList struct {
-	jobs   []Job
 	jobMap map[Job]bool
+	jobs   []Job
 }
 
 func NewJobList() *JobList {

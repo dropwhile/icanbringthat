@@ -15,12 +15,12 @@ import (
 var logLevel = &slog.LevelVar{}
 
 type Options struct {
-	UseLocalTime bool
-	OmitTime     bool
-	OmitSource   bool
 	Sink         io.Writer
 	Prependers   []AttrExtractor
 	Appenders    []AttrExtractor
+	UseLocalTime bool
+	OmitTime     bool
+	OmitSource   bool
 }
 
 func NewConsoleLogger(opts Options) *slog.Logger {

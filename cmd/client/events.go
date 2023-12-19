@@ -81,11 +81,11 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 }
 
 type EventsUpdateCmd struct {
-	RefID       string     `name:"ref-id" required:""`
 	Name        *string    `name:"name"  help:"event name"`
 	Description *string    `name:"description"  help:"event description"`
 	When        *time.Time `name:"when"  help:"event start time"`
 	Tz          *string    `name:"tz"  help:"event timezone"`
+	RefID       string     `name:"ref-id" required:""`
 }
 
 func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {

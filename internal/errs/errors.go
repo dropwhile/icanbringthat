@@ -190,9 +190,9 @@ func InvalidArgumentError(argument string, msg string) Error {
 
 // twirp.Error implementation
 type svcerr struct {
-	code ErrorCode
-	msg  string
 	meta map[string]string
+	msg  string
+	code ErrorCode
 }
 
 func (e *svcerr) Code() ErrorCode            { return e.code }
