@@ -21,13 +21,13 @@ require (
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.40.1
-	github.com/redis/go-redis/v9 v9.3.0
+	github.com/redis/go-redis/v9 v9.3.1
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.17.0
-	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611
+	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
 	google.golang.org/protobuf v1.31.0
 	gotest.tools/v3 v3.5.1
 )
