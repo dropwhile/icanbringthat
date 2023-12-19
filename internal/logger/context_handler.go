@@ -70,10 +70,10 @@ func (h *ContextHandler) Handle(ctx context.Context, r slog.Record) error {
 // The Handler owns the slice: it may retain, modify or discard it.
 func (h *ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &ContextHandler{
-		h.Handler.WithAttrs(attrs),
-		h.opts,
-		h.Prependers,
-		h.Appenders,
+		Handler:    h.Handler.WithAttrs(attrs),
+		Prependers: h.Prependers,
+		Appenders:  h.Appenders,
+		opts:       h.opts,
 	}
 }
 
@@ -98,10 +98,10 @@ func (h *ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 // If the name is empty, WithGroup returns the receiver.
 func (h *ContextHandler) WithGroup(name string) slog.Handler {
 	return &ContextHandler{
-		h.Handler.WithGroup(name),
-		h.opts,
-		h.Prependers,
-		h.Appenders,
+		Handler:    h.Handler.WithGroup(name),
+		Prependers: h.Prependers,
+		Appenders:  h.Appenders,
+		opts:       h.opts,
 	}
 }
 
@@ -115,10 +115,10 @@ func NewContextHandler(next slog.Handler, opts Options) *slog.Logger {
 	// add custom additions
 	prependers = append(prependers, opts.Prependers...)
 	h := &ContextHandler{
-		next,
-		opts,
-		prependers,
-		opts.Appenders,
+		Handler:    next,
+		Prependers: prependers,
+		Appenders:  opts.Appenders,
+		opts:       opts,
 	}
 	return slog.New(h)
 }
