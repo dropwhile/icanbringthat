@@ -82,7 +82,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Notifications) == 1)
+		assert.Equal(t, len(response.Notifications), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -118,7 +118,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Notifications) == 1)
+		assert.Equal(t, len(response.Notifications), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

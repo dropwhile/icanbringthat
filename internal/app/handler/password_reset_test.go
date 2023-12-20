@@ -124,7 +124,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		userID := handler.SessMgr.GetInt(ctx, "user-id")
-		assert.Assert(t, userID == user.ID)
+		assert.Equal(t, userID, user.ID)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -492,7 +492,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		util.MustReadAll(response.Body)
 
 		userID := handler.SessMgr.GetInt(ctx, "user-id")
-		assert.Assert(t, userID == 0)
+		assert.Equal(t, userID, 0)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusInternalServerError)

@@ -77,7 +77,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		response, err := server.ListFavoriteEvents(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Events) == 1)
+		assert.Equal(t, len(response.Events), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -121,7 +121,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		response, err := server.ListFavoriteEvents(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Events) == 1)
+		assert.Equal(t, len(response.Events), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

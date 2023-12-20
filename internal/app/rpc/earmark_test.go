@@ -100,7 +100,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		response, err := server.ListEarmarks(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Earmarks) == 1)
+		assert.Equal(t, len(response.Earmarks), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -166,7 +166,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		response, err := server.ListEarmarks(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Earmarks) == 1)
+		assert.Equal(t, len(response.Earmarks), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -259,7 +259,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		response, err := server.ListEventEarmarks(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Earmarks) == 1)
+		assert.Equal(t, len(response.Earmarks), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

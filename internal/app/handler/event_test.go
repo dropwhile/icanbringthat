@@ -70,7 +70,7 @@ func TestHandler_Event_Create(t *testing.T) {
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,
-				"startTime":   CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":   util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz": event.StartTimeTz,
 			}).
 			WillReturnRows(pgxmock.NewRows(eventColumns).
@@ -250,7 +250,7 @@ func TestHandler_Event_Create(t *testing.T) {
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,
-				"startTime":   CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":   util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz": event.StartTimeTz,
 			}).
 			WillReturnRows(pgxmock.NewRows(eventColumns).
@@ -422,7 +422,7 @@ func TestHandler_Event_Update(t *testing.T) {
 				"name":          event.Name,
 				"description":   event.Description,
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).
@@ -634,7 +634,7 @@ func TestHandler_Event_Update(t *testing.T) {
 				"name":          event.Name + "x",
 				"description":   event.Description,
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).
@@ -691,7 +691,7 @@ func TestHandler_Event_Update(t *testing.T) {
 				"name":          event.Name,
 				"description":   event.Description + "x",
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).
@@ -748,7 +748,7 @@ func TestHandler_Event_Update(t *testing.T) {
 				"name":          event.Name,
 				"description":   event.Description,
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).
@@ -920,7 +920,7 @@ func TestHandler_Event_Update(t *testing.T) {
 				"name":          event.Name,
 				"description":   event.Description,
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).
@@ -1044,7 +1044,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 				"name":          event.Name,
 				"description":   event.Description,
 				"itemSortOrder": []int{1, 3, 2},
-				"startTime":     CloseTimeMatcher{event.StartTime, time.Minute},
+				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
 				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
 			}).

@@ -38,29 +38,6 @@ func MustParseTime(layout, value string) time.Time {
 	return ts
 }
 
-type CloseTimeMatcher struct {
-	value  time.Time
-	within time.Duration
-}
-
-// Match satisfies sqlmock.Argument interface
-func (a CloseTimeMatcher) Match(v interface{}) bool {
-	ts, ok := v.(time.Time)
-	if !ok {
-		return false
-	}
-	if ts.Equal(a.value) {
-		return true
-	}
-	if ts.Before(a.value) {
-		return !ts.Add(a.within).Before(a.value)
-	}
-	if ts.After(a.value) {
-		return !ts.Add(-a.within).After(a.value)
-	}
-	return true
-}
-
 func setCookie(r *http.Request, cookie string) {
 	r.Header.Set("Cookie", cookie)
 }
@@ -162,7 +139,7 @@ func StatusEqual(rr *httptest.ResponseRecorder, status int) bool {
 
 func AssertStatusEqual(t *testing.T, rr *httptest.ResponseRecorder, status int) {
 	t.Helper()
-	assert.Assert(t, rr.Code == status,
+	assert.Equal(t, rr.Code, status,
 		"handler returned wrong status code: got %d expected %d", rr.Code, status)
 }
 

@@ -73,7 +73,7 @@ func TestServer_ListEventItems(t *testing.T) {
 		response, err := server.ListEventItems(ctx, request)
 		assert.NilError(t, err)
 
-		assert.Check(t, len(response.Items) == 1)
+		assert.Equal(t, len(response.Items), 1)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
