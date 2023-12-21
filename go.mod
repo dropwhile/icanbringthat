@@ -10,9 +10,9 @@ require (
 	github.com/alexedwards/scs/v2 v2.7.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.1
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/httplog/v2 v2.0.8
-	github.com/go-webauthn/webauthn v0.9.4
+	github.com/go-webauthn/webauthn v0.10.0
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/microcosm-cc/bluemonday v1.0.26
@@ -41,7 +41,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/go-webauthn/x v0.1.5 // indirect
+	github.com/go-webauthn/x v0.1.6 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -68,7 +68,7 @@ require (
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	go.uber.org/mock v0.3.0 // indirect
+	go.uber.org/mock v0.4.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
