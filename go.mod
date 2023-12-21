@@ -17,7 +17,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v3 v3.2.0
+	github.com/pashagolub/pgxmock/v3 v3.3.0
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.40.1

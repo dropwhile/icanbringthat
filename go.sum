@@ -136,8 +136,8 @@ github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/onsi/gomega v1.29.0 h1:KIA/t2t5UBzoirT4H9tsML45GEbo3ouUnBHsCfD2tVg=
 github.com/onsi/gomega v1.29.0/go.mod h1:9sxs+SwGrKI0+PWe4Fxa9tFQQBG5xSsSbMXOI8PPpoQ=
-github.com/pashagolub/pgxmock/v3 v3.2.0 h1:8l9tPdlGKUfkRMt91PxychjEfIUhoYaxP4OttkH+/Eg=
-github.com/pashagolub/pgxmock/v3 v3.2.0/go.mod h1:RbHF7zLIQw5DoFtaaILZqKNjRRXgpMEuiV4ROcqoD+k=
+github.com/pashagolub/pgxmock/v3 v3.3.0 h1:vMDQiBs74JEIYT/DeWNtUDrcfKCsgMmKd+ecQs1WsV4=
+github.com/pashagolub/pgxmock/v3 v3.3.0/go.mod h1:ywwoE43oyD7aqpA3Jh5tvZ8h00P7RRiygA23aXmNpWU=
 github.com/pganalyze/pg_query_go/v4 v4.2.3 h1:cNLqyiVMasV7YGWyYV+fkXyHp32gDfXVNCqoHztEGNk=
 github.com/pganalyze/pg_query_go/v4 v4.2.3/go.mod h1:aEkDNOXNM5j0YGzaAapwJ7LB3dLNj+bvbWcLv1hOVqA=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
