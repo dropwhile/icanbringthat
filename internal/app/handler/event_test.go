@@ -781,7 +781,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update when", func(t *testing.T) {
+	t.Run("update only update when should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -791,14 +791,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
 
 		data := url.Values{
 			"when": {event.StartTime.Format("2006-01-02T15:04")},
@@ -819,7 +811,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update tz", func(t *testing.T) {
+	t.Run("update only update tz should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -829,14 +821,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
 
 		data := url.Values{
 			"timezone": {event.StartTimeTz.String()},
@@ -867,14 +851,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
 
 		data := url.Values{
 			"namexxx": {event.Name},

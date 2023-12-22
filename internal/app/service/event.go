@@ -85,28 +85,9 @@ func UpdateEvent(
 	refID model.EventRefID, name *string, description *string,
 	startTime *time.Time, tz *string,
 ) (*model.Event, errs.Error) {
-	event, err := model.GetEventByRefID(ctx, db, refID)
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		return nil, errs.NotFound.Error("event not found")
-	case err != nil:
-		return nil, errs.Internal.Error("db error")
-	}
-
-	if userID != event.UserID {
-		return nil, errs.PermissionDenied.Error("permission denied")
-	}
-
-	if name == nil && description == nil && startTime == nil && tz == nil {
-		return nil, errs.InvalidArgument.Error("missing fields")
-	}
-
-	if event.Archived {
-		return nil, errs.PermissionDenied.Error("event is archived")
-	}
-
-	changes := false
-	if name != nil && *name != event.Name {
+	// check values if present
+	hasValue := false
+	if name != nil {
 		err := validate.VarCtx(ctx, *name, "required,notblank")
 		if err != nil {
 			slog.
@@ -115,12 +96,10 @@ func UpdateEvent(
 				Info("bad field value")
 			return nil, errs.InvalidArgumentError("name", "bad value")
 		}
-
-		event.Name = *name
-		changes = true
+		hasValue = true
 	}
-	if description != nil && *description != event.Description {
-		err = validate.VarCtx(ctx, *description, "required,notblank")
+	if description != nil {
+		err := validate.VarCtx(ctx, *description, "required,notblank")
 		if err != nil {
 			slog.
 				With("field", "description").
@@ -128,20 +107,18 @@ func UpdateEvent(
 				Info("bad field value")
 			return nil, errs.InvalidArgumentError("description", "bad value")
 		}
-
-		event.Description = *description
-		changes = true
+		hasValue = true
 	}
-	if startTime != nil && *startTime != event.StartTime {
+	if startTime != nil {
 		if (*startTime).IsZero() {
 			return nil, errs.InvalidArgumentError("start_time", "bad value")
 		}
 		if (*startTime).Before(time.Now().UTC()) {
 			return nil, errs.InvalidArgumentError("start_time", "cannot be in the past")
 		}
-		event.StartTime = *startTime
-		changes = true
+		hasValue = true
 	}
+	var loc *time.Location
 	if tz != nil {
 		err := validate.VarCtx(ctx, *tz, "required,timezone")
 		if err != nil {
@@ -151,20 +128,61 @@ func UpdateEvent(
 				Info("bad field value")
 			return nil, errs.InvalidArgumentError("tz", "bad value")
 		}
-		loc, err := time.LoadLocation(*tz)
+		loc, err = time.LoadLocation(*tz)
 		if err != nil {
 			return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
 		}
-		if loc != event.StartTimeTz.Location {
-			event.StartTimeTz = &model.TimeZone{Location: loc}
-			changes = true
-		}
+		hasValue = true
 	}
 
+	// if no values, error
+	if !hasValue {
+		return nil, errs.InvalidArgument.Error("missing fields")
+	}
+
+	// get event
+	event, err := model.GetEventByRefID(ctx, db, refID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return nil, errs.NotFound.Error("event not found")
+	case err != nil:
+		return nil, errs.Internal.Error("db error")
+	}
+
+	// check general condition requirements
+	if userID != event.UserID {
+		return nil, errs.PermissionDenied.Error("permission denied")
+	}
+
+	if event.Archived {
+		return nil, errs.PermissionDenied.Error("event is archived")
+	}
+
+	// check for changes
+	changes := false
+	if name != nil && *name != event.Name {
+		event.Name = *name
+		changes = true
+	}
+	if description != nil && *description != event.Description {
+		event.Description = *description
+		changes = true
+	}
+	if startTime != nil && *startTime != event.StartTime {
+		event.StartTime = *startTime
+		changes = true
+	}
+	if loc != nil && loc != event.StartTimeTz.Location {
+		event.StartTimeTz = &model.TimeZone{Location: loc}
+		changes = true
+	}
+
+	// if no changes, error
 	if !changes {
 		return nil, errs.FailedPrecondition.Error("no changes")
 	}
 
+	// do update
 	if err := model.UpdateEvent(
 		ctx, db, event.ID,
 		event.Name, event.Description, event.ItemSortOrder,

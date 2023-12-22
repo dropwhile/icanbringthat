@@ -18,7 +18,7 @@ import (
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
-func TestServer_ListEvents(t *testing.T) {
+func TestRpc_ListEvents(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -128,7 +128,7 @@ func TestServer_ListEvents(t *testing.T) {
 	})
 }
 
-func TestServer_GetEventDetails(t *testing.T) {
+func TestRpc_GetEventDetails(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -279,7 +279,7 @@ func TestServer_GetEventDetails(t *testing.T) {
 	})
 }
 
-func TestServer_CreateEvent(t *testing.T) {
+func TestRpc_CreateEvent(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -444,7 +444,7 @@ func TestServer_CreateEvent(t *testing.T) {
 	})
 }
 
-func TestServer_UpdateEvent(t *testing.T) {
+func TestRpc_UpdateEvent(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -781,26 +781,6 @@ func TestServer_UpdateEvent(t *testing.T) {
 		server := &Server{Db: mock}
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
-		eventID := 1
-
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventRefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
 
 		request := &icbt.UpdateEventRequest{
 			RefId: eventRefID.String(),
@@ -917,7 +897,7 @@ func TestServer_UpdateEvent(t *testing.T) {
 	})
 }
 
-func TestServer_DeleteEvent(t *testing.T) {
+func TestRpc_DeleteEvent(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{

@@ -15,7 +15,7 @@ import (
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
-func TestServer_ListEventItems(t *testing.T) {
+func TestRpc_ListEventItems(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -96,7 +96,7 @@ func TestServer_ListEventItems(t *testing.T) {
 	})
 }
 
-func TestServer_RemoveEventItem(t *testing.T) {
+func TestRpc_RemoveEventItem(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -281,7 +281,7 @@ func TestServer_RemoveEventItem(t *testing.T) {
 	})
 }
 
-func TestServer_AddEventItem(t *testing.T) {
+func TestRpc_AddEventItem(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -462,7 +462,7 @@ func TestServer_AddEventItem(t *testing.T) {
 	})
 }
 
-func TestServer_UpdateEventItem(t *testing.T) {
+func TestRpc_UpdateEventItem(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
