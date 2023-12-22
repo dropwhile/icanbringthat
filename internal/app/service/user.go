@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -73,6 +74,23 @@ func GetUsersByIDs(ctx context.Context, db model.PgxHandle,
 func NewUser(ctx context.Context, db model.PgxHandle,
 	email, name string, rawPass []byte,
 ) (*model.User, errs.Error) {
+	err := validate.VarCtx(ctx, name, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "name").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("name", "bad value")
+	}
+	err = validate.VarCtx(ctx, email, "required,notblank,email")
+	if err != nil {
+		slog.
+			With("field", "email").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("email", "bad value")
+	}
+
 	user, err := model.NewUser(ctx, db, email, name, rawPass)
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -90,7 +108,24 @@ func UpdateUser(ctx context.Context, db model.PgxHandle,
 	email, name string, pwHash []byte, verified bool,
 	pwAuth, apiAccess, webAuthn bool, userID int,
 ) errs.Error {
-	err := model.UpdateUser(ctx, db,
+	err := validate.VarCtx(ctx, name, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "name").
+			With("error", err).
+			Info("bad field value")
+		return errs.InvalidArgumentError("name", "bad value")
+	}
+	err = validate.VarCtx(ctx, email, "required,notblank,email")
+	if err != nil {
+		slog.
+			With("field", "email").
+			With("error", err).
+			Info("bad field value")
+		return errs.InvalidArgumentError("email", "bad value")
+	}
+
+	err = model.UpdateUser(ctx, db,
 		email, name, pwHash, verified,
 		pwAuth, apiAccess, webAuthn, userID,
 	)

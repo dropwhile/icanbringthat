@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
@@ -111,6 +112,15 @@ func NewNotification(
 	ctx context.Context, db model.PgxHandle, userID int,
 	message string,
 ) (*model.Notification, errs.Error) {
+	err := validate.VarCtx(ctx, message, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "message").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("message", "bad value")
+	}
+
 	notification, err := model.NewNotification(ctx, db, userID, message)
 	if err != nil {
 		return nil, errs.Internal.Errorf("db error: %w", err)
