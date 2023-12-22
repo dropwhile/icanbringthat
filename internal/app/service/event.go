@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"reflect"
 	"time"
 
@@ -106,16 +107,28 @@ func UpdateEvent(
 
 	changes := false
 	if name != nil && *name != event.Name {
-		if *name == "" {
-			return nil, errs.InvalidArgumentError("name", "cannot be empty")
+		err := validate.VarCtx(ctx, *name, "required,notblank")
+		if err != nil {
+			slog.
+				With("field", "name").
+				With("error", err).
+				Info("bad field value")
+			return nil, errs.InvalidArgumentError("name", "bad value")
 		}
+
 		event.Name = *name
 		changes = true
 	}
 	if description != nil && *description != event.Description {
-		if *description == "" {
-			return nil, errs.InvalidArgumentError("description", "cannot be empty")
+		err = validate.VarCtx(ctx, *description, "required,notblank")
+		if err != nil {
+			slog.
+				With("field", "description").
+				With("error", err).
+				Info("bad field value")
+			return nil, errs.InvalidArgumentError("description", "bad value")
 		}
+
 		event.Description = *description
 		changes = true
 	}
@@ -130,8 +143,13 @@ func UpdateEvent(
 		changes = true
 	}
 	if tz != nil {
-		if *tz == "" {
-			return nil, errs.InvalidArgumentError("tz", "cannot be empty")
+		err := validate.VarCtx(ctx, *tz, "required,timezone")
+		if err != nil {
+			slog.
+				With("field", "tz").
+				With("error", err).
+				Info("bad field value")
+			return nil, errs.InvalidArgumentError("tz", "bad value")
 		}
 		loc, err := time.LoadLocation(*tz)
 		if err != nil {
@@ -202,12 +220,25 @@ func CreateEvent(
 		return nil, errs.PermissionDenied.Error(
 			"Account must be verified before event creation is allowed.")
 	}
-	if name == "" {
-		return nil, errs.InvalidArgumentError("name", "bad empty value")
+
+	err := validate.VarCtx(ctx, name, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "name").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("name", "bad value")
 	}
-	if description == "" {
-		return nil, errs.InvalidArgumentError("description", "bad empty value")
+
+	err = validate.VarCtx(ctx, description, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "description").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("description", "bad value")
 	}
+
 	// check for zero time
 	if when.IsZero() {
 		return nil, errs.InvalidArgumentError("start_time", "bad empty value")
@@ -217,8 +248,13 @@ func CreateEvent(
 		return nil, errs.InvalidArgumentError("start_time", "bad value")
 	}
 
-	if tz == "" {
-		return nil, errs.InvalidArgumentError("tz", "bad empty value")
+	err = validate.VarCtx(ctx, tz, "required,timezone")
+	if err != nil {
+		slog.
+			With("field", "tz").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("tz", "bad value")
 	}
 
 	loc, err := time.LoadLocation(tz)

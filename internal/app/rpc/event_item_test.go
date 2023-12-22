@@ -353,6 +353,25 @@ func TestServer_AddEventItem(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
+	t.Run("add event item with empty description should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		server := &Server{Db: mock}
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		request := &icbt.AddEventItemRequest{
+			EventRefId:  eventRefID.String(),
+			Description: "",
+		}
+		_, err := server.AddEventItem(ctx, request)
+		assertTwirpError(t, err, twirp.InvalidArgument, "description bad value")
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
 	t.Run("add event item with user not event owner should fail", func(t *testing.T) {
 		t.Parallel()
 

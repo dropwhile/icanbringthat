@@ -125,13 +125,16 @@ ${GOBIN}/betteralign:
 ${GOBIN}/go-licenses:
 	go install github.com/google/go-licenses@latest
 
+${GOBIN}/protoc-go-inject-tag:
+	go install github.com/favadi/protoc-go-inject-tag@latest
+
 ${GOBIN}/goose:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
 BENCH_TOOLS := ${GOBIN}/benchstat
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
-GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses
+GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses  ${GOBIN}/protoc-go-inject-tag
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode

@@ -373,7 +373,7 @@ func TestServer_CreateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+		assertTwirpError(t, err, twirp.InvalidArgument, "tz bad value",
 			map[string]string{"argument": "tz"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -416,7 +416,7 @@ func TestServer_CreateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+		assertTwirpError(t, err, twirp.InvalidArgument, "name bad value",
 			map[string]string{"argument": "name"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -437,7 +437,7 @@ func TestServer_CreateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "bad empty value",
+		assertTwirpError(t, err, twirp.InvalidArgument, "description bad value",
 			map[string]string{"argument": "description"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

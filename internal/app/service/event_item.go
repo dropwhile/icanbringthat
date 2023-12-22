@@ -150,6 +150,15 @@ func AddEventItem(
 	ctx context.Context, db model.PgxHandle, userID int,
 	refID model.EventRefID, description string,
 ) (*model.EventItem, errs.Error) {
+	err := validate.VarCtx(ctx, description, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "description").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("description", "bad value")
+	}
+
 	event, err := model.GetEventByRefID(ctx, db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -179,6 +188,15 @@ func UpdateEventItem(
 	refID model.EventItemRefID, description string,
 	failIfChecks func(*model.EventItem) bool,
 ) (*model.EventItem, errs.Error) {
+	err := validate.VarCtx(ctx, description, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "description").
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError("description", "bad value")
+	}
+
 	eventItem, err := model.GetEventItemByRefID(ctx, db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):

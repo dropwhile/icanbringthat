@@ -183,7 +183,7 @@ func NewErrorf(code ErrorCode, msgFmt string, a ...interface{}) Error {
 // InvalidArgumentError is a convenience constructor for InvalidArgument errors.
 // The argument name is included on the "argument" metadata for convenience.
 func InvalidArgumentError(argument string, msg string) Error {
-	err := NewError(InvalidArgument, msg)
+	err := NewError(InvalidArgument, argument+" "+msg)
 	err = err.WithMeta("argument", argument)
 	return err
 }
