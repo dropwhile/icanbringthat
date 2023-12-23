@@ -117,9 +117,11 @@ func UpdateEvent(
 		if val.IsZero() {
 			return nil, errs.InvalidArgumentError("start_time", "bad value")
 		}
-		if val.Before(time.Now().UTC().Add(-30 * time.Minute)) {
-			return nil, errs.InvalidArgumentError("start_time", "cannot be in the past")
-		}
+		/*
+			if val.Before(time.Now().UTC().Add(-30 * time.Minute)) {
+				return nil, errs.InvalidArgumentError("start_time", "cannot be in the past")
+			}
+		*/
 	}
 
 	var loc *model.TimeZone
