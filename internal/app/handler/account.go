@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/csrf"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -176,12 +177,15 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	changes := false
 	warnings := make([]string, 0)
 	successMsgs := make([]string, 0)
+	updateVals := service.UserUpdateValues{}
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
 		user.Email = email
 		user.Verified = false
 		changes = true
+		updateVals.Email = mo.Some(email)
+		updateVals.Verified = mo.Some(false)
 		successMsgs = append(successMsgs, "Email update successfull")
 	} else if email == user.Email {
 		warnings = append(warnings, "Same Email specified was already present")
@@ -191,6 +195,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	if name != "" && name != user.Name {
 		user.Name = name
 		changes = true
+		updateVals.Name = mo.Some(name)
 		successMsgs = append(successMsgs, "Name update successfull")
 	} else if name == user.Name {
 		warnings = append(warnings, "Same Name specified was already present")
@@ -214,6 +219,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				user.PWHash = pwhash
+				updateVals.PWHash = mo.Some(pwhash)
 				successMsgs = append(successMsgs, "Password update successfull")
 				changes = true
 			}
@@ -221,11 +227,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		errx := service.UpdateUser(ctx, x.Db,
-			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiAccess,
-			user.WebAuthn, user.ID,
-		)
+		errx := service.UpdateUser(ctx, x.Db, user.ID, updateVals)
 		if errx != nil {
 			slog.ErrorContext(ctx, "error updating user",
 				logger.Err(errx))
@@ -274,6 +276,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		hasPasskeys = true
 	}
 
+	updateVals := service.UserUpdateValues{}
 	switch authPW {
 	case "off":
 		if user.PWAuth {
@@ -284,11 +287,13 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 			}
 			changes = true
 			user.PWAuth = false
+			updateVals.PWAuth = mo.Some(false)
 		}
 	case "on":
 		if !user.PWAuth {
 			changes = true
 			user.PWAuth = true
+			updateVals.PWAuth = mo.Some(true)
 		}
 	case "":
 		// nothing
@@ -307,6 +312,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 			}
 			changes = true
 			user.WebAuthn = false
+			updateVals.WebAuthn = mo.Some(false)
 		}
 	case "on":
 		if !user.WebAuthn {
@@ -318,6 +324,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 			}
 			changes = true
 			user.WebAuthn = true
+			updateVals.WebAuthn = mo.Some(true)
 		}
 	case "":
 		// nothing
@@ -332,11 +339,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = service.UpdateUser(ctx, x.Db,
-		user.Email, user.Name, user.PWHash,
-		user.Verified, user.PWAuth, user.ApiAccess,
-		user.WebAuthn, user.ID,
-	)
+	errx = service.UpdateUser(ctx, x.Db, user.ID, updateVals)
 	if errx != nil {
 		slog.ErrorContext(ctx, "error updating user auth",
 			logger.Err(errx))
@@ -371,11 +374,13 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	updateVals := service.UserUpdateValues{}
 	switch apiAccess {
 	case "off":
 		if user.ApiAccess {
 			changes = true
 			user.ApiAccess = false
+			updateVals.ApiAccess = mo.Some(false)
 		}
 	case "on":
 		if !user.ApiAccess {
@@ -386,6 +391,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			}
 			changes = true
 			user.ApiAccess = true
+			updateVals.ApiAccess = mo.Some(true)
 			_, errx := service.NewApiKeyIfNotExists(ctx, x.Db, user.ID)
 			if errx != nil {
 				x.DBError(w, errx)
@@ -419,11 +425,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if apiAccess != "" {
-		if errx := service.UpdateUser(ctx, x.Db,
-			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiAccess,
-			user.WebAuthn, user.ID,
-		); errx != nil {
+		if errx := service.UpdateUser(ctx, x.Db, user.ID, updateVals); errx != nil {
 			slog.ErrorContext(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -41,10 +42,14 @@ func SetUserVerified(ctx context.Context, db model.PgxHandle,
 	user *model.User, verifier *model.UserVerify,
 ) errs.Error {
 	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
-		innerErr := model.UpdateUser(ctx, tx,
-			user.Email, user.Name, user.PWHash,
-			user.Verified, user.PWAuth, user.ApiAccess,
-			user.WebAuthn, user.ID,
+		innerErr := model.UpdateUser(ctx, tx, user.ID,
+			mo.None[string](),
+			mo.None[string](),
+			mo.None[[]byte](),
+			mo.Some(user.Verified),
+			mo.None[bool](),
+			mo.None[bool](),
+			mo.None[bool](),
 		)
 		if innerErr != nil {
 			slog.DebugContext(ctx, "inner db error saving user",

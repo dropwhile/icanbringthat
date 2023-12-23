@@ -5,8 +5,10 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -104,30 +106,34 @@ func NewUser(ctx context.Context, db model.PgxHandle,
 	return user, nil
 }
 
+type UserUpdateValues struct {
+	Name      mo.Option[string] `validate:"omitempty,notblank"`
+	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
+	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=100"`
+	Verified  mo.Option[bool]
+	PWAuth    mo.Option[bool]
+	ApiAccess mo.Option[bool]
+	WebAuthn  mo.Option[bool]
+}
+
 func UpdateUser(ctx context.Context, db model.PgxHandle,
-	email, name string, pwHash []byte, verified bool,
-	pwAuth, apiAccess, webAuthn bool, userID int,
+	userID int, userUpdateVals UserUpdateValues,
 ) errs.Error {
-	err := validate.VarCtx(ctx, name, "required,notblank")
+	err := validate.Struct(userUpdateVals)
 	if err != nil {
+		badField := err.(validator.ValidationErrors)[0].Field()
 		slog.
-			With("field", "name").
+			With("field", badField).
 			With("error", err).
 			Info("bad field value")
-		return errs.InvalidArgumentError("name", "bad value")
-	}
-	err = validate.VarCtx(ctx, email, "required,notblank,email")
-	if err != nil {
-		slog.
-			With("field", "email").
-			With("error", err).
-			Info("bad field value")
-		return errs.InvalidArgumentError("email", "bad value")
+		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
-	err = model.UpdateUser(ctx, db,
-		email, name, pwHash, verified,
-		pwAuth, apiAccess, webAuthn, userID,
+	err = model.UpdateUser(ctx, db, userID,
+		userUpdateVals.Email, userUpdateVals.Name,
+		userUpdateVals.PWHash, userUpdateVals.Verified,
+		userUpdateVals.PWAuth, userUpdateVals.ApiAccess,
+		userUpdateVals.WebAuthn,
 	)
 	if err != nil {
 		return errs.Internal.Errorf("db error: %w", err)

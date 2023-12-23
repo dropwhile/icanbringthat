@@ -9,6 +9,7 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/crypto"
 )
@@ -100,22 +101,23 @@ func CreateUser(ctx context.Context, db PgxHandle,
 	return QueryOneTx[User](ctx, db, q, args)
 }
 
-func UpdateUser(ctx context.Context, db PgxHandle,
-	email, name string, pwHash []byte, verified bool,
-	pwAuth, apiAccess, webAuthn bool, userID int,
+func UpdateUser(ctx context.Context, db PgxHandle, userID int,
+	email, name mo.Option[string], pwHash mo.Option[[]byte],
+	verified, pwAuth, apiAccess, webAuthn mo.Option[bool],
 ) error {
 	q := `
 		UPDATE user_
 		SET
-			email = @email,
-			name = @name,
-			pwhash = @pwHash,
-			verified = @verified,
-			pwauth = @pwAuth,
-			api_access = @apiAccess,
-			webauthn = @webAuthn
+			email = COALESCE(@email, email),
+			name = COALESCE(@name, name),
+			pwhash = COALESCE(@pwHash, pwhash),
+			verified = COALESCE(@verified, verified),
+			pwauth = COALESCE(@pwAuth, pwauth),
+			api_access = COALESCE(@apiAccess, api_access),
+			webauthn = COALESCE(@webAuthn, webauthn)
 		WHERE id = @userID`
 	args := pgx.NamedArgs{
+		"userID":    userID,
 		"email":     email,
 		"name":      name,
 		"pwHash":    pwHash,
@@ -123,7 +125,6 @@ func UpdateUser(ctx context.Context, db PgxHandle,
 		"pwAuth":    pwAuth,
 		"apiAccess": apiAccess,
 		"webAuthn":  webAuthn,
-		"userID":    userID,
 	}
 	return ExecTx[User](ctx, db, q, args)
 }
