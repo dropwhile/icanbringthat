@@ -445,13 +445,13 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
-				"pwHash":    user.PWHash,
-				"verified":  user.Verified,
-				"pwAuth":    false,
-				"apiAccess": user.ApiAccess,
-				"webAuthn":  user.WebAuthn,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
+				"pwHash":    mo.None[[]byte](),
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.Some(false),
+				"apiAccess": mo.None[bool](),
+				"webAuthn":  mo.None[bool](),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -508,13 +508,13 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
-				"pwHash":    user.PWHash,
-				"verified":  user.Verified,
-				"pwAuth":    user.PWAuth,
-				"apiAccess": user.ApiAccess,
-				"webAuthn":  false,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
+				"pwHash":    mo.None[[]byte](),
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.None[bool](),
+				"webAuthn":  mo.Some(false),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -680,13 +680,13 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
-				"pwHash":    user.PWHash,
-				"verified":  user.Verified,
-				"pwAuth":    user.PWAuth,
-				"apiAccess": true,
-				"webAuthn":  user.WebAuthn,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
+				"pwHash":    mo.None[[]byte](),
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.Some(true),
+				"webAuthn":  mo.None[bool](),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -748,13 +748,13 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ SET (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
-				"pwHash":    user.PWHash,
-				"verified":  user.Verified,
-				"pwAuth":    user.PWAuth,
-				"apiAccess": true,
-				"webAuthn":  user.WebAuthn,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
+				"pwHash":    mo.None[[]byte](),
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.Some(true),
+				"webAuthn":  mo.None[bool](),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))

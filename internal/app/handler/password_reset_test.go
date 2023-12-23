@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
+	"github.com/samber/mo"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -85,13 +86,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
 				"pwHash":    pgxmock.AnyArg(),
-				"verified":  user.Verified,
-				"pwAuth":    user.PWAuth,
-				"apiAccess": user.ApiAccess,
-				"webAuthn":  user.WebAuthn,
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.None[bool](),
+				"webAuthn":  mo.None[bool](),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -452,13 +453,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectExec("^UPDATE user_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"email":     user.Email,
-				"name":      user.Name,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
 				"pwHash":    pgxmock.AnyArg(),
-				"verified":  user.Verified,
-				"pwAuth":    user.PWAuth,
-				"apiAccess": user.ApiAccess,
-				"webAuthn":  user.WebAuthn,
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.None[bool](),
+				"webAuthn":  mo.None[bool](),
 				"userID":    user.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))

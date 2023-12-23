@@ -109,7 +109,7 @@ func NewUser(ctx context.Context, db model.PgxHandle,
 type UserUpdateValues struct {
 	Name      mo.Option[string] `validate:"omitempty,notblank"`
 	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
-	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=100"`
+	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
 	Verified  mo.Option[bool]
 	PWAuth    mo.Option[bool]
 	ApiAccess mo.Option[bool]
@@ -117,7 +117,7 @@ type UserUpdateValues struct {
 }
 
 func UpdateUser(ctx context.Context, db model.PgxHandle,
-	userID int, userUpdateVals UserUpdateValues,
+	userID int, userUpdateVals *UserUpdateValues,
 ) errs.Error {
 	err := validate.Struct(userUpdateVals)
 	if err != nil {
