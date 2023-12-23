@@ -8,6 +8,7 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
+	"github.com/samber/mo"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
@@ -66,7 +67,7 @@ func TestRpc_ListEvents(t *testing.T) {
 					1, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -111,7 +112,7 @@ func TestRpc_ListEvents(t *testing.T) {
 					1, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -168,7 +169,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -301,7 +302,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    tstTs,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      tstTs,
 		LastModified: tstTs,
 	}
@@ -466,7 +467,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    tstTs,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      tstTs,
 		LastModified: tstTs,
 	}
@@ -495,7 +496,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -554,7 +555,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -617,7 +618,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -679,7 +680,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					event.Name, "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -738,7 +739,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					event.Name, event.Description,
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -747,13 +748,11 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"eventID":       eventID,
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.Some(event.Name),
+				"description":   mo.None[string](),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime": util.CloseTimeMatcher{
-					Value: event.StartTime, Within: time.Minute,
-				},
-				"startTimeTz": event.StartTimeTz,
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -815,7 +814,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, true,
 					event.Name, event.Description,
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -857,7 +856,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 					eventID, eventRefID,
 					33, false,
 					event.Name, event.Description,
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -935,7 +934,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -980,7 +979,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 					eventID, eventRefID,
 					user.ID, true,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -1042,7 +1041,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 					eventID, eventRefID,
 					33, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)

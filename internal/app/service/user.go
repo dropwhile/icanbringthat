@@ -145,7 +145,7 @@ func UpdateUserSettings(
 	ctx context.Context, db model.PgxHandle, userID int,
 	pm *model.UserSettings,
 ) errs.Error {
-	err := model.UpdateUserSettings(ctx, db, pm, userID)
+	err := model.UpdateUserSettings(ctx, db, userID, pm)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}

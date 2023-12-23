@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
@@ -26,6 +27,9 @@ func init() {
 		mo.Option[string]{},
 		mo.Option[bool]{},
 		mo.Option[[]byte]{},
+		mo.Option[time.Time]{},
+		mo.Option[[]int]{},
+		mo.Option[*model.TimeZone]{},
 	)
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("name"), ",", 2)[0]

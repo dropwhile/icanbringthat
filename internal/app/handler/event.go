@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
@@ -440,9 +441,12 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		startTime = &t
 	}
 
-	_, errx := service.UpdateEvent(ctx, x.Db, user.ID,
-		refID, name, description, startTime, tz,
-	)
+	euvs := &service.EventUpdateValues{}
+	euvs.Name = mo.PointerToOption(name)
+	euvs.Name = mo.PointerToOption(description)
+	euvs.StartTime = mo.PointerToOption(startTime)
+	euvs.Tz = mo.PointerToOption(tz)
+	_, errx := service.UpdateEvent(ctx, x.Db, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:

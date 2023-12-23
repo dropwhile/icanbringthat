@@ -39,7 +39,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -237,7 +237,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		Name:         "event",
 		Description:  "description",
 		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}

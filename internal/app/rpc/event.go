@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/samber/mo"
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/convert"
@@ -107,22 +108,25 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	var start_time *time.Time
+	var startTime *time.Time
 	var tz *string
 
 	if r.When != nil {
 		if r.When.Ts.IsValid() {
 			t := r.When.Ts.AsTime()
-			start_time = &t
+			startTime = &t
 		}
 		if r.When.Tz != "" {
 			tz = &r.When.Tz
 		}
 	}
 
-	event, errx := service.UpdateEvent(ctx, s.Db, user.ID, refID,
-		r.Name, r.Description, start_time, tz,
-	)
+	euvs := &service.EventUpdateValues{}
+	euvs.Name = mo.PointerToOption(r.Name)
+	euvs.Description = mo.PointerToOption(r.Description)
+	euvs.StartTime = mo.PointerToOption(startTime)
+	euvs.Tz = mo.PointerToOption(tz)
+	event, errx := service.UpdateEvent(ctx, s.Db, user.ID, refID, euvs)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

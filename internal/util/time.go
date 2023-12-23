@@ -1,6 +1,10 @@
 package util
 
-import "time"
+import (
+	"time"
+
+	"github.com/samber/mo"
+)
 
 func MustParseTime(layout, value string) time.Time {
 	ts, err := time.Parse(layout, value)
@@ -17,6 +21,13 @@ type CloseTimeMatcher struct {
 
 // Match satisfies sqlmock.Argument interface
 func (a CloseTimeMatcher) Match(v interface{}) bool {
+	// if option, unwrap that first
+	if x, ok := v.(mo.Option[time.Time]); ok {
+		if val, ok := x.Get(); ok {
+			v = val
+		}
+	}
+	// continue onwards!
 	ts, ok := v.(time.Time)
 	if !ok {
 		return false

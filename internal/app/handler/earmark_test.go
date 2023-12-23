@@ -41,7 +41,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -505,7 +505,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 			Description:  "description",
 			Archived:     false,
 			StartTime:    ts,
-			StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+			StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 			Created:      ts,
 			LastModified: ts,
 		}
@@ -592,7 +592,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 			Description:  "description",
 			Archived:     true,
 			StartTime:    ts,
-			StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+			StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 			Created:      ts,
 			LastModified: ts,
 		}

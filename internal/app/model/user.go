@@ -130,7 +130,7 @@ func UpdateUser(ctx context.Context, db PgxHandle, userID int,
 }
 
 func UpdateUserSettings(ctx context.Context, db PgxHandle,
-	pm *UserSettings, userID int,
+	userID int, pm *UserSettings,
 ) error {
 	q := `
 		UPDATE user_

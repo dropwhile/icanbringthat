@@ -42,7 +42,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -387,7 +387,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		Archived:      false,
 		ItemSortOrder: []int{},
 		StartTime:     ts,
-		StartTimeTz:   model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:   util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:       ts,
 		LastModified:  ts,
 	}
@@ -984,7 +984,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		Archived:      false,
 		ItemSortOrder: []int{1, 2, 3},
 		StartTime:     ts,
-		StartTimeTz:   model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:   util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:       ts,
 		LastModified:  ts,
 	}
@@ -1302,7 +1302,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  model.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}

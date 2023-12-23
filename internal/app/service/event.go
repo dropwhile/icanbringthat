@@ -7,7 +7,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -80,64 +82,53 @@ func DeleteEvent(
 	return nil
 }
 
+type EventUpdateValues struct {
+	Name          mo.Option[string] `validate:"omitempty,notblank"`
+	Description   mo.Option[string] `validate:"omitempty,notblank"`
+	ItemSortOrder mo.Option[[]int]
+	StartTime     mo.Option[time.Time] `validate:"omitempty"`
+	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
+}
+
 func UpdateEvent(
 	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID, name *string, description *string,
-	startTime *time.Time, tz *string,
+	refID model.EventRefID, euvs *EventUpdateValues,
 ) (*model.Event, errs.Error) {
-	// check values if present
-	hasValue := false
-	if name != nil {
-		err := validate.VarCtx(ctx, *name, "required,notblank")
-		if err != nil {
-			slog.
-				With("field", "name").
-				With("error", err).
-				Info("bad field value")
-			return nil, errs.InvalidArgumentError("name", "bad value")
-		}
-		hasValue = true
+	// if no values, error
+	if euvs.Name.IsAbsent() &&
+		euvs.Description.IsAbsent() &&
+		euvs.StartTime.IsAbsent() &&
+		euvs.Tz.IsAbsent() {
+		return nil, errs.InvalidArgument.Error("missing fields")
 	}
-	if description != nil {
-		err := validate.VarCtx(ctx, *description, "required,notblank")
-		if err != nil {
-			slog.
-				With("field", "description").
-				With("error", err).
-				Info("bad field value")
-			return nil, errs.InvalidArgumentError("description", "bad value")
-		}
-		hasValue = true
+
+	err := validate.StructCtx(ctx, euvs)
+	if err != nil {
+		badField := err.(validator.ValidationErrors)[0].Field()
+		slog.
+			With("field", badField).
+			With("error", err).
+			Info("bad field value")
+		return nil, errs.InvalidArgumentError(badField, "bad value")
 	}
-	if startTime != nil {
-		if (*startTime).IsZero() {
+
+	if val, ok := euvs.StartTime.Get(); ok {
+		if val.IsZero() {
 			return nil, errs.InvalidArgumentError("start_time", "bad value")
 		}
-		if (*startTime).Before(time.Now().UTC()) {
+		if val.Before(time.Now().UTC().Add(-30 * time.Minute)) {
 			return nil, errs.InvalidArgumentError("start_time", "cannot be in the past")
 		}
-		hasValue = true
 	}
-	var loc *time.Location
-	if tz != nil {
-		err := validate.VarCtx(ctx, *tz, "required,timezone")
-		if err != nil {
-			slog.
-				With("field", "tz").
-				With("error", err).
-				Info("bad field value")
-			return nil, errs.InvalidArgumentError("tz", "bad value")
-		}
-		loc, err = time.LoadLocation(*tz)
+
+	var loc *model.TimeZone
+	var maybeLoc mo.Option[*model.TimeZone]
+	if val, ok := euvs.Tz.Get(); ok {
+		loc, err = model.ParseTimeZone(val)
 		if err != nil {
 			return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
 		}
-		hasValue = true
-	}
-
-	// if no values, error
-	if !hasValue {
-		return nil, errs.InvalidArgument.Error("missing fields")
+		maybeLoc = mo.Some(loc)
 	}
 
 	// get event
@@ -158,38 +149,20 @@ func UpdateEvent(
 		return nil, errs.PermissionDenied.Error("event is archived")
 	}
 
-	// check for changes
-	changes := false
-	if name != nil && *name != event.Name {
-		event.Name = *name
-		changes = true
-	}
-	if description != nil && *description != event.Description {
-		event.Description = *description
-		changes = true
-	}
-	if startTime != nil && *startTime != event.StartTime {
-		event.StartTime = *startTime
-		changes = true
-	}
-	if loc != nil && loc != event.StartTimeTz.Location {
-		event.StartTimeTz = &model.TimeZone{Location: loc}
-		changes = true
-	}
-
-	// if no changes, error
-	if !changes {
-		return nil, errs.FailedPrecondition.Error("no changes")
-	}
-
 	// do update
 	if err := model.UpdateEvent(
 		ctx, db, event.ID,
-		event.Name, event.Description, event.ItemSortOrder,
-		event.StartTime, event.StartTimeTz,
+		euvs.Name, euvs.Description, euvs.ItemSortOrder,
+		euvs.StartTime, maybeLoc,
 	); err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
+
+	event.Name = euvs.Name.OrElse(event.Name)
+	event.Description = euvs.Description.OrElse(event.Description)
+	event.ItemSortOrder = euvs.ItemSortOrder.OrElse(event.ItemSortOrder)
+	event.StartTime = euvs.StartTime.OrElse(event.StartTime)
+	event.StartTimeTz = maybeLoc.OrElse(event.StartTimeTz)
 	return event, nil
 }
 
@@ -221,8 +194,10 @@ func UpdateEventItemSorting(
 
 	if err := model.UpdateEvent(
 		ctx, db, event.ID,
-		event.Name, event.Description, event.ItemSortOrder,
-		event.StartTime, event.StartTimeTz,
+		mo.None[string](), mo.None[string](),
+		mo.Some(event.ItemSortOrder),
+		mo.None[time.Time](),
+		mo.None[*model.TimeZone](),
 	); err != nil {
 		return nil, errs.Internal.Error("db error")
 	}

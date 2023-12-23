@@ -7,6 +7,7 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/mo"
 )
 
 type EventRefID = reftag.IDt2
@@ -81,20 +82,20 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 	return QueryOneTx[Event](ctx, db, q, args)
 }
 
-func UpdateEvent(ctx context.Context, db PgxHandle,
-	eventID int, name, description string,
-	itemSortOrder []int,
-	startTime time.Time,
-	startTimeTz *TimeZone,
+func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
+	name, description mo.Option[string],
+	itemSortOrder mo.Option[[]int],
+	startTime mo.Option[time.Time],
+	startTimeTz mo.Option[*TimeZone],
 ) error {
 	q := `
 		UPDATE event_
 		SET
-			name = @name,
-			description = @description,
-			item_sort_order = @itemSortOrder,
-			start_time = @startTime,
-			start_time_tz = @startTimeTz
+			name = COALESCE(@name, name),
+			description = COALESCE(@description, description),
+			item_sort_order = COALESCE(@itemSortOrder, item_sort_order),
+			start_time = COALESCE(@startTime, start_time),
+			start_time_tz = COALESCE(@startTimeTz, start_time_tz)
 		WHERE id = @eventID`
 	args := pgx.NamedArgs{
 		"name":          name,

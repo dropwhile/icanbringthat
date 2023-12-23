@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -65,7 +66,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 					1, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -110,7 +111,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 					1, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -164,7 +165,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 					1, eventRefID,
 					33, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -228,7 +229,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 					1, eventRefID,
 					user.ID, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -265,7 +266,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 					1, eventRefID,
 					33, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
@@ -349,7 +350,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 					1, eventRefID,
 					33, false,
 					"some name", "some description",
-					tstTs, model.Must(model.ParseTimeZone("Etc/UTC")),
+					tstTs, util.Must(model.ParseTimeZone("Etc/UTC")),
 					tstTs, tstTs,
 				),
 			)
