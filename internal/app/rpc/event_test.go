@@ -505,13 +505,15 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"eventID":       eventID,
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.Some(event.Name),
+				"description":   mo.Some(event.Description),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime": util.CloseTimeMatcher{
-					Value: event.StartTime, Within: time.Minute,
-				},
-				"startTimeTz": event.StartTimeTz,
+				"startTime": util.OptionMatcher[time.Time](
+					util.CloseTimeMatcher{
+						Value: event.StartTime, Within: time.Minute,
+					},
+				),
+				"startTimeTz": mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -564,13 +566,15 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"eventID":       eventID,
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.Some(event.Name),
+				"description":   mo.Some(event.Description),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime": util.CloseTimeMatcher{
-					Value: event.StartTime, Within: time.Minute,
-				},
-				"startTimeTz": event.StartTimeTz,
+				"startTime": util.OptionMatcher[time.Time](
+					util.CloseTimeMatcher{
+						Value: event.StartTime, Within: time.Minute,
+					},
+				),
+				"startTimeTz": mo.None[*model.TimeZone](),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -627,13 +631,11 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"eventID":       eventID,
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.Some(event.Name),
+				"description":   mo.Some(event.Description),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime": util.CloseTimeMatcher{
-					Value: event.StartTime, Within: time.Minute,
-				},
-				"startTimeTz": event.StartTimeTz,
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -689,13 +691,11 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
 				"eventID":       eventID,
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.None[string](),
+				"description":   mo.Some(event.Description),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime": util.CloseTimeMatcher{
-					Value: event.StartTime, Within: time.Minute,
-				},
-				"startTimeTz": event.StartTimeTz,
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()

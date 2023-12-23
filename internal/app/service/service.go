@@ -27,8 +27,8 @@ func init() {
 		mo.Option[string]{},
 		mo.Option[bool]{},
 		mo.Option[[]byte]{},
-		mo.Option[time.Time]{},
 		mo.Option[[]int]{},
+		mo.Option[time.Time]{},
 		mo.Option[*model.TimeZone]{},
 	)
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {

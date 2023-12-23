@@ -14,6 +14,29 @@ func MustParseTime(layout, value string) time.Time {
 	return ts
 }
 
+type Matcher interface {
+	Match(interface{}) bool
+}
+
+type MatcherFunc func(v interface{}) bool
+
+type optionMatch[T any] struct {
+	nextMatcher Matcher
+}
+
+func (om optionMatch[T]) Match(v interface{}) bool {
+	if val, ok := v.(mo.Option[T]); ok {
+		if uv, ok := val.Get(); ok {
+			return om.nextMatcher.Match(uv)
+		}
+	}
+	return false
+}
+
+func OptionMatcher[T any](m Matcher) Matcher {
+	return optionMatch[T]{nextMatcher: m}
+}
+
 type CloseTimeMatcher struct {
 	Value  time.Time
 	Within time.Duration

@@ -83,9 +83,9 @@ func DeleteEvent(
 }
 
 type EventUpdateValues struct {
-	Name          mo.Option[string] `validate:"omitempty,notblank"`
-	Description   mo.Option[string] `validate:"omitempty,notblank"`
-	ItemSortOrder mo.Option[[]int]
+	Name          mo.Option[string]    `validate:"omitempty,notblank"`
+	Description   mo.Option[string]    `validate:"omitempty,notblank"`
+	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
 	StartTime     mo.Option[time.Time] `validate:"omitempty"`
 	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
 }
@@ -97,6 +97,7 @@ func UpdateEvent(
 	// if no values, error
 	if euvs.Name.IsAbsent() &&
 		euvs.Description.IsAbsent() &&
+		euvs.ItemSortOrder.IsAbsent() &&
 		euvs.StartTime.IsAbsent() &&
 		euvs.Tz.IsAbsent() {
 		return nil, errs.InvalidArgument.Error("missing fields")

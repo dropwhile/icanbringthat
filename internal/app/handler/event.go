@@ -406,21 +406,18 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var (
-		name        *string
-		description *string
-		tz          *string
-		startTime   *time.Time
-	)
+	euvs := &service.EventUpdateValues{}
 
-	pname := r.PostFormValue("name")
-	if pname != "" {
-		name = &pname
+	name := r.PostFormValue("name")
+	if name != "" {
+		euvs.Name = mo.Some(name)
 	}
-	pdesc := r.PostFormValue("description")
-	if pdesc != "" {
-		description = &pdesc
+
+	desc := r.PostFormValue("description")
+	if desc != "" {
+		euvs.Description = mo.Some(desc)
 	}
+
 	ptz := r.PostFormValue("timezone")
 	when := r.PostFormValue("when")
 	if when != "" && ptz != "" {
@@ -436,16 +433,10 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 			x.BadFormDataError(w, err, "when")
 			return
 		}
-		lc := loc.String()
-		tz = &lc
-		startTime = &t
+		euvs.StartTime = mo.Some(t)
+		euvs.Tz = mo.Some(loc.String())
 	}
 
-	euvs := &service.EventUpdateValues{}
-	euvs.Name = mo.PointerToOption(name)
-	euvs.Name = mo.PointerToOption(description)
-	euvs.StartTime = mo.PointerToOption(startTime)
-	euvs.Tz = mo.PointerToOption(tz)
 	_, errx := service.UpdateEvent(ctx, x.Db, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {

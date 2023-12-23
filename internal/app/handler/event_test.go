@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
+	"github.com/samber/mo"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -419,12 +420,16 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
-				"description":   event.Description,
-				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
+				"name":          mo.Some(event.Name),
+				"description":   mo.Some(event.Description),
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime": util.OptionMatcher[time.Time](
+					util.CloseTimeMatcher{
+						Value: event.StartTime, Within: time.Minute,
+					},
+				),
+				"startTimeTz": mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -631,11 +636,11 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name + "x",
-				"description":   event.Description,
+				"name":          mo.Some(event.Name + "x"),
+				"description":   mo.None[string](),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.None[*model.TimeZone](),
 				"eventID":       event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -688,12 +693,12 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
-				"description":   event.Description + "x",
-				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
+				"name":          mo.None[string](),
+				"description":   mo.Some(event.Description + "x"),
+				"itemSortOrder": pgxmock.AnyArg(),
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.None[*model.TimeZone](),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -745,12 +750,16 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.None[string](),
+				"description":   mo.None[string](),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
-				"eventID":       event.ID,
+				"startTime": util.OptionMatcher[time.Time](
+					util.CloseTimeMatcher{
+						Value: event.StartTime, Within: time.Minute,
+					},
+				),
+				"startTimeTz": mo.Some(event.StartTimeTz),
+				"eventID":     event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -893,12 +902,16 @@ func TestHandler_Event_Update(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
-				"description":   event.Description,
+				"name":          mo.None[string](),
+				"description":   mo.None[string](),
 				"itemSortOrder": pgxmock.AnyArg(),
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
-				"eventID":       event.ID,
+				"startTime": util.OptionMatcher[time.Time](
+					util.CloseTimeMatcher{
+						Value: event.StartTime, Within: time.Minute,
+					},
+				),
+				"startTimeTz": mo.Some(event.StartTimeTz),
+				"eventID":     event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
@@ -1017,12 +1030,12 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
-				"name":          event.Name,
-				"description":   event.Description,
-				"itemSortOrder": []int{1, 3, 2},
-				"startTime":     util.CloseTimeMatcher{Value: event.StartTime, Within: time.Minute},
-				"startTimeTz":   event.StartTimeTz,
 				"eventID":       event.ID,
+				"name":          mo.None[string](),
+				"description":   mo.None[string](),
+				"itemSortOrder": mo.Some([]int{1, 3, 2}),
+				"startTime":     mo.None[time.Time](),
+				"startTimeTz":   mo.None[*model.TimeZone](),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
