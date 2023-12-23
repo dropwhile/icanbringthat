@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+type BifurcatedRowCounts struct {
+	Current  int
+	Archived int
+}
+
 type Timer interface {
 	Time() time.Time
 }

@@ -102,7 +102,7 @@ func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
 		"description":   description,
 		"itemSortOrder": itemSortOrder,
 		"startTime":     startTime,
-		"startTimeTz":   startTimeTz, // .OrEmpty?
+		"startTimeTz":   startTimeTz,
 		"eventID":       eventID,
 	}
 	return ExecTx[Event](ctx, db, q, args)
