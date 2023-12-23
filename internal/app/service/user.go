@@ -119,7 +119,7 @@ type UserUpdateValues struct {
 func UpdateUser(ctx context.Context, db model.PgxHandle,
 	userID int, userUpdateVals *UserUpdateValues,
 ) errs.Error {
-	err := validate.Struct(userUpdateVals)
+	err := validate.StructCtx(ctx, userUpdateVals)
 	if err != nil {
 		badField := err.(validator.ValidationErrors)[0].Field()
 		slog.
