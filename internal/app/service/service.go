@@ -31,6 +31,7 @@ func init() {
 		mo.Option[time.Time]{},
 		mo.Option[*model.TimeZone]{},
 	)
+	// validate.RegisterCustomMatcherFunc(OptionValuer)
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("name"), ",", 2)[0]
 		// skip if tag key says it should be ignored
