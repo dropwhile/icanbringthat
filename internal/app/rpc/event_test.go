@@ -502,6 +502,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
+		// begin nested tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -517,6 +519,27 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				"startTimeTz": mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end nested
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(eventID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					eventID, eventRefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 

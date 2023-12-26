@@ -161,22 +161,27 @@ func UpdateEvent(
 	}
 
 	// do update
-	if err := model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
-		Name:          euvs.Name,
-		Description:   euvs.Description,
-		ItemSortOrder: euvs.ItemSortOrder,
-		StartTime:     euvs.StartTime,
-		Tz:            maybeLoc,
-	}); err != nil {
-		return nil, errs.Internal.Error("db error")
-	}
-
-	event.Name = euvs.Name.OrElse(event.Name)
-	event.Description = euvs.Description.OrElse(event.Description)
-	event.ItemSortOrder = euvs.ItemSortOrder.OrElse(event.ItemSortOrder)
-	event.StartTime = euvs.StartTime.OrElse(event.StartTime)
-	event.StartTimeTz = maybeLoc.OrElse(event.StartTimeTz)
-	return event, nil
+	var upEvent *model.Event
+	err = TxnFunc(ctx, db, func(tx pgx.Tx) error {
+		innerErr := model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
+			Name:          euvs.Name,
+			Description:   euvs.Description,
+			ItemSortOrder: euvs.ItemSortOrder,
+			StartTime:     euvs.StartTime,
+			Tz:            maybeLoc,
+		})
+		if innerErr != nil {
+			slog.With("error", innerErr).Error("db innerTx error")
+			return err
+		}
+		upEvent, innerErr = model.GetEventByID(ctx, db, event.ID)
+		if innerErr != nil {
+			slog.With("error", innerErr).Error("db innerTx error")
+			return err
+		}
+		return nil
+	})
+	return upEvent, nil
 }
 
 func UpdateEventItemSorting(
