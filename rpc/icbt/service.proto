@@ -106,9 +106,7 @@ message UpdateEventRequest {
   optional TimestampTZ when = 4;
 }
 
-message UpdateEventResponse {
-  Event event = 1;
-}
+message UpdateEventResponse {}
 
 message GetEventDetailsRequest {
   string ref_id = 1;

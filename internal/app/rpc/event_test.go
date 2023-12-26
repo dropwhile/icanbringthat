@@ -502,8 +502,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
-		// begin nested tx
-		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -521,27 +519,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
-		// end nested
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					event.StartTime, event.StartTimeTz,
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       eventRefID.String(),
@@ -550,9 +527,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
-		response, err := server.UpdateEvent(ctx, request)
+		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		assert.Equal(t, response.Event.Name, event.Name)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -586,8 +562,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
-		// start inner tx
-		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -605,27 +579,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
-		// end inner tx
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					event.StartTime, event.StartTimeTz,
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       eventRefID.String(),
@@ -636,11 +589,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: "",
 			},
 		}
-		response, err := server.UpdateEvent(ctx, request)
+		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		assert.Equal(t, response.Event.Name, event.Name)
-		// tz not updated/changed
-		assert.Equal(t, response.Event.When.Tz, event.StartTimeTz.String())
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -674,8 +624,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
-		// begin inner tx
-		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -689,27 +637,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
-		// end inner tx
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					event.StartTime, event.StartTimeTz,
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       eventRefID.String(),
@@ -719,11 +646,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		response, err := server.UpdateEvent(ctx, request)
+		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		assert.Equal(t, response.Event.Name, event.Name)
-		// ts not updated/changed
-		assert.Equal(t, response.Event.When.Ts.AsTime(), event.StartTime)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -757,8 +681,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
-		// begin inner tx
-		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -772,27 +694,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
-		// end inner tx
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					event.StartTime, event.StartTimeTz,
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       eventRefID.String(),
@@ -801,9 +702,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		response, err := server.UpdateEvent(ctx, request)
+		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		assert.Equal(t, response.Event.Name, event.Name)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -837,8 +737,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				),
 			)
 		mock.ExpectBegin()
-		// begin inner tx
-		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -852,27 +750,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					eventID, eventRefID,
-					user.ID, false,
-					event.Name, event.Description,
-					event.StartTime, event.StartTimeTz,
-					tstTs, tstTs,
-				),
-			)
-		// end inner tx
-		mock.ExpectCommit()
-		mock.ExpectRollback()
 
 		request := &icbt.UpdateEventRequest{
 			RefId: eventRefID.String(),
@@ -881,9 +758,8 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		response, err := server.UpdateEvent(ctx, request)
+		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		assert.Equal(t, response.Event.Description, event.Description)
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

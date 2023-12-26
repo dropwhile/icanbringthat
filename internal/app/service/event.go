@@ -101,14 +101,14 @@ type EventUpdateValues struct {
 func UpdateEvent(
 	ctx context.Context, db model.PgxHandle, userID int,
 	refID model.EventRefID, euvs *EventUpdateValues,
-) (*model.Event, errs.Error) {
+) errs.Error {
 	// if no values, error
 	if euvs.Name.IsAbsent() &&
 		euvs.Description.IsAbsent() &&
 		euvs.ItemSortOrder.IsAbsent() &&
 		euvs.StartTime.IsAbsent() &&
 		euvs.Tz.IsAbsent() {
-		return nil, errs.InvalidArgument.Error("missing fields")
+		return errs.InvalidArgument.Error("missing fields")
 	}
 
 	err := validate.StructCtx(ctx, euvs)
@@ -118,12 +118,12 @@ func UpdateEvent(
 			With("field", badField).
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError(badField, "bad value")
+		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
 	if val, ok := euvs.StartTime.Get(); ok {
 		if val.IsZero() {
-			return nil, errs.InvalidArgumentError("start_time", "bad value")
+			return errs.InvalidArgumentError("start_time", "bad value")
 		}
 		/*
 			if val.Before(time.Now().UTC().Add(-30 * time.Minute)) {
@@ -137,7 +137,7 @@ func UpdateEvent(
 	if val, ok := euvs.Tz.Get(); ok {
 		loc, err = ParseTimeZone(val)
 		if err != nil {
-			return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
+			return errs.InvalidArgumentError("tz", "unrecognized timezone")
 		}
 		maybeLoc = mo.Some(loc)
 	}
@@ -146,46 +146,33 @@ func UpdateEvent(
 	event, err := model.GetEventByRefID(ctx, db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return nil, errs.NotFound.Error("event not found")
+		return errs.NotFound.Error("event not found")
 	case err != nil:
-		return nil, errs.Internal.Error("db error")
+		return errs.Internal.Error("db error")
 	}
 
 	// check general condition requirements
 	if userID != event.UserID {
-		return nil, errs.PermissionDenied.Error("permission denied")
+		return errs.PermissionDenied.Error("permission denied")
 	}
 
 	if event.Archived {
-		return nil, errs.PermissionDenied.Error("event is archived")
+		return errs.PermissionDenied.Error("event is archived")
 	}
 
 	// do update
-	var upEvent *model.Event
-	err = TxnFunc(ctx, db, func(tx pgx.Tx) error {
-		innerErr := model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
-			Name:          euvs.Name,
-			Description:   euvs.Description,
-			ItemSortOrder: euvs.ItemSortOrder,
-			StartTime:     euvs.StartTime,
-			Tz:            maybeLoc,
-		})
-		if innerErr != nil {
-			slog.With("error", innerErr).Error("db innerTx error")
-			return err
-		}
-		evt, innerErr := model.GetEventByID(ctx, db, event.ID)
-		if innerErr != nil {
-			slog.With("error", innerErr).Error("db innerTx error")
-			return err
-		}
-		upEvent = evt
-		return nil
+	err = model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
+		Name:          euvs.Name,
+		Description:   euvs.Description,
+		ItemSortOrder: euvs.ItemSortOrder,
+		StartTime:     euvs.StartTime,
+		Tz:            maybeLoc,
 	})
 	if err != nil {
-		return nil, errs.Internal.Error("db error")
+		slog.With("error", err).Error("db error")
+		return errs.Internal.Error("db error")
 	}
-	return upEvent, nil
+	return nil
 }
 
 func UpdateEventItemSorting(

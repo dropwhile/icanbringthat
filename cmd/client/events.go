@@ -113,16 +113,8 @@ func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("at least one field must be included to update anything")
 	}
 
-	resp, err := client.UpdateEvent(meta.ctx, req)
-	if err != nil {
+	if _, err := client.UpdateEvent(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
-	}
-
-	t := template.Must(template.New("eventTpl").
-		Funcs(sprig.FuncMap()).
-		Parse(eventTpl))
-	if err := t.Execute(os.Stdout, resp.Event); err != nil {
-		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
 }

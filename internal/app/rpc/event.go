@@ -126,14 +126,12 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	euvs.Description = mo.PointerToOption(r.Description)
 	euvs.StartTime = mo.PointerToOption(startTime)
 	euvs.Tz = mo.PointerToOption(tz)
-	event, errx := service.UpdateEvent(ctx, s.Db, user.ID, refID, euvs)
+	errx := service.UpdateEvent(ctx, s.Db, user.ID, refID, euvs)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.UpdateEventResponse{
-		Event: convert.ToPbEvent(event),
-	}
+	response := &icbt.UpdateEventResponse{}
 	return response, nil
 }
 

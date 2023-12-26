@@ -437,7 +437,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		euvs.Tz = mo.Some(loc.String())
 	}
 
-	_, errx := service.UpdateEvent(ctx, x.Db, user.ID, refID, euvs)
+	errx := service.UpdateEvent(ctx, x.Db, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
