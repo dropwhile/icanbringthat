@@ -174,13 +174,17 @@ func UpdateEvent(
 			slog.With("error", innerErr).Error("db innerTx error")
 			return err
 		}
-		upEvent, innerErr = model.GetEventByID(ctx, db, event.ID)
+		evt, innerErr := model.GetEventByID(ctx, db, event.ID)
 		if innerErr != nil {
 			slog.With("error", innerErr).Error("db innerTx error")
 			return err
 		}
+		upEvent = evt
 		return nil
 	})
+	if err != nil {
+		return nil, errs.Internal.Error("db error")
+	}
 	return upEvent, nil
 }
 
