@@ -50,7 +50,7 @@ func SetUserVerified(ctx context.Context, db model.PgxHandle,
 ) errs.Error {
 	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
-			&model.UserUpdateValues{
+			&model.UserUpdateModelValues{
 				Verified: mo.Some(user.Verified),
 			},
 		)

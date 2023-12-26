@@ -50,7 +50,7 @@ func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
 ) errs.Error {
 	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
-			&model.UserUpdateValues{PWHash: mo.Some(user.PWHash)},
+			&model.UserUpdateModelValues{PWHash: mo.Some(user.PWHash)},
 		)
 		if innerErr != nil {
 			slog.DebugContext(ctx, "inner db error saving user",

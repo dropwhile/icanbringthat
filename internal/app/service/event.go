@@ -90,9 +90,17 @@ func DeleteEvent(
 	return nil
 }
 
+type EventUpdateValues struct {
+	Name          mo.Option[string]    `validate:"omitempty,notblank"`
+	Description   mo.Option[string]    `validate:"omitempty,notblank"`
+	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
+	StartTime     mo.Option[time.Time] `validate:"omitempty"`
+	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
+}
+
 func UpdateEvent(
 	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID, euvs *model.EventUpdateValues,
+	refID model.EventRefID, euvs *EventUpdateValues,
 ) (*model.Event, errs.Error) {
 	// if no values, error
 	if euvs.Name.IsAbsent() &&
@@ -153,7 +161,13 @@ func UpdateEvent(
 	}
 
 	// do update
-	if err := model.UpdateEvent(ctx, db, event.ID, euvs); err != nil {
+	if err := model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
+		Name:          euvs.Name,
+		Description:   euvs.Description,
+		ItemSortOrder: euvs.ItemSortOrder,
+		StartTime:     euvs.StartTime,
+		Tz:            maybeLoc,
+	}); err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 
@@ -192,7 +206,7 @@ func UpdateEventItemSorting(
 	event.ItemSortOrder = itemSortOrder
 
 	if err := model.UpdateEvent(
-		ctx, db, event.ID, &model.EventUpdateValues{
+		ctx, db, event.ID, &model.EventUpdateModelValues{
 			ItemSortOrder: mo.Some(event.ItemSortOrder),
 		},
 	); err != nil {

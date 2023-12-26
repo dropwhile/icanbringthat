@@ -177,7 +177,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	changes := false
 	warnings := make([]string, 0)
 	successMsgs := make([]string, 0)
-	updateVals := &model.UserUpdateValues{}
+	updateVals := &service.UserUpdateValues{}
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
@@ -274,7 +274,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		hasPasskeys = true
 	}
 
-	updateVals := &model.UserUpdateValues{}
+	updateVals := &service.UserUpdateValues{}
 	switch authPW {
 	case "off":
 		if user.PWAuth {
@@ -368,7 +368,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	changes := false
-	updateVals := &model.UserUpdateValues{}
+	updateVals := &service.UserUpdateValues{}
 	switch apiAccess {
 	case "off":
 		if user.ApiAccess {

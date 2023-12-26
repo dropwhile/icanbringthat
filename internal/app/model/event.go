@@ -77,16 +77,16 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 	return QueryOneTx[Event](ctx, db, q, args)
 }
 
-type EventUpdateValues struct {
-	Name          mo.Option[string]    `validate:"omitempty,notblank"`
-	Description   mo.Option[string]    `validate:"omitempty,notblank"`
-	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
-	StartTime     mo.Option[time.Time] `validate:"omitempty"`
-	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
+type EventUpdateModelValues struct {
+	Name          mo.Option[string]
+	Description   mo.Option[string]
+	ItemSortOrder mo.Option[[]int]
+	StartTime     mo.Option[time.Time]
+	Tz            mo.Option[*TimeZone]
 }
 
 func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
-	vals *EventUpdateValues,
+	vals *EventUpdateModelValues,
 ) error {
 	q := `
 		UPDATE event_

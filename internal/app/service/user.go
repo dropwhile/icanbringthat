@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -112,10 +113,20 @@ func NewUser(ctx context.Context, db model.PgxHandle,
 	return user, nil
 }
 
+type UserUpdateValues struct {
+	Name      mo.Option[string] `validate:"omitempty,notblank"`
+	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
+	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
+	Verified  mo.Option[bool]
+	PWAuth    mo.Option[bool]
+	ApiAccess mo.Option[bool]
+	WebAuthn  mo.Option[bool]
+}
+
 func UpdateUser(ctx context.Context, db model.PgxHandle,
-	userID int, userUpdateVals *model.UserUpdateValues,
+	userID int, euvs *UserUpdateValues,
 ) errs.Error {
-	err := validate.StructCtx(ctx, userUpdateVals)
+	err := validate.StructCtx(ctx, euvs)
 	if err != nil {
 		badField := err.(validator.ValidationErrors)[0].Field()
 		slog.
@@ -125,7 +136,15 @@ func UpdateUser(ctx context.Context, db model.PgxHandle,
 		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
-	err = model.UpdateUser(ctx, db, userID, userUpdateVals)
+	err = model.UpdateUser(ctx, db, userID, &model.UserUpdateModelValues{
+		Name:      euvs.Name,
+		Email:     euvs.Email,
+		PWHash:    euvs.PWHash,
+		Verified:  euvs.Verified,
+		PWAuth:    euvs.PWAuth,
+		ApiAccess: euvs.ApiAccess,
+		WebAuthn:  euvs.WebAuthn,
+	})
 	if err != nil {
 		return errs.Internal.Errorf("db error: %w", err)
 	}

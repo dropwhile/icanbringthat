@@ -96,10 +96,10 @@ func CreateUser(ctx context.Context, db PgxHandle,
 	return QueryOneTx[User](ctx, db, q, args)
 }
 
-type UserUpdateValues struct {
-	Name      mo.Option[string] `validate:"omitempty,notblank"`
-	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
-	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
+type UserUpdateModelValues struct {
+	Name      mo.Option[string]
+	Email     mo.Option[string]
+	PWHash    mo.Option[[]byte]
 	Verified  mo.Option[bool]
 	PWAuth    mo.Option[bool]
 	ApiAccess mo.Option[bool]
@@ -107,7 +107,7 @@ type UserUpdateValues struct {
 }
 
 func UpdateUser(ctx context.Context, db PgxHandle, userID int,
-	vals *UserUpdateValues,
+	vals *UserUpdateModelValues,
 ) error {
 	q := `
 		UPDATE user_

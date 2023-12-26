@@ -121,7 +121,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		}
 	}
 
-	euvs := &model.EventUpdateValues{}
+	euvs := &service.EventUpdateValues{}
 	euvs.Name = mo.PointerToOption(r.Name)
 	euvs.Description = mo.PointerToOption(r.Description)
 	euvs.StartTime = mo.PointerToOption(startTime)

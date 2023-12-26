@@ -406,7 +406,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	euvs := &model.EventUpdateValues{}
+	euvs := &service.EventUpdateValues{}
 
 	name := r.PostFormValue("name")
 	if name != "" {
