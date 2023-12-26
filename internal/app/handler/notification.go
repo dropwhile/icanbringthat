@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
@@ -86,7 +85,7 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
+	refID, err := service.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "notification", err)
 		return

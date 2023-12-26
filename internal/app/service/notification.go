@@ -5,10 +5,17 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	NotificationRefIDMatcher   = reftag.NewMatcher[model.NotificationRefID]()
+	NotificationRefIDFromBytes = reftag.FromBytes[model.NotificationRefID]
+	ParseNotificationRefID     = reftag.Parse[model.NotificationRefID]
 )
 
 func GetNotifcationsPaginated(

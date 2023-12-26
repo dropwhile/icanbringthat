@@ -141,13 +141,13 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	eventItemRefID, err := model.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := service.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event-item", err)
 		return
@@ -207,13 +207,13 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	eventItemRefID, err := model.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := service.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event-item", err)
 		return
@@ -294,7 +294,7 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseEarmarkRefID(chi.URLParam(r, "mRefID"))
+	refID, err := service.ParseEarmarkRefID(chi.URLParam(r, "mRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "earmark", err)
 		return

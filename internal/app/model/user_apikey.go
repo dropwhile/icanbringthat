@@ -13,12 +13,7 @@ import (
 
 type ApiKeyRefID = reftag.IDt9
 
-var (
-	NewApiKeyRefID       = reftag.NewRandom[ApiKeyRefID]
-	ApiKeyRefIDMatcher   = reftag.NewMatcher[ApiKeyRefID]()
-	ApiKeyRefIDFromBytes = reftag.FromBytes[ApiKeyRefID]
-	ParseApiKeyRefID     = reftag.Parse[ApiKeyRefID]
-)
+var NewApiKeyRefID = reftag.NewRandom[ApiKeyRefID]
 
 type ApiKey struct {
 	Created time.Time

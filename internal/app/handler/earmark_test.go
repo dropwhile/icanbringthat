@@ -15,6 +15,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -41,7 +42,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -117,7 +118,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO earmark_").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EarmarkRefIDMatcher,
+				"refID":       service.EarmarkRefIDMatcher,
 				"eventItemID": earmark.EventItemID,
 				"userID":      earmark.UserID,
 				"note":        "some note",
@@ -505,7 +506,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 			Description:  "description",
 			Archived:     false,
 			StartTime:    ts,
-			StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+			StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 			Created:      ts,
 			LastModified: ts,
 		}
@@ -592,7 +593,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 			Description:  "description",
 			Archived:     true,
 			StartTime:    ts,
-			StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+			StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 			Created:      ts,
 			LastModified: ts,
 		}

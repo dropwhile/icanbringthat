@@ -17,6 +17,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -43,7 +44,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -67,7 +68,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EventRefIDMatcher,
+				"refID":       service.EventRefIDMatcher,
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,
@@ -247,7 +248,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("INSERT INTO event_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EventRefIDMatcher,
+				"refID":       service.EventRefIDMatcher,
 				"userID":      event.UserID,
 				"name":        event.Name,
 				"description": event.Description,
@@ -388,7 +389,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		Archived:      false,
 		ItemSortOrder: []int{},
 		StartTime:     ts,
-		StartTimeTz:   util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:   util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:       ts,
 		LastModified:  ts,
 	}
@@ -997,7 +998,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		Archived:      false,
 		ItemSortOrder: []int{1, 2, 3},
 		StartTime:     ts,
-		StartTimeTz:   util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:   util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:       ts,
 		LastModified:  ts,
 	}
@@ -1315,7 +1316,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}

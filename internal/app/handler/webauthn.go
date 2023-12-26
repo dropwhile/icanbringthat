@@ -11,7 +11,6 @@ import (
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
@@ -246,7 +245,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	handler := func(rawID, userHandle []byte) (webauthn.User, error) {
 		// rawID is the credentialID
 		// userHandler is user.WebauthnID
-		refID, err := model.UserRefIDFromBytes(userHandle)
+		refID, err := service.UserRefIDFromBytes(userHandle)
 		if err != nil {
 			return nil, fmt.Errorf("bad user id: %w", err)
 		}
@@ -293,7 +292,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentialRefID, err := model.ParseCredentialRefID(chi.URLParam(r, "cRefID"))
+	credentialRefID, err := service.ParseCredentialRefID(chi.URLParam(r, "cRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "credential", err)
 		return

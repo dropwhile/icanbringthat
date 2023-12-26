@@ -73,3 +73,19 @@ func TxnFunc(ctx context.Context, db model.PgxHandle,
 	}
 	return nil
 }
+
+type Timer interface {
+	Time() time.Time
+}
+
+func IsTimerExpired(tm Timer, expiry time.Duration) bool {
+	return tm.Time().Add(expiry).Before(time.Now())
+}
+
+func ParseTimeZone(tz string) (*model.TimeZone, error) {
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return nil, err
+	}
+	return &model.TimeZone{Location: loc}, nil
+}

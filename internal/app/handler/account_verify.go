@@ -129,7 +129,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	verifyRefID, err := model.ParseUserVerifyRefID(refIDStr)
+	verifyRefID, err := service.ParseUserVerifyRefID(refIDStr)
 	if err != nil {
 		x.BadRefIDError(w, "verify", err)
 		return
@@ -142,7 +142,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if model.IsExpired(verifier.RefID, model.UserVerifyExpiry) {
+	if service.IsTimerExpired(verifier.RefID, model.UserVerifyExpiry) {
 		slog.DebugContext(ctx, "verifier is expired")
 		x.NotFoundError(w)
 		return

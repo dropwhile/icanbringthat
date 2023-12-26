@@ -11,8 +11,16 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
 
+	"github.com/dropwhile/refid/v2/reftag"
+
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	EventRefIDMatcher   = reftag.NewMatcher[model.EventRefID]()
+	EventRefIDFromBytes = reftag.FromBytes[model.EventRefID]
+	ParseEventRefID     = reftag.Parse[model.EventRefID]
 )
 
 func GetEvent(
@@ -82,17 +90,9 @@ func DeleteEvent(
 	return nil
 }
 
-type EventUpdateValues struct {
-	Name          mo.Option[string]    `validate:"omitempty,notblank"`
-	Description   mo.Option[string]    `validate:"omitempty,notblank"`
-	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
-	StartTime     mo.Option[time.Time] `validate:"omitempty"`
-	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
-}
-
 func UpdateEvent(
 	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID, euvs *EventUpdateValues,
+	refID model.EventRefID, euvs *model.EventUpdateValues,
 ) (*model.Event, errs.Error) {
 	// if no values, error
 	if euvs.Name.IsAbsent() &&
@@ -127,7 +127,7 @@ func UpdateEvent(
 	var loc *model.TimeZone
 	var maybeLoc mo.Option[*model.TimeZone]
 	if val, ok := euvs.Tz.Get(); ok {
-		loc, err = model.ParseTimeZone(val)
+		loc, err = ParseTimeZone(val)
 		if err != nil {
 			return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
 		}
@@ -153,11 +153,7 @@ func UpdateEvent(
 	}
 
 	// do update
-	if err := model.UpdateEvent(
-		ctx, db, event.ID,
-		euvs.Name, euvs.Description, euvs.ItemSortOrder,
-		euvs.StartTime, maybeLoc,
-	); err != nil {
+	if err := model.UpdateEvent(ctx, db, event.ID, euvs); err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 
@@ -196,11 +192,9 @@ func UpdateEventItemSorting(
 	event.ItemSortOrder = itemSortOrder
 
 	if err := model.UpdateEvent(
-		ctx, db, event.ID,
-		mo.None[string](), mo.None[string](),
-		mo.Some(event.ItemSortOrder),
-		mo.None[time.Time](),
-		mo.None[*model.TimeZone](),
+		ctx, db, event.ID, &model.EventUpdateValues{
+			ItemSortOrder: mo.Some(event.ItemSortOrder),
+		},
 	); err != nil {
 		return nil, errs.Internal.Error("db error")
 	}

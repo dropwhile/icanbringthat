@@ -177,7 +177,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	changes := false
 	warnings := make([]string, 0)
 	successMsgs := make([]string, 0)
-	updateVals := &service.UserUpdateValues{}
+	updateVals := &model.UserUpdateValues{}
 
 	email := r.PostFormValue("email")
 	if email != "" && email != user.Email {
@@ -205,9 +205,11 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			warnings = append(warnings, "New Password and Confirm Password do not match")
 		} else {
 			oldPasswd := r.PostFormValue("old_password")
+			// TODO: move this to service layer
 			if ok, err := model.CheckPass(ctx, user.PWHash, []byte(oldPasswd)); err != nil || !ok {
 				warnings = append(warnings, "Old Password invalid")
 			} else {
+				// TODO: move this to service layer
 				pwhash, err := model.HashPass(ctx, []byte(newPasswd))
 				if err != nil {
 					slog.ErrorContext(ctx, "error setting user password",
@@ -272,7 +274,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		hasPasskeys = true
 	}
 
-	updateVals := &service.UserUpdateValues{}
+	updateVals := &model.UserUpdateValues{}
 	switch authPW {
 	case "off":
 		if user.PWAuth {
@@ -366,7 +368,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	changes := false
-	updateVals := &service.UserUpdateValues{}
+	updateVals := &model.UserUpdateValues{}
 	switch apiAccess {
 	case "off":
 		if user.ApiAccess {

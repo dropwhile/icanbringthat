@@ -132,7 +132,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -287,7 +287,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -395,7 +395,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -406,7 +406,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	euvs := &service.EventUpdateValues{}
+	euvs := &model.EventUpdateValues{}
 
 	name := r.PostFormValue("name")
 	if name != "" {
@@ -467,7 +467,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -526,7 +526,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return

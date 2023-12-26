@@ -15,12 +15,7 @@ type UserPWResetRefIDNull struct {
 	reftag.NullIDt5
 }
 
-var (
-	NewUserPWResetRefID       = reftag.New[UserPWResetRefID]
-	UserPWResetRefIDMatcher   = reftag.NewMatcher[UserPWResetRefID]()
-	UserPWResetRefIDFromBytes = reftag.FromBytes[UserPWResetRefID]
-	ParseUserPWResetRefID     = reftag.Parse[UserPWResetRefID]
-)
+var NewUserPWResetRefID = reftag.New[UserPWResetRefID]
 
 type UserPWReset struct {
 	Created time.Time

@@ -78,7 +78,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refID, err := model.ParseUserPWResetRefID(refIDStr)
+	refID, err := service.ParseUserPWResetRefID(refIDStr)
 	if err != nil {
 		slog.DebugContext(ctx, "bad refid", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
@@ -93,7 +93,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
+	if service.IsTimerExpired(upw.RefID, model.UserPWResetExpiry) {
 		slog.DebugContext(ctx, "token expired")
 		x.NotFoundError(w)
 		return
@@ -278,7 +278,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hmac checks out. ok to parse refid now.
-	refID, err := model.ParseUserPWResetRefID(refIDStr)
+	refID, err := service.ParseUserPWResetRefID(refIDStr)
 	if err != nil {
 		x.BadRefIDError(w, "upw", err)
 		return
@@ -291,7 +291,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if model.IsExpired(upw.RefID, model.UserPWResetExpiry) {
+	if service.IsTimerExpired(upw.RefID, model.UserPWResetExpiry) {
 		slog.DebugContext(ctx, "token expired")
 		x.NotFoundError(w)
 		return

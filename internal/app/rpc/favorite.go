@@ -70,7 +70,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.EventRefId)
+	refID, err := service.ParseEventRefID(r.EventRefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
@@ -92,7 +92,7 @@ func (s *Server) AddFavorite(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.EventRefId)
+	refID, err := service.ParseEventRefID(r.EventRefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}

@@ -20,6 +20,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
@@ -397,7 +398,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_ ").
-			WithArgs(model.UserPWResetRefIDMatcher).
+			WithArgs(service.UserPWResetRefIDMatcher).
 			WillReturnRows(pgxmock.NewRows(pwColumns).
 				AddRow(refID, pwr.UserID, pwr.Created))
 
@@ -552,7 +553,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_pw_reset_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"refID":  model.UserPWResetRefIDMatcher,
+				"refID":  service.UserPWResetRefIDMatcher,
 				"userID": user.ID,
 			}).
 			WillReturnRows(pgxmock.NewRows(pwColumns).
@@ -576,7 +577,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Password reset: http://example.com/forgot-password/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rID := refid.Must(model.ParseUserPWResetRefID(refParts[0]))
+		rID := refid.Must(service.ParseUserPWResetRefID(refParts[0]))
 		hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
 		assert.Assert(t, handler.MAC.Validate([]byte(rID.String()), hmacBytes))

@@ -15,6 +15,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 )
 
 func TestHandler_PostmarkCallback(t *testing.T) {
@@ -76,7 +77,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO notification_ ").
 			WithArgs(pgx.NamedArgs{
-				"refID":   model.NotificationRefIDMatcher,
+				"refID":   service.NotificationRefIDMatcher,
 				"userID":  user.ID,
 				"message": pgxmock.AnyArg(),
 			}).

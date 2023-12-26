@@ -4,10 +4,17 @@ import (
 	"context"
 	"errors"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	CredentialRefIDMatcher   = reftag.NewMatcher[model.CredentialRefID]()
+	CredentialRefIDFromBytes = reftag.FromBytes[model.CredentialRefID]
+	ParseCredentialRefID     = reftag.Parse[model.CredentialRefID]
 )
 
 func GetUserCredentialByRefID(ctx context.Context, db model.PgxHandle,

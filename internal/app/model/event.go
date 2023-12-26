@@ -16,12 +16,7 @@ type EventRefIDNull struct {
 	reftag.NullIDt2
 }
 
-var (
-	NewEventRefID       = reftag.New[EventRefID]
-	EventRefIDMatcher   = reftag.NewMatcher[EventRefID]()
-	EventRefIDFromBytes = reftag.FromBytes[EventRefID]
-	ParseEventRefID     = reftag.Parse[EventRefID]
-)
+var NewEventRefID = reftag.New[EventRefID]
 
 type Event struct {
 	Created       time.Time
@@ -82,11 +77,16 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 	return QueryOneTx[Event](ctx, db, q, args)
 }
 
+type EventUpdateValues struct {
+	Name          mo.Option[string]    `validate:"omitempty,notblank"`
+	Description   mo.Option[string]    `validate:"omitempty,notblank"`
+	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
+	StartTime     mo.Option[time.Time] `validate:"omitempty"`
+	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
+}
+
 func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
-	name, description mo.Option[string],
-	itemSortOrder mo.Option[[]int],
-	startTime mo.Option[time.Time],
-	startTimeTz mo.Option[*TimeZone],
+	vals *EventUpdateValues,
 ) error {
 	q := `
 		UPDATE event_
@@ -98,11 +98,11 @@ func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
 			start_time_tz = COALESCE(@startTimeTz, start_time_tz)
 		WHERE id = @eventID`
 	args := pgx.NamedArgs{
-		"name":          name,
-		"description":   description,
-		"itemSortOrder": itemSortOrder,
-		"startTime":     startTime,
-		"startTimeTz":   startTimeTz,
+		"name":          vals.Name,
+		"description":   vals.Description,
+		"itemSortOrder": vals.ItemSortOrder,
+		"startTime":     vals.StartTime,
+		"startTimeTz":   vals.Tz,
 		"eventID":       eventID,
 	}
 	return ExecTx[Event](ctx, db, q, args)

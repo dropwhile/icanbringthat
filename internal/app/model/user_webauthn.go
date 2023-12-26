@@ -15,12 +15,7 @@ type CredentialRefIDNull struct {
 	reftag.NullIDt7
 }
 
-var (
-	NewCredentialRefID       = reftag.New[CredentialRefID]
-	CredentialRefIDMatcher   = reftag.NewMatcher[CredentialRefID]()
-	CredentialRefIDFromBytes = reftag.FromBytes[CredentialRefID]
-	ParseCredentialRefID     = reftag.Parse[CredentialRefID]
-)
+var NewCredentialRefID = reftag.New[CredentialRefID]
 
 type UserCredential struct {
 	Created    time.Time

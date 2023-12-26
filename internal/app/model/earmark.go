@@ -16,12 +16,7 @@ type EarmarkRefID struct {
 	reftag.IDt4
 }
 
-var (
-	NewEarmarkRefID       = reftag.New[EarmarkRefID]
-	EarmarkRefIDMatcher   = reftag.NewMatcher[EarmarkRefID]()
-	EarmarkRefIDFromBytes = reftag.FromBytes[EarmarkRefID]
-	ParseEarmarkRefID     = reftag.Parse[EarmarkRefID]
-)
+var NewEarmarkRefID = reftag.New[EarmarkRefID]
 
 type Earmark struct {
 	Created      time.Time

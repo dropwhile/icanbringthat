@@ -133,7 +133,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -185,7 +185,7 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := model.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return

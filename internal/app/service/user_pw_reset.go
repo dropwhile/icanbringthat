@@ -5,12 +5,19 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/logger"
+)
+
+var (
+	UserPWResetRefIDMatcher   = reftag.NewMatcher[model.UserPWResetRefID]()
+	UserPWResetRefIDFromBytes = reftag.FromBytes[model.UserPWResetRefID]
+	ParseUserPWResetRefID     = reftag.Parse[model.UserPWResetRefID]
 )
 
 func GetUserPWResetByRefID(ctx context.Context, db model.PgxHandle,
@@ -43,13 +50,7 @@ func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
 ) errs.Error {
 	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
-			mo.None[string](),
-			mo.None[string](),
-			mo.Some(user.PWHash),
-			mo.None[bool](),
-			mo.None[bool](),
-			mo.None[bool](),
-			mo.None[bool](),
+			&model.UserUpdateValues{PWHash: mo.Some(user.PWHash)},
 		)
 		if innerErr != nil {
 			slog.DebugContext(ctx, "inner db error saving user",

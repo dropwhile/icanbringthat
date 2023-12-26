@@ -35,11 +35,3 @@ func (tz *TimeZone) Scan(src interface{}) error {
 	}
 	return fmt.Errorf("TimeZone: cannot convert %T to TimeZone", src)
 }
-
-func ParseTimeZone(tz string) (*TimeZone, error) {
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		return nil, err
-	}
-	return &TimeZone{loc}, nil
-}

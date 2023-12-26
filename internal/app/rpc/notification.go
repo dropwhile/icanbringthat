@@ -62,7 +62,7 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseNotificationRefID(r.RefId)
+	refID, err := service.ParseNotificationRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}

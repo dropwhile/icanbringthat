@@ -6,7 +6,6 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/convert"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
@@ -21,7 +20,7 @@ func (s *Server) ListEventItems(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
@@ -46,7 +45,7 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventItemRefID(r.RefId)
+	refID, err := service.ParseEventItemRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
@@ -68,7 +67,7 @@ func (s *Server) AddEventItem(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.EventRefId)
+	refID, err := service.ParseEventRefID(r.EventRefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
@@ -95,7 +94,7 @@ func (s *Server) UpdateEventItem(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventItemRefID(r.RefId)
+	refID, err := service.ParseEventItemRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}

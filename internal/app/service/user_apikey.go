@@ -7,8 +7,16 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/dropwhile/refid/v2/reftag"
+
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	ApiKeyRefIDMatcher   = reftag.NewMatcher[model.ApiKeyRefID]()
+	ApiKeyRefIDFromBytes = reftag.FromBytes[model.ApiKeyRefID]
+	ParseApiKeyRefID     = reftag.Parse[model.ApiKeyRefID]
 )
 
 func GetApiKeyByUser(ctx context.Context, db model.PgxHandle,

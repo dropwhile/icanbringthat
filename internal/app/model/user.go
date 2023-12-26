@@ -20,12 +20,7 @@ type UserRefIDNull struct {
 	reftag.NullIDt1
 }
 
-var (
-	NewUserRefID       = reftag.New[UserRefID]
-	UserRefIDMatcher   = reftag.NewMatcher[UserRefID]()
-	UserRefIDFromBytes = reftag.FromBytes[UserRefID]
-	ParseUserRefID     = reftag.Parse[UserRefID]
-)
+var NewUserRefID = reftag.New[UserRefID]
 
 type User struct {
 	Created      time.Time
@@ -101,9 +96,18 @@ func CreateUser(ctx context.Context, db PgxHandle,
 	return QueryOneTx[User](ctx, db, q, args)
 }
 
+type UserUpdateValues struct {
+	Name      mo.Option[string] `validate:"omitempty,notblank"`
+	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
+	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
+	Verified  mo.Option[bool]
+	PWAuth    mo.Option[bool]
+	ApiAccess mo.Option[bool]
+	WebAuthn  mo.Option[bool]
+}
+
 func UpdateUser(ctx context.Context, db PgxHandle, userID int,
-	email, name mo.Option[string], pwHash mo.Option[[]byte],
-	verified, pwAuth, apiAccess, webAuthn mo.Option[bool],
+	vals *UserUpdateValues,
 ) error {
 	q := `
 		UPDATE user_
@@ -118,13 +122,13 @@ func UpdateUser(ctx context.Context, db PgxHandle, userID int,
 		WHERE id = @userID`
 	args := pgx.NamedArgs{
 		"userID":    userID,
-		"email":     email,
-		"name":      name,
-		"pwHash":    pwHash,
-		"verified":  verified,
-		"pwAuth":    pwAuth,
-		"apiAccess": apiAccess,
-		"webAuthn":  webAuthn,
+		"email":     vals.Email,
+		"name":      vals.Name,
+		"pwHash":    vals.PWHash,
+		"verified":  vals.Verified,
+		"pwAuth":    vals.PWAuth,
+		"apiAccess": vals.ApiAccess,
+		"webAuthn":  vals.WebAuthn,
 	}
 	return ExecTx[User](ctx, db, q, args)
 }

@@ -19,6 +19,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
@@ -73,7 +74,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_verify_ (.+)").
 			WithArgs(pgx.NamedArgs{
-				"refID":  model.UserVerifyRefIDMatcher,
+				"refID":  service.UserVerifyRefIDMatcher,
 				"userID": user.ID,
 			}).
 			WillReturnRows(pgxmock.NewRows(uvColumns).
@@ -96,7 +97,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		after, found := strings.CutPrefix(message, "Account Verification: http://example.com/verify/")
 		assert.Assert(t, found)
 		refParts := strings.Split(after, "-")
-		rID := refid.Must(model.ParseUserVerifyRefID(refParts[0]))
+		rID := refid.Must(service.ParseUserVerifyRefID(refParts[0]))
 		hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
 		assert.Assert(t, handler.MAC.Validate([]byte(rID.String()), hmacBytes))
@@ -357,7 +358,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_ ").
-			WithArgs(model.UserVerifyRefIDMatcher).
+			WithArgs(service.UserVerifyRefIDMatcher).
 			WillReturnRows(pgxmock.NewRows(uvColumns).
 				AddRow(refID, uv.UserID, uv.Created),
 			)

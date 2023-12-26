@@ -15,12 +15,7 @@ type NotificationRefID struct {
 	reftag.IDt8
 }
 
-var (
-	NewNotificationRefID       = reftag.New[NotificationRefID]
-	NotificationRefIDMatcher   = reftag.NewMatcher[NotificationRefID]()
-	NotificationRefIDFromBytes = reftag.FromBytes[NotificationRefID]
-	ParseNotificationRefID     = reftag.Parse[NotificationRefID]
-)
+var NewNotificationRefID = reftag.New[NotificationRefID]
 
 type Notification struct {
 	Created      time.Time

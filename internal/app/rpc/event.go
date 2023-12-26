@@ -103,7 +103,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
@@ -121,7 +121,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		}
 	}
 
-	euvs := &service.EventUpdateValues{}
+	euvs := &model.EventUpdateValues{}
 	euvs.Name = mo.PointerToOption(r.Name)
 	euvs.Description = mo.PointerToOption(r.Description)
 	euvs.StartTime = mo.PointerToOption(startTime)
@@ -146,7 +146,7 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
@@ -189,7 +189,7 @@ func (s *Server) DeleteEvent(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}

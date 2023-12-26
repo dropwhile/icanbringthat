@@ -5,11 +5,17 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	EarmarkRefIDMatcher = reftag.NewMatcher[model.EarmarkRefID]()
+	ParseEarmarkRefID   = reftag.Parse[model.EarmarkRefID]
 )
 
 func GetEarmarksByEventID(

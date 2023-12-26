@@ -82,6 +82,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		// validate credentials...
+		// TODO: move to service layer
 		ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
 		if err != nil || !ok {
 			slog.DebugContext(ctx, "invalid credentials: pass check fail", "error", err)

@@ -15,6 +15,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -40,7 +41,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -83,7 +84,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectQuery("^INSERT INTO event_item_").
 			WithArgs(pgx.NamedArgs{
-				"refID":       model.EventItemRefIDMatcher,
+				"refID":       service.EventItemRefIDMatcher,
 				"eventID":     eventItem.EventID,
 				"description": "some description",
 			}).
@@ -297,7 +298,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}
@@ -762,7 +763,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		Description:  "description",
 		Archived:     false,
 		StartTime:    ts,
-		StartTimeTz:  util.Must(model.ParseTimeZone("Etc/UTC")),
+		StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
 		Created:      ts,
 		LastModified: ts,
 	}

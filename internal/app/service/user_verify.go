@@ -5,12 +5,19 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/logger"
+)
+
+var (
+	UserVerifyRefIDMatcher   = reftag.NewMatcher[model.UserVerifyRefID]()
+	UserVerifyRefIDFromBytes = reftag.FromBytes[model.UserVerifyRefID]
+	ParseUserVerifyRefID     = reftag.Parse[model.UserVerifyRefID]
 )
 
 func GetUserVerifyByRefID(ctx context.Context, db model.PgxHandle,
@@ -43,13 +50,9 @@ func SetUserVerified(ctx context.Context, db model.PgxHandle,
 ) errs.Error {
 	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
-			mo.None[string](),
-			mo.None[string](),
-			mo.None[[]byte](),
-			mo.Some(user.Verified),
-			mo.None[bool](),
-			mo.None[bool](),
-			mo.None[bool](),
+			&model.UserUpdateValues{
+				Verified: mo.Some(user.Verified),
+			},
 		)
 		if innerErr != nil {
 			slog.DebugContext(ctx, "inner db error saving user",

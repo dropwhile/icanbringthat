@@ -5,13 +5,19 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	ParseUserRefID     = reftag.Parse[model.UserRefID]
+	UserRefIDFromBytes = reftag.FromBytes[model.UserRefID]
+	UserRefIDMatcher   = reftag.NewMatcher[model.UserRefID]()
 )
 
 func GetUser(
@@ -106,18 +112,8 @@ func NewUser(ctx context.Context, db model.PgxHandle,
 	return user, nil
 }
 
-type UserUpdateValues struct {
-	Name      mo.Option[string] `validate:"omitempty,notblank"`
-	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
-	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
-	Verified  mo.Option[bool]
-	PWAuth    mo.Option[bool]
-	ApiAccess mo.Option[bool]
-	WebAuthn  mo.Option[bool]
-}
-
 func UpdateUser(ctx context.Context, db model.PgxHandle,
-	userID int, userUpdateVals *UserUpdateValues,
+	userID int, userUpdateVals *model.UserUpdateValues,
 ) errs.Error {
 	err := validate.StructCtx(ctx, userUpdateVals)
 	if err != nil {
@@ -129,12 +125,7 @@ func UpdateUser(ctx context.Context, db model.PgxHandle,
 		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
-	err = model.UpdateUser(ctx, db, userID,
-		userUpdateVals.Email, userUpdateVals.Name,
-		userUpdateVals.PWHash, userUpdateVals.Verified,
-		userUpdateVals.PWAuth, userUpdateVals.ApiAccess,
-		userUpdateVals.WebAuthn,
-	)
+	err = model.UpdateUser(ctx, db, userID, userUpdateVals)
 	if err != nil {
 		return errs.Internal.Errorf("db error: %w", err)
 	}

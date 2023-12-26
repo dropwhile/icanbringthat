@@ -21,7 +21,7 @@ func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	profileUserRefID, err := model.ParseUserRefID(chi.URLParam(r, "uRefID"))
+	profileUserRefID, err := service.ParseUserRefID(chi.URLParam(r, "uRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "user", err)
 		return

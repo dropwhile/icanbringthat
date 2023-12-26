@@ -16,12 +16,7 @@ type UserVerifyRefIDNull struct {
 	reftag.NullIDt6
 }
 
-var (
-	NewUserVerifyRefID       = reftag.New[UserVerifyRefID]
-	UserVerifyRefIDMatcher   = reftag.NewMatcher[UserVerifyRefID]()
-	UserVerifyRefIDFromBytes = reftag.FromBytes[UserVerifyRefID]
-	ParseUserVerifyRefID     = reftag.Parse[UserVerifyRefID]
-)
+var NewUserVerifyRefID = reftag.New[UserVerifyRefID]
 
 type UserVerify struct {
 	Created time.Time

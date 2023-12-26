@@ -7,8 +7,16 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/dropwhile/refid/v2/reftag"
+
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+)
+
+var (
+	ParseEventItemRefID     = reftag.Parse[model.EventItemRefID]
+	EventItemRefIDMatcher   = reftag.NewMatcher[model.EventItemRefID]()
+	EventItemRefIDFromBytes = reftag.FromBytes[model.EventItemRefID]
 )
 
 func GetEventItemsCount(

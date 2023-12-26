@@ -22,7 +22,7 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
@@ -103,7 +103,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	eventItemRefID, err := model.ParseEventItemRefID(r.EventItemRefId)
+	eventItemRefID, err := service.ParseEventItemRefID(r.EventItemRefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
@@ -138,7 +138,7 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEarmarkRefID(r.RefId)
+	refID, err := service.ParseEarmarkRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
@@ -178,7 +178,7 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	refID, err := model.ParseEarmarkRefID(r.RefId)
+	refID, err := service.ParseEarmarkRefID(r.RefId)
 	if err != nil {
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}

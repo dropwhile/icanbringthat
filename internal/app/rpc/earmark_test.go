@@ -11,6 +11,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
@@ -472,7 +473,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			WithArgs(pgx.NamedArgs{
 				"userID":      user.ID,
 				"eventItemID": eventItemID,
-				"refID":       model.EarmarkRefIDMatcher,
+				"refID":       service.EarmarkRefIDMatcher,
 				"note":        "some note",
 			}).
 			WillReturnRows(pgxmock.NewRows(

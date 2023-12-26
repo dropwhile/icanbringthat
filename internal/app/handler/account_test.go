@@ -16,6 +16,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
@@ -953,7 +954,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(pgx.NamedArgs{
-				"refID":    model.UserRefIDMatcher,
+				"refID":    service.UserRefIDMatcher,
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),
@@ -1068,7 +1069,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectQuery("^INSERT INTO user_").
 			WithArgs(pgx.NamedArgs{
-				"refID":    model.UserRefIDMatcher,
+				"refID":    service.UserRefIDMatcher,
 				"email":    "user@example.com",
 				"name":     "user",
 				"pwHash":   pgxmock.AnyArg(),

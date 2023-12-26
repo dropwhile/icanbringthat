@@ -15,12 +15,7 @@ type EventItemRefIDNull struct {
 	reftag.NullIDt3
 }
 
-var (
-	NewEventItemRefID       = reftag.New[EventItemRefID]
-	EventItemRefIDMatcher   = reftag.NewMatcher[EventItemRefID]()
-	EventItemRefIDFromBytes = reftag.FromBytes[EventItemRefID]
-	ParseEventItemRefID     = reftag.Parse[EventItemRefID]
-)
+var NewEventItemRefID = reftag.New[EventItemRefID]
 
 type EventItem struct {
 	Created      time.Time
