@@ -399,7 +399,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		"start_time", "start_time_tz", "created", "last_modified",
 	}
 
-	t.Run("update", func(t *testing.T) {
+	t.Run("update event should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -418,6 +418,8 @@ func TestHandler_Event_Update(t *testing.T) {
 					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 				))
 		mock.ExpectBegin()
+		// begin inner tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -433,6 +435,27 @@ func TestHandler_Event_Update(t *testing.T) {
 				"startTimeTz": mo.Some(event.StartTimeTz),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end inner tx
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -463,7 +486,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update bad refid", func(t *testing.T) {
+	t.Run("update event bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -496,7 +519,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update missing event", func(t *testing.T) {
+	t.Run("update missing event should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -533,7 +556,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update user.id not match event.userid", func(t *testing.T) {
+	t.Run("update user.id not match event.userid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -615,7 +638,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update name", func(t *testing.T) {
+	t.Run("update only update name should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -634,6 +657,8 @@ func TestHandler_Event_Update(t *testing.T) {
 					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 				))
 		mock.ExpectBegin()
+		// inner tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -645,6 +670,27 @@ func TestHandler_Event_Update(t *testing.T) {
 				"eventID":       event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end inner tx
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -672,7 +718,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update description", func(t *testing.T) {
+	t.Run("update only update description should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -691,6 +737,8 @@ func TestHandler_Event_Update(t *testing.T) {
 					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 				))
 		mock.ExpectBegin()
+		// inner tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -702,6 +750,27 @@ func TestHandler_Event_Update(t *testing.T) {
 				"startTimeTz":   mo.None[*model.TimeZone](),
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end inner tx
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -729,7 +798,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update when and tz", func(t *testing.T) {
+	t.Run("update with when and tz should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -748,6 +817,8 @@ func TestHandler_Event_Update(t *testing.T) {
 					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 				))
 		mock.ExpectBegin()
+		// inner tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -763,6 +834,27 @@ func TestHandler_Event_Update(t *testing.T) {
 				"eventID":     event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end inner tx
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
@@ -791,7 +883,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update when should fail", func(t *testing.T) {
+	t.Run("update with only when should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -821,7 +913,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update only update tz should fail", func(t *testing.T) {
+	t.Run("update with only tz should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -851,7 +943,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update update nothing", func(t *testing.T) {
+	t.Run("update nothing should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -881,7 +973,7 @@ func TestHandler_Event_Update(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
-	t.Run("update bad tz default to utc", func(t *testing.T) {
+	t.Run("update bad tz default to utc should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
@@ -900,6 +992,8 @@ func TestHandler_Event_Update(t *testing.T) {
 					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
 				))
 		mock.ExpectBegin()
+		// start inner tx
+		mock.ExpectBegin()
 		// refid as anyarg because new refid is created on call to create
 		mock.ExpectExec("^UPDATE event_ ").
 			WithArgs(pgx.NamedArgs{
@@ -915,6 +1009,27 @@ func TestHandler_Event_Update(t *testing.T) {
 				"eventID":     event.ID,
 			}).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end innertx
+		mock.ExpectQuery("SELECT (.+) FROM event_").
+			WithArgs(event.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id",
+					"user_id", "archived",
+					"name", "description",
+					"start_time", "start_time_tz",
+					"created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID,
+					user.ID, false,
+					event.Name, event.Description,
+					event.StartTime, event.StartTimeTz,
+					tstTs, tstTs,
+				),
+			)
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
