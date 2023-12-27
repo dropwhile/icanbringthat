@@ -39,7 +39,7 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 }
 
 type NotificationsDeleteCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {

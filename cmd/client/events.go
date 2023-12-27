@@ -81,11 +81,11 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 }
 
 type EventsUpdateCmd struct {
-	Name        *string    `name:"name"  help:"event name"`
-	Description *string    `name:"description"  help:"event description"`
-	When        *time.Time `name:"when"  help:"event start time"`
-	Tz          *string    `name:"tz"  help:"event timezone"`
-	RefID       string     `name:"ref-id" required:""`
+	Name        *string    `name:"name" help:"event name"`
+	Description *string    `name:"description" help:"event description"`
+	When        *time.Time `name:"when" help:"event start time"`
+	Tz          *string    `name:"tz" help:"event timezone"`
+	RefID       string     `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
@@ -120,7 +120,7 @@ func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 }
 
 type EventsDeleteCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
@@ -135,7 +135,7 @@ func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 }
 
 type EventsGetDetailsCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
@@ -185,7 +185,7 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 }
 
 type EventsListItemsCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
@@ -215,7 +215,7 @@ func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 }
 
 type EventsListEarmarksCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {

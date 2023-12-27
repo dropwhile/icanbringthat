@@ -43,7 +43,7 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 }
 
 type FavoritesAddCmd struct {
-	EventRefID string `name:"event-ref-id" required:""`
+	EventRefID string `name:"event-ref-id" arg:"" required:""`
 }
 
 func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
@@ -68,7 +68,7 @@ func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 }
 
 type FavoritesRemoveCmd struct {
-	EventRefID string `name:"event-ref-id" required:""`
+	EventRefID string `name:"event-ref-id" arg:"" required:""`
 }
 
 func (cmd *FavoritesRemoveCmd) Run(meta *RunArgs) error {

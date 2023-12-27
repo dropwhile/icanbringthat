@@ -30,7 +30,7 @@ const earmarkDetailTpl = `
 `
 
 type EarmarksCreateCmd struct {
-	EventItemRefID string `name:"event-item-ref-id" required:"" help:"event item ref-id"`
+	EventItemRefID string `name:"event-item-ref-id" arg:"" required:"" help:"event item ref-id"`
 	Note           string `name:"note" required:"" help:"earmark note"`
 }
 
@@ -55,7 +55,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 }
 
 type EarmarksGetDetailsCmd struct {
-	RefID string `name:"ref-id" required:""`
+	RefID string `name:"ref-id" arg:"" required:""`
 }
 
 func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
@@ -82,7 +82,7 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 }
 
 type EarmarksRemoveCmd struct {
-	RefID string `name:"ref-id" required:"" help:"earmark ref-id"`
+	RefID string `name:"ref-id" arg:"" required:"" help:"earmark ref-id"`
 }
 
 func (cmd *EarmarksRemoveCmd) Run(meta *RunArgs) error {

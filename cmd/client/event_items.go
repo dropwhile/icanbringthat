@@ -18,7 +18,7 @@ const eventItemTpl = `
 `
 
 type EventItemsAddCmd struct {
-	EventRefId  string `name:"event-ref-id" required:"" help:"event ref-id"`
+	EventRefId  string `name:"event-ref-id" arg:"" required:"" help:"event ref-id"`
 	Description string `name:"description" required:"" help:"event item description"`
 }
 
@@ -43,7 +43,7 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 }
 
 type EventItemsUpdateCmd struct {
-	RefId       string `name:"ref-id" required:"" help:"event-item ref-id"`
+	RefId       string `name:"ref-id" arg:"" required:"" help:"event-item ref-id"`
 	Description string `name:"description" required:"" help:"event item description"`
 }
 
@@ -69,7 +69,7 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 }
 
 type EventItemsRemoveCmd struct {
-	RefId string `name:"ref-id" required:"" help:"event-item ref-id"`
+	RefId string `name:"ref-id" arg:"" required:"" help:"event-item ref-id"`
 }
 
 func (cmd *EventItemsRemoveCmd) Run(meta *RunArgs) error {
