@@ -88,11 +88,11 @@ func (s *Service) DeleteEvent(
 }
 
 type EventUpdateValues struct {
+	StartTime     mo.Option[time.Time] `validate:"omitempty"`
 	Name          mo.Option[string]    `validate:"omitempty,notblank"`
 	Description   mo.Option[string]    `validate:"omitempty,notblank"`
-	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
-	StartTime     mo.Option[time.Time] `validate:"omitempty"`
 	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
+	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
 }
 
 func (s *Service) UpdateEvent(

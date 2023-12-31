@@ -78,11 +78,11 @@ func CreateEvent(ctx context.Context, db PgxHandle,
 }
 
 type EventUpdateModelValues struct {
+	StartTime     mo.Option[time.Time]
+	Tz            mo.Option[*TimeZone]
 	Name          mo.Option[string]
 	Description   mo.Option[string]
 	ItemSortOrder mo.Option[[]int]
-	StartTime     mo.Option[time.Time]
-	Tz            mo.Option[*TimeZone]
 }
 
 func UpdateEvent(ctx context.Context, db PgxHandle, eventID int,
