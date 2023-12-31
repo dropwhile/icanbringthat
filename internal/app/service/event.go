@@ -23,11 +23,10 @@ var (
 	ParseEventRefID     = reftag.Parse[model.EventRefID]
 )
 
-func GetEvent(
-	ctx context.Context, db model.PgxHandle,
-	refID model.EventRefID,
+func (s *Service) GetEvent(
+	ctx context.Context, refID model.EventRefID,
 ) (*model.Event, errs.Error) {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -37,11 +36,10 @@ func GetEvent(
 	return event, nil
 }
 
-func GetEventByID(
-	ctx context.Context, db model.PgxHandle,
-	ID int,
+func (s *Service) GetEventByID(
+	ctx context.Context, ID int,
 ) (*model.Event, errs.Error) {
-	event, err := model.GetEventByID(ctx, db, ID)
+	event, err := model.GetEventByID(ctx, s.Db, ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -51,13 +49,13 @@ func GetEventByID(
 	return event, nil
 }
 
-func GetEventsByIDs(ctx context.Context, db model.PgxHandle,
-	eventIDs []int,
+func (s *Service) GetEventsByIDs(
+	ctx context.Context, eventIDs []int,
 ) ([]*model.Event, errs.Error) {
 	if len(eventIDs) == 0 {
 		return []*model.Event{}, nil
 	}
-	elems, err := model.GetEventsByIDs(ctx, db, eventIDs)
+	elems, err := model.GetEventsByIDs(ctx, s.Db, eventIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return []*model.Event{}, nil
@@ -67,11 +65,10 @@ func GetEventsByIDs(ctx context.Context, db model.PgxHandle,
 	return elems, nil
 }
 
-func DeleteEvent(
-	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID,
+func (s *Service) DeleteEvent(
+	ctx context.Context, userID int, refID model.EventRefID,
 ) errs.Error {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
@@ -83,7 +80,7 @@ func DeleteEvent(
 		return errs.PermissionDenied.Error("permission denied")
 	}
 
-	err = model.DeleteEvent(ctx, db, event.ID)
+	err = model.DeleteEvent(ctx, s.Db, event.ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
@@ -98,8 +95,8 @@ type EventUpdateValues struct {
 	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
 }
 
-func UpdateEvent(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) UpdateEvent(
+	ctx context.Context, userID int,
 	refID model.EventRefID, euvs *EventUpdateValues,
 ) errs.Error {
 	// if no values, error
@@ -143,7 +140,7 @@ func UpdateEvent(
 	}
 
 	// get event
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
@@ -161,7 +158,7 @@ func UpdateEvent(
 	}
 
 	// do update
-	err = model.UpdateEvent(ctx, db, event.ID, &model.EventUpdateModelValues{
+	err = model.UpdateEvent(ctx, s.Db, event.ID, &model.EventUpdateModelValues{
 		Name:          euvs.Name,
 		Description:   euvs.Description,
 		ItemSortOrder: euvs.ItemSortOrder,
@@ -175,11 +172,11 @@ func UpdateEvent(
 	return nil
 }
 
-func UpdateEventItemSorting(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) UpdateEventItemSorting(
+	ctx context.Context, userID int,
 	refID model.EventRefID, itemSortOrder []int,
 ) (*model.Event, errs.Error) {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -202,7 +199,7 @@ func UpdateEventItemSorting(
 	event.ItemSortOrder = itemSortOrder
 
 	if err := model.UpdateEvent(
-		ctx, db, event.ID, &model.EventUpdateModelValues{
+		ctx, s.Db, event.ID, &model.EventUpdateModelValues{
 			ItemSortOrder: mo.Some(event.ItemSortOrder),
 		},
 	); err != nil {
@@ -211,8 +208,8 @@ func UpdateEventItemSorting(
 	return event, nil
 }
 
-func CreateEvent(
-	ctx context.Context, db model.PgxHandle, user *model.User,
+func (s *Service) CreateEvent(
+	ctx context.Context, user *model.User,
 	name string, description string,
 	when time.Time, tz string,
 ) (*model.Event, errs.Error) {
@@ -262,7 +259,7 @@ func CreateEvent(
 		return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
 	}
 
-	event, err := model.NewEvent(ctx, db, user.ID,
+	event, err := model.NewEvent(ctx, s.Db, user.ID,
 		name, description, when, &model.TimeZone{Location: loc})
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
@@ -270,11 +267,11 @@ func CreateEvent(
 	return event, nil
 }
 
-func GetEventsPaginated(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEventsPaginated(
+	ctx context.Context, userID int,
 	limit, offset int, archived bool,
 ) ([]*model.Event, *Pagination, errs.Error) {
-	eventCount, errx := GetEventsCount(ctx, db, userID)
+	eventCount, errx := s.GetEventsCount(ctx, userID)
 	if errx != nil {
 		return nil, nil, errs.Internal.Error("db error")
 	}
@@ -286,7 +283,7 @@ func GetEventsPaginated(
 	events := []*model.Event{}
 	if count > 0 {
 		evts, err := model.GetEventsByUserPaginatedFiltered(
-			ctx, db, userID, limit, offset, archived)
+			ctx, s.Db, userID, limit, offset, archived)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			evts = []*model.Event{}
@@ -303,18 +300,18 @@ func GetEventsPaginated(
 	return events, pagination, nil
 }
 
-func GetEventsComingSoonPaginated(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEventsComingSoonPaginated(
+	ctx context.Context, userID int,
 	limit, offset int,
 ) ([]*model.Event, *Pagination, errs.Error) {
-	eventCount, errx := GetEventsCount(ctx, db, userID)
+	eventCount, errx := s.GetEventsCount(ctx, userID)
 	if errx != nil {
 		return nil, nil, errs.Internal.Error("db error")
 	}
 
 	events := []*model.Event{}
 	if eventCount.Current > 0 {
-		evts, err := model.GetEventsComingSoonByUserPaginated(ctx, db, userID, limit, offset)
+		evts, err := model.GetEventsComingSoonByUserPaginated(ctx, s.Db, userID, limit, offset)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			evts = []*model.Event{}
@@ -331,21 +328,21 @@ func GetEventsComingSoonPaginated(
 	return events, pagination, nil
 }
 
-func GetEventsCount(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEventsCount(
+	ctx context.Context, userID int,
 ) (*model.BifurcatedRowCounts, errs.Error) {
-	count, err := model.GetEventCountsByUser(ctx, db, userID)
+	count, err := model.GetEventCountsByUser(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return count, nil
 }
 
-func GetEvents(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEvents(
+	ctx context.Context, userID int,
 	archived bool,
 ) ([]*model.Event, errs.Error) {
-	elems, err := model.GetEventsByUserFiltered(ctx, db, userID, archived)
+	elems, err := model.GetEventsByUserFiltered(ctx, s.Db, userID, archived)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		elems = []*model.Event{}

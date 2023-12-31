@@ -35,9 +35,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 
@@ -111,9 +109,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 
@@ -192,9 +188,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 		eventRefID := refid.Must(model.NewEventRefID())
@@ -270,9 +264,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.ListEventEarmarksRequest{
@@ -304,9 +296,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 		eventID := 1
@@ -395,9 +385,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.GetEarmarkDetailsRequest{
@@ -429,7 +417,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventItemRefID := refid.Must(model.NewEventItemRefID())
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
@@ -534,7 +522,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventItemRefID := refid.Must(model.NewEventItemRefID())
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
@@ -596,7 +584,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventItemRefID := refid.Must(model.NewEventItemRefID())
 		// earmarkRefID := refid.Must(model.NewEarmarkRefID())
@@ -649,7 +637,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventItemRefID := refid.Must(model.NewEventItemRefID())
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
@@ -700,7 +688,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEarmarkRequest{
@@ -733,7 +721,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 		eventItemID := 33
@@ -788,7 +776,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 		eventItemID := 33
@@ -823,7 +811,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveEarmarkRequest{
@@ -840,7 +828,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		earmarkRefID := refid.Must(model.NewEarmarkRefID())
 		eventItemID := 33

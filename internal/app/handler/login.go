@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/csrf"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
@@ -63,7 +62,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find user...
-	user, errx := service.GetUserByEmail(ctx, x.Db, email)
+	user, errx := x.Service.GetUserByEmail(ctx, email)
 	if errx != nil || user == nil {
 		slog.DebugContext(ctx, "invalid credentials: no user match", "error", err)
 		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")

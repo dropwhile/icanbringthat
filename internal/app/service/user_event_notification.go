@@ -13,12 +13,12 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
-func NotifyUsersPendingEvents(db model.PgxHandle,
+func (s *Service) NotifyUsersPendingEvents(
+	ctx context.Context,
 	mailer mail.MailSender, tplContainer *resources.TContainer,
 	siteBaseUrl string,
 ) error {
-	ctx := context.Background()
-	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, db)
+	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, s.Db)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 
 	for _, elem := range notifNeeded {
 		// get user
-		user, err := model.GetUserByID(ctx, db, elem.UserID)
+		user, err := model.GetUserByID(ctx, s.Db, elem.UserID)
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 		}
 
 		// get event
-		event, err := model.GetEventByID(ctx, db, elem.EventID)
+		event, err := model.GetEventByID(ctx, s.Db, elem.EventID)
 		if err != nil {
 			return err
 		}
@@ -67,11 +67,11 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 			eventItems = make([]*model.EventItem, 0)
 			earmarks = make([]*model.Earmark, 0)
 		} else {
-			eventItems, err = model.GetEventItemsByIDs(ctx, db, elem.EventItemIDs)
+			eventItems, err = model.GetEventItemsByIDs(ctx, s.Db, elem.EventItemIDs)
 			if err != nil {
 				return err
 			}
-			earmarks, err = model.GetEarmarksByEventItemIDs(ctx, db, elem.EventItemIDs)
+			earmarks, err = model.GetEarmarksByEventItemIDs(ctx, s.Db, elem.EventItemIDs)
 			if err != nil {
 				return err
 			}
@@ -139,7 +139,7 @@ func NotifyUsersPendingEvents(db model.PgxHandle,
 		if err != nil {
 			return fmt.Errorf("error sending email: %w", err)
 		}
-		_, err = model.CreateUserEventNotification(ctx, db, user.ID, event.ID)
+		_, err = model.CreateUserEventNotification(ctx, s.Db, user.ID, event.ID)
 		if err != nil {
 			return fmt.Errorf("error updating database: %w", err)
 		}

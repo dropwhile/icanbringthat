@@ -18,11 +18,10 @@ var (
 	ParseEarmarkRefID   = reftag.Parse[model.EarmarkRefID]
 )
 
-func GetEarmarksByEventID(
-	ctx context.Context, db model.PgxHandle,
-	eventID int,
+func (s *Service) GetEarmarksByEventID(
+	ctx context.Context, eventID int,
 ) ([]*model.Earmark, errs.Error) {
-	earmarks, err := model.GetEarmarksByEvent(ctx, db, eventID)
+	earmarks, err := model.GetEarmarksByEvent(ctx, s.Db, eventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return []*model.Earmark{}, nil
@@ -32,11 +31,10 @@ func GetEarmarksByEventID(
 	return earmarks, nil
 }
 
-func GetEarmarkByEventItemID(
-	ctx context.Context, db model.PgxHandle,
-	eventItemID int,
+func (s *Service) GetEarmarkByEventItemID(
+	ctx context.Context, eventItemID int,
 ) (*model.Earmark, errs.Error) {
-	earmark, err := model.GetEarmarkByEventItem(ctx, db, eventItemID)
+	earmark, err := model.GetEarmarkByEventItem(ctx, s.Db, eventItemID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("earmark not found")
@@ -46,21 +44,21 @@ func GetEarmarkByEventItemID(
 	return earmark, nil
 }
 
-func GetEarmarksCount(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEarmarksCount(
+	ctx context.Context, userID int,
 ) (*model.BifurcatedRowCounts, errs.Error) {
-	bifurCount, err := model.GetEarmarkCountByUser(ctx, db, userID)
+	bifurCount, err := model.GetEarmarkCountByUser(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return bifurCount, nil
 }
 
-func GetEarmarksPaginated(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetEarmarksPaginated(
+	ctx context.Context, userID int,
 	limit, offset int, archived bool,
 ) ([]*model.Earmark, *Pagination, errs.Error) {
-	bifurCount, errx := GetEarmarksCount(ctx, db, userID)
+	bifurCount, errx := s.GetEarmarksCount(ctx, userID)
 	if errx != nil {
 		slog.Error("db error", "error", errx)
 		return nil, nil, errs.Internal.Error("db error")
@@ -73,7 +71,7 @@ func GetEarmarksPaginated(
 	earmarks := []*model.Earmark{}
 	if count > 0 {
 		elems, err := model.GetEarmarksByUserPaginatedFiltered(
-			ctx, db, userID, limit, offset, archived)
+			ctx, s.Db, userID, limit, offset, archived)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			elems = []*model.Earmark{}
@@ -91,11 +89,10 @@ func GetEarmarksPaginated(
 	return earmarks, pagination, nil
 }
 
-func GetEarmarks(
-	ctx context.Context, db model.PgxHandle, userID int,
-	archived bool,
+func (s *Service) GetEarmarks(
+	ctx context.Context, userID int, archived bool,
 ) ([]*model.Earmark, errs.Error) {
-	elems, err := model.GetEarmarksByUserFiltered(ctx, db, userID, archived)
+	elems, err := model.GetEarmarksByUserFiltered(ctx, s.Db, userID, archived)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		elems = []*model.Earmark{}
@@ -105,11 +102,11 @@ func GetEarmarks(
 	return elems, nil
 }
 
-func NewEarmark(ctx context.Context, db model.PgxHandle,
-	user *model.User, eventItemID int, note string,
+func (s *Service) NewEarmark(
+	ctx context.Context, user *model.User, eventItemID int, note string,
 ) (*model.Earmark, errs.Error) {
 	// make sure no earmark exists yet
-	em, errx := GetEarmarkByEventItemID(ctx, db, eventItemID)
+	em, errx := s.GetEarmarkByEventItemID(ctx, eventItemID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -128,7 +125,7 @@ func NewEarmark(ctx context.Context, db model.PgxHandle,
 	}
 
 	// disallow earmarking archived event
-	event, err := model.GetEventByEventItemID(ctx, db, eventItemID)
+	event, err := model.GetEventByEventItemID(ctx, s.Db, eventItemID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -147,7 +144,7 @@ func NewEarmark(ctx context.Context, db model.PgxHandle,
 			"Account must be verified before earmarking is allowed.")
 	}
 
-	earmark, err := model.NewEarmark(ctx, db, eventItemID, user.ID, note)
+	earmark, err := model.NewEarmark(ctx, s.Db, eventItemID, user.ID, note)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -160,10 +157,10 @@ func NewEarmark(ctx context.Context, db model.PgxHandle,
 	return earmark, nil
 }
 
-func GetEarmark(ctx context.Context, db model.PgxHandle,
-	refID model.EarmarkRefID,
+func (s *Service) GetEarmark(
+	ctx context.Context, refID model.EarmarkRefID,
 ) (*model.Earmark, errs.Error) {
-	earmark, err := model.GetEarmarkByRefID(ctx, db, refID)
+	earmark, err := model.GetEarmarkByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("earmark not found")
@@ -173,14 +170,14 @@ func GetEarmark(ctx context.Context, db model.PgxHandle,
 	return earmark, nil
 }
 
-func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
-	earmark *model.Earmark,
+func (s *Service) DeleteEarmark(
+	ctx context.Context, userID int, earmark *model.Earmark,
 ) errs.Error {
 	if earmark.UserID != userID {
 		return errs.PermissionDenied.Error("permission denied")
 	}
 
-	event, err := model.GetEventByEventItemID(ctx, db, earmark.EventItemID)
+	event, err := model.GetEventByEventItemID(ctx, s.Db, earmark.EventItemID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
@@ -192,20 +189,20 @@ func DeleteEarmark(ctx context.Context, db model.PgxHandle, userID int,
 		return errs.PermissionDenied.Error("event is archived")
 	}
 
-	err = model.DeleteEarmark(ctx, db, earmark.ID)
+	err = model.DeleteEarmark(ctx, s.Db, earmark.ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
 	return nil
 }
 
-func DeleteEarmarkByRefID(ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EarmarkRefID,
+func (s *Service) DeleteEarmarkByRefID(
+	ctx context.Context, userID int, refID model.EarmarkRefID,
 ) errs.Error {
-	earmark, errx := GetEarmark(ctx, db, refID)
+	earmark, errx := s.GetEarmark(ctx, refID)
 	if errx != nil {
 		return errx
 	}
 
-	return DeleteEarmark(ctx, db, userID, earmark)
+	return s.DeleteEarmark(ctx, userID, earmark)
 }

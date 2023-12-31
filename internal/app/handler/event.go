@@ -33,13 +33,13 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	eventCount, errx := service.GetEventsCount(ctx, x.Db, user.ID)
+	eventCount, errx := x.Service.GetEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -67,15 +67,15 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := service.GetEventsPaginated(
-		ctx, x.Db, user.ID, 10, offset*10, archived)
+	events, _, errx := x.Service.GetEventsPaginated(
+		ctx, user.ID, 10, offset*10, archived)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
-	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
+	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -138,13 +138,13 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, refID)
+	event, errx := x.Service.GetEvent(ctx, refID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -152,7 +152,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	owner := user.ID == event.UserID
 
-	eventItems, errx := service.GetEventItemsByEventID(ctx, x.Db, event.ID)
+	eventItems, errx := x.Service.GetEventItemsByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -180,7 +180,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = append(unsortedList, sortedList...)
 	}
 
-	earmarks, errx := service.GetEarmarksByEventID(ctx, x.Db, event.ID)
+	earmarks, errx := x.Service.GetEarmarksByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -196,14 +196,14 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	earmarkUsers, errx := service.GetUsersByIDs(ctx, x.Db, userIDs)
+	earmarkUsers, errx := x.Service.GetUsersByIDs(ctx, userIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
 	favorited := false
-	_, errx = service.GetFavoriteByUserEvent(ctx, x.Db, user.ID, event.ID)
+	_, errx = x.Service.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
 	if errx == nil {
 		favorited = true
 	} else {
@@ -293,7 +293,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, refID)
+	event, errx := x.Service.GetEvent(ctx, refID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -368,8 +368,7 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.CreateEvent(ctx, x.Db, user,
-		name, description, startTime, tz)
+	event, errx := x.Service.CreateEvent(ctx, user, name, description, startTime, tz)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.InvalidArgument:
@@ -437,7 +436,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		euvs.Tz = mo.Some(loc.String())
 	}
 
-	errx := service.UpdateEvent(ctx, x.Db, user.ID, refID, euvs)
+	errx := x.Service.UpdateEvent(ctx, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -496,8 +495,8 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	}
 	order = util.Uniq(order)
 
-	_, errx := service.UpdateEventItemSorting(
-		ctx, x.Db, user.ID, eventRefID, order,
+	_, errx := x.Service.UpdateEventItemSorting(
+		ctx, user.ID, eventRefID, order,
 	)
 	if errx != nil {
 		switch errx.Code() {
@@ -532,7 +531,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := service.DeleteEvent(ctx, x.Db, user.ID, refID); errx != nil {
+	if errx := x.Service.DeleteEvent(ctx, user.ID, refID); errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
 			x.NotFoundError(w)

@@ -54,13 +54,13 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentials, errx := service.GetUserCredentialsByUser(ctx, x.Db, user.ID)
+	credentials, errx := x.Service.GetUserCredentialsByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	apikey, errx := service.GetApiKeyByUser(ctx, x.Db, user.ID)
+	apikey, errx := x.Service.GetApiKeyByUser(ctx, user.ID)
 	if errx != nil {
 		if errx.Code() != errs.NotFound {
 			x.DBError(w, errx)
@@ -68,7 +68,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -122,14 +122,14 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errx := service.NewUser(ctx, x.Db, email, name, []byte(passwd))
+	user, errx := x.Service.NewUser(ctx, email, name, []byte(passwd))
 	if errx != nil {
 		slog.ErrorContext(ctx, "error adding user", logger.Err(errx))
 		x.BadRequestError(w, "error adding user")
 		return
 	}
 
-	_, errx = service.NewNotification(ctx, x.Db, user.ID,
+	_, errx = x.Service.NewNotification(ctx, user.ID,
 		`Account is not currently verified. Please verify account in link:/settings.`,
 	)
 	if errx != nil {
@@ -225,7 +225,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		errx := service.UpdateUser(ctx, x.Db, user.ID, updateVals)
+		errx := x.Service.UpdateUser(ctx, user.ID, updateVals)
 		if errx != nil {
 			slog.ErrorContext(ctx, "error updating user",
 				logger.Err(errx))
@@ -264,7 +264,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ensure we have at least one passkey first
-	pkCount, errx := service.GetUserCredentialCountByUser(ctx, x.Db, user.ID)
+	pkCount, errx := x.Service.GetUserCredentialCountByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -333,7 +333,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = service.UpdateUser(ctx, x.Db, user.ID, updateVals)
+	errx = x.Service.UpdateUser(ctx, user.ID, updateVals)
 	if errx != nil {
 		slog.ErrorContext(ctx, "error updating user auth",
 			logger.Err(errx))
@@ -385,7 +385,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			}
 			changes = true
 			updateVals.ApiAccess = mo.Some(true)
-			_, errx := service.NewApiKeyIfNotExists(ctx, x.Db, user.ID)
+			_, errx := x.Service.NewApiKeyIfNotExists(ctx, user.ID)
 			if errx != nil {
 				x.DBError(w, errx)
 				return
@@ -409,7 +409,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if rotateApiKey == "true" {
-		if _, errx := service.NewApiKey(ctx, x.Db, user.ID); errx != nil {
+		if _, errx := x.Service.NewApiKey(ctx, user.ID); errx != nil {
 			slog.ErrorContext(ctx, "error rotating api key",
 				logger.Err(errx))
 			x.InternalServerError(w, "error rotating api key")
@@ -418,7 +418,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if apiAccess != "" {
-		if errx := service.UpdateUser(ctx, x.Db, user.ID, updateVals); errx != nil {
+		if errx := x.Service.UpdateUser(ctx, user.ID, updateVals); errx != nil {
 			slog.ErrorContext(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")
@@ -497,8 +497,8 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if errx := service.UpdateUserSettings(
-		ctx, x.Db, user.ID, &user.Settings); errx != nil {
+	if errx := x.Service.UpdateUserSettings(
+		ctx, user.ID, &user.Settings); errx != nil {
 		slog.ErrorContext(ctx, "error updating user settings",
 			logger.Err(errx))
 		x.InternalServerError(w, "error updating user settings")
@@ -519,7 +519,7 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := service.DeleteUser(ctx, x.Db, user.ID); errx != nil {
+	if errx := x.Service.DeleteUser(ctx, user.ID); errx != nil {
 		x.DBError(w, errx)
 		return
 	}

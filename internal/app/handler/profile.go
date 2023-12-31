@@ -33,7 +33,7 @@ func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		selfView = true
 		profileUser = user
 	} else {
-		u, errx := service.GetUser(ctx, x.Db, profileUserRefID)
+		u, errx := x.Service.GetUser(ctx, profileUserRefID)
 		if errx != nil {
 			x.NotFoundError(w)
 			return

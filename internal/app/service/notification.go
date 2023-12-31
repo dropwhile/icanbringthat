@@ -18,11 +18,10 @@ var (
 	ParseNotificationRefID     = reftag.Parse[model.NotificationRefID]
 )
 
-func GetNotifcationsPaginated(
-	ctx context.Context, db model.PgxHandle, userID int,
-	limit, offset int,
+func (s *Service) GetNotifcationsPaginated(
+	ctx context.Context, userID int, limit, offset int,
 ) ([]*model.Notification, *Pagination, errs.Error) {
-	notifCount, errx := GetNotificationsCount(ctx, db, userID)
+	notifCount, errx := s.GetNotificationsCount(ctx, userID)
 	if errx != nil {
 		return nil, nil, errs.Internal.Error("db error")
 	}
@@ -30,7 +29,7 @@ func GetNotifcationsPaginated(
 	notifications := []*model.Notification{}
 	if notifCount > 0 {
 		notifs, err := model.GetNotificationsByUserPaginated(
-			ctx, db, userID, limit, offset)
+			ctx, s.Db, userID, limit, offset)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			notifs = []*model.Notification{}
@@ -47,35 +46,34 @@ func GetNotifcationsPaginated(
 	return notifications, pagination, nil
 }
 
-func GetNotificationsCount(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetNotificationsCount(
+	ctx context.Context, userID int,
 ) (int, errs.Error) {
-	notifCount, err := model.GetNotificationCountByUser(ctx, db, userID)
+	notifCount, err := model.GetNotificationCountByUser(ctx, s.Db, userID)
 	if err != nil {
 		return 0, errs.Internal.Error("db error")
 	}
 	return notifCount, nil
 }
 
-func GetNotifications(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetNotifications(
+	ctx context.Context, userID int,
 ) ([]*model.Notification, errs.Error) {
-	notifications, err := model.GetNotificationsByUser(ctx, db, userID)
+	notifications, err := model.GetNotificationsByUser(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return notifications, nil
 }
 
-func DeleteNotification(
-	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.NotificationRefID,
+func (s *Service) DeleteNotification(
+	ctx context.Context, userID int, refID model.NotificationRefID,
 ) errs.Error {
 	if userID == 0 {
 		return errs.Unauthenticated.Error("invalid credentials")
 	}
 
-	notification, err := model.GetNotificationByRefID(ctx, db, refID)
+	notification, err := model.GetNotificationByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.
@@ -91,7 +89,7 @@ func DeleteNotification(
 		return errs.PermissionDenied.Error("permission denied")
 	}
 
-	err = model.DeleteNotification(ctx, db, notification.ID)
+	err = model.DeleteNotification(ctx, s.Db, notification.ID)
 	if err != nil {
 		return errs.Internal.
 			Error("db error").
@@ -100,14 +98,14 @@ func DeleteNotification(
 	return nil
 }
 
-func DeleteAllNotifications(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) DeleteAllNotifications(
+	ctx context.Context, userID int,
 ) errs.Error {
 	if userID == 0 {
 		return errs.Unauthenticated.Error("invalid credentials")
 	}
 
-	err := model.DeleteNotificationsByUser(ctx, db, userID)
+	err := model.DeleteNotificationsByUser(ctx, s.Db, userID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
@@ -115,9 +113,14 @@ func DeleteAllNotifications(
 	return nil
 }
 
-func NewNotification(
-	ctx context.Context, db model.PgxHandle, userID int,
-	message string,
+func (s *Service) NewNotification(
+	ctx context.Context, userID int, message string,
+) (*model.Notification, errs.Error) {
+	return s.newNotification(ctx, s.Db, userID, message)
+}
+
+func (s *Service) newNotification(
+	ctx context.Context, db model.PgxHandle, userID int, message string,
 ) (*model.Notification, errs.Error) {
 	err := validate.VarCtx(ctx, message, "required,notblank")
 	if err != nil {

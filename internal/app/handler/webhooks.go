@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 )
 
@@ -69,8 +68,8 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	slog.DebugContext(ctx,
 		"disabling reminders due to postmark callback",
 		"postmark", pm)
-	errx := service.DisableRemindersWithNotification(
-		ctx, x.Db, pm.Recipient, pm.SuppressionReason,
+	errx := x.Service.DisableRemindersWithNotification(
+		ctx, pm.Recipient, pm.SuppressionReason,
 	)
 	if errx != nil {
 		switch errx.Code() {

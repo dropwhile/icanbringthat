@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/csrf"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -21,31 +20,31 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	eventCount, errx := service.GetEventsCount(ctx, x.Db, user.ID)
+	eventCount, errx := x.Service.GetEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
+	earmarkCount, errx := x.Service.GetEarmarksCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	favoriteCount, errx := service.GetFavoriteEventsCount(ctx, x.Db, user.ID)
+	favoriteCount, errx := x.Service.GetFavoriteEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	events, _, errx := service.GetEventsComingSoonPaginated(ctx, x.Db, user.ID, 10, 0)
+	events, _, errx := x.Service.GetEventsComingSoonPaginated(ctx, user.ID, 10, 0)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -54,7 +53,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
+	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return

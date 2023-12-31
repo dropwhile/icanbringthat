@@ -29,7 +29,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// generate a verifier
-	uv, errx := service.NewUserVerify(ctx, x.Db, user)
+	uv, errx := x.Service.NewUserVerify(ctx, user)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -135,7 +135,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verifier, errx := service.GetUserVerifyByRefID(ctx, x.Db, verifyRefID)
+	verifier, errx := x.Service.GetUserVerifyByRefID(ctx, verifyRefID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no verifier match", logger.Err(errx))
 		x.NotFoundError(w)
@@ -149,7 +149,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Verified = true
-	errx = service.SetUserVerified(ctx, x.Db, user, verifier)
+	errx = x.Service.SetUserVerified(ctx, user, verifier)
 	if errx != nil {
 		slog.DebugContext(ctx, "error saving verification", logger.Err(errx))
 		x.InternalServerError(w, errx.Msg())

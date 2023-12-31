@@ -19,10 +19,10 @@ var (
 	ParseApiKeyRefID     = reftag.Parse[model.ApiKeyRefID]
 )
 
-func GetApiKeyByUser(ctx context.Context, db model.PgxHandle,
-	userID int,
+func (s *Service) GetApiKeyByUser(
+	ctx context.Context, userID int,
 ) (*model.ApiKey, errs.Error) {
-	apiKey, err := model.GetApiKeyByUser(ctx, db, userID)
+	apiKey, err := model.GetApiKeyByUser(ctx, s.Db, userID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
@@ -34,10 +34,10 @@ func GetApiKeyByUser(ctx context.Context, db model.PgxHandle,
 	return apiKey, nil
 }
 
-func GetUserByApiKey(ctx context.Context, db model.PgxHandle,
-	token string,
+func (s *Service) GetUserByApiKey(
+	ctx context.Context, token string,
 ) (*model.User, errs.Error) {
-	user, err := model.GetUserByApiKey(ctx, db, token)
+	user, err := model.GetUserByApiKey(ctx, s.Db, token)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
@@ -49,10 +49,10 @@ func GetUserByApiKey(ctx context.Context, db model.PgxHandle,
 	return user, nil
 }
 
-func NewApiKey(ctx context.Context, db model.PgxHandle,
-	userID int,
+func (s *Service) NewApiKey(
+	ctx context.Context, userID int,
 ) (*model.ApiKey, errs.Error) {
-	apikey, err := model.NewApiKey(ctx, db, userID)
+	apikey, err := model.NewApiKey(ctx, s.Db, userID)
 	if err != nil {
 		slog.ErrorContext(ctx,
 			"error generating new api key", "error", err)
@@ -61,17 +61,17 @@ func NewApiKey(ctx context.Context, db model.PgxHandle,
 	return apikey, nil
 }
 
-func NewApiKeyIfNotExists(ctx context.Context, db model.PgxHandle,
-	userID int,
+func (s *Service) NewApiKeyIfNotExists(
+	ctx context.Context, userID int,
 ) (*model.ApiKey, errs.Error) {
-	apikey, errx := GetApiKeyByUser(ctx, db, userID)
+	apikey, errx := s.GetApiKeyByUser(ctx, userID)
 	if errx == nil {
 		return apikey, nil
 	} else if errx.Code() != errs.NotFound {
 		return nil, errx
 	}
 
-	apikey, err := model.NewApiKey(ctx, db, userID)
+	apikey, err := model.NewApiKey(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Errorf("db error: %w", err)
 	}

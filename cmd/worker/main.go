@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	_ "database/sql"
 	"log"
 	"log/slog"
@@ -85,7 +86,7 @@ func main() {
 	// configure services //
 	//--------------------//
 
-	// setup dbpool pool & models
+	// setup dbpool pool & models & servicer
 	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
 		slog.With("error", err).
@@ -94,6 +95,7 @@ func main() {
 		return
 	}
 	defer dbpool.Close()
+	service := service.NewService(dbpool)
 
 	//----------------//
 	// configure jobs //
@@ -152,14 +154,14 @@ func main() {
 			case <-timer.C:
 				if jobList.Contains(NotifierJob) {
 					if err := service.NotifyUsersPendingEvents(
-						dbpool, mailer, templates, config.BaseURL,
+						context.Background(), mailer, templates, config.BaseURL,
 					); err != nil {
 						slog.With("erorr", err).
 							Error("notifier error!!")
 					}
 				}
 				if jobList.Contains(ArchiverJob) {
-					if err := service.ArchiveOldEvents(dbpool); err != nil {
+					if err := service.ArchiveOldEvents(context.Background()); err != nil {
 						slog.With("erorr", err).
 							Error("archiver error!!")
 					}

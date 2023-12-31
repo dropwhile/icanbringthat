@@ -30,13 +30,13 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	favoriteCount, errx := service.GetFavoriteEventsCount(ctx, x.Db, user.ID)
+	favoriteCount, errx := x.Service.GetFavoriteEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -64,8 +64,8 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := service.GetFavoriteEventsPaginated(
-		ctx, x.Db, user.ID, 10, offset*10, archived,
+	events, _, errx := x.Service.GetFavoriteEventsPaginated(
+		ctx, user.ID, 10, offset*10, archived,
 	)
 	if errx != nil {
 		x.DBError(w, errx)
@@ -75,7 +75,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, errx := service.GetEventItemsCount(ctx, x.Db, eventIDs)
+	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -139,7 +139,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := service.AddFavorite(ctx, x.Db, user.ID, eventRefID)
+	event, errx := x.Service.AddFavorite(ctx, user.ID, eventRefID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error adding favorite", logger.Err(errx))
 		switch errx.Code() {
@@ -191,7 +191,7 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx := service.RemoveFavorite(ctx, x.Db, user.ID, eventRefID)
+	errx := x.Service.RemoveFavorite(ctx, user.ID, eventRefID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error deleting favorite", logger.Err(errx))
 		switch errx.Code() {

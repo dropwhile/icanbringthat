@@ -86,7 +86,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
+	upw, errx := x.Service.GetUserPWResetByRefID(ctx, refID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -99,7 +99,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = service.GetUserByID(ctx, x.Db, upw.UserID)
+	_, err = x.Service.GetUserByID(ctx, upw.UserID)
 	if err != nil {
 		slog.DebugContext(ctx, "no user match", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
@@ -143,7 +143,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	// don't leak existence of user. if email doens't match,
 	// behave like we sent a reset anyway...
 	doFake := false
-	user, errx := service.GetUserByEmail(ctx, x.Db, email)
+	user, errx := x.Service.GetUserByEmail(ctx, email)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -169,7 +169,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 
 	if !doFake {
 		// generate a upw
-		upw, errx := service.NewUserPWReset(ctx, x.Db, user.ID)
+		upw, errx := x.Service.NewUserPWReset(ctx, user.ID)
 		if errx != nil {
 			x.InternalServerError(w, errx.Msg())
 			return
@@ -284,7 +284,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upw, errx := service.GetUserPWResetByRefID(ctx, x.Db, refID)
+	upw, errx := x.Service.GetUserPWResetByRefID(ctx, refID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -297,7 +297,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errx := service.GetUserByID(ctx, x.Db, upw.UserID)
+	user, errx := x.Service.GetUserByID(ctx, upw.UserID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no user match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -319,7 +319,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	user.PWHash = pwHash
 
-	errx = service.UpdateUserPWReset(ctx, x.Db, user, upw)
+	errx = x.Service.UpdateUserPWReset(ctx, user, upw)
 	if errx != nil {
 		x.DBError(w, errx)
 		return

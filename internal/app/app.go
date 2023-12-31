@@ -14,6 +14,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
@@ -47,6 +48,7 @@ func New(
 	mailer *mail.Mailer,
 	conf *Config,
 ) *App {
+	service := service.NewService(db)
 	zh := &handler.Handler{
 		Db:        model.SetupFromDbPool(db),
 		Redis:     rdb,
@@ -87,7 +89,7 @@ func New(
 			// Must be in CORS Allowed and Exposed Headers
 			csrf.RequestHeader("X-CSRF-Token"),
 		))
-		r.Use(auth.Load(db, zh.SessMgr))
+		r.Use(auth.Load(service, zh.SessMgr))
 
 		// Routing //
 		// Protected routes
@@ -179,15 +181,9 @@ func New(
 
 	if conf.RpcApi {
 		// rpc api
-		rpcServer := &rpc.Server{
-			Db:        zh.Db,
-			Redis:     zh.Redis,
-			Templates: zh.Templates,
-			Mailer:    zh.Mailer,
-			MAC:       zh.MAC,
-			BaseURL:   zh.BaseURL,
-			IsProd:    zh.IsProd,
-		}
+		rpcServer := rpc.NewServer(
+			zh.Db, zh.Redis, zh.Templates, zh.Mailer, zh.MAC, zh.BaseURL, zh.IsProd,
+		)
 		r.Route(TwirpPrefix, func(r chi.Router) {
 			// add auth token middleware here instead,
 			// which pulls an auth token from a header,

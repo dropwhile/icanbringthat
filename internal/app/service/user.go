@@ -21,11 +21,10 @@ var (
 	UserRefIDMatcher   = reftag.NewMatcher[model.UserRefID]()
 )
 
-func GetUser(
-	ctx context.Context, db model.PgxHandle,
-	refID model.UserRefID,
+func (s *Service) GetUser(
+	ctx context.Context, refID model.UserRefID,
 ) (*model.User, errs.Error) {
-	user, err := model.GetUserByRefID(ctx, db, refID)
+	user, err := model.GetUserByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
@@ -35,11 +34,10 @@ func GetUser(
 	return user, nil
 }
 
-func GetUserByEmail(
-	ctx context.Context, db model.PgxHandle,
-	email string,
+func (s *Service) GetUserByEmail(
+	ctx context.Context, email string,
 ) (*model.User, errs.Error) {
-	user, err := model.GetUserByEmail(ctx, db, email)
+	user, err := model.GetUserByEmail(ctx, s.Db, email)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
@@ -49,11 +47,10 @@ func GetUserByEmail(
 	return user, nil
 }
 
-func GetUserByID(
-	ctx context.Context, db model.PgxHandle,
-	ID int,
+func (s *Service) GetUserByID(
+	ctx context.Context, ID int,
 ) (*model.User, errs.Error) {
-	user, err := model.GetUserByID(ctx, db, ID)
+	user, err := model.GetUserByID(ctx, s.Db, ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
@@ -63,14 +60,14 @@ func GetUserByID(
 	return user, nil
 }
 
-func GetUsersByIDs(ctx context.Context, db model.PgxHandle,
-	userIDs []int,
+func (s *Service) GetUsersByIDs(
+	ctx context.Context, userIDs []int,
 ) ([]*model.User, errs.Error) {
 	if len(userIDs) == 0 {
 		return []*model.User{}, nil
 	}
 
-	users, err := model.GetUsersByIDs(ctx, db, userIDs)
+	users, err := model.GetUsersByIDs(ctx, s.Db, userIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		users = []*model.User{}
@@ -80,8 +77,8 @@ func GetUsersByIDs(ctx context.Context, db model.PgxHandle,
 	return users, nil
 }
 
-func NewUser(ctx context.Context, db model.PgxHandle,
-	email, name string, rawPass []byte,
+func (s *Service) NewUser(
+	ctx context.Context, email, name string, rawPass []byte,
 ) (*model.User, errs.Error) {
 	err := validate.VarCtx(ctx, name, "required,notblank")
 	if err != nil {
@@ -100,7 +97,7 @@ func NewUser(ctx context.Context, db model.PgxHandle,
 		return nil, errs.InvalidArgumentError("email", "bad value")
 	}
 
-	user, err := model.NewUser(ctx, db, email, name, rawPass)
+	user, err := model.NewUser(ctx, s.Db, email, name, rawPass)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -123,8 +120,8 @@ type UserUpdateValues struct {
 	WebAuthn  mo.Option[bool]
 }
 
-func UpdateUser(ctx context.Context, db model.PgxHandle,
-	userID int, euvs *UserUpdateValues,
+func (s *Service) UpdateUser(
+	ctx context.Context, userID int, euvs *UserUpdateValues,
 ) errs.Error {
 	err := validate.StructCtx(ctx, euvs)
 	if err != nil {
@@ -136,7 +133,7 @@ func UpdateUser(ctx context.Context, db model.PgxHandle,
 		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
-	err = model.UpdateUser(ctx, db, userID, &model.UserUpdateModelValues{
+	err = model.UpdateUser(ctx, s.Db, userID, &model.UserUpdateModelValues{
 		Name:      euvs.Name,
 		Email:     euvs.Email,
 		PWHash:    euvs.PWHash,
@@ -151,9 +148,15 @@ func UpdateUser(ctx context.Context, db model.PgxHandle,
 	return nil
 }
 
-func UpdateUserSettings(
-	ctx context.Context, db model.PgxHandle, userID int,
-	pm *model.UserSettings,
+func (s *Service) UpdateUserSettings(
+	ctx context.Context, userID int, pm *model.UserSettings,
+) errs.Error {
+	return s.updateUserSettings(ctx, s.Db, userID, pm)
+}
+
+func (s *Service) updateUserSettings(
+	ctx context.Context, db model.PgxHandle,
+	userID int, pm *model.UserSettings,
 ) errs.Error {
 	err := model.UpdateUserSettings(ctx, db, userID, pm)
 	if err != nil {
@@ -162,10 +165,10 @@ func UpdateUserSettings(
 	return nil
 }
 
-func DeleteUser(ctx context.Context, db model.PgxHandle,
-	userID int,
+func (s *Service) DeleteUser(
+	ctx context.Context, userID int,
 ) errs.Error {
-	err := model.DeleteUser(ctx, db, userID)
+	err := model.DeleteUser(ctx, s.Db, userID)
 	if err != nil {
 		return errs.Internal.Errorf("db error: %w", err)
 	}

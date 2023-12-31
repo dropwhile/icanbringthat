@@ -25,7 +25,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, err := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, err := x.Service.GetNotificationsCount(ctx, user.ID)
 	if err != nil {
 		x.DBError(w, err)
 		return
@@ -43,7 +43,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	notifs, _, errx := service.GetNotifcationsPaginated(ctx, x.Db, user.ID, 10, offset*10)
+	notifs, _, errx := x.Service.GetNotifcationsPaginated(ctx, user.ID, 10, offset*10)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -91,7 +91,7 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx := service.DeleteNotification(ctx, x.Db, user.ID, refID)
+	errx := x.Service.DeleteNotification(ctx, user.ID, refID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error deleting notification", "error", errx)
 		switch errx.Code() {
@@ -126,7 +126,7 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	errx := service.DeleteAllNotifications(ctx, x.Db, user.ID)
+	errx := x.Service.DeleteAllNotifications(ctx, user.ID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error deleting all notifications", "error", errx)
 		switch errx.Code() {

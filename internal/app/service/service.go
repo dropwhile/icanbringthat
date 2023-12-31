@@ -89,3 +89,12 @@ func ParseTimeZone(tz string) (*model.TimeZone, error) {
 	}
 	return &model.TimeZone{Location: loc}, nil
 }
+
+//go:generate ifacemaker -f "*.go" -s Service -i Servicer -p service -o servicer_iface.go
+type Service struct {
+	Db model.PgxHandle
+}
+
+func NewService(db model.PgxHandle) *Service {
+	return &Service{Db: db}
+}

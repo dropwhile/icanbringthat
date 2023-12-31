@@ -17,10 +17,10 @@ var (
 	ParseCredentialRefID     = reftag.Parse[model.CredentialRefID]
 )
 
-func GetUserCredentialByRefID(ctx context.Context, db model.PgxHandle,
-	refID model.CredentialRefID,
+func (s *Service) GetUserCredentialByRefID(
+	ctx context.Context, refID model.CredentialRefID,
 ) (*model.UserCredential, errs.Error) {
-	cred, err := model.GetUserCredentialByRefID(ctx, db, refID)
+	cred, err := model.GetUserCredentialByRefID(ctx, s.Db, refID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -32,9 +32,10 @@ func GetUserCredentialByRefID(ctx context.Context, db model.PgxHandle,
 	return cred, nil
 }
 
-func GetUserCredentialsByUser(ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetUserCredentialsByUser(
+	ctx context.Context, userID int,
 ) ([]*model.UserCredential, errs.Error) {
-	creds, err := model.GetUserCredentialsByUser(ctx, db, userID)
+	creds, err := model.GetUserCredentialsByUser(ctx, s.Db, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -46,19 +47,20 @@ func GetUserCredentialsByUser(ctx context.Context, db model.PgxHandle, userID in
 	return creds, nil
 }
 
-func GetUserCredentialCountByUser(ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetUserCredentialCountByUser(
+	ctx context.Context, userID int,
 ) (int, errs.Error) {
-	count, err := model.GetUserCredentialCountByUser(ctx, db, userID)
+	count, err := model.GetUserCredentialCountByUser(ctx, s.Db, userID)
 	if err != nil {
 		return 0, errs.Internal.Errorf("db error: %w", err)
 	}
 	return count, nil
 }
 
-func DeleteUserCredential(ctx context.Context, db model.PgxHandle,
-	ID int,
+func (s *Service) DeleteUserCredential(
+	ctx context.Context, ID int,
 ) errs.Error {
-	err := model.DeleteUserCredential(ctx, db, ID)
+	err := model.DeleteUserCredential(ctx, s.Db, ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}

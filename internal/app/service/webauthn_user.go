@@ -16,10 +16,6 @@ type WebAuthnUser struct {
 	db model.PgxHandle
 }
 
-func WebAuthnUserFrom(db model.PgxHandle, user *model.User) *WebAuthnUser {
-	return &WebAuthnUser{user, db}
-}
-
 // WebAuthnID provides the user handle of the user account. A user handle is an opaque byte sequence with a maximum
 // size of 64 bytes, and is not meant to be displayed to the user.
 //
@@ -97,4 +93,8 @@ func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Creden
 		return err
 	}
 	return nil
+}
+
+func (s *Service) WebAuthnUserFrom(user *model.User) *WebAuthnUser {
+	return &WebAuthnUser{user, s.Db}
 }

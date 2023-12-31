@@ -19,14 +19,13 @@ var (
 	EventItemRefIDFromBytes = reftag.FromBytes[model.EventItemRefID]
 )
 
-func GetEventItemsCount(
-	ctx context.Context, db model.PgxHandle,
-	eventIDs []int,
+func (s *Service) GetEventItemsCount(
+	ctx context.Context, eventIDs []int,
 ) ([]*model.EventItemCount, errs.Error) {
 	if len(eventIDs) == 0 {
 		return []*model.EventItemCount{}, nil
 	}
-	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, db, eventIDs)
+	eventItemCounts, err := model.GetEventItemsCountByEventIDs(ctx, s.Db, eventIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		eventItemCounts = []*model.EventItemCount{}
@@ -36,11 +35,10 @@ func GetEventItemsCount(
 	return eventItemCounts, nil
 }
 
-func GetEventItemsByEvent(
-	ctx context.Context, db model.PgxHandle,
-	refID model.EventRefID,
+func (s *Service) GetEventItemsByEvent(
+	ctx context.Context, refID model.EventRefID,
 ) ([]*model.EventItem, errs.Error) {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -48,14 +46,13 @@ func GetEventItemsByEvent(
 		return nil, errs.Internal.Error("db error")
 	}
 
-	return GetEventItemsByEventID(ctx, db, event.ID)
+	return s.GetEventItemsByEventID(ctx, event.ID)
 }
 
-func GetEventItemsByEventID(
-	ctx context.Context, db model.PgxHandle,
-	eventID int,
+func (s *Service) GetEventItemsByEventID(
+	ctx context.Context, eventID int,
 ) ([]*model.EventItem, errs.Error) {
-	items, err := model.GetEventItemsByEvent(ctx, db, eventID)
+	items, err := model.GetEventItemsByEvent(ctx, s.Db, eventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		items = []*model.EventItem{}
@@ -65,13 +62,13 @@ func GetEventItemsByEventID(
 	return items, nil
 }
 
-func GetEventItemsByIDs(ctx context.Context, db model.PgxHandle,
-	eventItemIDs []int,
+func (s *Service) GetEventItemsByIDs(
+	ctx context.Context, eventItemIDs []int,
 ) ([]*model.EventItem, errs.Error) {
 	if len(eventItemIDs) == 0 {
 		return []*model.EventItem{}, nil
 	}
-	items, err := model.GetEventItemsByIDs(ctx, db, eventItemIDs)
+	items, err := model.GetEventItemsByIDs(ctx, s.Db, eventItemIDs)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		items = []*model.EventItem{}
@@ -81,11 +78,10 @@ func GetEventItemsByIDs(ctx context.Context, db model.PgxHandle,
 	return items, nil
 }
 
-func GetEventItem(
-	ctx context.Context, db model.PgxHandle,
-	eventItemRefID model.EventItemRefID,
+func (s *Service) GetEventItem(
+	ctx context.Context, eventItemRefID model.EventItemRefID,
 ) (*model.EventItem, errs.Error) {
-	eventItem, err := model.GetEventItemByRefID(ctx, db, eventItemRefID)
+	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event-item not found")
@@ -95,11 +91,10 @@ func GetEventItem(
 	return eventItem, nil
 }
 
-func GetEventItemByID(
-	ctx context.Context, db model.PgxHandle,
-	eventItemID int,
+func (s *Service) GetEventItemByID(
+	ctx context.Context, eventItemID int,
 ) (*model.EventItem, errs.Error) {
-	eventItem, err := model.GetEventItemByID(ctx, db, eventItemID)
+	eventItem, err := model.GetEventItemByID(ctx, s.Db, eventItemID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event-item not found")
@@ -109,12 +104,11 @@ func GetEventItemByID(
 	return eventItem, nil
 }
 
-func RemoveEventItem(
-	ctx context.Context, db model.PgxHandle, userID int,
-	eventItemRefID model.EventItemRefID,
+func (s *Service) RemoveEventItem(
+	ctx context.Context, userID int, eventItemRefID model.EventItemRefID,
 	failIfChecks func(*model.EventItem) bool,
 ) errs.Error {
-	eventItem, err := model.GetEventItemByRefID(ctx, db, eventItemRefID)
+	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, eventItemRefID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event-item not found")
@@ -126,7 +120,7 @@ func RemoveEventItem(
 		return errs.FailedPrecondition.Error("extra checks failed")
 	}
 
-	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
+	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
@@ -147,15 +141,15 @@ func RemoveEventItem(
 		return errs.NotFound.Error("event-item not found")
 	}
 
-	err = model.DeleteEventItem(ctx, db, eventItem.ID)
+	err = model.DeleteEventItem(ctx, s.Db, eventItem.ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
 	return nil
 }
 
-func AddEventItem(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) AddEventItem(
+	ctx context.Context, userID int,
 	refID model.EventRefID, description string,
 ) (*model.EventItem, errs.Error) {
 	err := validate.VarCtx(ctx, description, "required,notblank")
@@ -167,7 +161,7 @@ func AddEventItem(
 		return nil, errs.InvalidArgumentError("description", "bad value")
 	}
 
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -183,7 +177,7 @@ func AddEventItem(
 		return nil, errs.PermissionDenied.Error("event is archived")
 	}
 
-	eventItem, err := model.NewEventItem(ctx, db, event.ID, description)
+	eventItem, err := model.NewEventItem(ctx, s.Db, event.ID, description)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
@@ -191,8 +185,8 @@ func AddEventItem(
 	return eventItem, nil
 }
 
-func UpdateEventItem(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) UpdateEventItem(
+	ctx context.Context, userID int,
 	refID model.EventItemRefID, description string,
 	failIfChecks func(*model.EventItem) bool,
 ) (*model.EventItem, errs.Error) {
@@ -205,7 +199,7 @@ func UpdateEventItem(
 		return nil, errs.InvalidArgumentError("description", "bad value")
 	}
 
-	eventItem, err := model.GetEventItemByRefID(ctx, db, refID)
+	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event-item not found")
@@ -217,7 +211,7 @@ func UpdateEventItem(
 		return nil, errs.FailedPrecondition.Error("extra checks failed")
 	}
 
-	event, err := model.GetEventByID(ctx, db, eventItem.EventID)
+	event, err := model.GetEventByID(ctx, s.Db, eventItem.EventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -235,7 +229,7 @@ func UpdateEventItem(
 
 	// check if earmark exists, and is marked by someone else
 	// if so, disallow editing in that case.
-	earmark, err := model.GetEarmarkByEventItem(ctx, db, eventItem.ID)
+	earmark, err := model.GetEarmarkByEventItem(ctx, s.Db, eventItem.ID)
 	switch {
 	case err != nil && !errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.Internal.Error("db error")
@@ -248,7 +242,7 @@ func UpdateEventItem(
 	}
 
 	eventItem.Description = description
-	err = model.UpdateEventItem(ctx, db, eventItem.ID, eventItem.Description)
+	err = model.UpdateEventItem(ctx, s.Db, eventItem.ID, eventItem.Description)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}

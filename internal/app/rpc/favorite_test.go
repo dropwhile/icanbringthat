@@ -36,9 +36,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -89,9 +87,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{
-			Db: mock,
-		}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -148,7 +144,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -212,7 +208,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -249,7 +245,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -301,7 +297,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateFavoriteRequest{
@@ -333,7 +329,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -392,7 +388,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveFavoriteRequest{
@@ -409,7 +405,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := &Server{Db: mock}
+		server := NewTestServer(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/session"
 )
@@ -39,13 +39,17 @@ func IsLoggedIn(ctx context.Context) bool {
 	return ok && v != nil
 }
 
-func Load(db model.PgxHandle, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+type GetUserProvider interface {
+	GetUserByID(context.Context, int) (*model.User, errs.Error)
+}
+
+func Load(up GetUserProvider, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			userID := sessMgr.GetInt(ctx, "user-id")
 			if userID != 0 {
-				user, err := service.GetUserByID(ctx, db, userID)
+				user, err := up.GetUserByID(ctx, userID)
 				if err != nil {
 					slog.InfoContext(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)

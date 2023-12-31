@@ -20,10 +20,10 @@ var (
 	ParseUserVerifyRefID     = reftag.Parse[model.UserVerifyRefID]
 )
 
-func GetUserVerifyByRefID(ctx context.Context, db model.PgxHandle,
-	refID model.UserVerifyRefID,
+func (s *Service) GetUserVerifyByRefID(
+	ctx context.Context, refID model.UserVerifyRefID,
 ) (*model.UserVerify, errs.Error) {
-	verify, err := model.GetUserVerifyByRefID(ctx, db, refID)
+	verify, err := model.GetUserVerifyByRefID(ctx, s.Db, refID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -35,20 +35,20 @@ func GetUserVerifyByRefID(ctx context.Context, db model.PgxHandle,
 	return verify, nil
 }
 
-func NewUserVerify(ctx context.Context, db model.PgxHandle,
-	user *model.User,
+func (s *Service) NewUserVerify(
+	ctx context.Context, user *model.User,
 ) (*model.UserVerify, errs.Error) {
-	verify, err := model.NewUserVerify(ctx, db, user)
+	verify, err := model.NewUserVerify(ctx, s.Db, user)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return verify, nil
 }
 
-func SetUserVerified(ctx context.Context, db model.PgxHandle,
-	user *model.User, verifier *model.UserVerify,
+func (s *Service) SetUserVerified(
+	ctx context.Context, user *model.User, verifier *model.UserVerify,
 ) errs.Error {
-	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
+	errx := TxnFunc(ctx, s.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
 			&model.UserUpdateModelValues{
 				Verified: mo.Some(user.Verified),

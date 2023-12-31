@@ -22,11 +22,11 @@ func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
 	return out
 }
 
-func ToPbListWithDb[T any, V any](converter func(model.PgxHandle, *T) (*V, error), db model.PgxHandle, in []*T) ([]*V, error) {
+func ToPbListWithService[T any, V any](converter func(service.Servicer, *T) (*V, error), svc service.Servicer, in []*T) ([]*V, error) {
 	out := make([]*V, len(in))
 	var err error
 	for i := range in {
-		out[i], err = converter(db, in[i])
+		out[i], err = converter(svc, in[i])
 		if err != nil {
 			break
 		}
@@ -46,18 +46,18 @@ func TimeToTimestampTZ(t time.Time) *icbt.TimestampTZ {
 	return pbtz
 }
 
-func ToPbEarmark(db model.PgxHandle, src *model.Earmark) (dst *icbt.Earmark, err error) {
+func ToPbEarmark(svc service.Servicer, src *model.Earmark) (dst *icbt.Earmark, err error) {
 	dst = &icbt.Earmark{}
 	dst.RefId = src.RefID.String()
 	dst.Note = src.Note
 	dst.Created = TimeToTimestamp(src.Created)
 
 	ctx := context.Background()
-	eventItem, err := service.GetEventItemByID(ctx, db, src.EventItemID)
+	eventItem, err := svc.GetEventItemByID(ctx, src.EventItemID)
 	if err != nil {
 		return nil, err
 	}
-	emUser, err := service.GetUserByID(ctx, db, src.UserID)
+	emUser, err := svc.GetUserByID(ctx, src.UserID)
 	if err != nil {
 		return nil, err
 	}

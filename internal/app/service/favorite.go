@@ -11,11 +11,10 @@ import (
 	"github.com/dropwhile/icbt/internal/errs"
 )
 
-func AddFavorite(
-	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID,
+func (s *Service) AddFavorite(
+	ctx context.Context, userID int, refID model.EventRefID,
 ) (*model.Event, errs.Error) {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("event not found")
@@ -29,12 +28,12 @@ func AddFavorite(
 	}
 
 	// check if favorite already exists
-	_, err = model.GetFavoriteByUserEvent(ctx, db, userID, event.ID)
+	_, err = model.GetFavoriteByUserEvent(ctx, s.Db, userID, event.ID)
 	if err == nil {
 		return nil, errs.AlreadyExists.Error("favorite already exists")
 	}
 
-	_, err = model.CreateFavorite(ctx, db, userID, event.ID)
+	_, err = model.CreateFavorite(ctx, s.Db, userID, event.ID)
 	if err != nil {
 		slog.Error("db error", "error", err)
 		return nil, errs.Internal.Error("db error")
@@ -43,11 +42,10 @@ func AddFavorite(
 	return event, nil
 }
 
-func RemoveFavorite(
-	ctx context.Context, db model.PgxHandle, userID int,
-	refID model.EventRefID,
+func (s *Service) RemoveFavorite(
+	ctx context.Context, userID int, refID model.EventRefID,
 ) errs.Error {
-	event, err := model.GetEventByRefID(ctx, db, refID)
+	event, err := model.GetEventByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("event not found")
@@ -55,7 +53,7 @@ func RemoveFavorite(
 		return errs.Internal.Error("db error")
 	}
 
-	favorite, err := model.GetFavoriteByUserEvent(ctx, db, userID, event.ID)
+	favorite, err := model.GetFavoriteByUserEvent(ctx, s.Db, userID, event.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return errs.NotFound.Error("favorite not found")
@@ -68,18 +66,18 @@ func RemoveFavorite(
 		return errs.PermissionDenied.Error("permission denied")
 	}
 
-	err = model.DeleteFavorite(ctx, db, favorite.ID)
+	err = model.DeleteFavorite(ctx, s.Db, favorite.ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
 	return nil
 }
 
-func GetFavoriteEventsPaginated(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetFavoriteEventsPaginated(
+	ctx context.Context, userID int,
 	limit, offset int, archived bool,
 ) ([]*model.Event, *Pagination, errs.Error) {
-	favCount, errx := GetFavoriteEventsCount(ctx, db, userID)
+	favCount, errx := s.GetFavoriteEventsCount(ctx, userID)
 	if errx != nil {
 		return nil, nil, errs.Internal.Error("db error")
 	}
@@ -91,7 +89,7 @@ func GetFavoriteEventsPaginated(
 	events := []*model.Event{}
 	if count > 0 {
 		favs, err := model.GetFavoriteEventsByUserPaginatedFiltered(
-			ctx, db, userID, limit, offset, archived)
+			ctx, s.Db, userID, limit, offset, archived)
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			favs = []*model.Event{}
@@ -109,32 +107,30 @@ func GetFavoriteEventsPaginated(
 	return events, pagination, nil
 }
 
-func GetFavoriteEventsCount(
-	ctx context.Context, db model.PgxHandle, userID int,
+func (s *Service) GetFavoriteEventsCount(
+	ctx context.Context, userID int,
 ) (*model.BifurcatedRowCounts, errs.Error) {
-	favCount, err := model.GetFavoriteCountByUser(ctx, db, userID)
+	favCount, err := model.GetFavoriteCountByUser(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return favCount, nil
 }
 
-func GetFavoriteEvents(
-	ctx context.Context, db model.PgxHandle, userID int,
-	archived bool,
+func (s *Service) GetFavoriteEvents(
+	ctx context.Context, userID int, archived bool,
 ) ([]*model.Event, errs.Error) {
-	events, err := model.GetFavoriteEventsByUserFiltered(ctx, db, userID, archived)
+	events, err := model.GetFavoriteEventsByUserFiltered(ctx, s.Db, userID, archived)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return events, nil
 }
 
-func GetFavoriteByUserEvent(
-	ctx context.Context, db model.PgxHandle, userID int,
-	eventID int,
+func (s *Service) GetFavoriteByUserEvent(
+	ctx context.Context, userID int, eventID int,
 ) (*model.Favorite, errs.Error) {
-	favorite, err := model.GetFavoriteByUserEvent(ctx, db, userID, eventID)
+	favorite, err := model.GetFavoriteByUserEvent(ctx, s.Db, userID, eventID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("favorite not found")

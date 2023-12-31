@@ -33,8 +33,8 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
 
-		favs, pagination, errx := service.GetFavoriteEventsPaginated(
-			ctx, s.Db, user.ID, limit, offset, showArchived)
+		favs, pagination, errx := s.Service.GetFavoriteEventsPaginated(
+			ctx, user.ID, limit, offset, showArchived)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
@@ -46,8 +46,8 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 			Count:  uint32(pagination.Count),
 		}
 	} else {
-		favs, errx := service.GetFavoriteEvents(
-			ctx, s.Db, user.ID, showArchived)
+		favs, errx := s.Service.GetFavoriteEvents(
+			ctx, user.ID, showArchived)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
@@ -75,7 +75,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
-	errx := service.RemoveFavorite(ctx, s.Db, user.ID, refID)
+	errx := s.Service.RemoveFavorite(ctx, user.ID, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
@@ -97,7 +97,7 @@ func (s *Server) AddFavorite(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
-	favorite, errx := service.AddFavorite(ctx, s.Db, user.ID, refID)
+	favorite, errx := s.Service.AddFavorite(ctx, user.ID, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

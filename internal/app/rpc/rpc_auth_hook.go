@@ -6,12 +6,15 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
-func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error) {
+type GetUserProvider interface {
+	GetUserByApiKey(context.Context, string) (*model.User, errs.Error)
+}
+
+func AuthHook(up GetUserProvider) func(context.Context) (context.Context, error) {
 	return func(ctx context.Context) (context.Context, error) {
 		// get apikey from context
 		apiKey, ok := auth.ContextGet[string](ctx, "api-key")
@@ -21,7 +24,7 @@ func AuthHook(db model.PgxHandle) func(context.Context) (context.Context, error)
 		}
 
 		// lookup user
-		user, errx := service.GetUserByApiKey(ctx, db, apiKey)
+		user, errx := up.GetUserByApiKey(ctx, apiKey)
 		switch {
 		case errx != nil && errx.Code() != errs.NotFound:
 			return ctx, twirp.Internal.Error("db error")

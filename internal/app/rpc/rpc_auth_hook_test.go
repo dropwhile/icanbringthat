@@ -11,6 +11,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
@@ -22,8 +23,9 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
+		svc := &service.Service{Db: mock}
 
-		_, err := AuthHook(mock)(ctx)
+		_, err := AuthHook(svc)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -34,13 +36,14 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
+		svc := &service.Service{Db: mock}
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs("user-123").
 			WillReturnError(pgx.ErrNoRows)
 
-		_, err := AuthHook(mock)(ctx)
+		_, err := AuthHook(svc)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -51,6 +54,7 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
+		svc := &service.Service{Db: mock}
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
@@ -67,7 +71,7 @@ func TestRpc_AuthHook(t *testing.T) {
 				),
 			)
 
-		_, err := AuthHook(mock)(ctx)
+		_, err := AuthHook(svc)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -78,6 +82,7 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
+		svc := &service.Service{Db: mock}
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
@@ -95,7 +100,7 @@ func TestRpc_AuthHook(t *testing.T) {
 				),
 			)
 
-		_, err := AuthHook(mock)(ctx)
+		_, err := AuthHook(svc)(ctx)
 		assertTwirpError(t, err, twirp.Unauthenticated, "account not verified")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -106,6 +111,7 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
+		svc := &service.Service{Db: mock}
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
@@ -123,7 +129,7 @@ func TestRpc_AuthHook(t *testing.T) {
 				),
 			)
 
-		ctx, err := AuthHook(mock)(ctx)
+		ctx, err := AuthHook(svc)(ctx)
 		assert.NilError(t, err)
 		_, ok := auth.ContextGet[*model.User](ctx, "user")
 		assert.Check(t, ok, "user is a *mode.user")

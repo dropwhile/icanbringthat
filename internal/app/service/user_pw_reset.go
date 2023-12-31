@@ -20,10 +20,10 @@ var (
 	ParseUserPWResetRefID     = reftag.Parse[model.UserPWResetRefID]
 )
 
-func GetUserPWResetByRefID(ctx context.Context, db model.PgxHandle,
-	refID model.UserPWResetRefID,
+func (s *Service) GetUserPWResetByRefID(
+	ctx context.Context, refID model.UserPWResetRefID,
 ) (*model.UserPWReset, errs.Error) {
-	pwreset, err := model.GetUserPWResetByRefID(ctx, db, refID)
+	pwreset, err := model.GetUserPWResetByRefID(ctx, s.Db, refID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -35,20 +35,20 @@ func GetUserPWResetByRefID(ctx context.Context, db model.PgxHandle,
 	return pwreset, nil
 }
 
-func NewUserPWReset(ctx context.Context, db model.PgxHandle,
-	userID int,
+func (s *Service) NewUserPWReset(
+	ctx context.Context, userID int,
 ) (*model.UserPWReset, errs.Error) {
-	pwreset, err := model.NewUserPWReset(ctx, db, userID)
+	pwreset, err := model.NewUserPWReset(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
 	return pwreset, nil
 }
 
-func UpdateUserPWReset(ctx context.Context, db model.PgxHandle,
-	user *model.User, upw *model.UserPWReset,
+func (s *Service) UpdateUserPWReset(
+	ctx context.Context, user *model.User, upw *model.UserPWReset,
 ) errs.Error {
-	errx := TxnFunc(ctx, db, func(tx pgx.Tx) error {
+	errx := TxnFunc(ctx, s.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
 			&model.UserUpdateModelValues{PWHash: mo.Some(user.PWHash)},
 		)

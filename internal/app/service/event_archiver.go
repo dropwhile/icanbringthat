@@ -6,7 +6,6 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 )
 
-func ArchiveOldEvents(db model.PgxHandle) error {
-	ctx := context.Background()
-	return model.ArchiveOldEvents(ctx, db)
+func (s *Service) ArchiveOldEvents(ctx context.Context) error {
+	return model.ArchiveOldEvents(ctx, s.Db)
 }

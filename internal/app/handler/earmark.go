@@ -30,13 +30,13 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := service.GetNotificationsCount(ctx, x.Db, user.ID)
+	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	earmarkCount, errx := service.GetEarmarksCount(ctx, x.Db, user.ID)
+	earmarkCount, errx := x.Service.GetEarmarksCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -64,8 +64,8 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	earmarks, _, errx := service.GetEarmarksPaginated(
-		ctx, x.Db, user.ID, 10, offset, archived,
+	earmarks, _, errx := x.Service.GetEarmarksPaginated(
+		ctx, user.ID, 10, offset, archived,
 	)
 	if errx != nil {
 		x.DBError(w, errx)
@@ -75,7 +75,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventItemIDs := util.ToListByFunc(earmarks, func(em *model.Earmark) int {
 		return em.EventItemID
 	})
-	eventItems, errx := service.GetEventItemsByIDs(ctx, x.Db, eventItemIDs)
+	eventItems, errx := x.Service.GetEventItemsByIDs(ctx, eventItemIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -84,7 +84,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(eventItems, func(e *model.EventItem) int {
 		return e.EventID
 	})
-	events, errx := service.GetEventsByIDs(ctx, x.Db, eventIDs)
+	events, errx := x.Service.GetEventsByIDs(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -153,7 +153,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
+	event, errx := x.Service.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -164,7 +164,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
+	eventItem, errx := x.Service.GetEventItem(ctx, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -220,7 +220,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check to ensure routing param exists for event
-	event, errx := service.GetEvent(ctx, x.Db, eventRefID)
+	event, errx := x.Service.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -232,7 +232,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check to ensure routing param exists for event-item
-	eventItem, errx := service.GetEventItem(ctx, x.Db, eventItemRefID)
+	eventItem, errx := x.Service.GetEventItem(ctx, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -262,7 +262,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// ok for note to be empty
 	note := r.FormValue("note")
 
-	_, errx = service.NewEarmark(ctx, x.Db, user, eventItem.ID, note)
+	_, errx = x.Service.NewEarmark(ctx, user, eventItem.ID, note)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.PermissionDenied:
@@ -300,7 +300,7 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx := service.DeleteEarmarkByRefID(ctx, x.Db, user.ID, refID)
+	errx := x.Service.DeleteEarmarkByRefID(ctx, user.ID, refID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:

@@ -10,6 +10,9 @@ import (
 	"github.com/pashagolub/pgxmock/v3"
 	pg_query "github.com/pganalyze/pg_query_go/v4"
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 )
 
 func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
@@ -44,4 +47,11 @@ func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
 	t.Cleanup(func() { _ = mock.Close(ctx) })
 	assert.NilError(t, err)
 	return mock
+}
+
+func NewTestServer(db model.PgxHandle) *Server {
+	return &Server{
+		Db:      db,
+		Service: service.NewService(db),
+	}
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -82,10 +83,11 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		Mailer:    &TestMailer{make([]*mail.Mail, 0)},
 		MAC:       crypto.NewMAC([]byte("test-hmac-key")),
 		BaseURL:   "http://example.com",
+		Service:   &service.Service{Db: mock},
 	}
 	mux := chi.NewMux()
 	mux.Use(h.SessMgr.LoadAndSave)
-	mux.Use(auth.Load(h.Db, h.SessMgr))
+	mux.Use(auth.Load(h.Service, h.SessMgr))
 	return mock, mux, h
 }
 

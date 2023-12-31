@@ -11,6 +11,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -24,8 +25,28 @@ type Handler struct {
 	SessMgr   *session.SessionMgr
 	Mailer    mail.MailSender
 	MAC       *crypto.MAC
+	Service   service.Servicer
 	BaseURL   string
 	IsProd    bool
+}
+
+func NewHandler(
+	db model.PgxHandle, redis *redis.Client, templates resources.TGetter,
+	sessmgr *session.SessionMgr, mailer mail.MailSender, mac *crypto.MAC,
+	baseURL string, isProd bool,
+) *Handler {
+	handler := &Handler{
+		Db:        db,
+		Redis:     redis,
+		Templates: templates,
+		SessMgr:   sessmgr,
+		Mailer:    mailer,
+		MAC:       mac,
+		Service:   &service.Service{Db: db},
+		BaseURL:   baseURL,
+		IsProd:    isProd,
+	}
+	return handler
 }
 
 func (x *Handler) Template(name string) (resources.TemplateIf, error) {
