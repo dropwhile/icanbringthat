@@ -54,14 +54,14 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
+	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
-	authNUser := x.Service.WebAuthnUserFrom(user)
+	authNUser := x.service.WebAuthnUserFrom(user)
 
 	// exclude any existing credentials so the user can't accidentally
 	// reregister the same device twice
@@ -109,7 +109,7 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
-	x.SessMgr.Put(ctx, "webauthn-session:register", val)
+	x.sessMgr.Put(ctx, "webauthn-session:register", val)
 	x.Json(w, http.StatusOK, options)
 }
 
@@ -123,14 +123,14 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
+	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
 		return
 	}
 
-	authNUser := x.Service.WebAuthnUserFrom(user)
+	authNUser := x.service.WebAuthnUserFrom(user)
 
 	keyName := r.FormValue("key_name")
 	if keyName == "" {
@@ -140,7 +140,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 	}
 
 	var sessionData webauthn.SessionData
-	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:register").([]byte)
+	sessionBytes := x.sessMgr.Pop(ctx, "webauthn-session:register").([]byte)
 	if err := json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		slog.InfoContext(ctx, "error decoding json webauthn session",
 			"error", err)
@@ -176,7 +176,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
+	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
@@ -205,7 +205,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	x.SessMgr.Put(ctx, "webauthn-session:login", val)
+	x.sessMgr.Put(ctx, "webauthn-session:login", val)
 	x.Json(w, http.StatusOK, options)
 }
 
@@ -220,7 +220,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.IsProd, x.BaseURL)
+	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
@@ -230,7 +230,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sessionData webauthn.SessionData
-	sessionBytes := x.SessMgr.Pop(ctx, "webauthn-session:login").([]byte)
+	sessionBytes := x.sessMgr.Pop(ctx, "webauthn-session:login").([]byte)
 	if err = json.Unmarshal(sessionBytes, &sessionData); err != nil {
 		slog.ErrorContext(ctx, "error decoding json webauthn session", "error", err)
 		x.Json(w, http.StatusBadRequest,
@@ -249,7 +249,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return nil, fmt.Errorf("bad user id: %w", err)
 		}
-		user, errx := x.Service.GetUser(ctx, refID)
+		user, errx := x.service.GetUser(ctx, refID)
 		if errx != nil || user == nil {
 			return nil, fmt.Errorf("could not find user: %w", err)
 		}
@@ -258,7 +258,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		// capture userID for session login operation after auth success
 		userID = user.ID
-		authNUser := x.Service.WebAuthnUserFrom(user)
+		authNUser := x.service.WebAuthnUserFrom(user)
 		return authNUser, nil
 	}
 	_, err = authnInstance.FinishDiscoverableLogin(handler, sessionData, r)
@@ -271,14 +271,14 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = x.SessMgr.RenewToken(ctx)
+	err = x.sessMgr.RenewToken(ctx)
 	if err != nil {
 		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", userID)
-	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
+	x.sessMgr.Put(r.Context(), "user-id", userID)
+	x.sessMgr.FlashAppend(ctx, "success", "Login successful")
 	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
@@ -298,7 +298,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credential, errx := x.Service.GetUserCredentialByRefID(ctx, credentialRefID)
+	credential, errx := x.service.GetUserCredentialByRefID(ctx, credentialRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -315,7 +315,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, errx := x.Service.GetUserCredentialCountByUser(ctx, user.ID)
+	count, errx := x.service.GetUserCredentialCountByUser(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -327,7 +327,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = x.Service.DeleteUserCredential(ctx, credential.ID)
+	errx = x.service.DeleteUserCredential(ctx, credential.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return

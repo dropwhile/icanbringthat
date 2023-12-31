@@ -26,7 +26,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
-		notifs, pagination, errx := s.Service.GetNotifcationsPaginated(ctx, user.ID, limit, offset)
+		notifs, pagination, errx := s.service.GetNotifcationsPaginated(ctx, user.ID, limit, offset)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
@@ -38,7 +38,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 			Count:  pagination.Count,
 		}
 	} else {
-		notifs, errx := s.Service.GetNotifications(ctx, user.ID)
+		notifs, errx := s.service.GetNotifications(ctx, user.ID)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
@@ -67,7 +67,7 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
 	}
 
-	errx := s.Service.DeleteNotification(ctx, user.ID, refID)
+	errx := s.service.DeleteNotification(ctx, user.ID, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
@@ -85,7 +85,7 @@ func (s *Server) DeleteAllNotifications(ctx context.Context,
 		return nil, twirp.Unauthenticated.Error("invalid credentials")
 	}
 
-	errx := s.Service.DeleteAllNotifications(ctx, user.ID)
+	errx := s.service.DeleteAllNotifications(ctx, user.ID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

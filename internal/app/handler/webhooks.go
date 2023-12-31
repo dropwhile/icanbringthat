@@ -68,7 +68,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	slog.DebugContext(ctx,
 		"disabling reminders due to postmark callback",
 		"postmark", pm)
-	errx := x.Service.DisableRemindersWithNotification(
+	errx := x.service.DisableRemindersWithNotification(
 		ctx, pm.Recipient, pm.SuppressionReason,
 	)
 	if errx != nil {

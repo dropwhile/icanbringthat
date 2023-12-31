@@ -9,17 +9,10 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
-var tstTs time.Time = MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
-
-func MustParseTime(layout, value string) time.Time {
-	ts, err := time.Parse(layout, value)
-	if err != nil {
-		panic(err)
-	}
-	return ts
-}
+var tstTs time.Time = util.MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
 
 func assertTwirpError(t *testing.T, err error, code twirp.ErrorCode, msg string, meta ...map[string]string) {
 	t.Helper()

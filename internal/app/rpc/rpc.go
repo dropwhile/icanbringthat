@@ -13,14 +13,39 @@ import (
 )
 
 type Server struct {
-	Db        model.PgxHandle
-	Redis     *redis.Client
-	Templates resources.TGetter
-	Mailer    mail.MailSender
-	MAC       *crypto.MAC
-	Service   service.Servicer
-	BaseURL   string
-	IsProd    bool
+	redis     *redis.Client
+	templates resources.TGetter
+	mailer    mail.MailSender
+	cMAC      crypto.HMACer
+	service   service.Servicer
+	baseURL   string
+	isProd    bool
+}
+
+type Options struct {
+	Db           model.PgxHandle
+	Redis        *redis.Client
+	Templates    resources.TGetter
+	Mailer       mail.MailSender
+	HMACKeyBytes []byte
+	BaseURL      string
+	IsProd       bool
+}
+
+func New(opts Options) *Server {
+	cMAC := crypto.NewMAC(opts.HMACKeyBytes)
+	svr := &Server{
+		redis:     opts.Redis,
+		templates: opts.Templates,
+		mailer:    opts.Mailer,
+		cMAC:      cMAC,
+		service: &service.Service{
+			Db: opts.Db,
+		},
+		baseURL: opts.BaseURL,
+		isProd:  opts.IsProd,
+	}
+	return svr
 }
 
 func (s *Server) GenHandler(prefix string) icbt.TwirpServer {
@@ -29,28 +54,9 @@ func (s *Server) GenHandler(prefix string) icbt.TwirpServer {
 		twirp.WithServerPathPrefix(prefix),
 		twirp.WithServerHooks(
 			&twirp.ServerHooks{
-				RequestReceived: AuthHook(s.Service),
+				RequestReceived: AuthHook(s.service),
 			},
 		),
 	)
 	return twirpHandler
-}
-
-func NewServer(
-	db model.PgxHandle, redis *redis.Client, templates resources.TGetter,
-	mailer mail.MailSender, mac *crypto.MAC, baseURL string, isProd bool,
-) *Server {
-	svr := &Server{
-		Db:        db,
-		Redis:     redis,
-		Templates: templates,
-		Mailer:    mailer,
-		MAC:       mac,
-		Service: &service.Service{
-			Db: db,
-		},
-		BaseURL: baseURL,
-		IsProd:  isProd,
-	}
-	return svr
 }

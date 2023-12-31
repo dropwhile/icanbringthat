@@ -20,31 +20,31 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	eventCount, errx := x.Service.GetEventsCount(ctx, user.ID)
+	eventCount, errx := x.service.GetEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	earmarkCount, errx := x.Service.GetEarmarksCount(ctx, user.ID)
+	earmarkCount, errx := x.service.GetEarmarksCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	favoriteCount, errx := x.Service.GetFavoriteEventsCount(ctx, user.ID)
+	favoriteCount, errx := x.service.GetFavoriteEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	events, _, errx := x.Service.GetEventsComingSoonPaginated(ctx, user.ID, 10, 0)
+	events, _, errx := x.service.GetEventsComingSoonPaginated(ctx, user.ID, 10, 0)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -53,7 +53,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
+	eventItemCounts, errx := x.service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -76,7 +76,7 @@ func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
 		"favoriteCount":   favoriteCount,
 		"eventItemCounts": eventItemCountsMap,
 		"notifCount":      notifCount,
-		"flashes":         x.SessMgr.FlashPopAll(ctx),
+		"flashes":         x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
 	}

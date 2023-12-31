@@ -15,7 +15,6 @@ import (
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/app/service"
-	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/middleware/debug"
@@ -42,26 +41,36 @@ func (app *App) OnClose(f func()) {
 }
 
 func New(
-	db *pgxpool.Pool,
+	dbpool *pgxpool.Pool,
 	rdb *redis.Client,
 	templates resources.TGetter,
 	mailer *mail.Mailer,
 	conf *Config,
-) *App {
+) (*App, error) {
+	db := model.SetupFromDbPool(dbpool)
 	service := service.NewService(db)
-	zh := &handler.Handler{
-		Db:        model.SetupFromDbPool(db),
-		Redis:     rdb,
-		Templates: templates,
-		SessMgr:   session.NewRedisSessionManager(rdb, conf.Production),
-		Mailer:    mailer,
-		MAC:       crypto.NewMAC(conf.HMACKeyBytes),
-		BaseURL:   strings.TrimSuffix(conf.BaseURL, "/"),
-		IsProd:    conf.Production,
+	baseURL := strings.TrimSuffix(conf.BaseURL, "/")
+	isProd := conf.Production
+	sessMgr := session.NewRedisSessionManager(rdb, conf.Production)
+
+	zh, err := handler.New(
+		handler.Options{
+			Db:           db,
+			Redis:        rdb,
+			Templates:    templates,
+			SessMgr:      sessMgr,
+			Mailer:       mailer,
+			HMACKeyBytes: conf.HMACKeyBytes,
+			BaseURL:      baseURL,
+			IsProd:       isProd,
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	app := &App{Mux: chi.NewRouter(), handler: zh}
-	app.OnClose(zh.SessMgr.Close)
+	app.OnClose(sessMgr.Close)
 
 	// Router/Middleware //
 	r := app.Mux
@@ -79,7 +88,7 @@ func New(
 	// nest so session and csrf middlewares are not used by
 	// any static routes added onto the handler later
 	r.Group(func(r chi.Router) {
-		r.Use(zh.SessMgr.LoadAndSave)
+		r.Use(sessMgr.LoadAndSave)
 		r.Use(csrf.Protect(
 			conf.CSRFKeyBytes,
 			// false in development only!
@@ -89,7 +98,7 @@ func New(
 			// Must be in CORS Allowed and Exposed Headers
 			csrf.RequestHeader("X-CSRF-Token"),
 		))
-		r.Use(auth.Load(service, zh.SessMgr))
+		r.Use(auth.Load(service, sessMgr))
 
 		// Routing //
 		// Protected routes
@@ -181,8 +190,16 @@ func New(
 
 	if conf.RpcApi {
 		// rpc api
-		rpcServer := rpc.NewServer(
-			zh.Db, zh.Redis, zh.Templates, zh.Mailer, zh.MAC, zh.BaseURL, zh.IsProd,
+		rpcServer := rpc.New(
+			rpc.Options{
+				Db:           db,
+				Redis:        rdb,
+				Templates:    templates,
+				Mailer:       mailer,
+				HMACKeyBytes: conf.HMACKeyBytes,
+				BaseURL:      baseURL,
+				IsProd:       isProd,
+			},
 		)
 		r.Route(TwirpPrefix, func(r chi.Router) {
 			// add auth token middleware here instead,
@@ -195,5 +212,5 @@ func New(
 		})
 	}
 
-	return app
+	return app, nil
 }

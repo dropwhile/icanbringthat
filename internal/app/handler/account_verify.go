@@ -29,7 +29,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// generate a verifier
-	uv, errx := x.Service.NewUserVerify(ctx, user)
+	uv, errx := x.service.NewUserVerify(ctx, user)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -37,11 +37,11 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	uvRefIDStr := uv.RefID.String()
 
 	// generate hmac
-	macBytes := x.MAC.Generate([]byte(uvRefIDStr))
+	macBytes := x.cMAC.Generate([]byte(uvRefIDStr))
 	// base32 encode hmac
 	macStr := encoder.Base32EncodeToString(macBytes)
 
-	verificationUrl, err := url.JoinPath(x.BaseURL, fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
+	verificationUrl, err := url.JoinPath(x.baseURL, fmt.Sprintf("/verify/%s-%s", uvRefIDStr, macStr))
 	if err != nil {
 		x.InternalServerError(w, "processing error")
 		return
@@ -81,13 +81,13 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	)
 
 	_ = user
-	x.Mailer.SendAsync("", []string{user.Email},
+	x.mailer.SendAsync("", []string{user.Email},
 		subject, messagePlain, messageHtml,
 		mail.MailHeader{
 			"X-PM-Message-Stream": "outbound",
 		},
 	)
-	x.SessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
+	x.sessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
 	if htmx.Hx(r).Request() {
 		w.Header().Add("HX-Refresh", "true")
 		w.WriteHeader(200)
@@ -122,7 +122,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.cMAC.Validate([]byte(refIDStr), hmacBytes) {
 		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -135,7 +135,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verifier, errx := x.Service.GetUserVerifyByRefID(ctx, verifyRefID)
+	verifier, errx := x.service.GetUserVerifyByRefID(ctx, verifyRefID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no verifier match", logger.Err(errx))
 		x.NotFoundError(w)
@@ -149,13 +149,13 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Verified = true
-	errx = x.Service.SetUserVerified(ctx, user, verifier)
+	errx = x.service.SetUserVerified(ctx, user, verifier)
 	if errx != nil {
 		slog.DebugContext(ctx, "error saving verification", logger.Err(errx))
 		x.InternalServerError(w, errx.Msg())
 		return
 	}
 
-	x.SessMgr.FlashAppend(ctx, "success", "Email verification successfull")
+	x.sessMgr.FlashAppend(ctx, "success", "Email verification successfull")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }

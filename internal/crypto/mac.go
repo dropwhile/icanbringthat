@@ -6,6 +6,11 @@ import (
 	"github.com/zeebo/blake3"
 )
 
+type HMACer interface {
+	Validate(message, messageMAC []byte) bool
+	Generate(message []byte) []byte
+}
+
 // keyed MAC using blake3
 // similar to HMAC(SHA256), but simpler and faster (while offering similar security)
 type MAC struct {

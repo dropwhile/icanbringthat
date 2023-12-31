@@ -27,17 +27,17 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, errx := s.Service.GetEvent(ctx, refID)
+	event, errx := s.service.GetEvent(ctx, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	earmarks, errx := s.Service.GetEarmarksByEventID(ctx, event.ID)
+	earmarks, errx := s.service.GetEarmarksByEventID(ctx, event.ID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.Service, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.service, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -64,7 +64,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	var paginationResult *icbt.PaginationResult
 	var earmarks []*model.Earmark
 	if r.Pagination != nil {
-		ems, pgResult, errx := s.Service.GetEarmarksPaginated(
+		ems, pgResult, errx := s.service.GetEarmarksPaginated(
 			ctx, user.ID,
 			int(r.Pagination.Limit),
 			int(r.Pagination.Offset),
@@ -76,14 +76,14 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		earmarks = ems
 	} else {
 		var errx errs.Error
-		earmarks, errx = s.Service.GetEarmarks(
+		earmarks, errx = s.service.GetEarmarks(
 			ctx, user.ID, showArchived)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}
 	}
 
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.Service, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.service, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -108,17 +108,17 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	eventItem, errx := s.Service.GetEventItem(ctx, eventItemRefID)
+	eventItem, errx := s.service.GetEventItem(ctx, eventItemRefID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	earmark, errx := s.Service.NewEarmark(ctx, user, eventItem.ID, r.Note)
+	earmark, errx := s.service.NewEarmark(ctx, user, eventItem.ID, r.Note)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := convert.ToPbEarmark(s.Service, earmark)
+	pbEarmark, err := convert.ToPbEarmark(s.service, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -143,22 +143,22 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	earmark, errx := s.Service.GetEarmark(ctx, refID)
+	earmark, errx := s.service.GetEarmark(ctx, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	eventItem, errx := s.Service.GetEventItemByID(ctx, earmark.EventItemID)
+	eventItem, errx := s.service.GetEventItemByID(ctx, earmark.EventItemID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	event, errx := s.Service.GetEventByID(ctx, eventItem.EventID)
+	event, errx := s.service.GetEventByID(ctx, eventItem.EventID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := convert.ToPbEarmark(s.Service, earmark)
+	pbEarmark, err := convert.ToPbEarmark(s.service, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -183,7 +183,7 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad earmark ref-id")
 	}
 
-	errx := s.Service.DeleteEarmarkByRefID(ctx, user.ID, refID)
+	errx := s.service.DeleteEarmarkByRefID(ctx, user.ID, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

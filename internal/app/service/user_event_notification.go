@@ -139,7 +139,7 @@ func (s *Service) NotifyUsersPendingEvents(
 		if err != nil {
 			return fmt.Errorf("error sending email: %w", err)
 		}
-		_, err = model.CreateUserEventNotification(ctx, s.Db, user.ID, event.ID)
+		_, err = model.NewUserEventNotification(ctx, s.Db, user.ID, event.ID)
 		if err != nil {
 			return fmt.Errorf("error updating database: %w", err)
 		}

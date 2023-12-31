@@ -27,17 +27,10 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/session"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
-var tstTs time.Time = MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
-
-func MustParseTime(layout, value string) time.Time {
-	ts, err := time.Parse(layout, value)
-	if err != nil {
-		panic(err)
-	}
-	return ts
-}
+var tstTs time.Time = util.MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
 
 func setCookie(r *http.Request, cookie string) {
 	r.Header.Set("Cookie", cookie)
@@ -77,17 +70,16 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 	mock := SetupDBMock(t, ctx)
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
-		Db:        mock,
-		Templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
-		SessMgr:   session.NewTestSessionManager(),
-		Mailer:    &TestMailer{make([]*mail.Mail, 0)},
-		MAC:       crypto.NewMAC([]byte("test-hmac-key")),
-		BaseURL:   "http://example.com",
-		Service:   &service.Service{Db: mock},
+		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
+		sessMgr:   session.NewTestSessionManager(),
+		mailer:    &TestMailer{make([]*mail.Mail, 0)},
+		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
+		baseURL:   "http://example.com",
+		service:   &service.Service{Db: mock},
 	}
 	mux := chi.NewMux()
-	mux.Use(h.SessMgr.LoadAndSave)
-	mux.Use(auth.Load(h.Service, h.SessMgr))
+	mux.Use(h.sessMgr.LoadAndSave)
+	mux.Use(auth.Load(h.service, h.sessMgr))
 	return mock, mux, h
 }
 
@@ -98,10 +90,10 @@ func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *
 	ts := tstTs
 
 	mux.Get("/dummy", func(w http.ResponseWriter, r *http.Request) {
-		err := x.SessMgr.RenewToken(r.Context())
+		err := x.sessMgr.RenewToken(r.Context())
 		assert.NilError(t, err)
 		// add data to session
-		x.SessMgr.Put(r.Context(), "user-id", userID)
+		x.sessMgr.Put(r.Context(), "user-id", userID)
 		w.WriteHeader(http.StatusOK)
 	})
 

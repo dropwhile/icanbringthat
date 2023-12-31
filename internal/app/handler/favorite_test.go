@@ -56,7 +56,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -100,7 +100,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -126,7 +126,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -157,7 +157,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -184,7 +184,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -254,7 +254,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -301,7 +301,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -327,7 +327,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -353,7 +353,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -387,7 +387,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)

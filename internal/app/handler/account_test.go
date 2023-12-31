@@ -45,7 +45,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		_, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -63,7 +63,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t, messages,
 			map[string][]string{
 				"error": {"Same Email specified was already present"},
@@ -81,7 +81,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -115,7 +115,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -136,7 +136,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		_, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		user := &model.User{
@@ -161,7 +161,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -180,7 +180,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -214,7 +214,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -235,7 +235,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		_, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -253,7 +253,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -272,7 +272,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		_, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -293,7 +293,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -312,7 +312,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		_, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -334,7 +334,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -353,7 +353,7 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -394,7 +394,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t,
 			messages,
 			map[string][]string{
@@ -424,7 +424,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -471,7 +471,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages), 0)
 
 		// Check the status code is what we expect.
@@ -487,7 +487,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -534,7 +534,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages), 0)
 
 		// Check the status code is what we expect.
@@ -550,7 +550,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -581,7 +581,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
 
 		// Check the status code is what we expect.
@@ -597,7 +597,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -628,7 +628,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
 
 		// Check the status code is what we expect.
@@ -644,7 +644,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -706,7 +706,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
 
 		// Check the status code is what we expect.
@@ -722,7 +722,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -774,7 +774,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
 
 		// Check the status code is what we expect.
@@ -789,7 +789,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -817,7 +817,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
 
 		// Check the status code is what we expect.
@@ -833,7 +833,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
 			ID:           1,
@@ -874,7 +874,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
 
 		// Check the status code is what we expect.
@@ -904,7 +904,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 
-	ctx, _ = handler.SessMgr.Load(ctx, "")
+	ctx, _ = handler.sessMgr.Load(ctx, "")
 	ctx = auth.ContextSet(ctx, "user", user)
 
 	// note: can't pregenerate an expected pwhash to fulfill the sql query,
@@ -940,7 +940,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
 			"email":            {"user@example.com"},
@@ -980,7 +980,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
-		messages := handler.SessMgr.FlashPopAll(ctx)
+		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.DeepEqual(t, messages,
 			map[string][]string{
 				"success": {"Account created. You are now logged in."},
@@ -1000,7 +1000,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
 			"email":            {"user@example.com"},
@@ -1028,7 +1028,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
 			"email":            {"user@example.com"},
@@ -1057,7 +1057,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
 			"email":            {"user@example.com"},
@@ -1100,7 +1100,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		pwhash, _ := crypto.HashPW([]byte("00x00"))
 		user := &model.User{

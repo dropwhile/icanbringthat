@@ -24,7 +24,7 @@ func (x *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
 	tplVars := MapSA{
 		"title":          "Login",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -62,10 +62,10 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find user...
-	user, errx := x.Service.GetUserByEmail(ctx, email)
+	user, errx := x.service.GetUserByEmail(ctx, email)
 	if errx != nil || user == nil {
 		slog.DebugContext(ctx, "invalid credentials: no user match", "error", err)
-		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+		x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -76,7 +76,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			"invalid credentials: no valid auth flow",
 			slog.Int("userID", user.ID),
 		)
-		x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+		x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	} else {
@@ -85,7 +85,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
 		if err != nil || !ok {
 			slog.DebugContext(ctx, "invalid credentials: pass check fail", "error", err)
-			x.SessMgr.FlashAppend(ctx, "error", "Invalid credentials")
+			x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
@@ -94,25 +94,25 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = x.SessMgr.RenewToken(ctx)
+	err = x.sessMgr.RenewToken(ctx)
 	if err != nil {
 		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.ID)
+	x.sessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
 		target = r.FormValue("next")
 	}
-	x.SessMgr.FlashAppend(ctx, "success", "Login successful")
+	x.sessMgr.FlashAppend(ctx, "success", "Login successful")
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (x *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if err := x.SessMgr.Clear(r.Context()); err != nil {
+	if err := x.sessMgr.Clear(r.Context()); err != nil {
 		x.InternalServerError(w, "Session Error")
 		return
 	}
@@ -120,10 +120,10 @@ func (x *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	if err := x.SessMgr.RenewToken(r.Context()); err != nil {
+	if err := x.sessMgr.RenewToken(r.Context()); err != nil {
 		x.InternalServerError(w, "Session Error")
 		return
 	}
-	x.SessMgr.FlashAppend(ctx, "success", "Logout successful")
+	x.sessMgr.FlashAppend(ctx, "success", "Logout successful")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

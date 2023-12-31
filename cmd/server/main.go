@@ -118,7 +118,13 @@ func main() {
 		RequestLogging: config.LogTrace,
 		RpcApi:         config.RpcApi,
 	}
-	r := app.New(dbpool, rdb, templates, mailer, appConfig)
+	r, err := app.New(dbpool, rdb, templates, mailer, appConfig)
+	if err != nil {
+		slog.With("error", err).
+			Error("failed to create server")
+		os.Exit(1)
+		return
+	}
 	defer r.Close()
 
 	// serve static files dir as /static/*

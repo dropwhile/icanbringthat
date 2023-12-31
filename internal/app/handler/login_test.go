@@ -50,7 +50,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 			"password": {"00x01"},
 		}
 
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
@@ -81,7 +81,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 			"email":    {"userXYZ@example.com"},
 			"password": {"00x01"},
 		}
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
@@ -111,7 +111,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
 		}
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
@@ -161,7 +161,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	}
 
 	// inject session into context
-	ctx, _ = handler.SessMgr.Load(ctx, "")
+	ctx, _ = handler.sessMgr.Load(ctx, "")
 	req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", strings.NewReader(data.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()

@@ -30,13 +30,13 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	favoriteCount, errx := x.Service.GetFavoriteEventsCount(ctx, user.ID)
+	favoriteCount, errx := x.service.GetFavoriteEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -64,7 +64,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := x.Service.GetFavoriteEventsPaginated(
+	events, _, errx := x.service.GetFavoriteEventsPaginated(
 		ctx, user.ID, 10, offset*10, archived,
 	)
 	if errx != nil {
@@ -75,7 +75,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int {
 		return e.ID
 	})
-	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
+	eventItemCounts, errx := x.service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -100,7 +100,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 		"notifCount":      notifCount,
 		"title":           title,
 		"nav":             "favorites",
-		"flashes":         x.SessMgr.FlashPopAll(ctx),
+		"flashes":         x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
 		"pgInput": resources.NewPgInput(
@@ -139,7 +139,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := x.Service.AddFavorite(ctx, user.ID, eventRefID)
+	event, errx := x.service.AddFavorite(ctx, user.ID, eventRefID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error adding favorite", logger.Err(errx))
 		switch errx.Code() {
@@ -191,7 +191,7 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx := x.Service.RemoveFavorite(ctx, user.ID, eventRefID)
+	errx := x.service.RemoveFavorite(ctx, user.ID, eventRefID)
 	if errx != nil {
 		slog.InfoContext(ctx, "error deleting favorite", logger.Err(errx))
 		switch errx.Code() {

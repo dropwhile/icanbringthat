@@ -32,7 +32,7 @@ func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request)
 	tplVars := MapSA{
 		"title":          "Forgot Password",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -71,7 +71,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	// check hmac
-	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.cMAC.Validate([]byte(refIDStr), hmacBytes) {
 		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -86,7 +86,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	upw, errx := x.Service.GetUserPWResetByRefID(ctx, refID)
+	upw, errx := x.service.GetUserPWResetByRefID(ctx, refID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -99,7 +99,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = x.Service.GetUserByID(ctx, upw.UserID)
+	_, err = x.service.GetUserByID(ctx, upw.UserID)
 	if err != nil {
 		slog.DebugContext(ctx, "no user match", "error", err)
 		x.BadRequestError(w, "Bad Request Data")
@@ -109,7 +109,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	tplVars := MapSA{
 		"title":          "Reset Password",
 		"next":           r.FormValue("next"),
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 		"refID":          refIDStr,
@@ -143,7 +143,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	// don't leak existence of user. if email doens't match,
 	// behave like we sent a reset anyway...
 	doFake := false
-	user, errx := x.Service.GetUserByEmail(ctx, email)
+	user, errx := x.service.GetUserByEmail(ctx, email)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -169,7 +169,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 
 	if !doFake {
 		// generate a upw
-		upw, errx := x.Service.NewUserPWReset(ctx, user.ID)
+		upw, errx := x.service.NewUserPWReset(ctx, user.ID)
 		if errx != nil {
 			x.InternalServerError(w, errx.Msg())
 			return
@@ -177,7 +177,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		upwRefIDStr := upw.RefID.String()
 
 		// generate hmac
-		macBytes := x.MAC.Generate([]byte(upwRefIDStr))
+		macBytes := x.cMAC.Generate([]byte(upwRefIDStr))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -226,7 +226,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		)
 
 		_ = user
-		x.Mailer.SendAsync("", []string{user.Email},
+		x.mailer.SendAsync("", []string{user.Email},
 			subject, messagePlain, messageHtml,
 			mail.MailHeader{
 				"X-PM-Message-Stream": "outbound",
@@ -234,7 +234,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		)
 	}
 
-	x.SessMgr.FlashAppend(ctx, "success", "Password reset email sent.")
+	x.sessMgr.FlashAppend(ctx, "success", "Password reset email sent.")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
@@ -271,7 +271,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check hmac
-	if !x.MAC.Validate([]byte(refIDStr), hmacBytes) {
+	if !x.cMAC.Validate([]byte(refIDStr), hmacBytes) {
 		slog.DebugContext(ctx, "invalid hmac!")
 		x.BadRequestError(w, "Bad Request Data")
 		return
@@ -284,7 +284,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upw, errx := x.Service.GetUserPWResetByRefID(ctx, refID)
+	upw, errx := x.service.GetUserPWResetByRefID(ctx, refID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no upw match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -297,7 +297,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errx := x.Service.GetUserByID(ctx, upw.UserID)
+	user, errx := x.service.GetUserByID(ctx, upw.UserID)
 	if errx != nil {
 		slog.DebugContext(ctx, "no user match", "error", errx)
 		x.BadRequestError(w, "Bad Request Data")
@@ -319,7 +319,7 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	user.PWHash = pwHash
 
-	errx = x.Service.UpdateUserPWReset(ctx, user, upw)
+	errx = x.service.UpdateUserPWReset(ctx, user, upw)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -328,13 +328,13 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err = x.SessMgr.RenewToken(ctx)
+	err = x.sessMgr.RenewToken(ctx)
 	if err != nil {
 		x.InternalServerError(w, "Session Error")
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.ID)
+	x.sessMgr.Put(r.Context(), "user-id", user.ID)
 	target := "/dashboard"
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

@@ -30,7 +30,7 @@ func (x *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	// parse user-id url param
 	tplVars := MapSA{
 		"title":          "Create Account",
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.sessMgr.FlashPopAll(ctx),
 		"next":           r.FormValue("next"),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
@@ -54,13 +54,13 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentials, errx := x.Service.GetUserCredentialsByUser(ctx, user.ID)
+	credentials, errx := x.service.GetUserCredentialsByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	apikey, errx := x.Service.GetApiKeyByUser(ctx, user.ID)
+	apikey, errx := x.service.GetApiKeyByUser(ctx, user.ID)
 	if errx != nil {
 		if errx.Code() != errs.NotFound {
 			x.DBError(w, errx)
@@ -68,7 +68,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -81,7 +81,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		"apikey":         apikey,
 		"title":          "Settings",
 		"notifCount":     notifCount,
-		"flashes":        x.SessMgr.FlashPopAll(ctx),
+		"flashes":        x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag: csrf.TemplateField(r),
 		"csrfToken":      csrf.Token(r),
 	}
@@ -122,14 +122,14 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errx := x.Service.NewUser(ctx, email, name, []byte(passwd))
+	user, errx := x.service.NewUser(ctx, email, name, []byte(passwd))
 	if errx != nil {
 		slog.ErrorContext(ctx, "error adding user", logger.Err(errx))
 		x.BadRequestError(w, "error adding user")
 		return
 	}
 
-	_, errx = x.Service.NewNotification(ctx, user.ID,
+	_, errx = x.service.NewNotification(ctx, user.ID,
 		`Account is not currently verified. Please verify account in link:/settings.`,
 	)
 	if errx != nil {
@@ -141,7 +141,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	// renew sesmgr token to help prevent session fixation. ref:
 	//   https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Session_Management_Cheat_Sheet.md
 	//   #renew-the-session-id-after-any-privilege-level-change
-	err := x.SessMgr.RenewToken(ctx)
+	err := x.sessMgr.RenewToken(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "error renewing session token",
 			logger.Err(err))
@@ -149,8 +149,8 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Then make the privilege-level change.
-	x.SessMgr.Put(r.Context(), "user-id", user.ID)
-	x.SessMgr.FlashAppend(ctx, "success", "Account created. You are now logged in.")
+	x.sessMgr.Put(r.Context(), "user-id", user.ID)
+	x.sessMgr.FlashAppend(ctx, "success", "Account created. You are now logged in.")
 
 	target := "/dashboard"
 	if r.PostFormValue("next") != "" {
@@ -225,16 +225,16 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		errx := x.Service.UpdateUser(ctx, user.ID, updateVals)
+		errx := x.service.UpdateUser(ctx, user.ID, updateVals)
 		if errx != nil {
 			slog.ErrorContext(ctx, "error updating user",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user")
 			return
 		}
-		x.SessMgr.FlashAppend(ctx, "success", successMsgs...)
+		x.sessMgr.FlashAppend(ctx, "success", successMsgs...)
 	} else {
-		x.SessMgr.FlashAppend(ctx, "error", warnings...)
+		x.sessMgr.FlashAppend(ctx, "error", warnings...)
 	}
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
@@ -264,7 +264,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ensure we have at least one passkey first
-	pkCount, errx := x.Service.GetUserCredentialCountByUser(ctx, user.ID)
+	pkCount, errx := x.service.GetUserCredentialCountByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -279,7 +279,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "off":
 		if user.PWAuth {
 			if !user.WebAuthn {
-				x.SessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling api access")
+				x.sessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling api access")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
 			}
@@ -302,7 +302,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "off":
 		if user.WebAuthn {
 			if !user.PWAuth {
-				x.SessMgr.FlashAppend(ctx, "error", "Refusing to disable passkey auth without alternative auth enabled")
+				x.sessMgr.FlashAppend(ctx, "error", "Refusing to disable passkey auth without alternative auth enabled")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
 			}
@@ -312,7 +312,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	case "on":
 		if !user.WebAuthn {
 			if !hasPasskeys {
-				x.SessMgr.FlashAppend(ctx, "error",
+				x.sessMgr.FlashAppend(ctx, "error",
 					"Must have at least one passkey registered before enabling passkey auth")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
@@ -328,12 +328,12 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !changes {
-		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		x.sessMgr.FlashAppend(ctx, "error", "no changes made")
 		http.Redirect(w, r, "/settings", http.StatusSeeOther)
 		return
 	}
 
-	errx = x.Service.UpdateUser(ctx, user.ID, updateVals)
+	errx = x.service.UpdateUser(ctx, user.ID, updateVals)
 	if errx != nil {
 		slog.ErrorContext(ctx, "error updating user auth",
 			logger.Err(errx))
@@ -379,13 +379,13 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	case "on":
 		if !user.ApiAccess {
 			if !user.Verified {
-				x.SessMgr.FlashAppend(ctx, "error", "Refusing to enable api access without a verified account")
+				x.sessMgr.FlashAppend(ctx, "error", "Refusing to enable api access without a verified account")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
 			}
 			changes = true
 			updateVals.ApiAccess = mo.Some(true)
-			_, errx := x.Service.NewApiKeyIfNotExists(ctx, user.ID)
+			_, errx := x.service.NewApiKeyIfNotExists(ctx, user.ID)
 			if errx != nil {
 				x.DBError(w, errx)
 				return
@@ -403,13 +403,13 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !changes {
-		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		x.sessMgr.FlashAppend(ctx, "error", "no changes made")
 		http.Redirect(w, r, "/settings", http.StatusSeeOther)
 		return
 	}
 
 	if rotateApiKey == "true" {
-		if _, errx := x.Service.NewApiKey(ctx, user.ID); errx != nil {
+		if _, errx := x.service.NewApiKey(ctx, user.ID); errx != nil {
 			slog.ErrorContext(ctx, "error rotating api key",
 				logger.Err(errx))
 			x.InternalServerError(w, "error rotating api key")
@@ -418,7 +418,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if apiAccess != "" {
-		if errx := x.Service.UpdateUser(ctx, user.ID, updateVals); errx != nil {
+		if errx := x.service.UpdateUser(ctx, user.ID, updateVals); errx != nil {
 			slog.ErrorContext(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")
@@ -457,7 +457,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	case "on":
 		if !user.Settings.EnableReminders {
 			if !user.Verified {
-				x.SessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling reminder emails")
+				x.sessMgr.FlashAppend(ctx, "error", "Account must be verified before enabling reminder emails")
 				http.Redirect(w, r, "/settings", http.StatusSeeOther)
 				return
 			}
@@ -467,7 +467,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	case "":
 		// nothing
 	default:
-		x.SessMgr.FlashAppend(ctx, "error", "Bad value for reminders toggle")
+		x.sessMgr.FlashAppend(ctx, "error", "Bad value for reminders toggle")
 		http.Redirect(w, r, "/settings", http.StatusSeeOther)
 		return
 	}
@@ -475,13 +475,13 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	if notifThreshold != "" {
 		v, err := strconv.ParseUint(notifThreshold, 10, 8)
 		if err != nil {
-			x.SessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
+			x.sessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
 			http.Redirect(w, r, "/settings", http.StatusSeeOther)
 			return
 		}
 		val, err := model.ValidateReminderThresholdHours(v)
 		if err != nil {
-			x.SessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
+			x.sessMgr.FlashAppend(ctx, "error", "Bad value for notification threshold")
 			http.Redirect(w, r, "/settings", http.StatusSeeOther)
 			return
 		}
@@ -492,12 +492,12 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	}
 
 	if !changes {
-		x.SessMgr.FlashAppend(ctx, "error", "no changes made")
+		x.sessMgr.FlashAppend(ctx, "error", "no changes made")
 		http.Redirect(w, r, "/settings", http.StatusSeeOther)
 		return
 	}
 
-	if errx := x.Service.UpdateUserSettings(
+	if errx := x.service.UpdateUserSettings(
 		ctx, user.ID, &user.Settings); errx != nil {
 		slog.ErrorContext(ctx, "error updating user settings",
 			logger.Err(errx))
@@ -505,7 +505,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	x.SessMgr.FlashAppend(ctx, "success", "update successful")
+	x.sessMgr.FlashAppend(ctx, "success", "update successful")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
@@ -519,12 +519,12 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := x.Service.DeleteUser(ctx, user.ID); errx != nil {
+	if errx := x.service.DeleteUser(ctx, user.ID); errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 	// destroy session
-	err = x.SessMgr.Destroy(ctx)
+	err = x.sessMgr.Destroy(ctx)
 	if err != nil {
 		// not a fatal error (do not return 500 to user), since the user deleted
 		// sucessfully already. just log the oddity
@@ -532,7 +532,7 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 			logger.Err(err))
 	}
 	if htmx.Hx(r).Request() {
-		x.SessMgr.FlashAppend(ctx, "success", "Account deleted. Sorry to see you go.")
+		x.sessMgr.FlashAppend(ctx, "success", "Account deleted. Sorry to see you go.")
 		w.Header().Add("HX-Location", "/login")
 	}
 	w.WriteHeader(200)

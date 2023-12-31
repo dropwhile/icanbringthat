@@ -19,42 +19,48 @@ import (
 )
 
 type Handler struct {
-	Db        model.PgxHandle
-	Redis     *redis.Client
-	Templates resources.TGetter
-	SessMgr   *session.SessionMgr
-	Mailer    mail.MailSender
-	MAC       *crypto.MAC
-	Service   service.Servicer
-	BaseURL   string
-	IsProd    bool
+	redis     *redis.Client
+	templates resources.TGetter
+	sessMgr   session.SessionManager
+	mailer    mail.MailSender
+	cMAC      crypto.HMACer
+	service   service.Servicer
+	baseURL   string
+	isProd    bool
 }
 
-func NewHandler(
-	db model.PgxHandle, redis *redis.Client, templates resources.TGetter,
-	sessmgr *session.SessionMgr, mailer mail.MailSender, mac *crypto.MAC,
-	baseURL string, isProd bool,
-) *Handler {
+type Options struct {
+	Db           model.PgxHandle
+	Redis        *redis.Client
+	Templates    resources.TGetter
+	SessMgr      session.SessionManager
+	Mailer       mail.MailSender
+	HMACKeyBytes []byte
+	BaseURL      string
+	IsProd       bool
+}
+
+func New(opts Options) (*Handler, error) {
+	cMAC := crypto.NewMAC(opts.HMACKeyBytes)
 	handler := &Handler{
-		Db:        db,
-		Redis:     redis,
-		Templates: templates,
-		SessMgr:   sessmgr,
-		Mailer:    mailer,
-		MAC:       mac,
-		Service:   &service.Service{Db: db},
-		BaseURL:   baseURL,
-		IsProd:    isProd,
+		redis:     opts.Redis,
+		templates: opts.Templates,
+		sessMgr:   opts.SessMgr,
+		mailer:    opts.Mailer,
+		cMAC:      cMAC,
+		baseURL:   opts.BaseURL,
+		isProd:    opts.IsProd,
+		service:   &service.Service{Db: opts.Db},
 	}
-	return handler
+	return handler, nil
 }
 
 func (x *Handler) Template(name string) (resources.TemplateIf, error) {
-	return x.Templates.Get(name)
+	return x.templates.Get(name)
 }
 
 func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
-	tpl, err := x.Templates.Get(name)
+	tpl, err := x.templates.Get(name)
 	if err != nil {
 		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
 			context.Background(),
@@ -75,7 +81,7 @@ func (x *Handler) TemplateExecute(w io.Writer, name string, vars MapSA) error {
 }
 
 func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars MapSA) error {
-	tpl, err := x.Templates.Get(name)
+	tpl, err := x.templates.Get(name)
 	if err != nil {
 		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,
 			context.Background(),

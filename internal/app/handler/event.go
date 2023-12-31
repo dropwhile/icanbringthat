@@ -33,13 +33,13 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	eventCount, errx := x.Service.GetEventsCount(ctx, user.ID)
+	eventCount, errx := x.service.GetEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -67,7 +67,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := x.Service.GetEventsPaginated(
+	events, _, errx := x.service.GetEventsPaginated(
 		ctx, user.ID, 10, offset*10, archived)
 	if errx != nil {
 		x.DBError(w, errx)
@@ -75,7 +75,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
-	eventItemCounts, errx := x.Service.GetEventItemsCount(ctx, eventIDs)
+	eventItemCounts, errx := x.service.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -99,7 +99,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		"notifCount":      notifCount,
 		"title":           title,
 		"nav":             "events",
-		"flashes":         x.SessMgr.FlashPopAll(ctx),
+		"flashes":         x.sessMgr.FlashPopAll(ctx),
 		csrf.TemplateTag:  csrf.TemplateField(r),
 		"csrfToken":       csrf.Token(r),
 		"pgInput": resources.NewPgInput(
@@ -138,13 +138,13 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.Service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	event, errx := x.Service.GetEvent(ctx, refID)
+	event, errx := x.service.GetEvent(ctx, refID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -152,7 +152,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	owner := user.ID == event.UserID
 
-	eventItems, errx := x.Service.GetEventItemsByEventID(ctx, event.ID)
+	eventItems, errx := x.service.GetEventItemsByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -180,7 +180,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = append(unsortedList, sortedList...)
 	}
 
-	earmarks, errx := x.Service.GetEarmarksByEventID(ctx, event.ID)
+	earmarks, errx := x.service.GetEarmarksByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -196,14 +196,14 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	earmarkUsers, errx := x.Service.GetUsersByIDs(ctx, userIDs)
+	earmarkUsers, errx := x.service.GetUsersByIDs(ctx, userIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
 	favorited := false
-	_, errx = x.Service.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
+	_, errx = x.service.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
 	if errx == nil {
 		favorited = true
 	} else {
@@ -293,7 +293,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := x.Service.GetEvent(ctx, refID)
+	event, errx := x.service.GetEvent(ctx, refID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -368,7 +368,7 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := x.Service.CreateEvent(ctx, user, name, description, startTime, tz)
+	event, errx := x.service.CreateEvent(ctx, user, name, description, startTime, tz)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.InvalidArgument:
@@ -436,7 +436,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		euvs.Tz = mo.Some(loc.String())
 	}
 
-	errx := x.Service.UpdateEvent(ctx, user.ID, refID, euvs)
+	errx := x.service.UpdateEvent(ctx, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -495,7 +495,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	}
 	order = util.Uniq(order)
 
-	_, errx := x.Service.UpdateEventItemSorting(
+	_, errx := x.service.UpdateEventItemSorting(
 		ctx, user.ID, eventRefID, order,
 	)
 	if errx != nil {
@@ -531,7 +531,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := x.Service.DeleteEvent(ctx, user.ID, refID); errx != nil {
+	if errx := x.service.DeleteEvent(ctx, user.ID, refID); errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
 			x.NotFoundError(w)
@@ -545,7 +545,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	if htmx.Hx(r).Request() {
 		if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", refID)) {
-			x.SessMgr.FlashAppend(ctx, "success", "Event deleted.")
+			x.sessMgr.FlashAppend(ctx, "success", "Event deleted.")
 			w.Header().Add("HX-Redirect", "/events")
 		} else {
 			w.Header().Add("HX-Trigger-After-Swap", "count-updated")

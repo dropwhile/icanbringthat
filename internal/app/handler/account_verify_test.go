@@ -56,7 +56,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -64,7 +64,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.Templates = resources.MockTContainer(
+		handler.templates = resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_account_email_verify.gohtml": verifyTpl,
 				"mail_account_email_verify.gotxt":  verifyTpl,
@@ -91,7 +91,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		response := rr.Result()
 		util.MustReadAll(response.Body)
 
-		tm := handler.Mailer.(*TestMailer)
+		tm := handler.mailer.(*TestMailer)
 		assert.Equal(t, len(tm.Sent), 1)
 		message := tm.Sent[0].BodyPlain
 		after, found := strings.CutPrefix(message, "Account Verification: http://example.com/verify/")
@@ -100,7 +100,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		rID := refid.Must(service.ParseUserVerifyRefID(refParts[0]))
 		hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 		assert.NilError(t, err)
-		assert.Assert(t, handler.MAC.Validate([]byte(rID.String()), hmacBytes))
+		assert.Assert(t, handler.cMAC.Validate([]byte(rID.String()), hmacBytes))
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -142,7 +142,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -153,7 +153,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(uv.RefID.String()))
+		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -218,7 +218,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -229,7 +229,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(uv.RefID.String()))
+		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
 		macBytes[0] += 1
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
@@ -256,7 +256,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -268,7 +268,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(refID.String()))
+		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -294,7 +294,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -305,7 +305,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(uv.RefID.String()))
+		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -339,7 +339,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		refID.SetTime(rfts)
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -350,7 +350,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(refID.String()))
+		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
@@ -383,7 +383,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.SessMgr.Load(ctx, "")
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
@@ -394,7 +394,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
-		macBytes := handler.MAC.Generate([]byte(uv.RefID.String()))
+		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 

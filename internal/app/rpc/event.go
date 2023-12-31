@@ -34,7 +34,7 @@ func (s *Server) ListEvents(ctx context.Context,
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
 
-		evts, pagination, errx := s.Service.GetEventsPaginated(
+		evts, pagination, errx := s.service.GetEventsPaginated(
 			ctx, user.ID, limit, offset, showArchived,
 		)
 		if errx != nil {
@@ -48,7 +48,7 @@ func (s *Server) ListEvents(ctx context.Context,
 			Count:  uint32(pagination.Count),
 		}
 	} else {
-		evts, errx := s.Service.GetEvents(
+		evts, errx := s.service.GetEvents(
 			ctx, user.ID, showArchived,
 		)
 		if errx != nil {
@@ -82,7 +82,7 @@ func (s *Server) CreateEvent(ctx context.Context,
 	when := r.When.Ts.AsTime()
 	tz := r.When.Tz
 
-	event, errx := s.Service.CreateEvent(
+	event, errx := s.service.CreateEvent(
 		ctx, user, name, description, when, tz,
 	)
 	if errx != nil {
@@ -127,7 +127,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	euvs.Description = mo.PointerToOption(r.Description)
 	euvs.StartTime = mo.PointerToOption(startTime)
 	euvs.Tz = mo.PointerToOption(tz)
-	errx := s.Service.UpdateEvent(ctx, user.ID, refID, euvs)
+	errx := s.service.UpdateEvent(ctx, user.ID, refID, euvs)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
@@ -150,23 +150,23 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	event, errx := s.Service.GetEvent(ctx, refID)
+	event, errx := s.service.GetEvent(ctx, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 	pbEvent := convert.ToPbEvent(event)
 
-	eventItems, errx := s.Service.GetEventItemsByEventID(ctx, event.ID)
+	eventItems, errx := s.service.GetEventItemsByEventID(ctx, event.ID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
 	pbEventItems := convert.ToPbList(convert.ToPbEventItem, eventItems)
 
-	earmarks, errx := s.Service.GetEarmarksByEventID(ctx, event.ID)
+	earmarks, errx := s.service.GetEarmarksByEventID(ctx, event.ID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.Service, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.service, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -193,7 +193,7 @@ func (s *Server) DeleteEvent(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	errx := s.Service.DeleteEvent(ctx, user.ID, refID)
+	errx := s.service.DeleteEvent(ctx, user.ID, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}

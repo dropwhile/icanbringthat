@@ -11,7 +11,6 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/logger"
-	"github.com/dropwhile/icbt/internal/session"
 )
 
 type mwContextKey string
@@ -39,17 +38,21 @@ func IsLoggedIn(ctx context.Context) bool {
 	return ok && v != nil
 }
 
-type GetUserProvider interface {
+type UserGetter interface {
 	GetUserByID(context.Context, int) (*model.User, errs.Error)
 }
 
-func Load(up GetUserProvider, sessMgr *session.SessionMgr) func(next http.Handler) http.Handler {
+type GetInter interface {
+	GetInt(ctx context.Context, key string) int
+}
+
+func Load(userGetter UserGetter, intGetter GetInter) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			userID := sessMgr.GetInt(ctx, "user-id")
+			userID := intGetter.GetInt(ctx, "user-id")
 			if userID != 0 {
-				user, err := up.GetUserByID(ctx, userID)
+				user, err := userGetter.GetUserByID(ctx, userID)
 				if err != nil {
 					slog.InfoContext(ctx, "authorization failure", logger.Err(err))
 					http.Error(w, "authorization failure", http.StatusUnauthorized)

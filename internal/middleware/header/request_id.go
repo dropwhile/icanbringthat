@@ -87,12 +87,12 @@ func GetReqID(ctx context.Context) string {
 	return ""
 }
 
+/*
 // NextRequestID generates the next request ID in the sequence.
 func NextRequestID() uint64 {
 	return atomic.AddUint64(&reqid, 1)
 }
 
-/*
 // type AttrExtractor func(ctx context.Context, recordT time.Time, recordLvl slog.Level, recordMsg string) []slog.Attr
 func RequestIDExtractor(ctx context.Context, _ time.Time, _ slog.Level, _ string) []slog.Attr {
 	reqID := GetReqID(ctx)
