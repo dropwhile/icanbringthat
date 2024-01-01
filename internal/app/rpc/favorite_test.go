@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
@@ -235,7 +236,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "can't favorite own event")
+		errs.AssertError(t, err, twirp.PermissionDenied, "can't favorite own event")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -287,7 +288,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
-		assertTwirpError(t, err, twirp.AlreadyExists, "favorite already exists")
+		errs.AssertError(t, err, twirp.AlreadyExists, "favorite already exists")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -304,7 +305,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 			EventRefId: "hodor",
 		}
 		_, err := server.AddFavorite(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -395,7 +396,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			EventRefId: "hodor",
 		}
 		_, err := server.RemoveFavorite(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -417,7 +418,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.RemoveFavorite(ctx, request)
-		assertTwirpError(t, err, twirp.NotFound, "event not found")
+		errs.AssertError(t, err, twirp.NotFound, "event not found")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

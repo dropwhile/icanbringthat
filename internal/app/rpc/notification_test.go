@@ -11,6 +11,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
@@ -155,7 +156,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.DeleteNotification(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -176,7 +177,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
-		assertTwirpError(t, err, twirp.NotFound, "notification not found")
+		errs.AssertError(t, err, twirp.NotFound, "notification not found")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -208,7 +209,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

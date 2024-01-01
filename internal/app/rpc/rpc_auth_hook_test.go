@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
@@ -26,7 +27,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		svc := &service.Service{Db: mock}
 
 		_, err := AuthHook(svc)(ctx)
-		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -44,7 +45,7 @@ func TestRpc_AuthHook(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 
 		_, err := AuthHook(svc)(ctx)
-		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -72,7 +73,7 @@ func TestRpc_AuthHook(t *testing.T) {
 			)
 
 		_, err := AuthHook(svc)(ctx)
-		assertTwirpError(t, err, twirp.Unauthenticated, "invalid auth")
+		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -101,7 +102,7 @@ func TestRpc_AuthHook(t *testing.T) {
 			)
 
 		_, err := AuthHook(svc)(ctx)
-		assertTwirpError(t, err, twirp.Unauthenticated, "account not verified")
+		errs.AssertError(t, err, twirp.Unauthenticated, "account not verified")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

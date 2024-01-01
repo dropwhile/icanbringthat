@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
@@ -271,7 +272,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.ListEventEarmarks(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -392,7 +393,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.GetEarmarkDetails(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -563,7 +564,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.AlreadyExists, "already earmarked")
+		errs.AssertError(t, err, twirp.AlreadyExists, "already earmarked")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -627,7 +628,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied,
+		errs.AssertError(t, err, twirp.PermissionDenied,
 			"Account must be verified before earmarking is allowed.")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -678,7 +679,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.AlreadyExists, "already earmarked by other user")
+		errs.AssertError(t, err, twirp.AlreadyExists, "already earmarked by other user")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -696,7 +697,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}
 		_, err := server.CreateEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -801,7 +802,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			RefId: earmarkRefID.String(),
 		}
 		_, err := server.RemoveEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -818,7 +819,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.RemoveEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -867,7 +868,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			RefId: earmarkRefID.String(),
 		}
 		_, err := server.RemoveEarmark(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

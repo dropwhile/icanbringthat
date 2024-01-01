@@ -15,6 +15,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/convert"
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
@@ -257,7 +258,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			RefId: eventRefID.String(),
 		}
 		_, err := server.GetEventDetails(ctx, request)
-		assertTwirpError(t, err, twirp.NotFound, "event not found")
+		errs.AssertError(t, err, twirp.NotFound, "event not found")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -273,7 +274,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.GetEventDetails(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -373,7 +374,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "tz bad value",
+		errs.AssertError(t, err, twirp.InvalidArgument, "tz bad value",
 			map[string]string{"argument": "tz"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -395,7 +396,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "start_time bad empty value",
+		errs.AssertError(t, err, twirp.InvalidArgument, "start_time bad empty value",
 			map[string]string{"argument": "start_time"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -416,7 +417,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "name bad value",
+		errs.AssertError(t, err, twirp.InvalidArgument, "name bad value",
 			map[string]string{"argument": "name"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -437,7 +438,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
 		_, err := server.CreateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "description bad value",
+		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value",
 			map[string]string{"argument": "description"})
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -775,7 +776,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			RefId: eventRefID.String(),
 		}
 		_, err := server.UpdateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "missing fields")
+		errs.AssertError(t, err, twirp.InvalidArgument, "missing fields")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -817,7 +818,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.UpdateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -859,7 +860,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.UpdateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -880,7 +881,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			},
 		}
 		_, err := server.UpdateEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -1002,7 +1003,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.DeleteEvent(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -1040,7 +1041,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			RefId: eventRefID.String(),
 		}
 		_, err := server.DeleteEvent(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "permission denied")
+		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})

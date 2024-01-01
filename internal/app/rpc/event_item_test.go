@@ -12,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
@@ -91,7 +92,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.ListEventItems(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -178,7 +179,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			RefId: "hodor",
 		}
 		_, err := server.RemoveEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -227,7 +228,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			RefId: eventItemRefID.String(),
 		}
 		_, err := server.RemoveEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "not event owner")
+		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -276,7 +277,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			RefId: eventItemRefID.String(),
 		}
 		_, err := server.RemoveEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -368,7 +369,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Description: "",
 		}
 		_, err := server.AddEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "description bad value")
+		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -403,7 +404,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Description: description,
 		}
 		_, err := server.AddEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "not event owner")
+		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -438,7 +439,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Description: description,
 		}
 		_, err := server.AddEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -457,7 +458,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Description: description,
 		}
 		_, err := server.AddEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -554,7 +555,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			Description: "some nonsense",
 		}
 		_, err := server.UpdateEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
+		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -605,7 +606,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			Description: newDescription,
 		}
 		_, err := server.UpdateEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "event is archived")
+		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -656,7 +657,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			Description: newDescription,
 		}
 		_, err := server.UpdateEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "not event owner")
+		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
@@ -797,7 +798,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			Description: newDescription,
 		}
 		_, err := server.UpdateEventItem(ctx, request)
-		assertTwirpError(t, err, twirp.PermissionDenied, "earmarked by other user")
+		errs.AssertError(t, err, twirp.PermissionDenied, "earmarked by other user")
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
