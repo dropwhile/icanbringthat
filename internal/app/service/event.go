@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
 
@@ -15,6 +14,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 var (
@@ -108,9 +108,9 @@ func (s *Service) UpdateEvent(
 		return errs.InvalidArgument.Error("missing fields")
 	}
 
-	err := validate.StructCtx(ctx, euvs)
+	err := validate.Validate.StructCtx(ctx, euvs)
 	if err != nil {
-		badField := err.(validator.ValidationErrors)[0].Field()
+		badField := validate.GetErrorField(err)
 		slog.
 			With("field", badField).
 			With("error", err).
@@ -218,7 +218,7 @@ func (s *Service) CreateEvent(
 			"Account must be verified before event creation is allowed.")
 	}
 
-	err := validate.VarCtx(ctx, name, "required,notblank")
+	err := validate.Validate.VarCtx(ctx, name, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "name").
@@ -227,7 +227,7 @@ func (s *Service) CreateEvent(
 		return nil, errs.InvalidArgumentError("name", "bad value")
 	}
 
-	err = validate.VarCtx(ctx, description, "required,notblank")
+	err = validate.Validate.VarCtx(ctx, description, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "description").
@@ -245,7 +245,7 @@ func (s *Service) CreateEvent(
 		return nil, errs.InvalidArgumentError("start_time", "bad value")
 	}
 
-	err = validate.VarCtx(ctx, tz, "required,timezone")
+	err = validate.Validate.VarCtx(ctx, tz, "required,timezone")
 	if err != nil {
 		slog.
 			With("field", "tz").

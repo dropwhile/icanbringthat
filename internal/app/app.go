@@ -190,7 +190,7 @@ func New(
 
 	if conf.RpcApi {
 		// rpc api
-		rpcServer := rpc.New(
+		rpcServer, err := rpc.New(
 			rpc.Options{
 				Db:           db,
 				Redis:        rdb,
@@ -201,6 +201,10 @@ func New(
 				IsProd:       isProd,
 			},
 		)
+		if err != nil {
+			return nil, err
+		}
+
 		r.Route(TwirpPrefix, func(r chi.Router) {
 			// add auth token middleware here instead,
 			// which pulls an auth token from a header,

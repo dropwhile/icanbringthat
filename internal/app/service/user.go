@@ -6,13 +6,13 @@ import (
 	"log/slog"
 
 	"github.com/dropwhile/refid/v2/reftag"
-	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 var (
@@ -80,7 +80,7 @@ func (s *Service) GetUsersByIDs(
 func (s *Service) NewUser(
 	ctx context.Context, email, name string, rawPass []byte,
 ) (*model.User, errs.Error) {
-	err := validate.VarCtx(ctx, name, "required,notblank")
+	err := validate.Validate.VarCtx(ctx, name, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "name").
@@ -88,7 +88,7 @@ func (s *Service) NewUser(
 			Info("bad field value")
 		return nil, errs.InvalidArgumentError("name", "bad value")
 	}
-	err = validate.VarCtx(ctx, email, "required,notblank,email")
+	err = validate.Validate.VarCtx(ctx, email, "required,notblank,email")
 	if err != nil {
 		slog.
 			With("field", "email").
@@ -123,9 +123,9 @@ type UserUpdateValues struct {
 func (s *Service) UpdateUser(
 	ctx context.Context, userID int, euvs *UserUpdateValues,
 ) errs.Error {
-	err := validate.StructCtx(ctx, euvs)
+	err := validate.Validate.StructCtx(ctx, euvs)
 	if err != nil {
-		badField := err.(validator.ValidationErrors)[0].Field()
+		badField := validate.GetErrorField(err)
 		slog.
 			With("field", badField).
 			With("error", err).

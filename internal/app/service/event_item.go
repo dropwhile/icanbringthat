@@ -11,6 +11,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 var (
@@ -152,7 +153,7 @@ func (s *Service) AddEventItem(
 	ctx context.Context, userID int,
 	refID model.EventRefID, description string,
 ) (*model.EventItem, errs.Error) {
-	err := validate.VarCtx(ctx, description, "required,notblank")
+	err := validate.Validate.VarCtx(ctx, description, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "description").
@@ -190,7 +191,7 @@ func (s *Service) UpdateEventItem(
 	refID model.EventItemRefID, description string,
 	failIfChecks func(*model.EventItem) bool,
 ) (*model.EventItem, errs.Error) {
-	err := validate.VarCtx(ctx, description, "required,notblank")
+	err := validate.Validate.VarCtx(ctx, description, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "description").

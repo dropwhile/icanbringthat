@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
 	"github.com/dropwhile/icbt/internal/session"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 type Handler struct {
@@ -30,17 +32,27 @@ type Handler struct {
 }
 
 type Options struct {
-	Db           model.PgxHandle
-	Redis        *redis.Client
-	Templates    resources.TGetter
-	SessMgr      session.SessionManager
-	Mailer       mail.MailSender
-	HMACKeyBytes []byte
-	BaseURL      string
+	Db           model.PgxHandle        `validate:"required"`
+	Redis        *redis.Client          `validate:"required"`
+	Templates    resources.TGetter      `validate:"required"`
+	SessMgr      session.SessionManager `validate:"required"`
+	Mailer       mail.MailSender        `validate:"required"`
+	HMACKeyBytes []byte                 `validate:"required"`
+	BaseURL      string                 `validate:"required"`
 	IsProd       bool
 }
 
 func New(opts Options) (*Handler, error) {
+	err := validate.Validate.Struct(opts)
+	if err != nil {
+		badField := validate.GetErrorField(err)
+		slog.
+			With("field", badField).
+			With("error", err).
+			Info("bad field value")
+		return nil, fmt.Errorf("bad options value: %s", badField)
+	}
+
 	cMAC := crypto.NewMAC(opts.HMACKeyBytes)
 	handler := &Handler{
 		redis:     opts.Redis,

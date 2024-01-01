@@ -10,6 +10,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 var (
@@ -122,7 +123,7 @@ func (s *Service) NewNotification(
 func (s *Service) newNotification(
 	ctx context.Context, db model.PgxHandle, userID int, message string,
 ) (*model.Notification, errs.Error) {
-	err := validate.VarCtx(ctx, message, "required,notblank")
+	err := validate.Validate.VarCtx(ctx, message, "required,notblank")
 	if err != nil {
 		slog.
 			With("field", "message").
