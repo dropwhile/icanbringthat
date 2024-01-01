@@ -566,7 +566,341 @@ func TestService_GetEarmark(t *testing.T) {
 }
 
 func TestService_DeleteEarmark(t *testing.T) {
+	t.Parallel()
+
+	ts := tstTs
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      ts,
+		LastModified: ts,
+	}
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		Archived:     false,
+		StartTime:    ts,
+		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
+		Created:      ts,
+		LastModified: ts,
+	}
+	eventItem := &model.EventItem{
+		ID:           2,
+		RefID:        refid.Must(model.NewEventItemRefID()),
+		EventID:      event.ID,
+		Description:  "eventitem",
+		Created:      ts,
+		LastModified: ts,
+	}
+	earmark := &model.Earmark{
+		ID:           3,
+		RefID:        refid.Must(model.NewEarmarkRefID()),
+		EventItemID:  eventItem.ID,
+		UserID:       user.ID,
+		Note:         "nothing",
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	t.Run("delete should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
+			)
+		mock.ExpectBegin()
+		mock.ExpectExec("^DELETE FROM earmark_").
+			WithArgs(earmark.ID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		err := svc.DeleteEarmark(ctx, user.ID, earmark)
+		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with different user owner should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		err := svc.DeleteEarmark(ctx, user.ID+1, earmark)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with missing event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnError(pgx.ErrNoRows)
+
+		err := svc.DeleteEarmark(ctx, user.ID, earmark)
+		errs.AssertError(t, err, errs.NotFound, "event not found")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with archived event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				),
+			)
+
+		err := svc.DeleteEarmark(ctx, user.ID, earmark)
+		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
 
 func TestService_DeleteEarmarkByRefID(t *testing.T) {
+	t.Parallel()
+
+	ts := tstTs
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      ts,
+		LastModified: ts,
+	}
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		Archived:     false,
+		StartTime:    ts,
+		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
+		Created:      ts,
+		LastModified: ts,
+	}
+	eventItem := &model.EventItem{
+		ID:           2,
+		RefID:        refid.Must(model.NewEventItemRefID()),
+		EventID:      event.ID,
+		Description:  "eventitem",
+		Created:      ts,
+		LastModified: ts,
+	}
+	earmark := &model.Earmark{
+		ID:           3,
+		RefID:        refid.Must(model.NewEarmarkRefID()),
+		EventItemID:  eventItem.ID,
+		UserID:       user.ID,
+		Note:         "nothing",
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	t.Run("delete should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID,
+					earmark.UserID, earmark.Note,
+					earmark.Created, earmark.LastModified,
+				),
+			)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
+				),
+			)
+		mock.ExpectBegin()
+		mock.ExpectExec("^DELETE FROM earmark_").
+			WithArgs(earmark.ID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
+		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with different user owner should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID,
+					earmark.UserID, earmark.Note,
+					earmark.Created, earmark.LastModified,
+				),
+			)
+		err := svc.DeleteEarmarkByRefID(ctx, user.ID+1, earmark.RefID)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with missing event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID,
+					earmark.UserID, earmark.Note,
+					earmark.Created, earmark.LastModified,
+				),
+			)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnError(pgx.ErrNoRows)
+
+		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
+		errs.AssertError(t, err, errs.NotFound, "event not found")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with archived event should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
+				}).
+				AddRow(
+					earmark.ID, earmark.RefID, earmark.EventItemID,
+					earmark.UserID, earmark.Note,
+					earmark.Created, earmark.LastModified,
+				),
+			)
+		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
+			WithArgs(eventItem.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description", "archived",
+					"start_time", "start_time_tz", "created", "last_modified",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name, event.Description,
+					true, event.StartTime, event.StartTimeTz, ts, ts,
+				),
+			)
+
+		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
+		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete with missing earmark should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
+			WithArgs(earmark.RefID).
+			WillReturnError(pgx.ErrNoRows)
+
+		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
+		errs.AssertError(t, err, errs.NotFound, "earmark not found")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
