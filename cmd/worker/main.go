@@ -86,16 +86,16 @@ func main() {
 	// configure services //
 	//--------------------//
 
-	// setup dbpool pool & models & servicer
-	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
+	// setup db pool & models & servicer
+	db, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
 		slog.With("error", err).
 			Error("failed to connect to database")
 		os.Exit(1)
 		return
 	}
-	defer dbpool.Close()
-	service := service.NewService(dbpool)
+	defer db.Close()
+	service := service.New(service.Options{Db: db})
 
 	//----------------//
 	// configure jobs //

@@ -6,24 +6,15 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/dropwhile/icbt/internal/logger"
 )
-
-type DB struct {
-	*pgxpool.Pool
-}
 
 type PgxHandle interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(context.Context, string, ...interface{}) pgx.Row
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
-}
-
-func (db *DB) GetPool() *pgxpool.Pool {
-	return db.Pool
 }
 
 func Get[T any](ctx context.Context, db PgxHandle, query string, args ...interface{}) (T, error) {

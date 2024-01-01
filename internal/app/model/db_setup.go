@@ -94,7 +94,3 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 	}
 	return pgxpool.NewWithConfig(context.Background(), config)
 }
-
-func SetupFromDbPool(pool *pgxpool.Pool) *DB {
-	return &DB{pool}
-}

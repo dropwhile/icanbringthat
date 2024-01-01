@@ -11,7 +11,6 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/dropwhile/icbt/internal/app/handler"
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/rpc"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -41,14 +40,13 @@ func (app *App) OnClose(f func()) {
 }
 
 func New(
-	dbpool *pgxpool.Pool,
+	db *pgxpool.Pool,
 	rdb *redis.Client,
 	templates resources.TGetter,
-	mailer *mail.Mailer,
+	mailer mail.MailSender,
 	conf *Config,
 ) (*App, error) {
-	db := model.SetupFromDbPool(dbpool)
-	service := service.NewService(db)
+	service := service.New(service.Options{Db: db})
 	baseURL := strings.TrimSuffix(conf.BaseURL, "/")
 	isProd := conf.Production
 	sessMgr := session.NewRedisSessionManager(rdb, conf.Production)

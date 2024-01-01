@@ -76,15 +76,15 @@ func main() {
 	// configure services //
 	//--------------------//
 
-	// setup dbpool pool & models
-	dbpool, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
+	// setup db pool & models
+	db, err := model.SetupDBPool(config.DatabaseDSN, config.LogTrace)
 	if err != nil {
 		slog.With("error", err).
 			Error("failed to connect to database")
 		os.Exit(1)
 		return
 	}
-	defer dbpool.Close()
+	defer db.Close()
 
 	redisOpt, err := redis.ParseURL(config.RedisDSN)
 	if err != nil {
@@ -118,7 +118,7 @@ func main() {
 		RequestLogging: config.LogTrace,
 		RpcApi:         config.RpcApi,
 	}
-	r, err := app.New(dbpool, rdb, templates, mailer, appConfig)
+	r, err := app.New(db, rdb, templates, mailer, appConfig)
 	if err != nil {
 		slog.With("error", err).
 			Error("failed to create server")
