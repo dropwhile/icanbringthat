@@ -116,8 +116,11 @@ ${GOBIN}/modd:
 ${GOBIN}/convergen:
 	go install github.com/reedom/convergen@latest
 
-$(GOBIN)/ifacemaker:
+${GOBIN}/ifacemaker:
 	go install github.com/vburenin/ifacemaker@latest
+
+${GOBIN}/mockery:
+	go install github.com/vektra/mockery/v2@v2.39.1
 
 ${GOBIN}/deadcode:
 	go install golang.org/x/tools/cmd/deadcode@latest
@@ -138,7 +141,7 @@ BENCH_TOOLS := ${GOBIN}/benchstat
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
 GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses  ${GOBIN}/protoc-go-inject-tag
-GENERATE_TOOLS += $(GOBIN)/ifacemaker
+GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockery
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode

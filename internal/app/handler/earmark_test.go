@@ -10,12 +10,12 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	mockservice "github.com/dropwhile/icbt/internal/app/service/mocks"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -64,11 +64,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		LastModified: ts,
 	}
 
-	t.Run("create earmark", func(t *testing.T) {
+	t.Run("create earmark should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -76,66 +78,22 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(eventItem.ID).
-			WillReturnError(pgx.ErrNoRows)
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(eventItem.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectBegin()
-		// refid as anyarg because new refid is created on call to create
-		mock.ExpectQuery("^INSERT INTO earmark_").
-			WithArgs(pgx.NamedArgs{
-				"refID":       service.EarmarkRefIDMatcher,
-				"eventItemID": earmark.EventItemID,
-				"userID":      earmark.UserID,
-				"note":        "some note",
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-					earmark.Note, ts, ts,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		note := "some note"
 
-		data := url.Values{"note": {"some note"}}
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil).
+			Once()
+		svc.EXPECT().
+			GetEventItem(ctx, eventItem.RefID).
+			Return(eventItem, nil).
+			Once()
+		svc.EXPECT().
+			NewEarmark(ctx, user, eventItem.ID, note).
+			Return(earmark, nil).
+			Once()
+
+		data := url.Values{"note": {note}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -150,13 +108,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark bad event refid", func(t *testing.T) {
+	t.Run("create earmark bad event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -179,13 +140,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark wrong type event refid", func(t *testing.T) {
+	t.Run("create earmark wrong type event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -208,13 +172,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark bad event item id", func(t *testing.T) {
+	t.Run("create earmark bad event item id should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -237,13 +204,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark wrong type event item id", func(t *testing.T) {
+	t.Run("create earmark wrong type event item id should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -266,13 +236,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark missing event", func(t *testing.T) {
+	t.Run("create earmark missing event should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -280,9 +253,10 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(nil, errs.NotFound.Error("not found")).
+			Once()
 
 		data := url.Values{"note": {"some note"}}
 
@@ -299,13 +273,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark missing event item", func(t *testing.T) {
+	t.Run("create earmark missing event item should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -313,21 +290,14 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description", "archived",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil).
+			Once()
+		svc.EXPECT().
+			GetEventItem(ctx, eventItem.RefID).
+			Return(nil, errs.NotFound.Error("not found")).
+			Once()
 
 		data := url.Values{"note": {"some note"}}
 
@@ -344,13 +314,16 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark eventitem not matching event", func(t *testing.T) {
+	t.Run("create earmark eventitem not matching event should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -358,29 +331,24 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description", "archived",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					eventItem.ID, eventItem.RefID, 33, eventItem.Description,
-					ts, ts,
-				),
-			)
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil).
+			Once()
+		svc.EXPECT().
+			GetEventItem(ctx, eventItem.RefID).
+			Return(
+				&model.EventItem{
+					ID:           eventItem.ID,
+					RefID:        eventItem.RefID,
+					EventID:      33,
+					Description:  eventItem.Description,
+					Created:      ts,
+					LastModified: ts,
+				},
+				nil,
+			).
+			Once()
 
 		data := url.Values{"note": {"some note"}}
 
@@ -397,9 +365,10 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("create earmark user not verified", func(t *testing.T) {
+	t.Run("create earmark user not verified should fail", func(t *testing.T) {
 		t.Parallel()
 
 		user := &model.User{
@@ -415,6 +384,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -422,47 +393,22 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description", "archived",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_id", "description", "created", "last_modified",
-				}).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM earmark_").
-			WithArgs(eventItem.ID).
-			WillReturnError(pgx.ErrNoRows)
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventItem.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description",
-					"archived", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, refid.Must(model.NewEventRefID()), 34,
-					"event name", "event desc",
-					false, tstTs, tstTs,
-				),
-			)
+		note := "some note"
 
-		data := url.Values{"note": {"some note"}}
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil).
+			Once()
+		svc.EXPECT().
+			GetEventItem(ctx, eventItem.RefID).
+			Return(eventItem, nil).
+			Once()
+		svc.EXPECT().
+			NewEarmark(ctx, user, eventItem.ID, note).
+			Return(nil, errs.PermissionDenied.Error("user not verified")).
+			Once()
+
+		data := url.Values{"note": {note}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -477,6 +423,65 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
+	})
+
+	t.Run("create earmark already exists should fail", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:           33,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     false,
+			Created:      ts,
+			LastModified: ts,
+		}
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
+		ctx, _ = handler.sessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+		rctx := chi.NewRouteContext()
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
+		rctx.URLParams.Add("eRefID", event.RefID.String())
+		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
+
+		note := "some note"
+
+		svc.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil).
+			Once()
+		svc.EXPECT().
+			GetEventItem(ctx, eventItem.RefID).
+			Return(eventItem, nil).
+			Once()
+		svc.EXPECT().
+			NewEarmark(ctx, user, eventItem.ID, note).
+			Return(nil, errs.AlreadyExists.Error("already earmarked - access denied")).
+			Once()
+
+		data := url.Values{"note": {note}}
+
+		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+		handler.CreateEarmark(rr, req)
+
+		response := rr.Result()
+		util.MustReadAll(response.Body)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusForbidden)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 }
 
@@ -495,21 +500,9 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 
-	t.Run("delete earmark", func(t *testing.T) {
+	t.Run("delete earmark should succeed", func(t *testing.T) {
 		t.Parallel()
 
-		event := &model.Event{
-			ID:           1,
-			RefID:        refid.Must(model.NewEventRefID()),
-			UserID:       user.ID,
-			Name:         "event",
-			Description:  "description",
-			Archived:     false,
-			StartTime:    ts,
-			StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
-			Created:      ts,
-			LastModified: ts,
-		}
 		earmark := &model.Earmark{
 			ID:           1,
 			RefID:        refid.Must(model.NewEarmarkRefID()),
@@ -522,41 +515,18 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-					earmark.Note, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_").
-			WithArgs(earmark.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description", "archived",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM earmark_").
-			WithArgs(earmark.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		svc.EXPECT().
+			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
+			Return(nil).
+			Once()
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -571,9 +541,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("delete earmark event archived", func(t *testing.T) {
+	t.Run("delete earmark permission denied should fail", func(t *testing.T) {
 		t.Parallel()
 
 		earmark := &model.Earmark{
@@ -585,50 +556,21 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 			Created:      ts,
 			LastModified: ts,
 		}
-		event := &model.Event{
-			ID:           1,
-			RefID:        refid.Must(model.NewEventRefID()),
-			UserID:       user.ID,
-			Name:         "event",
-			Description:  "description",
-			Archived:     true,
-			StartTime:    ts,
-			StartTimeTz:  util.Must(service.ParseTimeZone("Etc/UTC")),
-			Created:      ts,
-			LastModified: ts,
-		}
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-				}).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-					earmark.Note, ts, ts,
-				),
-			)
-		mock.ExpectQuery("^SELECT (.+) FROM event_").
-			WithArgs(earmark.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "name", "description", "archived",
-					"start_time", "start_time_tz", "created", "last_modified",
-				}).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				),
-			)
+		svc.EXPECT().
+			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
+			Return(errs.PermissionDenied.Error("event is archived")).
+			Once()
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -643,13 +585,16 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("delete earmark missing refid", func(t *testing.T) {
+	t.Run("delete earmark missing refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -668,13 +613,16 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("delete earmark bad refid", func(t *testing.T) {
+	t.Run("delete earmark bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -694,13 +642,16 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("delete earmark not found", func(t *testing.T) {
+	t.Run("delete earmark not found should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -708,9 +659,10 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		refID := refid.Must(model.NewEarmarkRefID())
 		rctx.URLParams.Add("mRefID", refID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(refID).
-			WillReturnError(pgx.ErrNoRows)
+		svc.EXPECT().
+			DeleteEarmarkByRefID(ctx, user.ID, refID).
+			Return(errs.NotFound.Error("earmark not found")).
+			Once()
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -725,13 +677,16 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 
-	t.Run("delete earmark refid wrong type", func(t *testing.T) {
+	t.Run("delete earmark refid wrong type should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
+		svc := mockservice.NewMockServicer(t)
+		handler.svc = svc
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -751,54 +706,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete earmark wrong user", func(t *testing.T) {
-		t.Parallel()
-
-		earmark := &model.Earmark{
-			ID:           1,
-			RefID:        refid.Must(model.NewEarmarkRefID()),
-			EventItemID:  1,
-			UserID:       user.ID,
-			Note:         "nothing",
-			Created:      ts,
-			LastModified: ts,
-		}
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
-		ctx, _ = handler.sessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", earmark.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
-			WithArgs(earmark.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "event_item_id", "user_id", "note",
-					"created", "last_modified",
-				}).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID,
-					user.ID+1, earmark.Note, ts, ts,
-				),
-			)
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusForbidden)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		svc.AssertExpectations(t)
 	})
 }
