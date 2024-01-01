@@ -51,6 +51,6 @@ func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
 
 func NewTestServer(db model.PgxHandle) *Server {
 	return &Server{
-		service: service.New(service.Options{Db: db}),
+		svc: service.New(service.Options{Db: db}),
 	}
 }

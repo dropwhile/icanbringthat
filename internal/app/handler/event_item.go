@@ -31,7 +31,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	event, errx := x.service.GetEvent(ctx, eventRefID)
+	event, errx := x.svc.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -95,7 +95,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	event, errx := x.service.GetEvent(ctx, eventRefID)
+	event, errx := x.svc.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -115,7 +115,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventItem, errx := x.service.GetEventItem(ctx, eventItemRefID)
+	eventItem, errx := x.svc.GetEventItem(ctx, eventItemRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -175,7 +175,7 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errx := x.service.AddEventItem(ctx, user.ID, eventRefID, description)
+	_, errx := x.svc.AddEventItem(ctx, user.ID, eventRefID, description)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -217,7 +217,7 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
 	// and not someone just putting in /yolo/yyyy and getting
 	// the expected result
-	event, errx := x.service.GetEvent(ctx, eventRefID)
+	event, errx := x.svc.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -239,7 +239,7 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errx = x.service.UpdateEventItem(
+	_, errx = x.svc.UpdateEventItem(
 		ctx, user.ID, eventItemRefID, description,
 		func(ei *model.EventItem) bool {
 			return ei.EventID != event.ID
@@ -302,7 +302,7 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 	// er. /xxxx/yyyy where yyyy is actually an item for xxxx
 	// and not someone just putting in /yolo/yyyy and getting
 	// the expected result
-	event, errx := x.service.GetEvent(ctx, eventRefID)
+	event, errx := x.svc.GetEvent(ctx, eventRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -313,7 +313,7 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = x.service.RemoveEventItem(
+	errx = x.svc.RemoveEventItem(
 		ctx, user.ID, eventItemRefID,
 		func(ei *model.EventItem) bool {
 			slog.DebugContext(ctx,

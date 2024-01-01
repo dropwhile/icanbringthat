@@ -26,7 +26,7 @@ type Handler struct {
 	sessMgr   session.SessionManager
 	mailer    mail.MailSender
 	cMAC      crypto.HMACer
-	service   service.Servicer
+	svc       service.Servicer
 	baseURL   string
 	isProd    bool
 }
@@ -62,7 +62,7 @@ func New(opts Options) (*Handler, error) {
 		cMAC:      cMAC,
 		baseURL:   opts.BaseURL,
 		isProd:    opts.IsProd,
-		service:   &service.Service{Db: opts.Db},
+		svc:       &service.Service{Db: opts.Db},
 	}
 	return handler, nil
 }

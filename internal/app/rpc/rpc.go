@@ -21,7 +21,7 @@ type Server struct {
 	templates resources.TGetter
 	mailer    mail.MailSender
 	cMAC      crypto.HMACer
-	service   service.Servicer
+	svc       service.Servicer
 	baseURL   string
 	isProd    bool
 }
@@ -53,7 +53,7 @@ func New(opts Options) (*Server, error) {
 		templates: opts.Templates,
 		mailer:    opts.Mailer,
 		cMAC:      cMAC,
-		service: &service.Service{
+		svc: &service.Service{
 			Db: opts.Db,
 		},
 		baseURL: opts.BaseURL,
@@ -68,7 +68,7 @@ func (s *Server) GenHandler(prefix string) icbt.TwirpServer {
 		twirp.WithServerPathPrefix(prefix),
 		twirp.WithServerHooks(
 			&twirp.ServerHooks{
-				RequestReceived: AuthHook(s.service),
+				RequestReceived: AuthHook(s.svc),
 			},
 		),
 	)

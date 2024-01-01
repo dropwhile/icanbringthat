@@ -61,7 +61,7 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	authNUser := x.service.WebAuthnUserFrom(user)
+	authNUser := x.svc.WebAuthnUserFrom(user)
 
 	// exclude any existing credentials so the user can't accidentally
 	// reregister the same device twice
@@ -130,7 +130,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authNUser := x.service.WebAuthnUserFrom(user)
+	authNUser := x.svc.WebAuthnUserFrom(user)
 
 	keyName := r.FormValue("key_name")
 	if keyName == "" {
@@ -249,7 +249,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return nil, fmt.Errorf("bad user id: %w", err)
 		}
-		user, errx := x.service.GetUser(ctx, refID)
+		user, errx := x.svc.GetUser(ctx, refID)
 		if errx != nil || user == nil {
 			return nil, fmt.Errorf("could not find user: %w", err)
 		}
@@ -258,7 +258,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		// capture userID for session login operation after auth success
 		userID = user.ID
-		authNUser := x.service.WebAuthnUserFrom(user)
+		authNUser := x.svc.WebAuthnUserFrom(user)
 		return authNUser, nil
 	}
 	_, err = authnInstance.FinishDiscoverableLogin(handler, sessionData, r)
@@ -298,7 +298,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credential, errx := x.service.GetUserCredentialByRefID(ctx, credentialRefID)
+	credential, errx := x.svc.GetUserCredentialByRefID(ctx, credentialRefID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -315,7 +315,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, errx := x.service.GetUserCredentialCountByUser(ctx, user.ID)
+	count, errx := x.svc.GetUserCredentialCountByUser(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return
@@ -327,7 +327,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = x.service.DeleteUserCredential(ctx, credential.ID)
+	errx = x.svc.DeleteUserCredential(ctx, credential.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return

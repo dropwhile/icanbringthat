@@ -25,7 +25,7 @@ func (s *Server) ListEventItems(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	items, errx := s.service.GetEventItemsByEvent(ctx, refID)
+	items, errx := s.svc.GetEventItemsByEvent(ctx, refID)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
@@ -50,7 +50,7 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	errx := s.service.RemoveEventItem(ctx, user.ID, refID, nil)
+	errx := s.svc.RemoveEventItem(ctx, user.ID, refID, nil)
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
@@ -72,7 +72,7 @@ func (s *Server) AddEventItem(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
 	}
 
-	eventItem, errx := s.service.AddEventItem(
+	eventItem, errx := s.svc.AddEventItem(
 		ctx, user.ID, refID, r.Description,
 	)
 	if errx != nil {
@@ -99,7 +99,7 @@ func (s *Server) UpdateEventItem(ctx context.Context,
 		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
 	}
 
-	eventItem, errx := s.service.UpdateEventItem(
+	eventItem, errx := s.svc.UpdateEventItem(
 		ctx, user.ID, refID, r.Description, nil,
 	)
 	if errx != nil {

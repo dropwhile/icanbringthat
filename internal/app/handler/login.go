@@ -62,7 +62,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find user...
-	user, errx := x.service.GetUserByEmail(ctx, email)
+	user, errx := x.svc.GetUserByEmail(ctx, email)
 	if errx != nil || user == nil {
 		slog.DebugContext(ctx, "invalid credentials: no user match", "error", err)
 		x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")

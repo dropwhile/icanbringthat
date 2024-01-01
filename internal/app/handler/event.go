@@ -33,13 +33,13 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.svc.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	eventCount, errx := x.service.GetEventsCount(ctx, user.ID)
+	eventCount, errx := x.svc.GetEventsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -67,7 +67,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	events, _, errx := x.service.GetEventsPaginated(
+	events, _, errx := x.svc.GetEventsPaginated(
 		ctx, user.ID, 10, offset*10, archived)
 	if errx != nil {
 		x.DBError(w, errx)
@@ -75,7 +75,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventIDs := util.ToListByFunc(events, func(e *model.Event) int { return e.ID })
-	eventItemCounts, errx := x.service.GetEventItemsCount(ctx, eventIDs)
+	eventItemCounts, errx := x.svc.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -138,13 +138,13 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.svc.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	event, errx := x.service.GetEvent(ctx, refID)
+	event, errx := x.svc.GetEvent(ctx, refID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -152,7 +152,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	owner := user.ID == event.UserID
 
-	eventItems, errx := x.service.GetEventItemsByEventID(ctx, event.ID)
+	eventItems, errx := x.svc.GetEventItemsByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -180,7 +180,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		eventItems = append(unsortedList, sortedList...)
 	}
 
-	earmarks, errx := x.service.GetEarmarksByEventID(ctx, event.ID)
+	earmarks, errx := x.svc.GetEarmarksByEventID(ctx, event.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -196,14 +196,14 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	slices.Sort(userIDs)
 
 	// now get the list of usrs ids and fetch the associated users
-	earmarkUsers, errx := x.service.GetUsersByIDs(ctx, userIDs)
+	earmarkUsers, errx := x.svc.GetUsersByIDs(ctx, userIDs)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
 	favorited := false
-	_, errx = x.service.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
+	_, errx = x.svc.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
 	if errx == nil {
 		favorited = true
 	} else {
@@ -293,7 +293,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := x.service.GetEvent(ctx, refID)
+	event, errx := x.svc.GetEvent(ctx, refID)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -368,7 +368,7 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, errx := x.service.CreateEvent(ctx, user, name, description, startTime, tz)
+	event, errx := x.svc.CreateEvent(ctx, user, name, description, startTime, tz)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.InvalidArgument:
@@ -436,7 +436,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		euvs.Tz = mo.Some(loc.String())
 	}
 
-	errx := x.service.UpdateEvent(ctx, user.ID, refID, euvs)
+	errx := x.svc.UpdateEvent(ctx, user.ID, refID, euvs)
 	if errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
@@ -495,7 +495,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	}
 	order = util.Uniq(order)
 
-	_, errx := x.service.UpdateEventItemSorting(
+	_, errx := x.svc.UpdateEventItemSorting(
 		ctx, user.ID, eventRefID, order,
 	)
 	if errx != nil {
@@ -531,7 +531,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := x.service.DeleteEvent(ctx, user.ID, refID); errx != nil {
+	if errx := x.svc.DeleteEvent(ctx, user.ID, refID); errx != nil {
 		switch errx.Code() {
 		case errs.NotFound:
 			x.NotFoundError(w)

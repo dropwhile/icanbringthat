@@ -75,11 +75,11 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		mailer:    &TestMailer{make([]*mail.Mail, 0)},
 		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
 		baseURL:   "http://example.com",
-		service:   &service.Service{Db: mock},
+		svc:       &service.Service{Db: mock},
 	}
 	mux := chi.NewMux()
 	mux.Use(h.sessMgr.LoadAndSave)
-	mux.Use(auth.Load(h.service, h.sessMgr))
+	mux.Use(auth.Load(h.svc, h.sessMgr))
 	return mock, mux, h
 }
 

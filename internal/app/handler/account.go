@@ -54,13 +54,13 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentials, errx := x.service.GetUserCredentialsByUser(ctx, user.ID)
+	credentials, errx := x.svc.GetUserCredentialsByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
 	}
 
-	apikey, errx := x.service.GetApiKeyByUser(ctx, user.ID)
+	apikey, errx := x.svc.GetApiKeyByUser(ctx, user.ID)
 	if errx != nil {
 		if errx.Code() != errs.NotFound {
 			x.DBError(w, errx)
@@ -68,7 +68,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	notifCount, errx := x.service.GetNotificationsCount(ctx, user.ID)
+	notifCount, errx := x.svc.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -122,14 +122,14 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errx := x.service.NewUser(ctx, email, name, []byte(passwd))
+	user, errx := x.svc.NewUser(ctx, email, name, []byte(passwd))
 	if errx != nil {
 		slog.ErrorContext(ctx, "error adding user", logger.Err(errx))
 		x.BadRequestError(w, "error adding user")
 		return
 	}
 
-	_, errx = x.service.NewNotification(ctx, user.ID,
+	_, errx = x.svc.NewNotification(ctx, user.ID,
 		`Account is not currently verified. Please verify account in link:/settings.`,
 	)
 	if errx != nil {
@@ -225,7 +225,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if changes {
-		errx := x.service.UpdateUser(ctx, user.ID, updateVals)
+		errx := x.svc.UpdateUser(ctx, user.ID, updateVals)
 		if errx != nil {
 			slog.ErrorContext(ctx, "error updating user",
 				logger.Err(errx))
@@ -264,7 +264,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ensure we have at least one passkey first
-	pkCount, errx := x.service.GetUserCredentialCountByUser(ctx, user.ID)
+	pkCount, errx := x.svc.GetUserCredentialCountByUser(ctx, user.ID)
 	if errx != nil {
 		x.DBError(w, errx)
 		return
@@ -333,7 +333,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = x.service.UpdateUser(ctx, user.ID, updateVals)
+	errx = x.svc.UpdateUser(ctx, user.ID, updateVals)
 	if errx != nil {
 		slog.ErrorContext(ctx, "error updating user auth",
 			logger.Err(errx))
@@ -385,7 +385,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 			}
 			changes = true
 			updateVals.ApiAccess = mo.Some(true)
-			_, errx := x.service.NewApiKeyIfNotExists(ctx, user.ID)
+			_, errx := x.svc.NewApiKeyIfNotExists(ctx, user.ID)
 			if errx != nil {
 				x.DBError(w, errx)
 				return
@@ -409,7 +409,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if rotateApiKey == "true" {
-		if _, errx := x.service.NewApiKey(ctx, user.ID); errx != nil {
+		if _, errx := x.svc.NewApiKey(ctx, user.ID); errx != nil {
 			slog.ErrorContext(ctx, "error rotating api key",
 				logger.Err(errx))
 			x.InternalServerError(w, "error rotating api key")
@@ -418,7 +418,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if apiAccess != "" {
-		if errx := x.service.UpdateUser(ctx, user.ID, updateVals); errx != nil {
+		if errx := x.svc.UpdateUser(ctx, user.ID, updateVals); errx != nil {
 			slog.ErrorContext(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")
@@ -497,7 +497,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if errx := x.service.UpdateUserSettings(
+	if errx := x.svc.UpdateUserSettings(
 		ctx, user.ID, &user.Settings); errx != nil {
 		slog.ErrorContext(ctx, "error updating user settings",
 			logger.Err(errx))
@@ -519,7 +519,7 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errx := x.service.DeleteUser(ctx, user.ID); errx != nil {
+	if errx := x.svc.DeleteUser(ctx, user.ID); errx != nil {
 		x.DBError(w, errx)
 		return
 	}
