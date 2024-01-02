@@ -26,7 +26,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 	if r.Pagination != nil {
 		limit := int(r.Pagination.Limit)
 		offset := int(r.Pagination.Offset)
-		notifs, pagination, errx := s.svc.GetNotifcationsPaginated(ctx, user.ID, limit, offset)
+		notifs, pagination, errx := s.svc.GetNotificationsPaginated(ctx, user.ID, limit, offset)
 		if errx != nil {
 			return nil, convert.ToTwirpError(errx)
 		}

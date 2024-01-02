@@ -19,7 +19,17 @@ var (
 	ParseNotificationRefID     = reftag.Parse[model.NotificationRefID]
 )
 
-func (s *Service) GetNotifcationsPaginated(
+func (s *Service) GetNotificationsCount(
+	ctx context.Context, userID int,
+) (int, errs.Error) {
+	notifCount, err := model.GetNotificationCountByUser(ctx, s.Db, userID)
+	if err != nil {
+		return 0, errs.Internal.Error("db error")
+	}
+	return notifCount, nil
+}
+
+func (s *Service) GetNotificationsPaginated(
 	ctx context.Context, userID int, limit, offset int,
 ) ([]*model.Notification, *Pagination, errs.Error) {
 	notifCount, errx := s.GetNotificationsCount(ctx, userID)
@@ -47,21 +57,14 @@ func (s *Service) GetNotifcationsPaginated(
 	return notifications, pagination, nil
 }
 
-func (s *Service) GetNotificationsCount(
-	ctx context.Context, userID int,
-) (int, errs.Error) {
-	notifCount, err := model.GetNotificationCountByUser(ctx, s.Db, userID)
-	if err != nil {
-		return 0, errs.Internal.Error("db error")
-	}
-	return notifCount, nil
-}
-
 func (s *Service) GetNotifications(
 	ctx context.Context, userID int,
 ) ([]*model.Notification, errs.Error) {
 	notifications, err := model.GetNotificationsByUser(ctx, s.Db, userID)
-	if err != nil {
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return []*model.Notification{}, nil
+	case err != nil:
 		return nil, errs.Internal.Error("db error")
 	}
 	return notifications, nil

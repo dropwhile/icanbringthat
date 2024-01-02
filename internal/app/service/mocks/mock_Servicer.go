@@ -2182,78 +2182,6 @@ func (_c *MockServicer_GetFavoriteEventsPaginated_Call) RunAndReturn(run func(co
 	return _c
 }
 
-// GetNotifcationsPaginated provides a mock function with given fields: ctx, userID, limit, offset
-func (_m *MockServicer) GetNotifcationsPaginated(ctx context.Context, userID int, limit int, offset int) ([]*model.Notification, *service.Pagination, errs.Error) {
-	ret := _m.Called(ctx, userID, limit, offset)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetNotifcationsPaginated")
-	}
-
-	var r0 []*model.Notification
-	var r1 *service.Pagination
-	var r2 errs.Error
-	if rf, ok := ret.Get(0).(func(context.Context, int, int, int) ([]*model.Notification, *service.Pagination, errs.Error)); ok {
-		return rf(ctx, userID, limit, offset)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, int, int, int) []*model.Notification); ok {
-		r0 = rf(ctx, userID, limit, offset)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.Notification)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, int, int, int) *service.Pagination); ok {
-		r1 = rf(ctx, userID, limit, offset)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*service.Pagination)
-		}
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, int, int, int) errs.Error); ok {
-		r2 = rf(ctx, userID, limit, offset)
-	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).(errs.Error)
-		}
-	}
-
-	return r0, r1, r2
-}
-
-// MockServicer_GetNotifcationsPaginated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNotifcationsPaginated'
-type MockServicer_GetNotifcationsPaginated_Call struct {
-	*mock.Call
-}
-
-// GetNotifcationsPaginated is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID int
-//   - limit int
-//   - offset int
-func (_e *MockServicer_Expecter) GetNotifcationsPaginated(ctx interface{}, userID interface{}, limit interface{}, offset interface{}) *MockServicer_GetNotifcationsPaginated_Call {
-	return &MockServicer_GetNotifcationsPaginated_Call{Call: _e.mock.On("GetNotifcationsPaginated", ctx, userID, limit, offset)}
-}
-
-func (_c *MockServicer_GetNotifcationsPaginated_Call) Run(run func(ctx context.Context, userID int, limit int, offset int)) *MockServicer_GetNotifcationsPaginated_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int), args[2].(int), args[3].(int))
-	})
-	return _c
-}
-
-func (_c *MockServicer_GetNotifcationsPaginated_Call) Return(_a0 []*model.Notification, _a1 *service.Pagination, _a2 errs.Error) *MockServicer_GetNotifcationsPaginated_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *MockServicer_GetNotifcationsPaginated_Call) RunAndReturn(run func(context.Context, int, int, int) ([]*model.Notification, *service.Pagination, errs.Error)) *MockServicer_GetNotifcationsPaginated_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetNotifications provides a mock function with given fields: ctx, userID
 func (_m *MockServicer) GetNotifications(ctx context.Context, userID int) ([]*model.Notification, errs.Error) {
 	ret := _m.Called(ctx, userID)
@@ -2370,6 +2298,78 @@ func (_c *MockServicer_GetNotificationsCount_Call) Return(_a0 int, _a1 errs.Erro
 }
 
 func (_c *MockServicer_GetNotificationsCount_Call) RunAndReturn(run func(context.Context, int) (int, errs.Error)) *MockServicer_GetNotificationsCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetNotificationsPaginated provides a mock function with given fields: ctx, userID, limit, offset
+func (_m *MockServicer) GetNotificationsPaginated(ctx context.Context, userID int, limit int, offset int) ([]*model.Notification, *service.Pagination, errs.Error) {
+	ret := _m.Called(ctx, userID, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetNotificationsPaginated")
+	}
+
+	var r0 []*model.Notification
+	var r1 *service.Pagination
+	var r2 errs.Error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, int) ([]*model.Notification, *service.Pagination, errs.Error)); ok {
+		return rf(ctx, userID, limit, offset)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, int) []*model.Notification); ok {
+		r0 = rf(ctx, userID, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*model.Notification)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int, int) *service.Pagination); ok {
+		r1 = rf(ctx, userID, limit, offset)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*service.Pagination)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, int, int, int) errs.Error); ok {
+		r2 = rf(ctx, userID, limit, offset)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(errs.Error)
+		}
+	}
+
+	return r0, r1, r2
+}
+
+// MockServicer_GetNotificationsPaginated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNotificationsPaginated'
+type MockServicer_GetNotificationsPaginated_Call struct {
+	*mock.Call
+}
+
+// GetNotificationsPaginated is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID int
+//   - limit int
+//   - offset int
+func (_e *MockServicer_Expecter) GetNotificationsPaginated(ctx interface{}, userID interface{}, limit interface{}, offset interface{}) *MockServicer_GetNotificationsPaginated_Call {
+	return &MockServicer_GetNotificationsPaginated_Call{Call: _e.mock.On("GetNotificationsPaginated", ctx, userID, limit, offset)}
+}
+
+func (_c *MockServicer_GetNotificationsPaginated_Call) Run(run func(ctx context.Context, userID int, limit int, offset int)) *MockServicer_GetNotificationsPaginated_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *MockServicer_GetNotificationsPaginated_Call) Return(_a0 []*model.Notification, _a1 *service.Pagination, _a2 errs.Error) *MockServicer_GetNotificationsPaginated_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockServicer_GetNotificationsPaginated_Call) RunAndReturn(run func(context.Context, int, int, int) ([]*model.Notification, *service.Pagination, errs.Error)) *MockServicer_GetNotificationsPaginated_Call {
 	_c.Call.Return(run)
 	return _c
 }

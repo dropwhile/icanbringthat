@@ -43,7 +43,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := pageNum - 1
-	notifs, _, errx := x.svc.GetNotifcationsPaginated(ctx, user.ID, 10, offset*10)
+	notifs, _, errx := x.svc.GetNotificationsPaginated(ctx, user.ID, 10, offset*10)
 	if errx != nil {
 		x.DBError(w, errx)
 		return

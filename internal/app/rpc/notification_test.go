@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
@@ -43,34 +42,23 @@ func TestRpc_ListNotifications(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectQuery("SELECT count(.+) FROM notification_").
-			WithArgs(user.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{"count"}).
-				AddRow(1),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM notification_").
-			WithArgs(pgx.NamedArgs{
-				"userID": user.ID,
-				"limit":  pgxmock.AnyArg(),
-				"offset": pgxmock.AnyArg(),
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "message",
-					"read", "created", "last_modified",
-				}).
-				AddRow(
-					notification.ID, notification.RefID,
-					user.ID, notification.Message,
-					notification.Read, tstTs, tstTs,
-				),
-			)
+		limit := 10
+		offset := 0
+
+		mock.EXPECT().
+			GetNotificationsPaginated(ctx, user.ID, limit, offset).
+			Return(
+				[]*model.Notification{notification},
+				&service.Pagination{
+					Limit:  uint32(limit),
+					Offset: uint32(offset),
+					Count:  1,
+				}, nil,
+			).
+			Once()
 
 		request := &icbt.ListNotificationsRequest{
 			Pagination: &icbt.PaginationRequest{
@@ -80,44 +68,28 @@ func TestRpc_ListNotifications(t *testing.T) {
 		}
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
-
 		assert.Equal(t, len(response.Notifications), 1)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("list notifications non-paginated should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectQuery("SELECT (.+) FROM notification_").
-			WithArgs(pgx.NamedArgs{
-				"userID": user.ID,
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "message",
-					"read", "created", "last_modified",
-				}).
-				AddRow(
-					notification.ID, notification.RefID,
-					user.ID, notification.Message,
-					notification.Read, tstTs, tstTs,
-				),
-			)
+		mock.EXPECT().
+			GetNotifications(ctx, user.ID).
+			Return([]*model.Notification{notification}, nil).
+			Once()
 
 		request := &icbt.ListNotificationsRequest{}
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Notifications), 1)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -148,8 +120,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.DeleteNotificationRequest{
@@ -157,99 +128,67 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification with no matching refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectQuery("SELECT (.+) FROM notification_").
-			WithArgs(notification.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, notification.RefID).
+			Return(errs.NotFound.Error("notification not found")).
+			Once()
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "notification not found")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification for different user should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectQuery("SELECT (.+) FROM notification_").
-			WithArgs(notification.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "message",
-					"read", "created", "last_modified",
-				}).
-				AddRow(
-					notification.ID, notification.RefID,
-					33, notification.Message,
-					notification.Read, tstTs, tstTs,
-				),
-			)
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, notification.RefID).
+			Return(errs.PermissionDenied.Error("permission denied")).
+			Once()
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectQuery("SELECT (.+) FROM notification_").
-			WithArgs(notification.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "message",
-					"read", "created", "last_modified",
-				}).
-				AddRow(
-					notification.ID, notification.RefID,
-					user.ID, notification.Message,
-					notification.Read, tstTs, tstTs,
-				),
-			)
-		mock.ExpectBegin()
-		mock.ExpectExec("DELETE FROM notification_").
-			WithArgs(notification.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, notification.RefID).
+			Return(nil).
+			Once()
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assert.NilError(t, err)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -271,21 +210,17 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		mock.ExpectBegin()
-		mock.ExpectExec("DELETE FROM notification_").
-			WithArgs(user.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			DeleteAllNotifications(ctx, user.ID).
+			Return(nil).
+			Once()
 
 		request := &icbt.DeleteAllNotificationsRequest{}
 		_, err := server.DeleteAllNotifications(ctx, request)
 		assert.NilError(t, err)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
