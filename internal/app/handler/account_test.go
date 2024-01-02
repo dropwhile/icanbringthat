@@ -44,7 +44,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		_, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -80,7 +80,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -135,7 +135,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		_, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -179,7 +179,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -234,7 +234,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		_, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -271,7 +271,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		_, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -311,7 +311,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		_, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -352,7 +352,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -423,7 +423,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -486,7 +486,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -549,7 +549,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -596,7 +596,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -643,7 +643,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -721,7 +721,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -788,7 +788,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -832,7 +832,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		user := &model.User{
@@ -890,7 +890,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	mock, _, handler := SetupHandler(t, ctx)
+	mock, _, handler := SetupHandlerOld(t, ctx)
 
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs
@@ -939,7 +939,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -999,7 +999,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -1027,7 +1027,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -1056,7 +1056,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -1099,7 +1099,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		pwhash, _ := crypto.HashPW([]byte("00x00"))

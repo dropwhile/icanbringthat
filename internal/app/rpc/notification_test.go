@@ -44,7 +44,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectQuery("SELECT count(.+) FROM notification_").
@@ -91,7 +91,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
@@ -149,7 +149,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.DeleteNotificationRequest{
@@ -166,7 +166,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
@@ -187,7 +187,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
@@ -219,7 +219,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectQuery("SELECT (.+) FROM notification_").
@@ -272,7 +272,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectBegin()

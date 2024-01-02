@@ -22,11 +22,11 @@ func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
 	return out
 }
 
-func ToPbListWithService[T any, V any](converter func(service.Servicer, *T) (*V, error), svc service.Servicer, in []*T) ([]*V, error) {
+func ToPbListWithService[T any, V any](ctx context.Context, converter func(context.Context, service.Servicer, *T) (*V, error), svc service.Servicer, in []*T) ([]*V, error) {
 	out := make([]*V, len(in))
 	var err error
 	for i := range in {
-		out[i], err = converter(svc, in[i])
+		out[i], err = converter(ctx, svc, in[i])
 		if err != nil {
 			break
 		}
@@ -46,13 +46,12 @@ func TimeToTimestampTZ(t time.Time) *icbt.TimestampTZ {
 	return pbtz
 }
 
-func ToPbEarmark(svc service.Servicer, src *model.Earmark) (dst *icbt.Earmark, err error) {
+func ToPbEarmark(ctx context.Context, svc service.Servicer, src *model.Earmark) (dst *icbt.Earmark, err error) {
 	dst = &icbt.Earmark{}
 	dst.RefId = src.RefID.String()
 	dst.Note = src.Note
 	dst.Created = TimeToTimestamp(src.Created)
 
-	ctx := context.Background()
 	eventItem, err := svc.GetEventItemByID(ctx, src.EventItemID)
 	if err != nil {
 		return nil, err

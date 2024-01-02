@@ -37,7 +37,7 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.svc, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(ctx, convert.ToPbEarmark, s.svc, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -83,7 +83,7 @@ func (s *Server) ListEarmarks(ctx context.Context,
 		}
 	}
 
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.svc, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(ctx, convert.ToPbEarmark, s.svc, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -118,7 +118,7 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := convert.ToPbEarmark(s.svc, earmark)
+	pbEarmark, err := convert.ToPbEarmark(ctx, s.svc, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
@@ -158,7 +158,7 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	pbEarmark, err := convert.ToPbEarmark(s.svc, earmark)
+	pbEarmark, err := convert.ToPbEarmark(ctx, s.svc, earmark)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}

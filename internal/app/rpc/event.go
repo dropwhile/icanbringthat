@@ -166,7 +166,7 @@ func (s *Server) GetEventDetails(ctx context.Context,
 	if errx != nil {
 		return nil, convert.ToTwirpError(errx)
 	}
-	pbEarmarks, err := convert.ToPbListWithService(convert.ToPbEarmark, s.svc, earmarks)
+	pbEarmarks, err := convert.ToPbListWithService(ctx, convert.ToPbEarmark, s.svc, earmarks)
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}

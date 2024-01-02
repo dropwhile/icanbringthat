@@ -40,7 +40,7 @@ func TestRpc_ListEvents(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -91,7 +91,7 @@ func TestRpc_ListEvents(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -148,7 +148,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -246,7 +246,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -267,7 +267,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.GetEventDetailsRequest{
@@ -312,7 +312,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.ExpectBegin()
@@ -362,7 +362,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEventRequest{
@@ -385,7 +385,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEventRequest{
@@ -407,7 +407,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEventRequest{
@@ -428,7 +428,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEventRequest{
@@ -477,7 +477,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -537,7 +537,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -599,7 +599,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -656,7 +656,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -712,7 +712,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -768,7 +768,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
@@ -786,7 +786,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -828,7 +828,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -870,7 +870,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.UpdateEventRequest{
@@ -906,7 +906,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -951,7 +951,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1
@@ -996,7 +996,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.DeleteEventRequest{
@@ -1013,7 +1013,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
-		server := NewTestServer(mock)
+		server := NewTestServerOld(mock)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 		eventID := 1

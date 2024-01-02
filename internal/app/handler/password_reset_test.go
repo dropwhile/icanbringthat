@@ -56,7 +56,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -141,7 +141,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -179,7 +179,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -216,7 +216,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -254,7 +254,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -292,7 +292,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -334,7 +334,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -383,7 +383,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refID.SetTime(rfts)
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -426,7 +426,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -535,7 +535,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -595,7 +595,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)

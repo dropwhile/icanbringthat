@@ -22,6 +22,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
+	mockservice "github.com/dropwhile/icbt/internal/app/service/mocks"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -64,7 +65,9 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 	tm.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 }
 
-func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
+func SetupHandlerOld(
+	t *testing.T, ctx context.Context,
+) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
 	t.Helper()
 
 	mock := SetupDBMock(t, ctx)
@@ -76,6 +79,27 @@ func SetupHandler(t *testing.T, ctx context.Context) (pgxmock.PgxConnIface, *chi
 		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
 		baseURL:   "http://example.com",
 		svc:       &service.Service{Db: mock},
+	}
+	mux := chi.NewMux()
+	mux.Use(h.sessMgr.LoadAndSave)
+	mux.Use(auth.Load(h.svc, h.sessMgr))
+	return mock, mux, h
+}
+
+func SetupHandler(
+	t *testing.T, ctx context.Context,
+) (*mockservice.MockServicer, *chi.Mux, *Handler) {
+	t.Helper()
+
+	mock := mockservice.NewMockServicer(t)
+	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
+	h := &Handler{
+		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
+		sessMgr:   session.NewTestSessionManager(),
+		mailer:    &TestMailer{make([]*mail.Mail, 0)},
+		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
+		baseURL:   "http://example.com",
+		svc:       mock,
 	}
 	mux := chi.NewMux()
 	mux.Use(h.sessMgr.LoadAndSave)

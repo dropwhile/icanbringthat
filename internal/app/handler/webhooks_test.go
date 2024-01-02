@@ -44,7 +44,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
@@ -142,7 +142,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		}
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
@@ -194,7 +194,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 
@@ -235,7 +235,7 @@ func TestHandler_PostmarkCallback(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 

@@ -29,7 +29,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Run("bad password", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
 			WithArgs("user@example.com").
@@ -71,7 +71,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Run("no matching user", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 
 		// no matching user
 		mock.ExpectQuery("^SELECT (.+) FROM user_").
@@ -106,7 +106,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Run("missing form data", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		mock, _, handler := SetupHandlerOld(t, ctx)
 
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
@@ -135,7 +135,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	mock, _, handler := SetupHandler(t, ctx)
+	mock, _, handler := SetupHandlerOld(t, ctx)
 
 	refID := refid.Must(model.NewUserRefID())
 	ts := tstTs

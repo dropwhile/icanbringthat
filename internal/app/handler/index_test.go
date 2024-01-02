@@ -17,7 +17,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, mux, handler := SetupHandler(t, ctx)
+		mock, mux, handler := SetupHandlerOld(t, ctx)
 		mux.Get("/", handler.ShowIndex)
 
 		// create request
@@ -45,7 +45,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, mux, handler := SetupHandler(t, ctx)
+		mock, mux, handler := SetupHandlerOld(t, ctx)
 		cookie := SetupUserSession(t, mux, mock, handler)
 		mux.Get("/", handler.ShowIndex)
 
