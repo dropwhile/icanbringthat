@@ -50,8 +50,8 @@ type Servicer interface {
 	GetFavoriteEventsCount(ctx context.Context, userID int) (*model.BifurcatedRowCounts, errs.Error)
 	GetFavoriteEvents(ctx context.Context, userID int, archived bool) ([]*model.Event, errs.Error)
 	GetFavoriteByUserEvent(ctx context.Context, userID int, eventID int) (*model.Favorite, errs.Error)
-	GetNotificationsPaginated(ctx context.Context, userID int, limit, offset int) ([]*model.Notification, *Pagination, errs.Error)
 	GetNotificationsCount(ctx context.Context, userID int) (int, errs.Error)
+	GetNotificationsPaginated(ctx context.Context, userID int, limit, offset int) ([]*model.Notification, *Pagination, errs.Error)
 	GetNotifications(ctx context.Context, userID int) ([]*model.Notification, errs.Error)
 	DeleteNotification(ctx context.Context, userID int, refID model.NotificationRefID) errs.Error
 	DeleteAllNotifications(ctx context.Context, userID int) errs.Error
