@@ -5,13 +5,10 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
@@ -23,118 +20,104 @@ func TestRpc_AuthHook(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := &service.Service{Db: mock}
+		_, mock := NewTestServer(t)
 
-		_, err := AuthHook(svc)(ctx)
+		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with api-key not finding user should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := &service.Service{Db: mock}
+		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 
-		mock.ExpectQuery("^SELECT (.+) FROM user_").
-			WithArgs("user-123").
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			GetUserByApiKey(ctx, "user-123").
+			Return(nil, errs.NotFound.Error("user not found")).
+			Once()
 
-		_, err := AuthHook(svc)(ctx)
+		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with user ApiAccess disabled should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := &service.Service{Db: mock}
+		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM user_").
-			WithArgs("user-123").
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "email", "name", "api_access", "verified",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, refID, "user@example.com", "user", false, true,
-					tstTs, tstTs,
-				),
-			)
+		mock.EXPECT().
+			GetUserByApiKey(ctx, "user-123").
+			Return(
+				&model.User{
+					ID:        1,
+					RefID:     refID,
+					ApiAccess: false,
+					Verified:  true,
+				}, nil,
+			).
+			Once()
 
-		_, err := AuthHook(svc)(ctx)
+		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with user not verified disabled should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := &service.Service{Db: mock}
+		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM user_").
-			WithArgs("user-123").
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "email", "name", "api_access",
-					"verified", "created", "last_modified",
-				},
+		mock.EXPECT().
+			GetUserByApiKey(ctx, "user-123").
+			Return(
+				&model.User{
+					ID:        1,
+					RefID:     refID,
+					ApiAccess: true,
+					Verified:  false,
+				}, nil,
 			).
-				AddRow(
-					1, refID, "user@example.com", "user", true, false,
-					tstTs, tstTs,
-				),
-			)
+			Once()
 
-		_, err := AuthHook(svc)(ctx)
+		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "account not verified")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := &service.Service{Db: mock}
+		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
 		refID := refid.Must(model.NewUserRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM user_").
-			WithArgs("user-123").
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "email", "name", "api_access",
-					"verified", "created", "last_modified",
-				},
+		mock.EXPECT().
+			GetUserByApiKey(ctx, "user-123").
+			Return(
+				&model.User{
+					ID:        1,
+					RefID:     refID,
+					ApiAccess: true,
+					Verified:  true,
+				}, nil,
 			).
-				AddRow(
-					1, refID, "user@example.com", "user", true, true,
-					tstTs, tstTs,
-				),
-			)
+			Once()
 
-		ctx, err := AuthHook(svc)(ctx)
+		ctx, err := AuthHook(mock)(ctx)
 		assert.NilError(t, err)
 		_, ok := auth.ContextGet[*model.User](ctx, "user")
 		assert.Check(t, ok, "user is a *mode.user")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
