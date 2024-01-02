@@ -1,6 +1,7 @@
 /.envrc
 /.vscode
 /.modd.conf
+/.ignore
 /build
 /diagrams
 server.crt
