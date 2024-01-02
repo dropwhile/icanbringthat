@@ -2,7 +2,7 @@ with-expecter: true
 dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
 mockname: "Mock{{.InterfaceName}}"
 outpkg: "mock{{.PackageName}}"
-filename: "mock_{{.InterfaceName}}.go"
+filename: "mock_{{.InterfaceName|lower}}.go"
 packages:
     github.com/dropwhile/icbt/internal/app/service:
         config:
