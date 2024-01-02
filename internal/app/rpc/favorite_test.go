@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
@@ -35,41 +33,38 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 	t.Run("list favorite events paginated should succeed", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		ctx := context.TODO()
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM favorite_").
-			WithArgs(user.ID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{"current", "archived"}).
-				AddRow(1, 1),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(pgx.NamedArgs{
-				"userID":   user.ID,
-				"limit":    pgxmock.AnyArg(),
-				"offset":   pgxmock.AnyArg(),
-				"archived": false,
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					user.ID, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
+		limit := 10
+		offset := 0
+		archived := false
+
+		mock.EXPECT().
+			GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived).
+			Return(
+				[]*model.Event{{
+					Created:       tstTs,
+					LastModified:  tstTs,
+					StartTime:     tstTs,
+					StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
+					Name:          "name",
+					Description:   "desc",
+					ItemSortOrder: []int{},
+					Archived:      archived,
+					UserID:        user.ID,
+					ID:            1,
+					RefID:         eventRefID,
+				}},
+				&service.Pagination{
+					Limit:  uint32(limit),
+					Offset: uint32(offset),
+					Count:  1,
+				}, nil,
+			).
+			Once()
 
 		request := &icbt.ListFavoriteEventsRequest{
 			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
@@ -79,50 +74,45 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Events), 1)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("list favorite events non-paginated should succeed", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(pgx.NamedArgs{
-				"userID":   user.ID,
-				"archived": false,
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					user.ID, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
+		archived := false
+
+		mock.EXPECT().
+			GetFavoriteEvents(ctx, user.ID, archived).
+			Return(
+				[]*model.Event{{
+					Created:       tstTs,
+					LastModified:  tstTs,
+					StartTime:     tstTs,
+					StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
+					Name:          "name",
+					Description:   "desc",
+					ItemSortOrder: []int{},
+					Archived:      archived,
+					UserID:        user.ID,
+					ID:            1,
+					RefID:         eventRefID,
+				}}, nil,
+			).
+			Once()
 
 		request := &icbt.ListFavoriteEventsRequest{
 			Archived: func(b bool) *bool { return &b }(false),
 		}
 		response, err := server.ListFavoriteEvents(ctx, request)
 		assert.NilError(t, err)
-
 		assert.Equal(t, len(response.Events), 1)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -144,161 +134,79 @@ func TestRpc_AddFavorite(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventRefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					33, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM favorite_").
-			WithArgs(pgx.NamedArgs{
-				"userID":  user.ID,
-				"eventID": pgxmock.AnyArg(),
-			}).
-			WillReturnError(pgx.ErrNoRows)
-
-		mock.ExpectBegin()
-		mock.ExpectQuery("INSERT INTO favorite_").
-			WithArgs(pgx.NamedArgs{
-				"userID":  user.ID,
-				"eventID": pgxmock.AnyArg(),
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "user_id",
-					"event_id", "created",
-				}).
-				AddRow(
-					1, user.ID,
-					1, tstTs,
-				),
-			)
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, eventRefID).
+			Return(&model.Event{
+				ID:            1,
+				RefID:         eventRefID,
+				UserID:        user.ID,
+				ItemSortOrder: []int{},
+				StartTime:     tstTs,
+				StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
+				Archived:      false,
+			}, nil).
+			Once()
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		response, err := server.AddFavorite(ctx, request)
 		assert.NilError(t, err)
-
 		assert.Equal(t, response.Favorite.EventRefId, eventRefID.String())
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite for own event should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventRefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					user.ID, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, eventRefID).
+			Return(nil, errs.PermissionDenied.Error("can't favorite own event")).
+			Once()
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "can't favorite own event")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite for already favorited should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("SELECT (.+) FROM event_").
-			WithArgs(eventRefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					33, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM favorite_").
-			WithArgs(pgx.NamedArgs{
-				"userID":  user.ID,
-				"eventID": pgxmock.AnyArg(),
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "user_id",
-					"event_id", "created",
-				}).
-				AddRow(
-					1, user.ID,
-					1, tstTs,
-				),
-			)
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, eventRefID).
+			Return(nil, errs.AlreadyExists.Error("favorite already exists")).
+			Once()
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.AlreadyExists, "favorite already exists")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite with bad event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateFavoriteRequest{
@@ -306,8 +214,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -329,67 +236,27 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(eventRefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id",
-					"user_id", "archived",
-					"name", "description",
-					"start_time", "start_time_tz",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, eventRefID,
-					33, false,
-					"some name", "some description",
-					tstTs, util.Must(service.ParseTimeZone("Etc/UTC")),
-					tstTs, tstTs,
-				),
-			)
-		mock.ExpectQuery("SELECT (.+) FROM favorite_").
-			WithArgs(pgx.NamedArgs{
-				"userID":  user.ID,
-				"eventID": pgxmock.AnyArg(),
-			}).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "user_id",
-					"event_id", "created",
-				}).
-				AddRow(
-					1, user.ID,
-					1, tstTs,
-				),
-			)
-
-		mock.ExpectBegin()
-		mock.ExpectExec("DELETE FROM favorite_").
-			WithArgs(1).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, eventRefID).
+			Return(nil)
 
 		request := &icbt.RemoveFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		assert.NilError(t, err)
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveFavoriteRequest{
@@ -397,29 +264,66 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite with event not found should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		server := NewTestServerOld(mock)
+		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		eventRefID := refid.Must(model.NewEventRefID())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(eventRefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, eventRefID).
+			Return(errs.NotFound.Error("event not found"))
 
 		request := &icbt.RemoveFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
+	})
+
+	t.Run("remove favorite with favorite not found should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		server, mock := NewTestServer(t)
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, eventRefID).
+			Return(errs.NotFound.Error("favorite not found"))
+
+		request := &icbt.RemoveFavoriteRequest{
+			EventRefId: eventRefID.String(),
+		}
+		_, err := server.RemoveFavorite(ctx, request)
+		errs.AssertError(t, err, twirp.NotFound, "favorite not found")
+		mock.AssertExpectations(t)
+	})
+
+	t.Run("remove favorite not owned should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		server, mock := NewTestServer(t)
+		ctx = auth.ContextSet(ctx, "user", user)
+		eventRefID := refid.Must(model.NewEventRefID())
+
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, eventRefID).
+			Return(errs.PermissionDenied.Error("permission denied"))
+
+		request := &icbt.RemoveFavoriteRequest{
+			EventRefId: eventRefID.String(),
+		}
+		_, err := server.RemoveFavorite(ctx, request)
+		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
+		mock.AssertExpectations(t)
 	})
 }
