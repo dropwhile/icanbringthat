@@ -79,6 +79,7 @@ type Servicer interface {
 	GetUserCredentialsByUser(ctx context.Context, userID int) ([]*model.UserCredential, errs.Error)
 	GetUserCredentialCountByUser(ctx context.Context, userID int) (int, errs.Error)
 	DeleteUserCredential(ctx context.Context, ID int) errs.Error
+	NewUserCredential(ctx context.Context, userID int, keyName string, credential []byte) (*model.UserCredential, errs.Error)
 	WebAuthnUserFrom(user *model.User) *WebAuthnUser
 	DisableRemindersWithNotification(ctx context.Context, email string, suppressionReason string) errs.Error
 }

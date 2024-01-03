@@ -3292,6 +3292,69 @@ func (_c *MockServicer_NewUser_Call) RunAndReturn(run func(context.Context, stri
 	return _c
 }
 
+// NewUserCredential provides a mock function with given fields: ctx, userID, keyName, credential
+func (_m *MockServicer) NewUserCredential(ctx context.Context, userID int, keyName string, credential []byte) (*model.UserCredential, errs.Error) {
+	ret := _m.Called(ctx, userID, keyName, credential)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewUserCredential")
+	}
+
+	var r0 *model.UserCredential
+	var r1 errs.Error
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, []byte) (*model.UserCredential, errs.Error)); ok {
+		return rf(ctx, userID, keyName, credential)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, []byte) *model.UserCredential); ok {
+		r0 = rf(ctx, userID, keyName, credential)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.UserCredential)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, string, []byte) errs.Error); ok {
+		r1 = rf(ctx, userID, keyName, credential)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(errs.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockServicer_NewUserCredential_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewUserCredential'
+type MockServicer_NewUserCredential_Call struct {
+	*mock.Call
+}
+
+// NewUserCredential is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID int
+//   - keyName string
+//   - credential []byte
+func (_e *MockServicer_Expecter) NewUserCredential(ctx interface{}, userID interface{}, keyName interface{}, credential interface{}) *MockServicer_NewUserCredential_Call {
+	return &MockServicer_NewUserCredential_Call{Call: _e.mock.On("NewUserCredential", ctx, userID, keyName, credential)}
+}
+
+func (_c *MockServicer_NewUserCredential_Call) Run(run func(ctx context.Context, userID int, keyName string, credential []byte)) *MockServicer_NewUserCredential_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(string), args[3].([]byte))
+	})
+	return _c
+}
+
+func (_c *MockServicer_NewUserCredential_Call) Return(_a0 *model.UserCredential, _a1 errs.Error) *MockServicer_NewUserCredential_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockServicer_NewUserCredential_Call) RunAndReturn(run func(context.Context, int, string, []byte) (*model.UserCredential, errs.Error)) *MockServicer_NewUserCredential_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewUserPWReset provides a mock function with given fields: ctx, userID
 func (_m *MockServicer) NewUserPWReset(ctx context.Context, userID int) (*model.UserPWReset, errs.Error) {
 	ret := _m.Called(ctx, userID)

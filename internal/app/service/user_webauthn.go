@@ -66,3 +66,15 @@ func (s *Service) DeleteUserCredential(
 	}
 	return nil
 }
+
+func (s *Service) NewUserCredential(
+	ctx context.Context, userID int, keyName string, credential []byte,
+) (*model.UserCredential, errs.Error) {
+	userCred, err := model.NewUserCredential(
+		ctx, s.Db, userID, keyName, credential,
+	)
+	if err != nil {
+		return nil, errs.Internal.Error("db error")
+	}
+	return userCred, nil
+}

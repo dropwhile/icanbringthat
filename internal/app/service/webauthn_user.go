@@ -8,12 +8,18 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/logger"
 )
 
+type Credentialer interface {
+	GetUserCredentialsByUser(ctx context.Context, userID int) ([]*model.UserCredential, errs.Error)
+	NewUserCredential(ctx context.Context, userID int, keyName string, credential []byte) (*model.UserCredential, errs.Error)
+}
+
 type WebAuthnUser struct {
 	*model.User
-	db model.PgxHandle
+	svc Credentialer
 }
 
 // WebAuthnID provides the user handle of the user account. A user handle is an opaque byte sequence with a maximum
@@ -47,11 +53,17 @@ func (u *WebAuthnUser) WebAuthnDisplayName() string {
 	return u.Email
 }
 
+// WebAuthnIcon is a deprecated option.
+// Deprecated: this has been removed from the specification recommendation. Suggest a blank string.
+func (u *WebAuthnUser) WebAuthnIcon() string {
+	return ""
+}
+
 // WebAuthnCredentials provides the list of Credential objects owned by the user.
 func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
 	ctx := context.Background()
 	res := make([]webauthn.Credential, 0)
-	credentials, err := model.GetUserCredentialsByUser(ctx, u.db, u.ID)
+	credentials, err := u.svc.GetUserCredentialsByUser(ctx, u.ID)
 	if err != nil {
 		slog.InfoContext(ctx, "error retrieving credentials from db",
 			logger.Err(err))
@@ -72,12 +84,6 @@ func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
 	return res
 }
 
-// WebAuthnIcon is a deprecated option.
-// Deprecated: this has been removed from the specification recommendation. Suggest a blank string.
-func (u *WebAuthnUser) WebAuthnIcon() string {
-	return ""
-}
-
 func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Credential) error {
 	ctx := context.Background()
 	credBytes, err := json.Marshal(credential)
@@ -86,7 +92,7 @@ func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Creden
 			logger.Err(err))
 		return err
 	}
-	_, err = model.NewUserCredential(ctx, u.db, u.ID, keyName, credBytes)
+	_, err = u.svc.NewUserCredential(ctx, u.ID, keyName, credBytes)
 	if err != nil {
 		slog.InfoContext(ctx, "db error creating credential",
 			logger.Err(err))
@@ -96,5 +102,5 @@ func (u *WebAuthnUser) AddCredential(keyName string, credential *webauthn.Creden
 }
 
 func (s *Service) WebAuthnUserFrom(user *model.User) *WebAuthnUser {
-	return &WebAuthnUser{user, s.Db}
+	return &WebAuthnUser{user, s}
 }
