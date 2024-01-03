@@ -464,6 +464,23 @@ func TestService_UpdateUser(t *testing.T) {
 			"there were unfulfilled expectations")
 	})
 
+	t.Run("update user empty email should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		vals := &UserUpdateValues{
+			Email: mo.Some(""),
+		}
+
+		err := svc.UpdateUser(ctx, user.ID, vals)
+		errs.AssertError(t, err, errs.InvalidArgument, "Email bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
 	t.Run("update user bad pwhash should fail", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()

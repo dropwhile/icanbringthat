@@ -126,7 +126,6 @@ type UserUpdateValues struct {
 func (s *Service) UpdateUser(
 	ctx context.Context, userID int, euvs *UserUpdateValues,
 ) errs.Error {
-	// buggy: see https://github.com/go-playground/validator/issues/1209
 	err := validate.Validate.StructCtx(ctx, euvs)
 	if err != nil {
 		badField := validate.GetErrorField(err)
@@ -135,6 +134,17 @@ func (s *Service) UpdateUser(
 			With("error", err).
 			Info("bad field value")
 		return errs.InvalidArgumentError(badField, "bad value")
+	}
+	// hacky: see https://github.com/go-playground/validator/issues/1209
+	if euvs.Name.IsPresent() {
+		if err := validate.Validate.VarCtx(ctx, euvs.Name, "notblank"); err != nil {
+			return errs.InvalidArgumentError("Name", "bad value")
+		}
+	}
+	if euvs.Email.IsPresent() {
+		if err := validate.Validate.VarCtx(ctx, euvs.Email, "notblank,email"); err != nil {
+			return errs.InvalidArgumentError("Email", "bad value")
+		}
 	}
 
 	err = model.UpdateUser(ctx, s.Db, userID, &model.UserUpdateModelValues{
