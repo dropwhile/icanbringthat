@@ -118,6 +118,18 @@ func (s *Service) UpdateEvent(
 		return errs.InvalidArgumentError(badField, "bad value")
 	}
 
+	// hacky: see https://github.com/go-playground/validator/issues/1209
+	if euvs.Name.IsPresent() {
+		if err := validate.Validate.VarCtx(ctx, euvs.Name, "notblank"); err != nil {
+			return errs.InvalidArgumentError("Name", "bad value")
+		}
+	}
+	if euvs.Description.IsPresent() {
+		if err := validate.Validate.VarCtx(ctx, euvs.Description, "notblank"); err != nil {
+			return errs.InvalidArgumentError("Description", "bad value")
+		}
+	}
+
 	if val, ok := euvs.StartTime.Get(); ok {
 		if val.IsZero() {
 			return errs.InvalidArgumentError("start_time", "bad value")
