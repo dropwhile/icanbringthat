@@ -29,7 +29,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// generate a verifier
-	uv, errx := x.svc.NewUserVerify(ctx, user)
+	uv, errx := x.svc.NewUserVerify(ctx, user.ID)
 	if errx != nil {
 		x.InternalServerError(w, errx.Msg())
 		return

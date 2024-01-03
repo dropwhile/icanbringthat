@@ -14,7 +14,7 @@ import (
 	"github.com/dropwhile/icbt/internal/errs"
 )
 
-func TestService_GetUserVerifyByRefID(t *testing.T) {
+func TestService_GetUserPWResetByRefID(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -28,22 +28,22 @@ func TestService_GetUserVerifyByRefID(t *testing.T) {
 		LastModified: tstTs,
 	}
 
-	t.Run("get user verify should succeed", func(t *testing.T) {
+	t.Run("get user pwreset should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := refid.Must(model.NewUserPWResetRefID())
 
-		mock.ExpectQuery("^SELECT (.+) FROM user_verify_").
+		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_").
 			WithArgs(refID).
 			WillReturnRows(pgxmock.NewRows(
 				[]string{"ref_id", "user_id"}).
 				AddRow(refID, user.ID),
 			)
 
-		result, err := svc.GetUserVerifyByRefID(ctx, refID)
+		result, err := svc.GetUserPWResetByRefID(ctx, refID)
 		assert.NilError(t, err)
 		assert.Equal(t, result.RefID, refID)
 		// we make sure that all expectations were met
@@ -57,21 +57,21 @@ func TestService_GetUserVerifyByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := refid.Must(model.NewUserPWResetRefID())
 
-		mock.ExpectQuery("^SELECT (.+) FROM user_verify_").
+		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_").
 			WithArgs(refID).
 			WillReturnError(pgx.ErrNoRows)
 
-		_, err := svc.GetUserVerifyByRefID(ctx, refID)
-		errs.AssertError(t, err, errs.NotFound, "verify not found")
+		_, err := svc.GetUserPWResetByRefID(ctx, refID)
+		errs.AssertError(t, err, errs.NotFound, "pwreset not found")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
 
-func TestService_NewUserVerify(t *testing.T) {
+func TestService_NewUserPWReset(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -85,18 +85,18 @@ func TestService_NewUserVerify(t *testing.T) {
 		LastModified: tstTs,
 	}
 
-	t.Run("add new user verify should succeed", func(t *testing.T) {
+	t.Run("add new user pwreset should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := refid.Must(model.NewUserPWResetRefID())
 
 		mock.ExpectBegin()
-		mock.ExpectQuery("INSERT INTO user_verify_").
+		mock.ExpectQuery("INSERT INTO user_pw_reset_").
 			WithArgs(pgx.NamedArgs{
-				"refID":  UserVerifyRefIDMatcher,
+				"refID":  UserPWResetRefIDMatcher,
 				"userID": user.ID,
 			}).
 			WillReturnRows(pgxmock.NewRows(
@@ -106,7 +106,7 @@ func TestService_NewUserVerify(t *testing.T) {
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
-		result, err := svc.NewUserVerify(ctx, user.ID)
+		result, err := svc.NewUserPWReset(ctx, user.ID)
 		assert.NilError(t, err)
 		assert.Equal(t, result.RefID, refID)
 		// we make sure that all expectations were met
@@ -115,7 +115,7 @@ func TestService_NewUserVerify(t *testing.T) {
 	})
 }
 
-func TestService_SetUserVerified(t *testing.T) {
+func TestService_UpdateUserPWReset(t *testing.T) {
 	t.Parallel()
 
 	user := &model.User{
@@ -135,8 +135,8 @@ func TestService_SetUserVerified(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
-		verify := &model.UserVerify{
+		refID := refid.Must(model.NewUserPWResetRefID())
+		upw := &model.UserPWReset{
 			RefID:   refID,
 			UserID:  user.ID,
 			Created: tstTs,
@@ -150,8 +150,8 @@ func TestService_SetUserVerified(t *testing.T) {
 				"userID":    user.ID,
 				"email":     mo.None[string](),
 				"name":      mo.None[string](),
-				"pwHash":    mo.None[[]byte](),
-				"verified":  mo.Some(true),
+				"pwHash":    mo.Some(user.PWHash),
+				"verified":  mo.None[bool](),
 				"pwAuth":    mo.None[bool](),
 				"apiAccess": mo.None[bool](),
 				"webAuthn":  mo.None[bool](),
@@ -162,7 +162,7 @@ func TestService_SetUserVerified(t *testing.T) {
 		// end inner tx
 		// inner tx start
 		mock.ExpectBegin()
-		mock.ExpectExec("DELETE FROM user_verify_").
+		mock.ExpectExec("DELETE FROM user_pw_reset_").
 			WithArgs(refID).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 		mock.ExpectCommit()
@@ -171,7 +171,7 @@ func TestService_SetUserVerified(t *testing.T) {
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
-		err := svc.SetUserVerified(ctx, user, verify)
+		err := svc.UpdateUserPWReset(ctx, user, upw)
 		assert.NilError(t, err)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),

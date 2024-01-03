@@ -27,13 +27,13 @@ type UserVerify struct {
 const UserVerifyExpiry = 30 * time.Minute
 
 func NewUserVerify(ctx context.Context, db PgxHandle,
-	user *User,
+	userID int,
 ) (*UserVerify, error) {
-	if user == nil {
+	if userID == 0 {
 		return nil, fmt.Errorf("nil user supplied")
 	}
 	refID := refid.Must(NewUserVerifyRefID())
-	return CreateUserVerify(ctx, db, refID, user.ID)
+	return CreateUserVerify(ctx, db, refID, userID)
 }
 
 func CreateUserVerify(ctx context.Context, db PgxHandle,

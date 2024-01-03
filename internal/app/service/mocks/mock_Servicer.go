@@ -568,9 +568,9 @@ func (_c *MockServicer_DeleteUser_Call) RunAndReturn(run func(context.Context, i
 	return _c
 }
 
-// DeleteUserCredential provides a mock function with given fields: ctx, ID
-func (_m *MockServicer) DeleteUserCredential(ctx context.Context, ID int) errs.Error {
-	ret := _m.Called(ctx, ID)
+// DeleteUserCredential provides a mock function with given fields: ctx, credentialID
+func (_m *MockServicer) DeleteUserCredential(ctx context.Context, credentialID int) errs.Error {
+	ret := _m.Called(ctx, credentialID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteUserCredential")
@@ -578,7 +578,7 @@ func (_m *MockServicer) DeleteUserCredential(ctx context.Context, ID int) errs.E
 
 	var r0 errs.Error
 	if rf, ok := ret.Get(0).(func(context.Context, int) errs.Error); ok {
-		r0 = rf(ctx, ID)
+		r0 = rf(ctx, credentialID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(errs.Error)
@@ -595,12 +595,12 @@ type MockServicer_DeleteUserCredential_Call struct {
 
 // DeleteUserCredential is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ID int
-func (_e *MockServicer_Expecter) DeleteUserCredential(ctx interface{}, ID interface{}) *MockServicer_DeleteUserCredential_Call {
-	return &MockServicer_DeleteUserCredential_Call{Call: _e.mock.On("DeleteUserCredential", ctx, ID)}
+//   - credentialID int
+func (_e *MockServicer_Expecter) DeleteUserCredential(ctx interface{}, credentialID interface{}) *MockServicer_DeleteUserCredential_Call {
+	return &MockServicer_DeleteUserCredential_Call{Call: _e.mock.On("DeleteUserCredential", ctx, credentialID)}
 }
 
-func (_c *MockServicer_DeleteUserCredential_Call) Run(run func(ctx context.Context, ID int)) *MockServicer_DeleteUserCredential_Call {
+func (_c *MockServicer_DeleteUserCredential_Call) Run(run func(ctx context.Context, credentialID int)) *MockServicer_DeleteUserCredential_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int))
 	})
@@ -3416,9 +3416,9 @@ func (_c *MockServicer_NewUserPWReset_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// NewUserVerify provides a mock function with given fields: ctx, user
-func (_m *MockServicer) NewUserVerify(ctx context.Context, user *model.User) (*model.UserVerify, errs.Error) {
-	ret := _m.Called(ctx, user)
+// NewUserVerify provides a mock function with given fields: ctx, userID
+func (_m *MockServicer) NewUserVerify(ctx context.Context, userID int) (*model.UserVerify, errs.Error) {
+	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NewUserVerify")
@@ -3426,19 +3426,19 @@ func (_m *MockServicer) NewUserVerify(ctx context.Context, user *model.User) (*m
 
 	var r0 *model.UserVerify
 	var r1 errs.Error
-	if rf, ok := ret.Get(0).(func(context.Context, *model.User) (*model.UserVerify, errs.Error)); ok {
-		return rf(ctx, user)
+	if rf, ok := ret.Get(0).(func(context.Context, int) (*model.UserVerify, errs.Error)); ok {
+		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *model.User) *model.UserVerify); ok {
-		r0 = rf(ctx, user)
+	if rf, ok := ret.Get(0).(func(context.Context, int) *model.UserVerify); ok {
+		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.UserVerify)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *model.User) errs.Error); ok {
-		r1 = rf(ctx, user)
+	if rf, ok := ret.Get(1).(func(context.Context, int) errs.Error); ok {
+		r1 = rf(ctx, userID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errs.Error)
@@ -3455,14 +3455,14 @@ type MockServicer_NewUserVerify_Call struct {
 
 // NewUserVerify is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user *model.User
-func (_e *MockServicer_Expecter) NewUserVerify(ctx interface{}, user interface{}) *MockServicer_NewUserVerify_Call {
-	return &MockServicer_NewUserVerify_Call{Call: _e.mock.On("NewUserVerify", ctx, user)}
+//   - userID int
+func (_e *MockServicer_Expecter) NewUserVerify(ctx interface{}, userID interface{}) *MockServicer_NewUserVerify_Call {
+	return &MockServicer_NewUserVerify_Call{Call: _e.mock.On("NewUserVerify", ctx, userID)}
 }
 
-func (_c *MockServicer_NewUserVerify_Call) Run(run func(ctx context.Context, user *model.User)) *MockServicer_NewUserVerify_Call {
+func (_c *MockServicer_NewUserVerify_Call) Run(run func(ctx context.Context, userID int)) *MockServicer_NewUserVerify_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*model.User))
+		run(args[0].(context.Context), args[1].(int))
 	})
 	return _c
 }
@@ -3472,7 +3472,7 @@ func (_c *MockServicer_NewUserVerify_Call) Return(_a0 *model.UserVerify, _a1 err
 	return _c
 }
 
-func (_c *MockServicer_NewUserVerify_Call) RunAndReturn(run func(context.Context, *model.User) (*model.UserVerify, errs.Error)) *MockServicer_NewUserVerify_Call {
+func (_c *MockServicer_NewUserVerify_Call) RunAndReturn(run func(context.Context, int) (*model.UserVerify, errs.Error)) *MockServicer_NewUserVerify_Call {
 	_c.Call.Return(run)
 	return _c
 }

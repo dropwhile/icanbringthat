@@ -36,9 +36,9 @@ func (s *Service) GetUserVerifyByRefID(
 }
 
 func (s *Service) NewUserVerify(
-	ctx context.Context, user *model.User,
+	ctx context.Context, userID int,
 ) (*model.UserVerify, errs.Error) {
-	verify, err := model.NewUserVerify(ctx, s.Db, user)
+	verify, err := model.NewUserVerify(ctx, s.Db, userID)
 	if err != nil {
 		return nil, errs.Internal.Error("db error")
 	}
