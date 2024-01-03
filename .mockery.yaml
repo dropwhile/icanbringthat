@@ -1,11 +1,17 @@
 with-expecter: true
-dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
+inpackage: true
+dir: "{{.InterfaceDir}}"
 mockname: "Mock{{.InterfaceName}}"
-outpkg: "mock{{.PackageName}}"
+outpkg: "{{.PackageName}}"
 filename: "mock_{{.InterfaceName|lower}}.go"
 packages:
     github.com/dropwhile/icbt/internal/app/service:
         config:
         interfaces:
             Servicer:
+                config:
+    github.com/dropwhile/icbt/internal/mail:
+        config:
+        interfaces:
+            MailSender:
                 config:

@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
+	mox "github.com/stretchr/testify/mock"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
-	mockservice "github.com/dropwhile/icbt/internal/app/service/mocks"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
@@ -121,7 +121,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil)
 
@@ -159,7 +159,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(errs.PermissionDenied.Error("not event owner"))
 
@@ -182,7 +182,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
@@ -205,7 +205,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(errs.NotFound.Error("event-item not found"))
 
@@ -402,7 +402,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(
 				&model.EventItem{
@@ -451,7 +451,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil, errs.PermissionDenied.Error("event is archived")).
 			Once()
@@ -477,7 +477,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil, errs.PermissionDenied.Error("not event owner")).
 			Once()
@@ -503,7 +503,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil, errs.PermissionDenied.Error("earmarked by other user")).
 			Once()
@@ -529,7 +529,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil, errs.InvalidArgumentError("description", "bad value")).
 			Once()
@@ -555,7 +555,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mockservice.AnythingOfType("func(*model.EventItem) bool"),
+				mox.AnythingOfType("func(*model.EventItem) bool"),
 			).
 			Return(nil, errs.NotFound.Error("event-item not found")).
 			Once()

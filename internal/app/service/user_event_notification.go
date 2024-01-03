@@ -13,8 +13,7 @@ import (
 	"github.com/dropwhile/icbt/internal/mail"
 )
 
-func (s *Service) NotifyUsersPendingEvents(
-	ctx context.Context,
+func (s *Service) NotifyUsersPendingEvents(ctx context.Context,
 	mailer mail.MailSender, tplContainer *resources.TContainer,
 	siteBaseUrl string,
 ) error {
