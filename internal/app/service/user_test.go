@@ -482,37 +482,80 @@ func TestService_UpdateUser(t *testing.T) {
 	})
 }
 
-/*
 func TestService_UpdateUserSettings(t *testing.T) {
 	t.Parallel()
 
-	t.Run("test", func(t *testing.T) {
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("update user settings should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
-	})
-}
 
-func TestService_updateUserSettings(t *testing.T) {
-	t.Parallel()
+		settings := &model.UserSettings{
+			ReminderThresholdHours: 0,
+			EnableReminders:        false,
+		}
 
-	t.Run("test", func(t *testing.T) {
-		t.Parallel()
-		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := New(Options{Db: mock})
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE user_").
+			WithArgs(pgx.NamedArgs{
+				"settings": settings,
+				"userID":   user.ID,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		err := svc.UpdateUserSettings(ctx, user.ID, settings)
+		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
 
 func TestService_DeleteUser(t *testing.T) {
 	t.Parallel()
 
-	t.Run("test", func(t *testing.T) {
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	t.Run("delete user should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
+
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM user_").
+			WithArgs(user.ID).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		err := svc.DeleteUser(ctx, user.ID)
+		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
 	})
 }
-*/
