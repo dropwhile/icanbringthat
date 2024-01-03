@@ -22,6 +22,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/app/service/mockservice"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -87,10 +88,10 @@ func SetupHandlerOld(
 
 func SetupHandler(
 	t *testing.T, ctx context.Context,
-) (*service.MockServicer, *chi.Mux, *Handler) {
+) (*mockservice.MockServicer, *chi.Mux, *Handler) {
 	t.Helper()
 
-	mock := service.NewMockServicer(t)
+	mock := mockservice.NewMockServicer(t)
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
 		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),

@@ -13,6 +13,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/app/service/mockservice"
 )
 
 func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
@@ -55,8 +56,8 @@ func NewTestServerOld(db model.PgxHandle) *Server {
 	}
 }
 
-func NewTestServer(t *testing.T) (*Server, *service.MockServicer) {
+func NewTestServer(t *testing.T) (*Server, *mockservice.MockServicer) {
 	t.Helper()
-	mock := service.NewMockServicer(t)
+	mock := mockservice.NewMockServicer(t)
 	return &Server{svc: mock}, mock
 }

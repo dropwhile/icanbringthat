@@ -68,7 +68,7 @@ type Servicer interface {
 	GetUserByApiKey(ctx context.Context, token string) (*model.User, errs.Error)
 	NewApiKey(ctx context.Context, userID int) (*model.ApiKey, errs.Error)
 	NewApiKeyIfNotExists(ctx context.Context, userID int) (*model.ApiKey, errs.Error)
-	NotifyUsersPendingEvents(ctx context.Context, mailer mail.MailSender, tplContainer *resources.TContainer, siteBaseUrl string) error
+	NotifyUsersPendingEvents(ctx context.Context, mailer mail.MailSender, tplContainer resources.TGetter, siteBaseUrl string) error
 	GetUserPWResetByRefID(ctx context.Context, refID model.UserPWResetRefID) (*model.UserPWReset, errs.Error)
 	NewUserPWReset(ctx context.Context, userID int) (*model.UserPWReset, errs.Error)
 	UpdateUserPWReset(ctx context.Context, user *model.User, upw *model.UserPWReset) errs.Error

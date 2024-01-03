@@ -14,7 +14,7 @@ import (
 )
 
 func (s *Service) NotifyUsersPendingEvents(ctx context.Context,
-	mailer mail.MailSender, tplContainer *resources.TContainer,
+	mailer mail.MailSender, tplContainer resources.TGetter,
 	siteBaseUrl string,
 ) error {
 	notifNeeded, err := model.GetUserEventNotificationNeeded(ctx, s.Db)

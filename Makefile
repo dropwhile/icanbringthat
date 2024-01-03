@@ -173,6 +173,8 @@ setup: setup-build setup-generate setup-check setup-bench setup-other
 generate: setup-build setup-generate
 	@echo ">> Generating..."
 	@go generate ./...
+	@echo ">> mockery..."
+	@mockery
 
 .PHONY: emit-license-deps
 emit-license-deps: setup-build setup-generate

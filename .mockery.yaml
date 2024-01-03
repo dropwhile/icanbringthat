@@ -1,8 +1,8 @@
 with-expecter: true
-inpackage: true
-dir: "{{.InterfaceDir}}"
+inpackage: false
+dir: "{{.InterfaceDir}}/mock{{.PackageName}}"
 mockname: "Mock{{.InterfaceName}}"
-outpkg: "{{.PackageName}}"
+outpkg: "mock{{.PackageName}}"
 filename: "mock_{{.InterfaceName|lower}}.go"
 packages:
     github.com/dropwhile/icbt/internal/app/service:
