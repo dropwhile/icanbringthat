@@ -137,6 +137,9 @@ func (s *Service) newNotification(
 
 	notification, err := model.NewNotification(ctx, db, userID, message)
 	if err != nil {
+		slog.
+			With("error", err).
+			Info("error creating notification")
 		return nil, errs.Internal.Errorf("db error: %w", err)
 	}
 	return notification, nil

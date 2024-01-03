@@ -3,16 +3,36 @@ package service
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/validate"
 )
 
 func (s *Service) DisableRemindersWithNotification(
 	ctx context.Context,
 	email string, suppressionReason string,
 ) errs.Error {
+	err := validate.Validate.VarCtx(ctx, email, "required,notblank,email")
+	if err != nil {
+		slog.
+			With("field", "email").
+			With("error", err).
+			Info("bad field value")
+		return errs.InvalidArgumentError("email", "bad value")
+	}
+
+	err = validate.Validate.VarCtx(ctx, suppressionReason, "required,notblank")
+	if err != nil {
+		slog.
+			With("field", "suppressionReason").
+			With("error", err).
+			Info("bad field value")
+		return errs.InvalidArgumentError("suppressionReason", "bad value")
+	}
+
 	user, errx := s.GetUserByEmail(ctx, email)
 	if errx != nil {
 		return errx

@@ -42,6 +42,9 @@ func (s *Service) GetUserByEmail(
 	case errors.Is(err, pgx.ErrNoRows):
 		return nil, errs.NotFound.Error("user not found")
 	case err != nil:
+		slog.
+			With("error", err).
+			Info("error getting user")
 		return nil, errs.Internal.Error("db error")
 	}
 	return user, nil
