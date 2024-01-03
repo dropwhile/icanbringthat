@@ -24,7 +24,7 @@ func (s *Service) GetUserCredentialByRefID(
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return nil, errs.NotFound.Error("credential")
+			return nil, errs.NotFound.Error("credential not found")
 		default:
 			return nil, errs.Internal.Errorf("db error: %w", err)
 		}
@@ -58,9 +58,9 @@ func (s *Service) GetUserCredentialCountByUser(
 }
 
 func (s *Service) DeleteUserCredential(
-	ctx context.Context, ID int,
+	ctx context.Context, credentialID int,
 ) errs.Error {
-	err := model.DeleteUserCredential(ctx, s.Db, ID)
+	err := model.DeleteUserCredential(ctx, s.Db, credentialID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
@@ -70,6 +70,12 @@ func (s *Service) DeleteUserCredential(
 func (s *Service) NewUserCredential(
 	ctx context.Context, userID int, keyName string, credential []byte,
 ) (*model.UserCredential, errs.Error) {
+	if keyName == "" {
+		return nil, errs.InvalidArgumentError("keyName", "bad value")
+	}
+	if len(credential) == 0 {
+		return nil, errs.InvalidArgumentError("credential", "bad value")
+	}
 	userCred, err := model.NewUserCredential(
 		ctx, s.Db, userID, keyName, credential,
 	)
