@@ -126,6 +126,7 @@ type UserUpdateValues struct {
 func (s *Service) UpdateUser(
 	ctx context.Context, userID int, euvs *UserUpdateValues,
 ) errs.Error {
+	// buggy: see https://github.com/go-playground/validator/issues/1209
 	err := validate.Validate.StructCtx(ctx, euvs)
 	if err != nil {
 		badField := validate.GetErrorField(err)
