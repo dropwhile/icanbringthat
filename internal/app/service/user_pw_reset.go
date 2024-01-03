@@ -48,6 +48,9 @@ func (s *Service) NewUserPWReset(
 func (s *Service) UpdateUserPWReset(
 	ctx context.Context, user *model.User, upw *model.UserPWReset,
 ) errs.Error {
+	if user.ID != upw.UserID {
+		return errs.PermissionDenied.Error("permission denied")
+	}
 	errx := TxnFunc(ctx, s.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
 			&model.UserUpdateModelValues{PWHash: mo.Some(user.PWHash)},

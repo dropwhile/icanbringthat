@@ -177,4 +177,24 @@ func TestService_SetUserVerified(t *testing.T) {
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
+
+	t.Run("set user verify not owner should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		refID := refid.Must(model.NewUserVerifyRefID())
+		verify := &model.UserVerify{
+			RefID:   refID,
+			UserID:  user.ID + 1,
+			Created: tstTs,
+		}
+
+		err := svc.SetUserVerified(ctx, user, verify)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }

@@ -48,6 +48,9 @@ func (s *Service) NewUserVerify(
 func (s *Service) SetUserVerified(
 	ctx context.Context, user *model.User, verifier *model.UserVerify,
 ) errs.Error {
+	if user.ID != verifier.UserID {
+		return errs.PermissionDenied.Error("permission denied")
+	}
 	errx := TxnFunc(ctx, s.Db, func(tx pgx.Tx) error {
 		innerErr := model.UpdateUser(ctx, tx, user.ID,
 			&model.UserUpdateModelValues{

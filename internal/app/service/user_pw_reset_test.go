@@ -129,7 +129,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		LastModified: tstTs,
 	}
 
-	t.Run("set user verify should succeed", func(t *testing.T) {
+	t.Run("set user pwreset should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
@@ -173,6 +173,26 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 
 		err := svc.UpdateUserPWReset(ctx, user, upw)
 		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("set user pwreset not owner should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		refID := refid.Must(model.NewUserPWResetRefID())
+		upw := &model.UserPWReset{
+			RefID:   refID,
+			UserID:  user.ID + 1,
+			Created: tstTs,
+		}
+
+		err := svc.UpdateUserPWReset(ctx, user, upw)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
