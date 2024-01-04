@@ -61,10 +61,8 @@ func (s *Service) RemoveFavorite(
 		return errs.Internal.Error("db error")
 	}
 
-	// superfluous check, but fine to leave in
-	if userID != favorite.UserID {
-		return errs.PermissionDenied.Error("permission denied")
-	}
+	// no need to double check (for permissions) userID == favorite.UserID here,
+	// since we fetch favorite by user+event above
 
 	err = model.DeleteFavorite(ctx, s.Db, favorite.ID)
 	if err != nil {
