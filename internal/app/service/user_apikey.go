@@ -25,7 +25,7 @@ func (s *Service) GetApiKeyByUser(
 	apiKey, err := model.GetApiKeyByUser(ctx, s.Db, userID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return nil, errs.NotFound.Error("user not found")
+		return nil, errs.NotFound.Error("user-api-key not found")
 	case err != nil:
 		slog.ErrorContext(ctx,
 			"error getting api key by user", "error", err)
