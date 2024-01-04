@@ -34,6 +34,9 @@ func (s *Service) GetNotificationsPaginated(
 ) ([]*model.Notification, *Pagination, errs.Error) {
 	notifCount, errx := s.GetNotificationsCount(ctx, userID)
 	if errx != nil {
+		slog.
+			With("error", errx).
+			Info("db error")
 		return nil, nil, errs.Internal.Error("db error")
 	}
 
@@ -45,6 +48,9 @@ func (s *Service) GetNotificationsPaginated(
 		case errors.Is(err, pgx.ErrNoRows):
 			notifs = []*model.Notification{}
 		case err != nil:
+			slog.
+				With("error", err).
+				Info("db error")
 			return nil, nil, errs.Internal.Error("db error")
 		}
 		notifications = notifs
