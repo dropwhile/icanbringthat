@@ -10,12 +10,11 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -45,40 +44,20 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 
-	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description",
-		"start_time", "start_time_tz", "created", "last_modified",
-	}
-	favoriteColumns := []string{"id", "user_id", "event_id", "created"}
-
 	t.Run("delete favorite", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(pgxmock.NewRows(favoriteColumns).
-				AddRow(33, user.ID, event.ID, ts))
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM favorite_").
-			WithArgs(33).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, event.RefID).
+			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		rr := httptest.NewRecorder()
@@ -91,15 +70,14 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete favorite bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -117,15 +95,14 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete favorite event not found", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -133,9 +110,9 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		refID := refid.Must(model.NewEventRefID())
 		rctx.URLParams.Add("eRefID", refID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ ").
-			WithArgs(refID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			RemoveFavorite(ctx, user.ID, refID).
+			Return(errs.NotFound.Error("event not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		rr := httptest.NewRecorder()
@@ -148,15 +125,14 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete favorite event refid wrong type", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -175,46 +151,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete favorite not exist", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
-		ctx, _ = handler.sessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name,
-					event.Description, event.StartTime, event.StartTimeTz,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnError(pgx.ErrNoRows)
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteFavorite(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusNotFound)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -243,40 +180,20 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		LastModified: ts,
 	}
 
-	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description",
-		"start_time", "start_time_tz", "created", "last_modified",
-	}
-	favoriteColumns := []string{"id", "user_id", "event_id", "created"}
-
 	t.Run("create favorite", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnError(pgx.ErrNoRows)
-		mock.ExpectBegin()
-		mock.ExpectQuery("^INSERT INTO favorite_").
-			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(pgxmock.NewRows(favoriteColumns).
-				AddRow(33, user.ID, event.ID, ts))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, event.RefID).
+			Return(event, nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -292,15 +209,14 @@ func TestHandler_Favorite_Add(t *testing.T) {
 			fmt.Sprintf("/events/%s", event.RefID.String()),
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create favorite bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -318,15 +234,14 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create favorite wrong type event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -344,28 +259,23 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create favorite same user as event", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, user.ID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, event.RefID).
+			Return(nil, errs.PermissionDenied.Error("can't favorite own event"))
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -378,32 +288,23 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create favorite already exists", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM favorite_ (.+)").
-			WithArgs(pgx.NamedArgs{"userID": user.ID, "eventID": event.ID}).
-			WillReturnRows(pgxmock.NewRows(favoriteColumns).
-				AddRow(33, user.ID, event.ID, ts))
+		mock.EXPECT().
+			AddFavorite(ctx, user.ID, event.RefID).
+			Return(nil, errs.AlreadyExists.Error("favorite already exists"))
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -416,7 +317,6 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
