@@ -255,10 +255,10 @@ func (s *Service) CreateEvent(
 
 	// check for zero time
 	if when.IsZero() {
-		return nil, errs.InvalidArgumentError("start_time", "bad empty value")
+		return nil, errs.InvalidArgumentError("start_time", "bad value")
 	}
 	// check for unix epoch
-	if when.UTC().Equal(time.Unix(0, 0).UTC()) {
+	if when.UTC().Before(time.Unix(1, 0).UTC()) {
 		return nil, errs.InvalidArgumentError("start_time", "bad value")
 	}
 

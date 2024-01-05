@@ -1090,6 +1090,157 @@ func TestService_UpdateEventItemSorting(t *testing.T) {
 }
 
 func TestService_CreateEvent(t *testing.T) {
+	t.Parallel()
+
+	ts := tstTs
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      ts,
+		LastModified: ts,
+	}
+	event := &model.Event{
+		ID:           1,
+		RefID:        refid.Must(model.NewEventRefID()),
+		UserID:       user.ID,
+		Name:         "event",
+		Description:  "description",
+		Archived:     false,
+		StartTime:    ts,
+		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	t.Run("create should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectBegin()
+		mock.ExpectQuery("INSERT INTO event_ ").
+			WithArgs(pgx.NamedArgs{
+				"refID":       EventRefIDMatcher,
+				"userID":      event.UserID,
+				"name":        event.Name,
+				"description": event.Description,
+				"startTime":   event.StartTime,
+				"startTimeTz": event.StartTimeTz,
+			}).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "name", "description",
+					"archived",
+				}).
+				AddRow(
+					event.ID, event.RefID, event.UserID, event.Name,
+					event.Description, event.Archived,
+				),
+			)
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		result, err := svc.CreateEvent(
+			ctx, user, event.Name, event.Description, event.StartTime,
+			event.StartTimeTz.String(),
+		)
+		assert.NilError(t, err)
+		assert.Equal(t, result.RefID, event.RefID)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create with bad tz should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		_, err := svc.CreateEvent(
+			ctx, user, event.Name, event.Description, event.StartTime,
+			"hodor",
+		)
+		errs.AssertError(t, err, errs.InvalidArgument, "tz bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create with bad description should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		_, err := svc.CreateEvent(
+			ctx, user, event.Name, "", event.StartTime,
+			event.StartTimeTz.String(),
+		)
+		errs.AssertError(t, err, errs.InvalidArgument, "description bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create with bad name should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		_, err := svc.CreateEvent(
+			ctx, user, "", event.Description, event.StartTime,
+			event.StartTimeTz.String(),
+		)
+		errs.AssertError(t, err, errs.InvalidArgument, "name bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create with starttime (zero time) should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		_, err := svc.CreateEvent(
+			ctx, user, event.Name, event.Description, time.Time{},
+			event.StartTimeTz.String(),
+		)
+		errs.AssertError(t, err, errs.InvalidArgument, "start_time bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("create with starttime (before unix epoch) should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		_, err := svc.CreateEvent(
+			ctx, user, event.Name, event.Description, time.Unix(0, 0).UTC(),
+			event.StartTimeTz.String(),
+		)
+		errs.AssertError(t, err, errs.InvalidArgument, "start_time bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
 }
 
 func TestService_GetEventsPaginated(t *testing.T) {
