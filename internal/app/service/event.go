@@ -129,6 +129,11 @@ func (s *Service) UpdateEvent(
 			return errs.InvalidArgumentError("Description", "bad value")
 		}
 	}
+	if euvs.Tz.IsPresent() {
+		if err := validate.Validate.VarCtx(ctx, euvs.Tz, "notblank,timezone"); err != nil {
+			return errs.InvalidArgumentError("Tz", "bad value")
+		}
+	}
 
 	if val, ok := euvs.StartTime.Get(); ok {
 		if val.IsZero() {
@@ -143,7 +148,7 @@ func (s *Service) UpdateEvent(
 
 	var loc *model.TimeZone
 	var maybeLoc mo.Option[*model.TimeZone]
-	if val, ok := euvs.Tz.Get(); ok {
+	if val, ok := euvs.Tz.Get(); ok && val != "" {
 		loc, err = ParseTimeZone(val)
 		if err != nil {
 			return errs.InvalidArgumentError("tz", "unrecognized timezone")
