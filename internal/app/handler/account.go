@@ -298,6 +298,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: move this login into the service layer...
 	switch authPK {
 	case "off":
 		if user.WebAuthn {
