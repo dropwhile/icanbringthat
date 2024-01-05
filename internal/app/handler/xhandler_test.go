@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"html/template"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,13 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
-	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/app/service/mockservice"
@@ -32,10 +29,6 @@ import (
 )
 
 var tstTs time.Time = util.MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
-
-func setCookie(r *http.Request, cookie string) {
-	r.Header.Set("Cookie", cookie)
-}
 
 type TestMailer struct {
 	Sent []*mail.Mail
@@ -105,50 +98,6 @@ func SetupHandler(
 	mux.Use(h.sessMgr.LoadAndSave)
 	mux.Use(auth.Load(h.svc, h.sessMgr))
 	return mock, mux, h
-}
-
-func SetupUserSession(t *testing.T, mux *chi.Mux, mock pgxmock.PgxConnIface, x *Handler) string {
-	t.Helper()
-
-	userID := 1
-	ts := tstTs
-
-	mux.Get("/dummy", func(w http.ResponseWriter, r *http.Request) {
-		err := x.sessMgr.RenewToken(r.Context())
-		assert.NilError(t, err)
-		// add data to session
-		x.sessMgr.Put(r.Context(), "user-id", userID)
-		w.WriteHeader(http.StatusOK)
-	})
-
-	refID := refid.Must(model.NewUserRefID())
-
-	// mock.ExpectBegin()
-	mock.ExpectQuery("^SELECT (.+) FROM user_").
-		WithArgs(1).
-		WillReturnRows(pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "email", "name", "pwhash",
-				"created", "last_modified",
-			},
-		).
-			AddRow(
-				userID, refID, "user@example.com", "user", []byte("00x00"),
-				ts, ts,
-			),
-		)
-
-	// create request to set up session/cookies
-	req, err := http.NewRequest("GET", "/dummy", nil)
-	assert.NilError(t, err)
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	response := rr.Result()
-	_, err = io.ReadAll(response.Body)
-	assert.NilError(t, err)
-
-	return rr.Header().Get("Set-Cookie")
 }
 
 func StatusEqual(rr *httptest.ResponseRecorder, status int) bool {

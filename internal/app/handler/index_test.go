@@ -8,65 +8,69 @@ import (
 	"testing"
 
 	"gotest.tools/v3/assert"
+
+	"github.com/dropwhile/refid/v2"
+
+	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
 func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 	t.Parallel()
 
-	t.Run("logged in", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, mux, handler := SetupHandlerOld(t, ctx)
-		mux.Get("/", handler.ShowIndex)
-
-		// create request
-		req, err := http.NewRequest("GET", "/", nil)
-		assert.NilError(t, err)
-
-		rr := httptest.NewRecorder()
-		mux.ServeHTTP(rr, req)
-		response := rr.Result()
-		_, err = io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		assert.Assert(
-			t, StatusEqual(rr, http.StatusSeeOther),
-			"handler returned wrong status code")
-		assert.Equal(t, rr.Header().Get("location"), "/login",
-			"handler returned wrong redirect")
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
 	t.Run("logged out", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, mux, handler := SetupHandlerOld(t, ctx)
-		cookie := SetupUserSession(t, mux, mock, handler)
-		mux.Get("/", handler.ShowIndex)
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.sessMgr.Load(ctx, "")
 
-		// create request
-		req, err := http.NewRequest("GET", "/", nil)
-		assert.NilError(t, err)
-		setCookie(req, cookie)
-
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
-		mux.ServeHTTP(rr, req)
+		handler.ShowIndex(rr, req)
+
 		response := rr.Result()
-		_, err = io.ReadAll(response.Body)
+		_, err := io.ReadAll(response.Body)
 		assert.NilError(t, err)
 
 		// Check the status code is what we expect.
-		assert.Assert(t, StatusEqual(rr, http.StatusSeeOther),
-			"handler returned wrong status code")
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
+		assert.Equal(t, rr.Header().Get("location"), "/login",
+			"handler returned wrong redirect")
+		// we make sure that all expectations were met
+		mock.AssertExpectations(t)
+	})
+
+	t.Run("logged in", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:       1,
+			RefID:    refid.Must(model.NewUserRefID()),
+			Email:    "user@example.com",
+			Name:     "user",
+			PWHash:   []byte("00x00"),
+			Verified: true,
+		}
+
+		ctx := context.TODO()
+		mock, _, handler := SetupHandler(t, ctx)
+		ctx, _ = handler.sessMgr.Load(ctx, "")
+		ctx = auth.ContextSet(ctx, "user", user)
+
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		rr := httptest.NewRecorder()
+		handler.ShowIndex(rr, req)
+
+		response := rr.Result()
+		_, err := io.ReadAll(response.Body)
+		assert.NilError(t, err)
+
+		// Check the status code is what we expect.
+		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }

@@ -11,38 +11,36 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
+	mox "github.com/stretchr/testify/mock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/errs"
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.NewUserRefID())
-	ts := tstTs
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
+	user := &model.User{
+		ID:       1,
+		RefID:    refid.Must(model.NewUserRefID()),
+		Email:    "user@example.com",
+		Name:     "user",
+		PWHash:   pwhash,
+		Verified: true,
+	}
 
 	t.Run("bad password", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 
-		mock.ExpectQuery("^SELECT (.+) FROM user_").
-			WithArgs("user@example.com").
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "email", "name", "pwhash", "pwauth",
-					"created", "last_modified",
-				}).
-				AddRow(
-					1, refID, "user@example.com", "user", pwhash, true,
-					ts, ts,
-				),
-			)
+		mock.EXPECT().
+			GetUserByEmail(mox.AnythingOfType("*context.valueCtx"), user.Email).
+			Return(user, nil)
 
 		// bad password
 		data := url.Values{
@@ -66,19 +64,20 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/login",
 			"handler returned wrong redirect")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("no matching user", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 
-		// no matching user
-		mock.ExpectQuery("^SELECT (.+) FROM user_").
-			WithArgs("userXYZ@example.com").
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			GetUserByEmail(mox.AnythingOfType("*context.valueCtx"), user.Email).
+			Return(nil, errs.NotFound.Error("user not found"))
+
 		data := url.Values{
-			"email":    {"userXYZ@example.com"},
+			"email":    {user.Email},
 			"password": {"00x01"},
 		}
 		ctx, _ = handler.sessMgr.Load(ctx, "")
@@ -99,14 +98,13 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 			"handler returned wrong redirect")
 
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("missing form data", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
@@ -126,8 +124,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
