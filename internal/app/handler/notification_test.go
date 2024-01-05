@@ -9,11 +9,10 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
@@ -45,32 +44,16 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM notification_").
-			WithArgs(notification.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "message", "read",
-					"created", "last_modified",
-				},
-			).
-				AddRow(
-					notification.ID, notification.RefID, user.ID,
-					notification.Message, notification.Read, ts, ts,
-				),
-			)
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM notification_").
-			WithArgs(notification.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, notification.RefID).
+			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
@@ -83,15 +66,14 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification missing refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -108,15 +90,14 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification bad refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -134,15 +115,14 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification not found", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -150,9 +130,9 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		refID := refid.Must(model.NewNotificationRefID())
 		rctx.URLParams.Add("nRefID", refID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM notification_").
-			WithArgs(refID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, refID).
+			Return(errs.NotFound.Error("notification not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
@@ -165,15 +145,14 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification refid wrong type", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -191,34 +170,23 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification wrong user", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM notification_").
-			WithArgs(notification.RefID).
-			WillReturnRows(pgxmock.NewRows(
-				[]string{
-					"id", "ref_id", "user_id", "message", "read",
-					"created", "last_modified",
-				},
-			).
-				AddRow(
-					notification.ID, notification.RefID, user.ID+1,
-					notification.Message, notification.Read, ts, ts,
-				),
-			)
+		mock.EXPECT().
+			DeleteNotification(ctx, user.ID, notification.RefID).
+			Return(errs.PermissionDenied.Error("permission denied"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
@@ -231,8 +199,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -264,19 +231,16 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM notification_").
-			WithArgs(user.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			DeleteAllNotifications(ctx, user.ID).
+			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
@@ -289,40 +253,6 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("delete all notifications no existing", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
-		ctx, _ = handler.sessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", notification.RefID.String())
-
-		mock.ExpectBegin()
-		mock.ExpectExec("^DELETE FROM notification_").
-			WithArgs(user.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 0))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
-
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
-		rr := httptest.NewRecorder()
-		handler.DeleteAllNotifications(rr, req)
-
-		response := rr.Result()
-		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusOK)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
