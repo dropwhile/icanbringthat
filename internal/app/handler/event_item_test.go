@@ -10,12 +10,12 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
+	mox "github.com/stretchr/testify/mock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
+	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -54,49 +54,22 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		LastModified: ts,
 	}
 
-	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description", "archived",
-		"start_time", "start_time_tz", "created", "last_modified",
-	}
-	eventItemColumns := []string{
-		"id", "ref_id", "event_id", "description", "created", "last_modified",
-	}
-
 	t.Run("create", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectBegin()
-		// refid as anyarg because new refid is created on call to create
-		mock.ExpectQuery("^INSERT INTO event_item_").
-			WithArgs(pgx.NamedArgs{
-				"refID":       service.EventItemRefIDMatcher,
-				"eventID":     eventItem.EventID,
-				"description": "some description",
-			}).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
+			Return(eventItem, nil)
 
-		data := url.Values{"description": {"some description"}}
+		data := url.Values{"description": {eventItem.Description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -112,15 +85,14 @@ func TestHandler_EventItem_Create(t *testing.T) {
 			fmt.Sprintf("/events/%s", event.RefID),
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -140,26 +112,25 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing event", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
+			Return(nil, errs.NotFound.Error("event not found"))
 
-		data := url.Values{"description": {"some description"}}
+		data := url.Values{"description": {eventItem.Description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -172,30 +143,25 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create user not owner", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, 33, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		mock.EXPECT().
+			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
+			Return(nil, errs.PermissionDenied.Error("permission denied"))
 
-		data := url.Values{"description": {"some description"}}
+		data := url.Values{"description": {eventItem.Description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -208,51 +174,14 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("create event archived", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
-		ctx, _ = handler.sessMgr.Load(ctx, "")
-		ctx = auth.ContextSet(ctx, "user", user)
-		rctx := chi.NewRouteContext()
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					true, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-
-		data := url.Values{"description": {"some description"}}
-
-		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
-
-		response := rr.Result()
-		util.MustReadAll(response.Body)
-
-		// Check the status code is what we expect.
-		AssertStatusEqual(t, rr, http.StatusForbidden)
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("create with missing description param should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -272,8 +201,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -310,32 +238,12 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		Created:      ts,
 		LastModified: ts,
 	}
-	earmark := &model.Earmark{
-		ID:           3,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
-		EventItemID:  eventItem.ID,
-		UserID:       user.ID,
-		Note:         "nothing",
-		Created:      ts,
-		LastModified: ts,
-	}
-
-	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description", "archived",
-		"start_time", "start_time_tz", "created", "last_modified",
-	}
-	eventItemColumns := []string{
-		"id", "ref_id", "event_id", "description", "created", "last_modified",
-	}
-	earmarkColumns := []string{
-		"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
-	}
 
 	t.Run("update", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -343,46 +251,16 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.ID).
-			WillReturnRows(pgxmock.NewRows(earmarkColumns).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID, earmark.UserID,
-					earmark.Note, ts, ts,
-				))
-		mock.ExpectBegin()
-		// refid as anyarg because new refid is created on call to create
-		mock.ExpectExec("^UPDATE event_item_").
-			WithArgs(pgx.NamedArgs{
-				"description": "new description",
-				"eventItemID": eventItem.ID,
-			}).
-			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			Return(eventItem, nil)
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -395,15 +273,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -424,15 +301,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -440,9 +316,9 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		data := url.Values{"description": {"new description"}}
 
@@ -457,15 +333,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event item", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -473,18 +348,16 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			Return(nil, errs.NotFound.Error("event-item not found"))
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -497,15 +370,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event owner not match", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -513,29 +385,16 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, 33, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ ").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, 33, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			Return(nil, errs.PermissionDenied.Error("not event owner"))
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -548,15 +407,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event archived", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -564,29 +422,16 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					true, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ ").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					true, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			Return(nil, errs.PermissionDenied.Error("event is archived"))
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -599,14 +444,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
+
 	t.Run("update already earmarked by other user", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -614,36 +459,16 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM earmark_ (.+)").
-			WithArgs(eventItem.ID).
-			WillReturnRows(pgxmock.NewRows(earmarkColumns).
-				AddRow(
-					earmark.ID, earmark.RefID, earmark.EventItemID, 33,
-					earmark.Note, ts, ts,
-				))
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			Return(nil, errs.PermissionDenied.Error("earmarked by other user"))
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -656,15 +481,14 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing form data", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -672,13 +496,9 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
 
 		data := url.Values{"descriptionxxxx": {"new description"}}
 
@@ -693,15 +513,21 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("update eventitem not matching event", func(t *testing.T) {
 		t.Parallel()
 
+		eventItem := &model.EventItem{
+			ID:          33,
+			RefID:       eventItem.RefID,
+			EventID:     eventItem.EventID + 1,
+			Description: "some desc",
+		}
+
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -709,22 +535,28 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, 33, eventItem.Description,
-					ts, ts,
-				))
+		description := "new description"
 
-		data := url.Values{"description": {"new description"}}
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			RunAndReturn(
+				func(
+					_ctx context.Context, _userID int,
+					_eventItemRefID model.EventItemRefID,
+					_description string,
+					f func(*model.EventItem) bool,
+				) (*model.EventItem, errs.Error) {
+					if f(eventItem) {
+						return nil, errs.FailedPrecondition.Error("extra checks failed")
+					}
+					return eventItem, nil
+				},
+			)
+
+		data := url.Values{"description": {description}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -737,8 +569,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
 
@@ -776,19 +607,11 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		LastModified: ts,
 	}
 
-	eventColumns := []string{
-		"id", "ref_id", "user_id", "name", "description", "archived",
-		"start_time", "start_time_tz", "created", "last_modified",
-	}
-	eventItemColumns := []string{
-		"id", "ref_id", "event_id", "description", "created", "last_modified",
-	}
-
 	t.Run("delete", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -796,34 +619,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectBegin()
-		// refid as anyarg because new refid is created on call to create
-		mock.ExpectExec("^DELETE FROM event_item_").
-			WithArgs(eventItem.ID).
-			WillReturnResult(pgxmock.NewResult("DELETE", 1))
-		mock.ExpectCommit()
-		mock.ExpectRollback()
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -836,15 +637,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -863,15 +663,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete bad event item refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -890,15 +689,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete missing event", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -906,9 +704,9 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -921,15 +719,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete missing event item", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -937,16 +734,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnError(pgx.ErrNoRows)
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			Return(errs.NotFound.Error("event-item not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -959,15 +752,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete user not owner", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -975,27 +767,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, 33, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, eventItem.EventID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ ").
-			WithArgs(eventItem.EventID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, 33, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			Return(errs.PermissionDenied.Error("not event owner"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -1008,15 +785,21 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event item not related to supplied event", func(t *testing.T) {
 		t.Parallel()
 
+		eventItem := &model.EventItem{
+			ID:          33,
+			RefID:       eventItem.RefID,
+			EventID:     eventItem.EventID + 1,
+			Description: "some desc",
+		}
+
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1024,20 +807,24 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					event.Archived, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, 33, eventItem.Description,
-					ts, ts,
-				))
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			RunAndReturn(
+				func(
+					_ctx context.Context,
+					_userID int,
+					_eventItemRefID model.EventItemRefID,
+					f func(*model.EventItem) bool,
+				) errs.Error {
+					if f(eventItem) {
+						return errs.FailedPrecondition.Error("extra checks failed")
+					}
+					return nil
+				},
+			)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -1050,15 +837,14 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event archived", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandlerOld(t, ctx)
+		mock, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1066,27 +852,12 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		rctx.URLParams.Add("eRefID", event.RefID.String())
 		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.RefID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					true, event.StartTime, event.StartTimeTz, ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_item_ (.+)").
-			WithArgs(eventItem.RefID).
-			WillReturnRows(pgxmock.NewRows(eventItemColumns).
-				AddRow(
-					eventItem.ID, eventItem.RefID, event.UserID, eventItem.Description,
-					ts, ts,
-				))
-		mock.ExpectQuery("^SELECT (.+) FROM event_ (.+)").
-			WithArgs(event.ID).
-			WillReturnRows(pgxmock.NewRows(eventColumns).
-				AddRow(
-					event.ID, event.RefID, event.UserID, event.Name, event.Description,
-					true, event.StartTime, event.StartTimeTz, ts, ts,
-				))
+		mock.EXPECT().
+			GetEvent(ctx, event.RefID).
+			Return(event, nil)
+		mock.EXPECT().
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			Return(errs.PermissionDenied.Error("event is archived"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -1099,7 +870,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
+		mock.AssertExpectations(t)
 	})
 }
