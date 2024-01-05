@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
@@ -173,6 +174,55 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 
 		err := svc.UpdateUserPWReset(ctx, user, upw)
 		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("set user pwreset with user upw delete error should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		refID := refid.Must(model.NewUserPWResetRefID())
+		upw := &model.UserPWReset{
+			RefID:   refID,
+			UserID:  user.ID,
+			Created: tstTs,
+		}
+
+		mock.ExpectBegin()
+		// inner tx start
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE user_").
+			WithArgs(pgx.NamedArgs{
+				"userID":    user.ID,
+				"email":     mo.None[string](),
+				"name":      mo.None[string](),
+				"pwHash":    mo.Some(user.PWHash),
+				"verified":  mo.None[bool](),
+				"pwAuth":    mo.None[bool](),
+				"apiAccess": mo.None[bool](),
+				"webAuthn":  mo.None[bool](),
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+		// end inner tx
+		// inner tx start
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM user_pw_reset_").
+			WithArgs(refID).
+			WillReturnError(fmt.Errorf("honk honk"))
+		mock.ExpectRollback()
+		mock.ExpectRollback()
+		// end inner tx
+		mock.ExpectRollback()
+		mock.ExpectRollback()
+
+		err := svc.UpdateUserPWReset(ctx, user, upw)
+		errs.AssertError(t, err, errs.Internal, "db error: honk honk")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
