@@ -113,18 +113,23 @@ func (s *Service) NewUser(
 	return user, nil
 }
 
+type PasswdUpdate struct {
+	NewPass []byte `validate:"omitempty,notblank,gt=0"`
+	OldPass []byte `validate:"omitempty,notblank,gt=0"`
+}
+
 type UserUpdateValues struct {
 	Name      mo.Option[string] `validate:"omitempty,notblank"`
 	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
-	PWHash    mo.Option[[]byte] `validate:"omitempty,gt=0"`
 	Verified  mo.Option[bool]
 	PWAuth    mo.Option[bool]
 	ApiAccess mo.Option[bool]
 	WebAuthn  mo.Option[bool]
+	PwUpdate  mo.Option[*PasswdUpdate]
 }
 
 func (s *Service) UpdateUser(
-	ctx context.Context, userID int, euvs *UserUpdateValues,
+	ctx context.Context, user *model.User, euvs *UserUpdateValues,
 ) errs.Error {
 	err := validate.Validate.StructCtx(ctx, euvs)
 	if err != nil {
@@ -147,10 +152,28 @@ func (s *Service) UpdateUser(
 		}
 	}
 
-	err = model.UpdateUser(ctx, s.Db, userID, &model.UserUpdateModelValues{
+	pwHash := mo.None[[]byte]()
+	if pwup, ok := euvs.PwUpdate.Get(); ok && pwup != nil {
+		if err := validate.Validate.VarCtx(ctx, pwup.OldPass, "notblank,gt=0"); err != nil {
+			return errs.InvalidArgumentError("OldPass", "bad value")
+		}
+		if err := validate.Validate.VarCtx(ctx, pwup.NewPass, "notblank,gt=0"); err != nil {
+			return errs.InvalidArgumentError("Passwd", "bad value")
+		}
+		if ok, err := model.CheckPass(ctx, user.PWHash, pwup.OldPass); !ok || err != nil {
+			return errs.InvalidArgumentError("OldPass", "bad value")
+		}
+		hpw, err := model.HashPass(ctx, pwup.NewPass)
+		if err != nil {
+			return errs.Internal.Error("failed to set password")
+		}
+		pwHash = mo.Some(hpw)
+	}
+
+	err = model.UpdateUser(ctx, s.Db, user.ID, &model.UserUpdateModelValues{
 		Name:      euvs.Name,
 		Email:     euvs.Email,
-		PWHash:    euvs.PWHash,
+		PWHash:    pwHash,
 		Verified:  euvs.Verified,
 		PWAuth:    euvs.PWAuth,
 		ApiAccess: euvs.ApiAccess,
@@ -187,4 +210,9 @@ func (s *Service) DeleteUser(
 		return errs.Internal.Errorf("db error: %w", err)
 	}
 	return nil
+}
+
+func CheckPass(ctx context.Context, pwHash []byte, passwd []byte) bool {
+	ok, err := model.CheckPass(ctx, pwHash, passwd)
+	return err == nil && ok
 }

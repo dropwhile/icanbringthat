@@ -61,7 +61,7 @@ type Servicer interface {
 	GetUserByID(ctx context.Context, ID int) (*model.User, errs.Error)
 	GetUsersByIDs(ctx context.Context, userIDs []int) ([]*model.User, errs.Error)
 	NewUser(ctx context.Context, email, name string, rawPass []byte) (*model.User, errs.Error)
-	UpdateUser(ctx context.Context, userID int, euvs *UserUpdateValues) errs.Error
+	UpdateUser(ctx context.Context, user *model.User, euvs *UserUpdateValues) errs.Error
 	UpdateUserSettings(ctx context.Context, userID int, pm *model.UserSettings) errs.Error
 	DeleteUser(ctx context.Context, userID int) errs.Error
 	GetApiKeyByUser(ctx context.Context, userID int) (*model.ApiKey, errs.Error)

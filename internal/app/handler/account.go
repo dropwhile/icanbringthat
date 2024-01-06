@@ -205,36 +205,45 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			warnings = append(warnings, "New Password and Confirm Password do not match")
 		} else {
 			oldPasswd := r.PostFormValue("old_password")
-			// TODO: move this to service layer
-			if ok, err := model.CheckPass(ctx, user.PWHash, []byte(oldPasswd)); err != nil || !ok {
-				warnings = append(warnings, "Old Password invalid")
-			} else {
-				// TODO: move this to service layer
-				pwhash, err := model.HashPass(ctx, []byte(newPasswd))
-				if err != nil {
-					slog.ErrorContext(ctx, "error setting user password",
-						logger.Err(err))
-					x.InternalServerError(w, "error updating user")
-					return
-				}
-				updateVals.PWHash = mo.Some(pwhash)
-				successMsgs = append(successMsgs, "Password update successfull")
-				changes = true
-			}
+			updateVals.PwUpdate = mo.Some(
+				&service.PasswdUpdate{
+					NewPass: []byte(newPasswd),
+					OldPass: []byte(oldPasswd),
+				},
+			)
+			changes = true
 		}
 	}
 
 	if changes {
-		errx := x.svc.UpdateUser(ctx, user.ID, updateVals)
+		errx := x.svc.UpdateUser(ctx, user, updateVals)
 		if errx != nil {
-			slog.ErrorContext(ctx, "error updating user",
-				logger.Err(errx))
-			x.InternalServerError(w, "error updating user")
-			return
+			switch errx.Code() {
+			case errs.InvalidArgument:
+				arg := errx.Meta("argument")
+				switch arg {
+				case "OldPass":
+					warnings = append(warnings, "Old Password invalid")
+				case "Passwd":
+					warnings = append(warnings, "'Password' was a bad value")
+				default:
+					warnings = append(warnings, errx.Msg())
+				}
+			default:
+				slog.ErrorContext(ctx, "error updating user",
+					logger.Err(errx))
+				x.InternalServerError(w, "error updating user")
+				return
+			}
 		}
-		x.sessMgr.FlashAppend(ctx, "success", successMsgs...)
-	} else {
+	}
+	if updateVals.PwUpdate.IsPresent() {
+		successMsgs = append(successMsgs, "Password update successfull")
+	}
+	if len(warnings) > 0 {
 		x.sessMgr.FlashAppend(ctx, "error", warnings...)
+	} else if len(successMsgs) > 0 {
+		x.sessMgr.FlashAppend(ctx, "success", successMsgs...)
 	}
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
@@ -334,7 +343,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errx = x.svc.UpdateUser(ctx, user.ID, updateVals)
+	errx = x.svc.UpdateUser(ctx, user, updateVals)
 	if errx != nil {
 		slog.ErrorContext(ctx, "error updating user auth",
 			logger.Err(errx))
@@ -419,7 +428,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if apiAccess != "" {
-		if errx := x.svc.UpdateUser(ctx, user.ID, updateVals); errx != nil {
+		if errx := x.svc.UpdateUser(ctx, user, updateVals); errx != nil {
 			slog.ErrorContext(ctx, "error updating user auth",
 				logger.Err(errx))
 			x.InternalServerError(w, "error updating user auth")

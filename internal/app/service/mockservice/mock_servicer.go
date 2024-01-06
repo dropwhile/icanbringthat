@@ -3857,17 +3857,17 @@ func (_c *MockServicer_UpdateEventItemSorting_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// UpdateUser provides a mock function with given fields: ctx, userID, euvs
-func (_m *MockServicer) UpdateUser(ctx context.Context, userID int, euvs *service.UserUpdateValues) errs.Error {
-	ret := _m.Called(ctx, userID, euvs)
+// UpdateUser provides a mock function with given fields: ctx, user, euvs
+func (_m *MockServicer) UpdateUser(ctx context.Context, user *model.User, euvs *service.UserUpdateValues) errs.Error {
+	ret := _m.Called(ctx, user, euvs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateUser")
 	}
 
 	var r0 errs.Error
-	if rf, ok := ret.Get(0).(func(context.Context, int, *service.UserUpdateValues) errs.Error); ok {
-		r0 = rf(ctx, userID, euvs)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.User, *service.UserUpdateValues) errs.Error); ok {
+		r0 = rf(ctx, user, euvs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(errs.Error)
@@ -3884,15 +3884,15 @@ type MockServicer_UpdateUser_Call struct {
 
 // UpdateUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID int
+//   - user *model.User
 //   - euvs *service.UserUpdateValues
-func (_e *MockServicer_Expecter) UpdateUser(ctx interface{}, userID interface{}, euvs interface{}) *MockServicer_UpdateUser_Call {
-	return &MockServicer_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, userID, euvs)}
+func (_e *MockServicer_Expecter) UpdateUser(ctx interface{}, user interface{}, euvs interface{}) *MockServicer_UpdateUser_Call {
+	return &MockServicer_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, user, euvs)}
 }
 
-func (_c *MockServicer_UpdateUser_Call) Run(run func(ctx context.Context, userID int, euvs *service.UserUpdateValues)) *MockServicer_UpdateUser_Call {
+func (_c *MockServicer_UpdateUser_Call) Run(run func(ctx context.Context, user *model.User, euvs *service.UserUpdateValues)) *MockServicer_UpdateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int), args[2].(*service.UserUpdateValues))
+		run(args[0].(context.Context), args[1].(*model.User), args[2].(*service.UserUpdateValues))
 	})
 	return _c
 }
@@ -3902,7 +3902,7 @@ func (_c *MockServicer_UpdateUser_Call) Return(_a0 errs.Error) *MockServicer_Upd
 	return _c
 }
 
-func (_c *MockServicer_UpdateUser_Call) RunAndReturn(run func(context.Context, int, *service.UserUpdateValues) errs.Error) *MockServicer_UpdateUser_Call {
+func (_c *MockServicer_UpdateUser_Call) RunAndReturn(run func(context.Context, *model.User, *service.UserUpdateValues) errs.Error) *MockServicer_UpdateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

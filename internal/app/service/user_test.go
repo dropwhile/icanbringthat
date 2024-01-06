@@ -413,7 +413,7 @@ func TestService_UpdateUser(t *testing.T) {
 				"userID":    user.ID,
 				"email":     vals.Email,
 				"name":      vals.Name,
-				"pwHash":    vals.PWHash,
+				"pwHash":    mo.None[[]byte](),
 				"verified":  vals.Verified,
 				"pwAuth":    vals.PWAuth,
 				"apiAccess": vals.ApiAccess,
@@ -423,8 +423,123 @@ func TestService_UpdateUser(t *testing.T) {
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
-		err := svc.UpdateUser(ctx, user.ID, vals)
+		err := svc.UpdateUser(ctx, user, vals)
 		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update user password should succeed", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		pwhash, err := model.HashPass(ctx, []byte("old pass"))
+		assert.NilError(t, err)
+
+		user := &model.User{
+			ID:       1,
+			RefID:    refid.Must(model.NewUserRefID()),
+			Email:    "user@example.com",
+			Name:     "user",
+			PWHash:   pwhash,
+			Verified: true,
+		}
+
+		vals := &UserUpdateValues{
+			PwUpdate: mo.Some(&PasswdUpdate{
+				OldPass: []byte("old pass"),
+				NewPass: []byte("new pass"),
+			}),
+		}
+
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE user_").
+			WithArgs(pgx.NamedArgs{
+				"userID":    user.ID,
+				"email":     vals.Email,
+				"name":      vals.Name,
+				"pwHash":    pgxmock.AnyArg(),
+				"verified":  vals.Verified,
+				"pwAuth":    vals.PWAuth,
+				"apiAccess": vals.ApiAccess,
+				"webAuthn":  vals.WebAuthn,
+			}).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		mock.ExpectCommit()
+		mock.ExpectRollback()
+
+		errx := svc.UpdateUser(ctx, user, vals)
+		assert.NilError(t, errx)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update user password old pass fail checkpass should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		pwhash, err := model.HashPass(ctx, []byte("old pass"))
+		assert.NilError(t, err)
+
+		user := &model.User{
+			ID:       1,
+			RefID:    refid.Must(model.NewUserRefID()),
+			Email:    "user@example.com",
+			Name:     "user",
+			PWHash:   pwhash,
+			Verified: true,
+		}
+
+		vals := &UserUpdateValues{
+			PwUpdate: mo.Some(&PasswdUpdate{
+				OldPass: []byte("old passx"),
+				NewPass: []byte("new pass"),
+			}),
+		}
+
+		errx := svc.UpdateUser(ctx, user, vals)
+		errs.AssertError(t, errx, errs.InvalidArgument, "OldPass bad value")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("update user empty password should fail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		pwhash, err := model.HashPass(ctx, []byte("old pass"))
+		assert.NilError(t, err)
+
+		user := &model.User{
+			ID:       1,
+			RefID:    refid.Must(model.NewUserRefID()),
+			Email:    "user@example.com",
+			Name:     "user",
+			PWHash:   pwhash,
+			Verified: true,
+		}
+
+		vals := &UserUpdateValues{
+			PwUpdate: mo.Some(&PasswdUpdate{
+				OldPass: []byte("old pass"),
+				NewPass: []byte(""),
+			}),
+		}
+
+		errx := svc.UpdateUser(ctx, user, vals)
+		errs.AssertError(t, errx, errs.InvalidArgument, "Passwd bad value")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -440,7 +555,7 @@ func TestService_UpdateUser(t *testing.T) {
 			Name: mo.Some(""),
 		}
 
-		err := svc.UpdateUser(ctx, user.ID, vals)
+		err := svc.UpdateUser(ctx, user, vals)
 		errs.AssertError(t, err, errs.InvalidArgument, "Name bad value")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
@@ -457,7 +572,7 @@ func TestService_UpdateUser(t *testing.T) {
 			Email: mo.Some("hodor"),
 		}
 
-		err := svc.UpdateUser(ctx, user.ID, vals)
+		err := svc.UpdateUser(ctx, user, vals)
 		errs.AssertError(t, err, errs.InvalidArgument, "Email bad value")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
@@ -474,25 +589,8 @@ func TestService_UpdateUser(t *testing.T) {
 			Email: mo.Some(""),
 		}
 
-		err := svc.UpdateUser(ctx, user.ID, vals)
+		err := svc.UpdateUser(ctx, user, vals)
 		errs.AssertError(t, err, errs.InvalidArgument, "Email bad value")
-		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
-			"there were unfulfilled expectations")
-	})
-
-	t.Run("update user bad pwhash should fail", func(t *testing.T) {
-		t.Parallel()
-		ctx := context.Background()
-		mock := SetupDBMock(t, ctx)
-		svc := New(Options{Db: mock})
-
-		vals := &UserUpdateValues{
-			PWHash: mo.Some([]byte{}),
-		}
-
-		err := svc.UpdateUser(ctx, user.ID, vals)
-		errs.AssertError(t, err, errs.InvalidArgument, "PWHash bad value")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

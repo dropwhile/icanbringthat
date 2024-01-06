@@ -93,7 +93,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		}
 
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"email": {email}}
@@ -184,7 +184,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		}
 
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"name": {"user2"}}
@@ -304,6 +304,10 @@ func TestHandler_Account_Update(t *testing.T) {
 		user = &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
+		mock.EXPECT().
+			UpdateUser(ctx, user, mox.AnythingOfType("*service.UserUpdateValues")).
+			Return(errs.InvalidArgumentError("OldPass", "bad value"))
+
 		data := url.Values{
 			"password":         {"hodor"},
 			"confirm_password": {"hodor"},
@@ -347,23 +351,8 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, mox.AnythingOfType("*service.UserUpdateValues")).
-			RunAndReturn(
-				func(
-					_ctx context.Context,
-					_userID int,
-					uuv *service.UserUpdateValues,
-				) errs.Error {
-					if pwhash, ok := uuv.PWHash.Get(); ok {
-						if ok, err := model.CheckPass(_ctx, pwhash, []byte("hodor")); ok && err == nil {
-							return nil
-						} else {
-							return errs.InvalidArgumentError("pwhash", "bad value")
-						}
-					}
-					return errs.Internal.Error("unexpected")
-				},
-			)
+			UpdateUser(ctx, user, mox.AnythingOfType("*service.UserUpdateValues")).
+			Return(nil)
 
 		data := url.Values{
 			"password":         {"hodor"},
@@ -432,7 +421,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 			GetUserCredentialCountByUser(ctx, user.ID).
 			Return(1, nil)
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"auth_passauth": {"off"}}
@@ -472,7 +461,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 			GetUserCredentialCountByUser(ctx, user.ID).
 			Return(1, nil)
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"auth_passkeys": {"off"}}
@@ -622,7 +611,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 				Created: tstTs,
 			}, nil)
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"api_access": {"on"}}
@@ -680,7 +669,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 				Created: tstTs,
 			}, nil)
 		mock.EXPECT().
-			UpdateUser(ctx, user.ID, euvs).
+			UpdateUser(ctx, user, euvs).
 			Return(nil)
 
 		data := url.Values{"api_access": {"on"}}
