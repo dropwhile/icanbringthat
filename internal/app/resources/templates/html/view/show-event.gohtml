@@ -317,9 +317,10 @@
                     {{else}}
                     <div class="tooltip">
                       <div
+                        id="unmark"
                         x-data="{swap: false}"
                         @mouseleave="swap = false"
-                      >
+                        >
                         <!-- delete self owned earmark -->
                         <button
                           class="flex items-center justify-between px-2 py-2 text-sm font-medium text-green-600 rounded-lg dark:text-green-400 focus:outline-none focus:shadow-outline-gray"
@@ -328,6 +329,7 @@
                           hx-delete="/earmarks/{{.RefID}}"
                           hx-confirm="Are you sure?"
                           hx-trigger="click throttle:1s"
+                          hx-target="#unmark"
                           hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
                           >
                           <span class="tooltiptext text-center">I can't bring that anymore!</span>

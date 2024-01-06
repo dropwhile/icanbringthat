@@ -142,7 +142,7 @@ func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Refresh", "true")
+		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
 	}
 	w.WriteHeader(http.StatusOK)
 }

@@ -278,7 +278,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
 	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
-		w.Header().Add("HX-Refresh", "true")
+		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -317,7 +317,10 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if htmx.Hx(r).Request() {
+	w.Header().Set("content-type", "text/html")
+	if htmx.Hx(r).Target() == "unmark" {
+		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
+	} else if htmx.Hx(r).Request() {
 		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
 	}
 	w.WriteHeader(http.StatusOK)
