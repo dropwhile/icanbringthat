@@ -89,7 +89,7 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	)
 	x.sessMgr.FlashAppend(ctx, "success", "Account verification email sent.")
 	if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Refresh", "true")
+		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
 		w.WriteHeader(200)
 		return
 	}
