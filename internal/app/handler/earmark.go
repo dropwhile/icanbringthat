@@ -120,7 +120,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "earmarkCards" {
+	if htmx.Request(r).Target() == "earmarkCards" {
 		err = x.TemplateExecuteSub(w, "list-earmarks.gohtml", "earmark_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-earmarks.gohtml", tplVars)
@@ -186,7 +186,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "create-earmark-form.gohtml", "form", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "create-earmark-form.gohtml", tplVars)
@@ -277,8 +277,8 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
-		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
+	if htmx.Request(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
+		htmx.Response(w).HxLocation(htmx.Request(r).CurrentUrl().Path)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -318,10 +318,10 @@ func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "unmark" {
-		w.Header().Add("HX-Location", htmx.Hx(r).CurrentUrl().Path)
-	} else if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+	if htmx.Request(r).Target() == "unmark" {
+		htmx.Response(w).HxLocation(htmx.Request(r).CurrentUrl().Path)
+	} else if htmx.Request(r).IsRequest() {
+		htmx.Response(w).HxTriggerAfterSwap("count-updated")
 	}
 	w.WriteHeader(http.StatusOK)
 }

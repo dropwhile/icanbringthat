@@ -62,7 +62,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "create-eventitem-form.gohtml", "form", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "create-eventitem-form.gohtml", tplVars)
@@ -137,7 +137,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "edit-eventitem-form.gohtml", "form", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "edit-eventitem-form.gohtml", tplVars)
@@ -269,8 +269,8 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
-		w.Header().Add("HX-Refresh", "true")
+	if htmx.Request(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", eventRefID)) {
+		htmx.Response(w).HxLocation(htmx.Request(r).CurrentUrl().Path)
 	}
 
 	w.WriteHeader(http.StatusOK)

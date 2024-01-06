@@ -112,7 +112,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "favCards" {
+	if htmx.Request(r).Target() == "favCards" {
 		err = x.TemplateExecuteSub(w, "list-favorites.gohtml", "fav_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-favorites.gohtml", tplVars)
@@ -160,7 +160,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "favorite" {
+	if htmx.Request(r).Target() == "favorite" {
 		tplVars := MapSA{
 			"user":     user,
 			"event":    event,
@@ -210,8 +210,8 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Request() {
-		w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+	if htmx.Request(r).IsRequest() {
+		htmx.Response(w).HxTriggerAfterSwap("count-updated")
 	}
 	w.WriteHeader(http.StatusOK)
 }

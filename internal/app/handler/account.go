@@ -540,9 +540,9 @@ func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		slog.ErrorContext(ctx, "error destroying session",
 			logger.Err(err))
 	}
-	if htmx.Hx(r).Request() {
+	if htmx.Request(r).IsRequest() {
 		x.sessMgr.FlashAppend(ctx, "success", "Account deleted. Sorry to see you go.")
-		w.Header().Add("HX-Location", "/login")
+		htmx.Response(w).HxLocation("/login")
 	}
 	w.WriteHeader(200)
 }

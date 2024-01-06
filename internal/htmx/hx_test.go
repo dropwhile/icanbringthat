@@ -27,7 +27,7 @@ func TestHxx_Boosted(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.Boosted(); got != tt.want {
@@ -64,7 +64,7 @@ func TestHxx_CurrentUrl_HasPrefix(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.CurrentUrl().HasPathPrefix(tt.prefix); !reflect.DeepEqual(got, tt.want) {
@@ -89,7 +89,7 @@ func TestHxx_HistoryRestoreRequest(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.HistoryRestoreRequest(); got != tt.want {
@@ -114,7 +114,7 @@ func TestHxx_Prompt(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.Prompt(); got != tt.want {
@@ -139,10 +139,10 @@ func TestHxx_Request(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
-			if got := hxx.Request(); got != tt.want {
+			if got := hxx.IsRequest(); got != tt.want {
 				t.Errorf("Hxx.Request() = %v, want %v", got, tt.want)
 			}
 		})
@@ -164,7 +164,7 @@ func TestHxx_Target(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.Target(); got != tt.want {
@@ -189,7 +189,7 @@ func TestHxx_TriggerName(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.TriggerName(); got != tt.want {
@@ -214,7 +214,7 @@ func TestHxx_Trigger(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			hxx := &Hxx{
+			hxx := &Hxr{
 				Header: tt.fields,
 			}
 			if got := hxx.Trigger(); got != tt.want {

@@ -111,7 +111,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "eventCards" {
+	if htmx.Request(r).Target() == "eventCards" {
 		err = x.TemplateExecuteSub(w, "list-events.gohtml", "event_cards", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "list-events.gohtml", tplVars)
@@ -266,7 +266,7 @@ func (x *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "create-event-form.gohtml", "form", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "create-event-form.gohtml", tplVars)
@@ -319,7 +319,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "edit-event-form.gohtml", "form", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "edit-event-form.gohtml", tplVars)
@@ -549,12 +549,12 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if htmx.Hx(r).Request() {
-		if htmx.Hx(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", refID)) {
+	if htmx.Request(r).IsRequest() {
+		if htmx.Request(r).CurrentUrl().HasPathPrefix(fmt.Sprintf("/events/%s", refID)) {
 			x.sessMgr.FlashAppend(ctx, "success", "Event deleted.")
-			w.Header().Add("HX-Redirect", "/events")
+			htmx.Response(w).HxLocation("/events")
 		} else {
-			w.Header().Add("HX-Trigger-After-Swap", "count-updated")
+			htmx.Response(w).HxTriggerAfterSwap("count-updated")
 		}
 	}
 	w.WriteHeader(http.StatusOK)

@@ -24,7 +24,7 @@ func (x *Handler) ShowAbout(w http.ResponseWriter, r *http.Request) {
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
-	if htmx.Hx(r).Target() == "modalbody" {
+	if htmx.Request(r).Target() == "modalbody" {
 		err = x.TemplateExecuteSub(w, "about.gohtml", "about", tplVars)
 	} else {
 		err = x.TemplateExecute(w, "about.gohtml", tplVars)
