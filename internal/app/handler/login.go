@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/csrf"
 
-	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
@@ -82,8 +82,7 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// validate credentials...
 		// TODO: move to service layer
-		ok, err := model.CheckPass(ctx, user.PWHash, []byte(passwd))
-		if err != nil || !ok {
+		if !service.CheckPass(ctx, user.PWHash, []byte(passwd)) {
 			slog.DebugContext(ctx, "invalid credentials: pass check fail", "error", err)
 			x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
