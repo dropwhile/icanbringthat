@@ -16,19 +16,7 @@ import (
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 )
 
-func getAuthnInstance(r *http.Request, isProd bool, baseURL string) (*webauthn.WebAuthn, error) {
-	if !isProd {
-		protocol := "http"
-		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-			protocol = "https"
-		}
-		host := r.Host
-		if r.Header.Get("X-Forwarded-Host") != "" {
-			host = r.Header.Get("X-Forwarded-Host")
-		}
-		baseURL = fmt.Sprintf("%s://%s", protocol, host)
-	}
-
+func getAuthnInstance(r *http.Request, baseURL string) (*webauthn.WebAuthn, error) {
 	siteURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
@@ -54,7 +42,7 @@ func (x *Handler) WebAuthnBeginRegistration(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
+	authnInstance, err := getAuthnInstance(r, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
@@ -123,7 +111,7 @@ func (x *Handler) WebAuthnFinishRegistration(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
+	authnInstance, err := getAuthnInstance(r, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.InternalServerError(w, "webauthn error")
@@ -176,7 +164,7 @@ func (x *Handler) WebAuthnBeginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
+	authnInstance, err := getAuthnInstance(r, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
@@ -220,7 +208,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authnInstance, err := getAuthnInstance(r, x.isProd, x.baseURL)
+	authnInstance, err := getAuthnInstance(r, x.baseURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "webauthn error", "error", err)
 		x.Json(w, http.StatusInternalServerError,
@@ -298,38 +286,22 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credential, errx := x.svc.GetUserCredentialByRefID(ctx, credentialRefID)
+	errx := x.svc.DeleteUserCredential(ctx, user, credentialRefID)
 	if errx != nil {
 		switch errx.Code() {
+		case errs.PermissionDenied:
+			x.AccessDeniedError(w)
 		case errs.NotFound:
 			slog.InfoContext(ctx, "credential not found", "error", err)
 			x.NotFoundError(w)
+		case errs.FailedPrecondition:
+			slog.
+				With("error", errx).
+				DebugContext(ctx, "pre-conditional failed")
+			x.BadRequestError(w, "pre-condition failed")
 		default:
 			x.InternalServerError(w, errx.Msg())
 		}
-		return
-	}
-
-	if credential.UserID != user.ID {
-		x.AccessDeniedError(w)
-		return
-	}
-
-	count, errx := x.svc.GetUserCredentialCountByUser(ctx, user.ID)
-	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
-		return
-	}
-
-	if count == 1 && user.WebAuthn {
-		slog.DebugContext(ctx, "refusing to remove last passkey when password auth disabled")
-		x.BadRequestError(w, "pre-condition failed")
-		return
-	}
-
-	errx = x.svc.DeleteUserCredential(ctx, credential.ID)
-	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
 		return
 	}
 

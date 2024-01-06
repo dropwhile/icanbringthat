@@ -46,7 +46,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 				),
 			)
 
-		result, err := svc.GetUserCredentialByRefID(ctx, credRefID)
+		result, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
 		assert.NilError(t, err)
 		assert.Equal(t, result.RefID, credRefID)
 		// we make sure that all expectations were met
@@ -66,8 +66,34 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 			WithArgs(credRefID).
 			WillReturnError(pgx.ErrNoRows)
 
-		_, err := svc.GetUserCredentialByRefID(ctx, credRefID)
+		_, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
 		errs.AssertError(t, err, errs.NotFound, "credential not found")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("get user credential other user should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		credRefID := refid.Must(model.NewCredentialRefID())
+
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(credRefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "key_name", "credential",
+				}).
+				AddRow(
+					1, credRefID, user.ID+1, "key-name", []byte{0x00, 0x01},
+				),
+			)
+
+		_, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -199,23 +225,159 @@ func TestService_GetUserCredentialCountByUser(t *testing.T) {
 func TestService_DeleteUserCredential(t *testing.T) {
 	t.Parallel()
 
+	user := &model.User{
+		ID:           1,
+		RefID:        refid.Must(model.NewUserRefID()),
+		Email:        "user@example.com",
+		Name:         "user",
+		PWHash:       []byte("00x00"),
+		Verified:     true,
+		Created:      tstTs,
+		LastModified: tstTs,
+	}
+
+	credential := &model.UserCredential{
+		ID:         5,
+		RefID:      refid.Must(model.NewCredentialRefID()),
+		UserID:     user.ID,
+		KeyName:    "key-name",
+		Credential: []byte{0x00, 0x01},
+	}
+
 	t.Run("delete user credential should succeed", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		credentialID := 3
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(credential.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "key_name", "credential",
+				}).
+				AddRow(
+					credential.ID, credential.RefID, credential.UserID,
+					credential.KeyName, credential.Credential,
+				),
+			)
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(user.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"count"}).
+				AddRow(2),
+			)
 
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM user_webauthn_").
-			WithArgs(credentialID).
+			WithArgs(credential.ID).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 		mock.ExpectCommit()
 		mock.ExpectRollback()
 
-		err := svc.DeleteUserCredential(ctx, credentialID)
+		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
 		assert.NilError(t, err)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete user credential not owner should fail", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(credential.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "key_name", "credential",
+				}).
+				AddRow(
+					credential.ID, credential.RefID, credential.UserID+1,
+					credential.KeyName, credential.Credential,
+				),
+			)
+
+		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
+		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete last user credential with webauthn enabled should fail", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:           1,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     true,
+			WebAuthn:     true,
+			Created:      tstTs,
+			LastModified: tstTs,
+		}
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(credential.RefID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{
+					"id", "ref_id", "user_id", "key_name", "credential",
+				}).
+				AddRow(
+					credential.ID, credential.RefID, credential.UserID,
+					credential.KeyName, credential.Credential,
+				),
+			)
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(user.ID).
+			WillReturnRows(pgxmock.NewRows(
+				[]string{"count"}).
+				AddRow(1),
+			)
+
+		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
+		errs.AssertError(t, err, errs.FailedPrecondition,
+			"refusing to remove last passkey when password auth disabled",
+		)
+		// we make sure that all expectations were met
+		assert.Assert(t, mock.ExpectationsWereMet(),
+			"there were unfulfilled expectations")
+	})
+
+	t.Run("delete credential not found should fail", func(t *testing.T) {
+		t.Parallel()
+
+		user := &model.User{
+			ID:           1,
+			RefID:        refid.Must(model.NewUserRefID()),
+			Email:        "user@example.com",
+			Name:         "user",
+			PWHash:       []byte("00x00"),
+			Verified:     true,
+			WebAuthn:     true,
+			Created:      tstTs,
+			LastModified: tstTs,
+		}
+
+		ctx := context.Background()
+		mock := SetupDBMock(t, ctx)
+		svc := New(Options{Db: mock})
+
+		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
+			WithArgs(credential.RefID).
+			WillReturnError(pgx.ErrNoRows)
+
+		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
+		errs.AssertError(t, err, errs.NotFound, "credential not found")
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

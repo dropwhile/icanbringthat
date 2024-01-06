@@ -568,17 +568,17 @@ func (_c *MockServicer_DeleteUser_Call) RunAndReturn(run func(context.Context, i
 	return _c
 }
 
-// DeleteUserCredential provides a mock function with given fields: ctx, credentialID
-func (_m *MockServicer) DeleteUserCredential(ctx context.Context, credentialID int) errs.Error {
-	ret := _m.Called(ctx, credentialID)
+// DeleteUserCredential provides a mock function with given fields: ctx, user, refID
+func (_m *MockServicer) DeleteUserCredential(ctx context.Context, user *model.User, refID reftag.IDt7) errs.Error {
+	ret := _m.Called(ctx, user, refID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteUserCredential")
 	}
 
 	var r0 errs.Error
-	if rf, ok := ret.Get(0).(func(context.Context, int) errs.Error); ok {
-		r0 = rf(ctx, credentialID)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.User, reftag.IDt7) errs.Error); ok {
+		r0 = rf(ctx, user, refID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(errs.Error)
@@ -595,14 +595,15 @@ type MockServicer_DeleteUserCredential_Call struct {
 
 // DeleteUserCredential is a helper method to define mock.On call
 //   - ctx context.Context
-//   - credentialID int
-func (_e *MockServicer_Expecter) DeleteUserCredential(ctx interface{}, credentialID interface{}) *MockServicer_DeleteUserCredential_Call {
-	return &MockServicer_DeleteUserCredential_Call{Call: _e.mock.On("DeleteUserCredential", ctx, credentialID)}
+//   - user *model.User
+//   - refID reftag.IDt7
+func (_e *MockServicer_Expecter) DeleteUserCredential(ctx interface{}, user interface{}, refID interface{}) *MockServicer_DeleteUserCredential_Call {
+	return &MockServicer_DeleteUserCredential_Call{Call: _e.mock.On("DeleteUserCredential", ctx, user, refID)}
 }
 
-func (_c *MockServicer_DeleteUserCredential_Call) Run(run func(ctx context.Context, credentialID int)) *MockServicer_DeleteUserCredential_Call {
+func (_c *MockServicer_DeleteUserCredential_Call) Run(run func(ctx context.Context, user *model.User, refID reftag.IDt7)) *MockServicer_DeleteUserCredential_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int))
+		run(args[0].(context.Context), args[1].(*model.User), args[2].(reftag.IDt7))
 	})
 	return _c
 }
@@ -612,7 +613,7 @@ func (_c *MockServicer_DeleteUserCredential_Call) Return(_a0 errs.Error) *MockSe
 	return _c
 }
 
-func (_c *MockServicer_DeleteUserCredential_Call) RunAndReturn(run func(context.Context, int) errs.Error) *MockServicer_DeleteUserCredential_Call {
+func (_c *MockServicer_DeleteUserCredential_Call) RunAndReturn(run func(context.Context, *model.User, reftag.IDt7) errs.Error) *MockServicer_DeleteUserCredential_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2618,9 +2619,9 @@ func (_c *MockServicer_GetUserByID_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// GetUserCredentialByRefID provides a mock function with given fields: ctx, refID
-func (_m *MockServicer) GetUserCredentialByRefID(ctx context.Context, refID reftag.IDt7) (*model.UserCredential, errs.Error) {
-	ret := _m.Called(ctx, refID)
+// GetUserCredentialByRefID provides a mock function with given fields: ctx, userID, refID
+func (_m *MockServicer) GetUserCredentialByRefID(ctx context.Context, userID int, refID reftag.IDt7) (*model.UserCredential, errs.Error) {
+	ret := _m.Called(ctx, userID, refID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserCredentialByRefID")
@@ -2628,19 +2629,19 @@ func (_m *MockServicer) GetUserCredentialByRefID(ctx context.Context, refID reft
 
 	var r0 *model.UserCredential
 	var r1 errs.Error
-	if rf, ok := ret.Get(0).(func(context.Context, reftag.IDt7) (*model.UserCredential, errs.Error)); ok {
-		return rf(ctx, refID)
+	if rf, ok := ret.Get(0).(func(context.Context, int, reftag.IDt7) (*model.UserCredential, errs.Error)); ok {
+		return rf(ctx, userID, refID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, reftag.IDt7) *model.UserCredential); ok {
-		r0 = rf(ctx, refID)
+	if rf, ok := ret.Get(0).(func(context.Context, int, reftag.IDt7) *model.UserCredential); ok {
+		r0 = rf(ctx, userID, refID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.UserCredential)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, reftag.IDt7) errs.Error); ok {
-		r1 = rf(ctx, refID)
+	if rf, ok := ret.Get(1).(func(context.Context, int, reftag.IDt7) errs.Error); ok {
+		r1 = rf(ctx, userID, refID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errs.Error)
@@ -2657,14 +2658,15 @@ type MockServicer_GetUserCredentialByRefID_Call struct {
 
 // GetUserCredentialByRefID is a helper method to define mock.On call
 //   - ctx context.Context
+//   - userID int
 //   - refID reftag.IDt7
-func (_e *MockServicer_Expecter) GetUserCredentialByRefID(ctx interface{}, refID interface{}) *MockServicer_GetUserCredentialByRefID_Call {
-	return &MockServicer_GetUserCredentialByRefID_Call{Call: _e.mock.On("GetUserCredentialByRefID", ctx, refID)}
+func (_e *MockServicer_Expecter) GetUserCredentialByRefID(ctx interface{}, userID interface{}, refID interface{}) *MockServicer_GetUserCredentialByRefID_Call {
+	return &MockServicer_GetUserCredentialByRefID_Call{Call: _e.mock.On("GetUserCredentialByRefID", ctx, userID, refID)}
 }
 
-func (_c *MockServicer_GetUserCredentialByRefID_Call) Run(run func(ctx context.Context, refID reftag.IDt7)) *MockServicer_GetUserCredentialByRefID_Call {
+func (_c *MockServicer_GetUserCredentialByRefID_Call) Run(run func(ctx context.Context, userID int, refID reftag.IDt7)) *MockServicer_GetUserCredentialByRefID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(reftag.IDt7))
+		run(args[0].(context.Context), args[1].(int), args[2].(reftag.IDt7))
 	})
 	return _c
 }
@@ -2674,7 +2676,7 @@ func (_c *MockServicer_GetUserCredentialByRefID_Call) Return(_a0 *model.UserCred
 	return _c
 }
 
-func (_c *MockServicer_GetUserCredentialByRefID_Call) RunAndReturn(run func(context.Context, reftag.IDt7) (*model.UserCredential, errs.Error)) *MockServicer_GetUserCredentialByRefID_Call {
+func (_c *MockServicer_GetUserCredentialByRefID_Call) RunAndReturn(run func(context.Context, int, reftag.IDt7) (*model.UserCredential, errs.Error)) *MockServicer_GetUserCredentialByRefID_Call {
 	_c.Call.Return(run)
 	return _c
 }

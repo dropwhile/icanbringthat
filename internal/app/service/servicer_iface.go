@@ -75,10 +75,10 @@ type Servicer interface {
 	GetUserVerifyByRefID(ctx context.Context, refID model.UserVerifyRefID) (*model.UserVerify, errs.Error)
 	NewUserVerify(ctx context.Context, userID int) (*model.UserVerify, errs.Error)
 	SetUserVerified(ctx context.Context, user *model.User, verifier *model.UserVerify) errs.Error
-	GetUserCredentialByRefID(ctx context.Context, refID model.CredentialRefID) (*model.UserCredential, errs.Error)
+	GetUserCredentialByRefID(ctx context.Context, userID int, refID model.CredentialRefID) (*model.UserCredential, errs.Error)
 	GetUserCredentialsByUser(ctx context.Context, userID int) ([]*model.UserCredential, errs.Error)
 	GetUserCredentialCountByUser(ctx context.Context, userID int) (int, errs.Error)
-	DeleteUserCredential(ctx context.Context, credentialID int) errs.Error
+	DeleteUserCredential(ctx context.Context, user *model.User, refID model.CredentialRefID) errs.Error
 	NewUserCredential(ctx context.Context, userID int, keyName string, credential []byte) (*model.UserCredential, errs.Error)
 	WebAuthnUserFrom(user *model.User) *WebAuthnUser
 	DisableRemindersWithNotification(ctx context.Context, email string, suppressionReason string) errs.Error

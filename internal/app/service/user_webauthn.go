@@ -18,7 +18,7 @@ var (
 )
 
 func (s *Service) GetUserCredentialByRefID(
-	ctx context.Context, refID model.CredentialRefID,
+	ctx context.Context, userID int, refID model.CredentialRefID,
 ) (*model.UserCredential, errs.Error) {
 	cred, err := model.GetUserCredentialByRefID(ctx, s.Db, refID)
 	if err != nil {
@@ -28,6 +28,10 @@ func (s *Service) GetUserCredentialByRefID(
 		default:
 			return nil, errs.Internal.Errorf("db error: %w", err)
 		}
+	}
+
+	if cred.UserID != userID {
+		return nil, errs.PermissionDenied.Error("permission denied")
 	}
 	return cred, nil
 }
@@ -58,9 +62,29 @@ func (s *Service) GetUserCredentialCountByUser(
 }
 
 func (s *Service) DeleteUserCredential(
-	ctx context.Context, credentialID int,
+	ctx context.Context, user *model.User, refID model.CredentialRefID,
 ) errs.Error {
-	err := model.DeleteUserCredential(ctx, s.Db, credentialID)
+	credential, errx := s.GetUserCredentialByRefID(ctx, user.ID, refID)
+	if errx != nil {
+		return errx
+	}
+
+	if credential.UserID != user.ID {
+		return errs.PermissionDenied.Error("permission denied")
+	}
+
+	count, errx := s.GetUserCredentialCountByUser(ctx, user.ID)
+	if errx != nil {
+		return errx
+	}
+
+	if count == 1 && user.WebAuthn {
+		return errs.FailedPrecondition.Error(
+			"refusing to remove last passkey when password auth disabled",
+		)
+	}
+
+	err := model.DeleteUserCredential(ctx, s.Db, credential.ID)
 	if err != nil {
 		return errs.Internal.Error("db error")
 	}
