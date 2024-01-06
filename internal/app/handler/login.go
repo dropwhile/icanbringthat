@@ -81,7 +81,6 @@ func (x *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		// validate credentials...
-		// TODO: move to service layer
 		if !service.CheckPass(ctx, user.PWHash, []byte(passwd)) {
 			slog.DebugContext(ctx, "invalid credentials: pass check fail", "error", err)
 			x.sessMgr.FlashAppend(ctx, "error", "Invalid credentials")
