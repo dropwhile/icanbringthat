@@ -419,12 +419,18 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	ptz := r.PostFormValue("timezone")
 	when := r.PostFormValue("when")
-	if when != "" && ptz != "" {
+	switch {
+	case when == "" && ptz != "":
+		x.BadFormDataError(w, nil, "when")
+		return
+	case when != "" && ptz == "":
+		x.BadFormDataError(w, nil, "timezone")
+		return
+	case when != "" && ptz != "":
 		loc, err := time.LoadLocation(ptz)
 		if err != nil {
-			slog.DebugContext(ctx, "error loading tz", "error", err)
-			ptz = "Etc/UTC"
-			loc, _ = time.LoadLocation(ptz)
+			x.BadFormDataError(w, nil, "timezone")
+			return
 		}
 		t, err := time.ParseInLocation("2006-01-02T15:04", when, loc)
 		if err != nil {
