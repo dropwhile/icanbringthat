@@ -22,7 +22,7 @@ require (
 	github.com/pganalyze/pg_query_go/v4 v4.2.3
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.40.1
-	github.com/redis/go-redis/v9 v9.3.1
+	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/mo v1.11.0
 	github.com/stretchr/testify v1.8.4
 	github.com/twitchtv/twirp v8.1.3+incompatible
