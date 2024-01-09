@@ -119,8 +119,8 @@ ${GOBIN}/convergen:
 ${GOBIN}/ifacemaker:
 	go install github.com/vburenin/ifacemaker@latest
 
-${GOBIN}/mockery:
-	go install github.com/vektra/mockery/v2@v2.39.1
+${GOBIN}/mockgen:
+	go install go.uber.org/mock/mockgen@latest
 
 ${GOBIN}/deadcode:
 	go install golang.org/x/tools/cmd/deadcode@latest
@@ -141,7 +141,7 @@ BENCH_TOOLS := ${GOBIN}/benchstat
 OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
 GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses  ${GOBIN}/protoc-go-inject-tag
-GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockery
+GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockgen
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode
@@ -173,8 +173,6 @@ setup: setup-build setup-generate setup-check setup-bench setup-other
 generate: setup-build setup-generate
 	@echo ">> Generating..."
 	@go generate ./...
-	@echo ">> mockery..."
-	@mockery
 
 .PHONY: emit-license-deps
 emit-license-deps: setup-build setup-generate
