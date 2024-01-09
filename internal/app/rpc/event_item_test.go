@@ -5,15 +5,18 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	mox "github.com/stretchr/testify/mock"
 	"github.com/twitchtv/twirp"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
+
+var eventItemFailIfCheck service.FailIfCheckFunc[*model.EventItem]
 
 func TestRpc_ListEventItems(t *testing.T) {
 	t.Parallel()
@@ -47,8 +50,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 					EventID:     eventID,
 					Description: "some desc",
 				}}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListEventItemsRequest{
 			RefId: eventRefID.String(),
@@ -56,14 +58,13 @@ func TestRpc_ListEventItems(t *testing.T) {
 		response, err := server.ListEventItems(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Items), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list event items with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.ListEventItemsRequest{
@@ -71,7 +72,6 @@ func TestRpc_ListEventItems(t *testing.T) {
 		}
 		_, err := server.ListEventItems(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list event items with missing event should fail", func(t *testing.T) {
@@ -84,15 +84,13 @@ func TestRpc_ListEventItems(t *testing.T) {
 
 		mock.EXPECT().
 			GetEventItemsByEvent(ctx, eventRefID).
-			Return(nil, errs.NotFound.Error("event not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		request := &icbt.ListEventItemsRequest{
 			RefId: eventRefID.String(),
 		}
 		_, err := server.ListEventItems(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -121,7 +119,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
 			Return(nil)
 
@@ -130,14 +128,13 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		}
 		_, err := server.RemoveEventItem(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove event item with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveEventItemRequest{
@@ -145,7 +142,6 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		}
 		_, err := server.RemoveEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove event item not event owner should fail", func(t *testing.T) {
@@ -159,7 +155,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
 			Return(errs.PermissionDenied.Error("not event owner"))
 
@@ -168,7 +164,6 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		}
 		_, err := server.RemoveEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove event item with archived event should fail", func(t *testing.T) {
@@ -182,7 +177,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
@@ -191,7 +186,6 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		}
 		_, err := server.RemoveEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove event item with event item not found should fail", func(t *testing.T) {
@@ -205,7 +199,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		mock.EXPECT().
 			RemoveEventItem(
 				ctx, user.ID, eventItemRefID,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
 			Return(errs.NotFound.Error("event-item not found"))
 
@@ -214,7 +208,6 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		}
 		_, err := server.RemoveEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -251,8 +244,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 					EventID:     eventID,
 					Description: description,
 				}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.AddEventItemRequest{
 			EventRefId:  eventRefID.String(),
@@ -261,7 +253,6 @@ func TestRpc_AddEventItem(t *testing.T) {
 		response, err := server.AddEventItem(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.EventItem.Description, description)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add event item with empty description should fail", func(t *testing.T) {
@@ -275,8 +266,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, eventRefID, description).
-			Return(nil, errs.InvalidArgumentError("description", "bad value")).
-			Once()
+			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
 		request := &icbt.AddEventItemRequest{
 			EventRefId:  eventRefID.String(),
@@ -284,7 +274,6 @@ func TestRpc_AddEventItem(t *testing.T) {
 		}
 		_, err := server.AddEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add event item with user not event owner should fail", func(t *testing.T) {
@@ -298,8 +287,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, eventRefID, description).
-			Return(nil, errs.PermissionDenied.Error("not event owner")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
 		request := &icbt.AddEventItemRequest{
 			EventRefId:  eventRefID.String(),
@@ -307,7 +295,6 @@ func TestRpc_AddEventItem(t *testing.T) {
 		}
 		_, err := server.AddEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add event item to archived event should fail", func(t *testing.T) {
@@ -321,8 +308,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, eventRefID, description).
-			Return(nil, errs.PermissionDenied.Error("event is archived")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
 		request := &icbt.AddEventItemRequest{
 			EventRefId:  eventRefID.String(),
@@ -330,7 +316,6 @@ func TestRpc_AddEventItem(t *testing.T) {
 		}
 		_, err := server.AddEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add event item to missing event should fail", func(t *testing.T) {
@@ -344,8 +329,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, eventRefID, description).
-			Return(nil, errs.NotFound.Error("event not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		request := &icbt.AddEventItemRequest{
 			EventRefId:  eventRefID.String(),
@@ -353,14 +337,13 @@ func TestRpc_AddEventItem(t *testing.T) {
 		}
 		_, err := server.AddEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add event item with bad event ref-id should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		description := "some description"
 
@@ -370,7 +353,6 @@ func TestRpc_AddEventItem(t *testing.T) {
 		}
 		_, err := server.AddEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -402,7 +384,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
 			Return(
 				&model.EventItem{
@@ -411,8 +393,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 					EventID:     eventID,
 					Description: description,
 				}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -421,14 +402,13 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		response, err := server.UpdateEventItem(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.EventItem.Description, description)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       "hodor",
@@ -436,7 +416,6 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with archived event should fail", func(t *testing.T) {
@@ -451,10 +430,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.PermissionDenied.Error("event is archived")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -462,7 +440,6 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with user not event owner should fail", func(t *testing.T) {
@@ -477,10 +454,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.PermissionDenied.Error("not event owner")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -488,7 +464,6 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with earmarked by other should fail", func(t *testing.T) {
@@ -503,10 +478,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.PermissionDenied.Error("earmarked by other user")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("earmarked by other user"))
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -514,7 +488,6 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "earmarked by other user")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with bad description should fail", func(t *testing.T) {
@@ -529,10 +502,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.InvalidArgumentError("description", "bad value")).
-			Once()
+			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -540,7 +512,6 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event item with event item not found should fail", func(t *testing.T) {
@@ -555,10 +526,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		mock.EXPECT().
 			UpdateEventItem(
 				ctx, user.ID, eventItemRefID, description,
-				mox.AnythingOfType("func(*model.EventItem) bool"),
+				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.NotFound.Error("event-item not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("event-item not found"))
 
 		request := &icbt.UpdateEventItemRequest{
 			RefId:       eventItemRefID.String(),
@@ -566,6 +536,5 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		}
 		_, err := server.UpdateEventItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
-		mock.AssertExpectations(t)
 	})
 }

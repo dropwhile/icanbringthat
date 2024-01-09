@@ -62,8 +62,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 					Count:  1,
 				},
 				nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -75,12 +74,10 @@ func TestRpc_ListEarmarks(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.ListEarmarksRequest{
 			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
@@ -90,7 +87,6 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Earmarks), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list earmarks non-paginated should succeed", func(t *testing.T) {
@@ -119,8 +115,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 					LastModified: tstTs,
 				}},
 				nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -132,12 +127,10 @@ func TestRpc_ListEarmarks(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.ListEarmarksRequest{
 			Archived: func(b bool) *bool { return &b }(false),
@@ -146,7 +139,6 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Earmarks), 1)
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -190,8 +182,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 					Archived:      false,
 				},
 				nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEarmarksByEventID(ctx, eventID).
 			Return(
@@ -203,8 +194,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 					Note:        "some note",
 				}},
 				nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -216,12 +206,10 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.ListEventEarmarksRequest{
 			RefId: eventRefID.String(),
@@ -230,7 +218,6 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Earmarks), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list event earmarks event not found should fail", func(t *testing.T) {
@@ -243,22 +230,20 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, eventRefID).
-			Return(nil, errs.NotFound.Error("event not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		request := &icbt.ListEventEarmarksRequest{
 			RefId: eventRefID.String(),
 		}
 		_, err := server.ListEventEarmarks(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list event earmarks bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.ListEventEarmarksRequest{
@@ -266,7 +251,6 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		}
 		_, err := server.ListEventEarmarks(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -305,8 +289,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 					UserID:      user.ID,
 					Note:        "some note",
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -318,8 +301,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventByID(ctx, eventID).
 			Return(
@@ -332,8 +314,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 					ItemSortOrder: []int{},
 					Archived:      false,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -345,12 +326,10 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.GetEarmarkDetailsRequest{
 			RefId: earmarkRefID.String(),
@@ -359,14 +338,13 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, response.Earmark.RefId, earmarkRefID.String())
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("get earmark details bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.GetEarmarkDetailsRequest{
@@ -374,7 +352,6 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 		}
 		_, err := server.GetEarmarkDetails(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -415,8 +392,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItemID, note).
 			Return(
@@ -427,8 +403,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 					UserID:      user.ID,
 					Note:        note,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -440,12 +415,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.CreateEarmarkRequest{
 			EventItemRefId: eventItemRefID.String(),
@@ -455,7 +428,6 @@ func TestRpc_AddEarmark(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, response.Earmark.RefId, earmarkRefID.String())
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add earmark for already earmarked by self should fail", func(t *testing.T) {
@@ -480,12 +452,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItemID, note).
-			Return(nil, errs.AlreadyExists.Error("already earmarked")).
-			Once()
+			Return(nil, errs.AlreadyExists.Error("already earmarked"))
 
 		request := &icbt.CreateEarmarkRequest{
 			EventItemRefId: eventItemRefID.String(),
@@ -493,7 +463,6 @@ func TestRpc_AddEarmark(t *testing.T) {
 		}
 		_, err := server.CreateEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.AlreadyExists, "already earmarked")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add earmark user not verified should fail", func(t *testing.T) {
@@ -529,12 +498,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItemID, note).
-			Return(nil, errs.PermissionDenied.Error("Account must be verified before earmarking is allowed.")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("Account must be verified before earmarking is allowed."))
 
 		request := &icbt.CreateEarmarkRequest{
 			EventItemRefId: eventItemRefID.String(),
@@ -543,7 +510,6 @@ func TestRpc_AddEarmark(t *testing.T) {
 		_, err := server.CreateEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied,
 			"Account must be verified before earmarking is allowed.")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add earmark for already earmarked by other should fail", func(t *testing.T) {
@@ -568,12 +534,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItemID, note).
-			Return(nil, errs.AlreadyExists.Error("already earmarked by other user")).
-			Once()
+			Return(nil, errs.AlreadyExists.Error("already earmarked by other user"))
 
 		request := &icbt.CreateEarmarkRequest{
 			EventItemRefId: eventItemRefID.String(),
@@ -581,14 +545,13 @@ func TestRpc_AddEarmark(t *testing.T) {
 		}
 		_, err := server.CreateEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.AlreadyExists, "already earmarked by other user")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add earmark with bad event item refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEarmarkRequest{
@@ -597,7 +560,6 @@ func TestRpc_AddEarmark(t *testing.T) {
 		}
 		_, err := server.CreateEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -625,15 +587,13 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.RemoveEarmarkRequest{
 			RefId: earmarkRefID.String(),
 		}
 		_, err := server.RemoveEarmark(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove earmark for another user should fail", func(t *testing.T) {
@@ -646,22 +606,20 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
-			Return(errs.PermissionDenied.Error("permission denied")).
-			Once()
+			Return(errs.PermissionDenied.Error("permission denied"))
 
 		request := &icbt.RemoveEarmarkRequest{
 			RefId: earmarkRefID.String(),
 		}
 		_, err := server.RemoveEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove earmark for bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveEarmarkRequest{
@@ -669,7 +627,6 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 		}
 		_, err := server.RemoveEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad earmark ref-id")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove earmark for archived event should fail", func(t *testing.T) {
@@ -682,14 +639,12 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
-			Return(errs.PermissionDenied.Error("event is archived")).
-			Once()
+			Return(errs.PermissionDenied.Error("event is archived"))
 
 		request := &icbt.RemoveEarmarkRequest{
 			RefId: earmarkRefID.String(),
 		}
 		_, err := server.RemoveEarmark(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
-		mock.AssertExpectations(t)
 	})
 }

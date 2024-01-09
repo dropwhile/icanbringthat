@@ -79,16 +79,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 		mock.EXPECT().
 			GetEventItem(ctx, eventItem.RefID).
-			Return(eventItem, nil).
-			Once()
+			Return(eventItem, nil)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItem.ID, note).
-			Return(earmark, nil).
-			Once()
+			Return(earmark, nil)
 
 		data := url.Values{"note": {note}}
 
@@ -103,14 +100,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark bad event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -131,14 +127,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark wrong type event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -159,14 +154,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark bad event item id should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -187,14 +181,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark wrong type event item id should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -215,7 +208,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark missing event should fail", func(t *testing.T) {
@@ -232,8 +224,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(nil, errs.NotFound.Error("not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("not found"))
 
 		data := url.Values{"note": {"some note"}}
 
@@ -248,7 +239,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark missing event item should fail", func(t *testing.T) {
@@ -265,12 +255,10 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 		mock.EXPECT().
 			GetEventItem(ctx, eventItem.RefID).
-			Return(nil, errs.NotFound.Error("not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("not found"))
 
 		data := url.Values{"note": {"some note"}}
 
@@ -285,7 +273,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark eventitem not matching event should fail", func(t *testing.T) {
@@ -302,8 +289,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 		mock.EXPECT().
 			GetEventItem(ctx, eventItem.RefID).
 			Return(
@@ -316,8 +302,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 					LastModified: ts,
 				},
 				nil,
-			).
-			Once()
+			)
 
 		data := url.Values{"note": {"some note"}}
 
@@ -332,7 +317,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark user not verified should fail", func(t *testing.T) {
@@ -362,16 +346,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 		mock.EXPECT().
 			GetEventItem(ctx, eventItem.RefID).
-			Return(eventItem, nil).
-			Once()
+			Return(eventItem, nil)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItem.ID, note).
-			Return(nil, errs.PermissionDenied.Error("user not verified")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("user not verified"))
 
 		data := url.Values{"note": {note}}
 
@@ -386,7 +367,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create earmark already exists should fail", func(t *testing.T) {
@@ -416,16 +396,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 		mock.EXPECT().
 			GetEventItem(ctx, eventItem.RefID).
-			Return(eventItem, nil).
-			Once()
+			Return(eventItem, nil)
 		mock.EXPECT().
 			NewEarmark(ctx, user, eventItem.ID, note).
-			Return(nil, errs.AlreadyExists.Error("already earmarked - access denied")).
-			Once()
+			Return(nil, errs.AlreadyExists.Error("already earmarked - access denied"))
 
 		data := url.Values{"note": {note}}
 
@@ -440,7 +417,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -482,8 +458,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -496,7 +471,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete earmark permission denied should fail", func(t *testing.T) {
@@ -522,8 +496,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
-			Return(errs.PermissionDenied.Error("event is archived")).
-			Once()
+			Return(errs.PermissionDenied.Error("event is archived"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -536,14 +509,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete earmark missing refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -560,14 +532,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete earmark bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -585,7 +556,6 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete earmark not found should fail", func(t *testing.T) {
@@ -602,8 +572,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, refID).
-			Return(errs.NotFound.Error("earmark not found")).
-			Once()
+			Return(errs.NotFound.Error("earmark not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
@@ -616,14 +585,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete earmark refid wrong type should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -641,6 +609,5 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

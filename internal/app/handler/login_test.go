@@ -11,13 +11,13 @@ import (
 	"testing"
 
 	"github.com/dropwhile/refid/v2"
-	"github.com/pashagolub/pgxmock/v3"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Login_InvalidCredentials(t *testing.T) {
@@ -39,7 +39,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		mock, _, handler := SetupHandler(t, ctx)
 
 		mock.EXPECT().
-			GetUserByEmail(mox.AnythingOfType("*context.valueCtx"), user.Email).
+			GetUserByEmail(gomock.Any(), user.Email).
 			Return(user, nil)
 
 		// bad password
@@ -64,7 +64,6 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/login",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("no matching user", func(t *testing.T) {
@@ -73,7 +72,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		mock, _, handler := SetupHandler(t, ctx)
 
 		mock.EXPECT().
-			GetUserByEmail(mox.AnythingOfType("*context.valueCtx"), user.Email).
+			GetUserByEmail(gomock.Any(), user.Email).
 			Return(nil, errs.NotFound.Error("user not found"))
 
 		data := url.Values{
@@ -98,13 +97,12 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 			"handler returned wrong redirect")
 
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("missing form data", func(t *testing.T) {
 		t.Parallel()
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 
 		data := url.Values{
 			"email": {"userXYZ@example.com"},
@@ -124,41 +122,36 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
 func TestHandler_Login_ValidCredentials(t *testing.T) {
 	t.Parallel()
 
+	user := &model.User{
+		ID:       1,
+		RefID:    refid.Must(model.NewUserRefID()),
+		Email:    "user@example.com",
+		Name:     "user",
+		PWHash:   util.Must(crypto.HashPW([]byte("00x00"))),
+		PWAuth:   true,
+		Verified: true,
+	}
+
 	ctx := context.TODO()
-	mock, _, handler := SetupHandlerOld(t, ctx)
+	mock, _, handler := SetupHandler(t, ctx)
+	// inject session into context
+	ctx, _ = handler.sessMgr.Load(ctx, "")
 
-	refID := refid.Must(model.NewUserRefID())
-	ts := tstTs
-	pwhash, _ := crypto.HashPW([]byte("00x00"))
-
-	// mock.ExpectBegin()
-	mock.ExpectQuery("^SELECT (.+) FROM user_").
-		WithArgs("user@example.com").
-		WillReturnRows(pgxmock.NewRows(
-			[]string{
-				"id", "ref_id", "email", "name", "pwhash", "pwauth",
-				"created", "last_modified",
-			}).
-			AddRow(
-				1, refID, "user@example.com", "user", pwhash, true,
-				ts, ts,
-			),
-		)
+	mock.EXPECT().
+		GetUserByEmail(ctx, user.Email).
+		Return(user, nil)
 
 	data := url.Values{
 		"email":    {"user@example.com"},
 		"password": {"00x00"},
 	}
 
-	// inject session into context
-	ctx, _ = handler.sessMgr.Load(ctx, "")
 	req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/login", strings.NewReader(data.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
@@ -174,7 +167,4 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 	AssertStatusEqual(t, rr, http.StatusSeeOther)
 	assert.Equal(t, rr.Header().Get("location"), "/dashboard",
 		"handler returned wrong redirect")
-	// we make sure that all expectations were met
-	assert.Assert(t, mock.ExpectationsWereMet(),
-		"there were unfulfilled expectations")
 }

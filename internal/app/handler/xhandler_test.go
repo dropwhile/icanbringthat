@@ -14,15 +14,15 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"github.com/pashagolub/pgxmock/v3"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/resources"
-	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/app/service/mockservice"
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/logger"
 	"github.com/dropwhile/icbt/internal/mail"
+	"github.com/dropwhile/icbt/internal/mail/mockmail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/session"
 	"github.com/dropwhile/icbt/internal/util"
@@ -58,25 +58,12 @@ func (tm *TestMailer) SendAsync(from string, to []string, subject, bodyPlain, bo
 	tm.Send(from, to, subject, bodyPlain, bodyHtml, extraHeaders)
 }
 
-func SetupHandlerOld(
-	t *testing.T, ctx context.Context,
-) (pgxmock.PgxConnIface, *chi.Mux, *Handler) {
+func SetupMailerMock(t *testing.T) *mockmail.MockMailSender {
 	t.Helper()
 
-	mock := SetupDBMock(t, ctx)
-	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
-	h := &Handler{
-		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
-		sessMgr:   session.NewTestSessionManager(),
-		mailer:    &TestMailer{make([]*mail.Mail, 0)},
-		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
-		baseURL:   "http://example.com",
-		svc:       &service.Service{Db: mock},
-	}
-	mux := chi.NewMux()
-	mux.Use(h.sessMgr.LoadAndSave)
-	mux.Use(auth.Load(h.svc, h.sessMgr))
-	return mock, mux, h
+	ctrl := gomock.NewController(t)
+	mailer := mockmail.NewMockMailSender(ctrl)
+	return mailer
 }
 
 func SetupHandler(
@@ -84,7 +71,8 @@ func SetupHandler(
 ) (*mockservice.MockServicer, *chi.Mux, *Handler) {
 	t.Helper()
 
-	mock := mockservice.NewMockServicer(t)
+	ctrl := gomock.NewController(t)
+	mock := mockservice.NewMockServicer(ctrl)
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
 		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),

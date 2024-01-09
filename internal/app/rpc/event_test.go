@@ -64,8 +64,7 @@ func TestRpc_ListEvents(t *testing.T) {
 					Offset: uint32(offset),
 					Count:  1,
 				}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListEventsRequest{
 			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
@@ -74,7 +73,6 @@ func TestRpc_ListEvents(t *testing.T) {
 		response, err := server.ListEvents(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Events), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list events non-paginated should succeed", func(t *testing.T) {
@@ -101,8 +99,7 @@ func TestRpc_ListEvents(t *testing.T) {
 					StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
 					Archived:      archived,
 				}}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListEventsRequest{
 			Archived: func(b bool) *bool { return &b }(false),
@@ -110,7 +107,6 @@ func TestRpc_ListEvents(t *testing.T) {
 		response, err := server.ListEvents(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Events), 1)
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -154,8 +150,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 					StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
 					Archived:      false,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemsByEventID(ctx, eventID).
 			Return(
@@ -165,8 +160,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 					EventID:     eventID,
 					Description: "some item",
 				}}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEarmarksByEventID(ctx, eventID).
 			Return(
@@ -177,8 +171,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 					EventItemID: eventItemID,
 					Note:        "some earmark",
 				}}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetEventItemByID(ctx, eventItemID).
 			Return(
@@ -190,12 +183,10 @@ func TestRpc_GetEventDetails(t *testing.T) {
 					Created:      tstTs,
 					LastModified: tstTs,
 				}, nil,
-			).
-			Once()
+			)
 		mock.EXPECT().
 			GetUserByID(ctx, user.ID).
-			Return(user, nil).
-			Once()
+			Return(user, nil)
 
 		request := &icbt.GetEventDetailsRequest{
 			RefId: eventRefID.String(),
@@ -206,7 +197,6 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		assert.Equal(t, response.Event.Name, "some name")
 		assert.Equal(t, len(response.Items), 1)
 		assert.Equal(t, len(response.Earmarks), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("get event details event not found should fail", func(t *testing.T) {
@@ -219,22 +209,20 @@ func TestRpc_GetEventDetails(t *testing.T) {
 
 		mock.EXPECT().
 			GetEvent(ctx, eventRefID).
-			Return(nil, errs.NotFound.Error("event not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("event not found"))
 
 		request := &icbt.GetEventDetailsRequest{
 			RefId: eventRefID.String(),
 		}
 		_, err := server.GetEventDetails(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("get event details with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.GetEventDetailsRequest{
@@ -242,7 +230,6 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		}
 		_, err := server.GetEventDetails(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -285,8 +272,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, event.Name, event.Description, event.StartTime,
 				event.StartTimeTz.Location.String(),
 			).
-			Return(event, nil).
-			Once()
+			Return(event, nil)
 
 		request := &icbt.CreateEventRequest{
 			Name:        event.Name,
@@ -297,7 +283,6 @@ func TestRpc_CreateEvent(t *testing.T) {
 		response, err := server.CreateEvent(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.Event.Name, event.Name)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create event with empty TZ should fail", func(t *testing.T) {
@@ -312,8 +297,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, event.Name, event.Description, event.StartTime,
 				"",
 			).
-			Return(nil, errs.InvalidArgumentError("tz", "bad value")).
-			Once()
+			Return(nil, errs.InvalidArgumentError("tz", "bad value"))
 
 		request := &icbt.CreateEventRequest{
 			Name:        event.Name,
@@ -326,14 +310,13 @@ func TestRpc_CreateEvent(t *testing.T) {
 		_, err := server.CreateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "tz bad value",
 			map[string]string{"argument": "tz"})
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create event with empty ts should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateEventRequest{
@@ -346,7 +329,6 @@ func TestRpc_CreateEvent(t *testing.T) {
 		_, err := server.CreateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "start_time bad empty value",
 			map[string]string{"argument": "start_time"})
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create event with empty name should fail", func(t *testing.T) {
@@ -361,8 +343,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, "", event.Description, event.StartTime,
 				event.StartTimeTz.Location.String(),
 			).
-			Return(nil, errs.InvalidArgumentError("name", "bad value")).
-			Once()
+			Return(nil, errs.InvalidArgumentError("name", "bad value"))
 
 		request := &icbt.CreateEventRequest{
 			Name:        "",
@@ -373,7 +354,6 @@ func TestRpc_CreateEvent(t *testing.T) {
 		_, err := server.CreateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "name bad value",
 			map[string]string{"argument": "name"})
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create event with empty description should fail", func(t *testing.T) {
@@ -388,8 +368,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, event.Name, "", event.StartTime,
 				event.StartTimeTz.Location.String(),
 			).
-			Return(nil, errs.InvalidArgumentError("description", "bad value")).
-			Once()
+			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
 		request := &icbt.CreateEventRequest{
 			Name:        event.Name,
@@ -400,7 +379,6 @@ func TestRpc_CreateEvent(t *testing.T) {
 		_, err := server.CreateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value",
 			map[string]string{"argument": "description"})
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -445,8 +423,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				StartTime:   mo.Some(event.StartTime),
 				Tz:          mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -457,7 +434,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with empty TZ should succeed", func(t *testing.T) {
@@ -474,8 +450,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				StartTime:   mo.Some(event.StartTime),
 				Tz:          mo.None[string](),
 			}).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -488,7 +463,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with empty Ts should succeed", func(t *testing.T) {
@@ -505,8 +479,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				StartTime:   mo.None[time.Time](),
 				Tz:          mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -518,7 +491,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with empty name should succeed", func(t *testing.T) {
@@ -533,8 +505,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Description: mo.Some(event.Description),
 				Tz:          mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -545,7 +516,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with empty description should succeed", func(t *testing.T) {
@@ -560,8 +530,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Name: mo.Some(event.Name),
 				Tz:   mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.UpdateEventRequest{
 			RefId: event.RefID.String(),
@@ -572,7 +541,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with no data should fail", func(t *testing.T) {
@@ -584,14 +552,12 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 		mock.EXPECT().
 			UpdateEvent(ctx, user.ID, event.RefID, &service.EventUpdateValues{}).
-			Return(errs.InvalidArgument.Error("missing fields")).
-			Once()
+			Return(errs.InvalidArgument.Error("missing fields"))
 		request := &icbt.UpdateEventRequest{
 			RefId: event.RefID.String(),
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "missing fields")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update archived event should fail", func(t *testing.T) {
@@ -606,8 +572,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Description: mo.Some(event.Description),
 				Tz:          mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(errs.PermissionDenied.Error("event is archived")).
-			Once()
+			Return(errs.PermissionDenied.Error("event is archived"))
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -618,7 +583,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event owned by other user should fail", func(t *testing.T) {
@@ -633,8 +597,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Description: mo.Some(event.Description),
 				Tz:          mo.Some(event.StartTimeTz.Location.String()),
 			}).
-			Return(errs.PermissionDenied.Error("permission denied")).
-			Once()
+			Return(errs.PermissionDenied.Error("permission denied"))
 
 		request := &icbt.UpdateEventRequest{
 			RefId:       event.RefID.String(),
@@ -645,14 +608,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.UpdateEventRequest{
@@ -664,7 +626,6 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		}
 		_, err := server.UpdateEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -692,22 +653,20 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEvent(ctx, user.ID, eventRefID).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.DeleteEventRequest{
 			RefId: eventRefID.String(),
 		}
 		_, err := server.DeleteEvent(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.DeleteEventRequest{
@@ -715,7 +674,6 @@ func TestRpc_DeleteEvent(t *testing.T) {
 		}
 		_, err := server.DeleteEvent(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event owned by other user should fail", func(t *testing.T) {
@@ -728,14 +686,12 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteEvent(ctx, user.ID, eventRefID).
-			Return(errs.PermissionDenied.Error("permission denied")).
-			Once()
+			Return(errs.PermissionDenied.Error("permission denied"))
 
 		request := &icbt.DeleteEventRequest{
 			RefId: eventRefID.String(),
 		}
 		_, err := server.DeleteEvent(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		mock.AssertExpectations(t)
 	})
 }

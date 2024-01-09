@@ -90,7 +90,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete with failed precondition should fail", func(t *testing.T) {
@@ -119,7 +118,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete with credential not found should fail", func(t *testing.T) {
@@ -148,7 +146,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete other user credential should fail", func(t *testing.T) {
@@ -177,6 +174,5 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

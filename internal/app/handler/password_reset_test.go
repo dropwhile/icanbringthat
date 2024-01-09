@@ -12,7 +12,7 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -21,7 +21,6 @@ import (
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/internal/mail/mockmail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -96,14 +95,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset with user logged in", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -133,14 +131,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset with password mismatch", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -169,14 +166,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset with bad hmac", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -206,14 +202,13 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset with bad refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -243,7 +238,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset upw not in db", func(t *testing.T) {
@@ -283,7 +277,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset user not found", func(t *testing.T) {
@@ -326,7 +319,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("pwreset upw is expired", func(t *testing.T) {
@@ -376,7 +368,6 @@ func TestHandler_ResetPassword(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -410,7 +401,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		mockmailer := mockmail.NewMockMailSender(t)
+		mockmailer := SetupMailerMock(t)
 		handler.mailer = mockmailer
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
@@ -431,12 +422,12 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 			SendAsync("",
 				[]string{user.Email},
 				"Password reset",
-				mox.AnythingOfType("string"),
-				mox.AnythingOfType("string"),
+				gomock.AssignableToTypeOf("string"),
+				gomock.AssignableToTypeOf("string"),
 				mail.MailHeader{
 					"X-PM-Message-Stream": "outbound",
 				},
-			).Run(
+			).Do(
 			func(
 				from string, recipients []string,
 				subject, msgPlain, msgHtml string,
@@ -467,7 +458,6 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/login",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("send pw reset email no user", func(t *testing.T) {
@@ -506,6 +496,5 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/login",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

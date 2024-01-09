@@ -12,13 +12,23 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	pg_query "github.com/pganalyze/pg_query_go/v4"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/mail/mockmail"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
 var tstTs time.Time = util.MustParseTime(time.RFC3339, "2030-01-01T03:04:05Z")
+
+func SetupMailerMock(t *testing.T) *mockmail.MockMailSender {
+	t.Helper()
+
+	ctrl := gomock.NewController(t)
+	mailer := mockmail.NewMockMailSender(ctrl)
+	return mailer
+}
 
 func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
 	t.Helper()

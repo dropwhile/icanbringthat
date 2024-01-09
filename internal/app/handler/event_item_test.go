@@ -10,7 +10,7 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -85,14 +85,13 @@ func TestHandler_EventItem_Create(t *testing.T) {
 			fmt.Sprintf("/events/%s", event.RefID),
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -112,7 +111,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing event", func(t *testing.T) {
@@ -143,7 +141,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create user not owner", func(t *testing.T) {
@@ -174,14 +171,13 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create with missing description param should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -201,7 +197,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -257,7 +252,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
 			Return(eventItem, nil)
 
 		data := url.Values{"description": {description}}
@@ -273,14 +268,13 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -301,7 +295,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event", func(t *testing.T) {
@@ -333,7 +326,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event item", func(t *testing.T) {
@@ -354,7 +346,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
 			Return(nil, errs.NotFound.Error("event-item not found"))
 
 		data := url.Values{"description": {description}}
@@ -370,7 +362,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event owner not match", func(t *testing.T) {
@@ -391,7 +382,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
 			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
 		data := url.Values{"description": {description}}
@@ -407,7 +398,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event archived", func(t *testing.T) {
@@ -428,7 +418,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
 			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
 		data := url.Values{"description": {description}}
@@ -444,7 +434,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update already earmarked by other user", func(t *testing.T) {
@@ -465,7 +454,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
 			Return(nil, errs.PermissionDenied.Error("earmarked by other user"))
 
 		data := url.Values{"description": {description}}
@@ -481,7 +470,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing form data", func(t *testing.T) {
@@ -513,7 +501,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update eventitem not matching event", func(t *testing.T) {
@@ -541,8 +528,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, mox.Anything).
-			RunAndReturn(
+			UpdateEventItem(ctx, user.ID, eventItem.RefID, description, gomock.Any()).
+			DoAndReturn(
 				func(
 					_ctx context.Context, _userID int,
 					_eventItemRefID model.EventItemRefID,
@@ -569,7 +556,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -623,7 +609,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, gomock.Any()).
 			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -637,14 +623,13 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -663,14 +648,13 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete bad event item refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -689,7 +673,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete missing event", func(t *testing.T) {
@@ -719,7 +702,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete missing event item", func(t *testing.T) {
@@ -738,7 +720,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, gomock.Any()).
 			Return(errs.NotFound.Error("event-item not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -752,7 +734,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete user not owner", func(t *testing.T) {
@@ -771,7 +752,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, gomock.Any()).
 			Return(errs.PermissionDenied.Error("not event owner"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -785,7 +766,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event item not related to supplied event", func(t *testing.T) {
@@ -811,8 +791,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
-			RunAndReturn(
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, gomock.Any()).
+			DoAndReturn(
 				func(
 					_ctx context.Context,
 					_userID int,
@@ -837,7 +817,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete event archived", func(t *testing.T) {
@@ -856,7 +835,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 			GetEvent(ctx, event.RefID).
 			Return(event, nil)
 		mock.EXPECT().
-			RemoveEventItem(ctx, user.ID, eventItem.RefID, mox.Anything).
+			RemoveEventItem(ctx, user.ID, eventItem.RefID, gomock.Any()).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
@@ -870,6 +849,5 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

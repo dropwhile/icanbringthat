@@ -10,6 +10,8 @@ import (
 	"github.com/dropwhile/icbt/internal/errs"
 )
 
+type FailIfCheckFunc[T any] func(T) bool
+
 type Pagination struct {
 	Limit  uint32
 	Offset uint32
@@ -43,6 +45,7 @@ func ParseTimeZone(tz string) (*model.TimeZone, error) {
 }
 
 //go:generate ifacemaker -f "*.go" -s Service -i Servicer -p service -o servicer_iface.go
+//go:generate mockgen -source servicer_iface.go -destination mockservice/servicer_mock.go -package mockservice
 type Service struct {
 	Db model.PgxHandle
 }

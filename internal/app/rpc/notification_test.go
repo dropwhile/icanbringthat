@@ -57,8 +57,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 					Offset: uint32(offset),
 					Count:  1,
 				}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListNotificationsRequest{
 			Pagination: &icbt.PaginationRequest{
@@ -69,7 +68,6 @@ func TestRpc_ListNotifications(t *testing.T) {
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Notifications), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list notifications non-paginated should succeed", func(t *testing.T) {
@@ -81,15 +79,13 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 		mock.EXPECT().
 			GetNotifications(ctx, user.ID).
-			Return([]*model.Notification{notification}, nil).
-			Once()
+			Return([]*model.Notification{notification}, nil)
 
 		request := &icbt.ListNotificationsRequest{}
 		response, err := server.ListNotifications(ctx, request)
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Notifications), 1)
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -120,7 +116,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.DeleteNotificationRequest{
@@ -128,7 +124,6 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification with no matching refid should fail", func(t *testing.T) {
@@ -140,15 +135,13 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, notification.RefID).
-			Return(errs.NotFound.Error("notification not found")).
-			Once()
+			Return(errs.NotFound.Error("notification not found"))
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "notification not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification for different user should fail", func(t *testing.T) {
@@ -160,15 +153,13 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, notification.RefID).
-			Return(errs.PermissionDenied.Error("permission denied")).
-			Once()
+			Return(errs.PermissionDenied.Error("permission denied"))
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete notification should succeed", func(t *testing.T) {
@@ -180,15 +171,13 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, notification.RefID).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.DeleteNotificationRequest{
 			RefId: notification.RefID.String(),
 		}
 		_, err := server.DeleteNotification(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -215,12 +204,10 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 
 		mock.EXPECT().
 			DeleteAllNotifications(ctx, user.ID).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		request := &icbt.DeleteAllNotificationsRequest{}
 		_, err := server.DeleteAllNotifications(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/samber/mo"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -62,7 +62,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		mock.EXPECT().
 			CreateEvent(
 				ctx, user, event.Name, event.Description,
-				mox.AnythingOfType("time.Time"),
+				gomock.AssignableToTypeOf(time.Time{}),
 				event.StartTimeTz.String(),
 			).
 			Return(event, nil)
@@ -90,14 +90,13 @@ func TestHandler_Event_Create(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing form value name", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -120,14 +119,13 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing form value description", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -150,14 +148,13 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing form value when", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -180,14 +177,13 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing form value timezone", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -210,7 +206,6 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create bad timezone with default to utc should succeed", func(t *testing.T) {
@@ -226,7 +221,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		mock.EXPECT().
 			CreateEvent(
 				ctx, user, event.Name, event.Description,
-				mox.AnythingOfType("time.Time"),
+				gomock.AssignableToTypeOf(time.Time{}),
 				event.StartTimeTz.String(),
 			).
 			Return(event, nil)
@@ -254,14 +249,13 @@ func TestHandler_Event_Create(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create bad time", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -285,7 +279,6 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create user not verified should fail", func(t *testing.T) {
@@ -311,7 +304,7 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		mock.EXPECT().
 			CreateEvent(ctx, user, event.Name, event.Description,
-				mox.AnythingOfType("time.Time"),
+				gomock.AssignableToTypeOf(time.Time{}),
 				event.StartTimeTz.String(),
 			).
 			Return(nil, errs.PermissionDenied.Error(
@@ -336,7 +329,6 @@ func TestHandler_Event_Create(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -415,14 +407,13 @@ func TestHandler_Event_Update(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -444,7 +435,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event should fail", func(t *testing.T) {
@@ -481,7 +471,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update user.id not match event.userid should fail", func(t *testing.T) {
@@ -518,7 +507,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update event archived should fail", func(t *testing.T) {
@@ -555,7 +543,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update only name should succeed", func(t *testing.T) {
@@ -597,7 +584,6 @@ func TestHandler_Event_Update(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update only update description should succeed", func(t *testing.T) {
@@ -639,7 +625,6 @@ func TestHandler_Event_Update(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update with when and tz should succeed", func(t *testing.T) {
@@ -685,14 +670,13 @@ func TestHandler_Event_Update(t *testing.T) {
 			"/events/", rr.Header().Get("location"),
 		)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update with only when should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -714,14 +698,13 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update with only tz should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -743,7 +726,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update nothing should fail", func(t *testing.T) {
@@ -778,14 +760,13 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad tz should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -808,14 +789,13 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad time", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -838,7 +818,6 @@ func TestHandler_Event_Update(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -900,14 +879,13 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -929,7 +907,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update missing event", func(t *testing.T) {
@@ -962,7 +939,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update user.id not match event.userid", func(t *testing.T) {
@@ -995,7 +971,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update archived event should fail", func(t *testing.T) {
@@ -1028,14 +1003,13 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update update nothing", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1057,14 +1031,13 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad values", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1086,14 +1059,13 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update bad values 2", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1115,7 +1087,6 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -1172,14 +1143,13 @@ func TestHandler_Event_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete bad event refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
@@ -1197,7 +1167,6 @@ func TestHandler_Event_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete missing event", func(t *testing.T) {
@@ -1226,7 +1195,6 @@ func TestHandler_Event_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("delete mismatch user id", func(t *testing.T) {
@@ -1255,6 +1223,5 @@ func TestHandler_Event_Delete(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

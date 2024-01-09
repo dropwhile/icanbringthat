@@ -107,7 +107,7 @@ func (s *Service) GetEventItemByID(
 
 func (s *Service) RemoveEventItem(
 	ctx context.Context, userID int, eventItemRefID model.EventItemRefID,
-	failIfChecks func(*model.EventItem) bool,
+	failIfChecks FailIfCheckFunc[*model.EventItem],
 ) errs.Error {
 	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, eventItemRefID)
 	switch {

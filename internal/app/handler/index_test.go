@@ -22,7 +22,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
@@ -38,7 +38,6 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/login",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("logged in", func(t *testing.T) {
@@ -54,7 +53,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		}
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
@@ -71,6 +70,5 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

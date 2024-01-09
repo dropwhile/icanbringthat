@@ -63,8 +63,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 					Offset: uint32(offset),
 					Count:  1,
 				}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListFavoriteEventsRequest{
 			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
@@ -74,7 +73,6 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Events), 1)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("list favorite events non-paginated should succeed", func(t *testing.T) {
@@ -103,8 +101,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 					ID:            1,
 					RefID:         eventRefID,
 				}}, nil,
-			).
-			Once()
+			)
 
 		request := &icbt.ListFavoriteEventsRequest{
 			Archived: func(b bool) *bool { return &b }(false),
@@ -112,7 +109,6 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		response, err := server.ListFavoriteEvents(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Events), 1)
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -148,8 +144,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 				StartTime:     tstTs,
 				StartTimeTz:   util.Must(service.ParseTimeZone("UTC")),
 				Archived:      false,
-			}, nil).
-			Once()
+			}, nil)
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
@@ -157,7 +152,6 @@ func TestRpc_AddFavorite(t *testing.T) {
 		response, err := server.AddFavorite(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.Favorite.EventRefId, eventRefID.String())
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite for own event should fail", func(t *testing.T) {
@@ -170,15 +164,13 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, eventRefID).
-			Return(nil, errs.PermissionDenied.Error("can't favorite own event")).
-			Once()
+			Return(nil, errs.PermissionDenied.Error("can't favorite own event"))
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "can't favorite own event")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite for already favorited should fail", func(t *testing.T) {
@@ -191,22 +183,20 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, eventRefID).
-			Return(nil, errs.AlreadyExists.Error("favorite already exists")).
-			Once()
+			Return(nil, errs.AlreadyExists.Error("favorite already exists"))
 
 		request := &icbt.CreateFavoriteRequest{
 			EventRefId: eventRefID.String(),
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.AlreadyExists, "favorite already exists")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("add favorite with bad event refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.CreateFavoriteRequest{
@@ -214,7 +204,6 @@ func TestRpc_AddFavorite(t *testing.T) {
 		}
 		_, err := server.AddFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -249,14 +238,13 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		assert.NilError(t, err)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite with bad refid should fail", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		server, mock := NewTestServer(t)
+		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		request := &icbt.RemoveFavoriteRequest{
@@ -264,7 +252,6 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite with event not found should fail", func(t *testing.T) {
@@ -284,7 +271,6 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite with favorite not found should fail", func(t *testing.T) {
@@ -304,7 +290,6 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "favorite not found")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("remove favorite not owned should fail", func(t *testing.T) {
@@ -324,6 +309,5 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		}
 		_, err := server.RemoveFavorite(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
-		mock.AssertExpectations(t)
 	})
 }

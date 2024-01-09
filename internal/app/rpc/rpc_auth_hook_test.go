@@ -24,7 +24,6 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with api-key not finding user should fail", func(t *testing.T) {
@@ -36,12 +35,10 @@ func TestRpc_AuthHook(t *testing.T) {
 
 		mock.EXPECT().
 			GetUserByApiKey(ctx, "user-123").
-			Return(nil, errs.NotFound.Error("user not found")).
-			Once()
+			Return(nil, errs.NotFound.Error("user not found"))
 
 		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with user ApiAccess disabled should fail", func(t *testing.T) {
@@ -61,12 +58,10 @@ func TestRpc_AuthHook(t *testing.T) {
 					ApiAccess: false,
 					Verified:  true,
 				}, nil,
-			).
-			Once()
+			)
 
 		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "invalid auth")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook with user not verified disabled should fail", func(t *testing.T) {
@@ -86,12 +81,10 @@ func TestRpc_AuthHook(t *testing.T) {
 					ApiAccess: true,
 					Verified:  false,
 				}, nil,
-			).
-			Once()
+			)
 
 		_, err := AuthHook(mock)(ctx)
 		errs.AssertError(t, err, twirp.Unauthenticated, "account not verified")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("auth hook should succeed", func(t *testing.T) {
@@ -111,13 +104,11 @@ func TestRpc_AuthHook(t *testing.T) {
 					ApiAccess: true,
 					Verified:  true,
 				}, nil,
-			).
-			Once()
+			)
 
 		ctx, err := AuthHook(mock)(ctx)
 		assert.NilError(t, err)
 		_, ok := auth.ContextGet[*model.User](ctx, "user")
 		assert.Check(t, ok, "user is a *mode.user")
-		mock.AssertExpectations(t)
 	})
 }

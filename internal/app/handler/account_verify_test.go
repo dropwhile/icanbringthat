@@ -11,7 +11,7 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -20,7 +20,6 @@ import (
 	"github.com/dropwhile/icbt/internal/encoder"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/internal/mail/mockmail"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
 	"github.com/dropwhile/icbt/internal/util"
 )
@@ -55,7 +54,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 
 		ctx := context.TODO()
 		mock, _, handler := SetupHandler(t, ctx)
-		mockmailer := mockmail.NewMockMailSender(t)
+		mockmailer := SetupMailerMock(t)
 		handler.mailer = mockmailer
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
@@ -78,12 +77,12 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 			SendAsync("",
 				[]string{user.Email},
 				"Account Verification",
-				mox.AnythingOfType("string"),
-				mox.AnythingOfType("string"),
+				gomock.AssignableToTypeOf("string"),
+				gomock.AssignableToTypeOf("string"),
 				mail.MailHeader{
 					"X-PM-Message-Stream": "outbound",
 				},
-			).Run(
+			).Do(
 			func(
 				from string, recipients []string,
 				subject, msgPlain, msgHtml string,
@@ -112,7 +111,6 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -180,14 +178,13 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("verify with bad hmac", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -217,14 +214,13 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("verify with bad refid", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -254,7 +250,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("verify not in db", func(t *testing.T) {
@@ -293,7 +288,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("verify is expired", func(t *testing.T) {
@@ -342,6 +336,5 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }

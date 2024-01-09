@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	pg_query "github.com/pganalyze/pg_query_go/v4"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -58,6 +59,7 @@ func NewTestServerOld(db model.PgxHandle) *Server {
 
 func NewTestServer(t *testing.T) (*Server, *mockservice.MockServicer) {
 	t.Helper()
-	mock := mockservice.NewMockServicer(t)
+	ctrl := gomock.NewController(t)
+	mock := mockservice.NewMockServicer(ctrl)
 	return &Server{svc: mock}, mock
 }

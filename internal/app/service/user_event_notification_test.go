@@ -9,13 +9,12 @@ import (
 	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/mail"
-	"github.com/dropwhile/icbt/internal/mail/mockmail"
 	"github.com/dropwhile/icbt/internal/util"
 )
 
@@ -66,7 +65,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
-		mailer := mockmail.NewMockMailSender(t)
+		mailer := SetupMailerMock(t)
 		templates := resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_reminder.gohtml": template.Must(
@@ -152,14 +151,13 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		mailer.EXPECT().
 			Send("", []string{user.Email},
 				"Upcoming Event Reminder",
-				mox.AnythingOfType("string"),
-				mox.AnythingOfType("string"),
+				gomock.AssignableToTypeOf("string"),
+				gomock.AssignableToTypeOf("string"),
 				mail.MailHeader{
 					"X-PM-Message-Stream": "broadcast",
 				},
 			).
-			Return(nil).
-			Once()
+			Return(nil)
 
 		err := svc.NotifyUsersPendingEvents(
 			ctx, mailer, templates, "http://example.org",
@@ -168,7 +166,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
-		mailer.AssertExpectations(t)
 	})
 
 	t.Run("notify pending with user reminders disabled should succeed", func(t *testing.T) {
@@ -176,7 +173,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
-		mailer := mockmail.NewMockMailSender(t)
+		mailer := SetupMailerMock(t)
 		templates := resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_reminder.gohtml": template.Must(
@@ -222,7 +219,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
-		mailer.AssertExpectations(t)
 	})
 
 	t.Run("notify pending with time threshold not met should succeed", func(t *testing.T) {
@@ -230,7 +226,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
-		mailer := mockmail.NewMockMailSender(t)
+		mailer := SetupMailerMock(t)
 		templates := resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_reminder.gohtml": template.Must(
@@ -273,7 +269,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
-		mailer.AssertExpectations(t)
 	})
 
 	t.Run("notify pending with empty results should succeed", func(t *testing.T) {
@@ -281,7 +276,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		ctx := context.Background()
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
-		mailer := mockmail.NewMockMailSender(t)
+		mailer := SetupMailerMock(t)
 		templates := resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_reminder.gohtml": template.Must(
@@ -308,6 +303,5 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
-		mailer.AssertExpectations(t)
 	})
 }

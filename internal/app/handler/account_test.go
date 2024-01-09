@@ -10,7 +10,7 @@ import (
 
 	"github.com/dropwhile/refid/v2"
 	"github.com/samber/mo"
-	mox "github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -43,7 +43,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -71,7 +71,6 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update email", func(t *testing.T) {
@@ -119,14 +118,13 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update name with same as existing", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -164,7 +162,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update name", func(t *testing.T) {
@@ -210,14 +207,13 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update passwd with missing confirm password", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -248,14 +244,13 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update passwd with mismatched confirm password", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		// copy user to avoid context user being modified
 		// impacting future tests
@@ -289,7 +284,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update passwd with invalid old password", func(t *testing.T) {
@@ -305,7 +299,11 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.EXPECT().
-			UpdateUser(ctx, user, mox.AnythingOfType("*service.UserUpdateValues")).
+			UpdateUser(
+				ctx, user,
+				gomock.AssignableToTypeOf(
+					&service.UserUpdateValues{},
+				)).
 			Return(errs.InvalidArgumentError("OldPass", "bad value"))
 
 		data := url.Values{
@@ -335,7 +333,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("update passwd", func(t *testing.T) {
@@ -351,7 +348,8 @@ func TestHandler_Account_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.EXPECT().
-			UpdateUser(ctx, user, mox.AnythingOfType("*service.UserUpdateValues")).
+			UpdateUser(ctx, user,
+				gomock.AssignableToTypeOf(&service.UserUpdateValues{})).
 			Return(nil)
 
 		data := url.Values{
@@ -382,7 +380,6 @@ func TestHandler_Account_Update(t *testing.T) {
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
 		// we make sure that all expectations were met
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -442,7 +439,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("disable passkeys", func(t *testing.T) {
@@ -482,7 +478,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("disable passkeys without pwauth should fail", func(t *testing.T) {
@@ -528,7 +523,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("enable passkeys without keys added should fail", func(t *testing.T) {
@@ -574,7 +568,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("enable api access with no existing key should succeed", func(t *testing.T) {
@@ -632,7 +625,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("enable api access with existing key should succeed", func(t *testing.T) {
@@ -690,7 +682,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("enable api access without a verified account should fail", func(t *testing.T) {
@@ -711,7 +702,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		}
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
@@ -733,7 +724,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("rotate api key should succeed", func(t *testing.T) {
@@ -784,7 +774,6 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/settings",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 }
 
@@ -823,7 +812,6 @@ func TestHandler_Account_Delete(t *testing.T) {
 	// Check the status code is what we expect.
 	AssertStatusEqual(t, rr, http.StatusOK)
 	// we make sure that all expectations were met
-	mock.AssertExpectations(t)
 }
 
 func TestHandler_Account_Create(t *testing.T) {
@@ -892,14 +880,13 @@ func TestHandler_Account_Create(t *testing.T) {
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
 		assert.Equal(t, rr.Header().Get("location"), "/dashboard",
 			"handler returned wrong redirect")
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create missing form data", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -919,14 +906,13 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create password mismatch", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 
 		data := url.Values{
@@ -947,7 +933,6 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create user already exists", func(t *testing.T) {
@@ -979,14 +964,13 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
-		mock.AssertExpectations(t)
 	})
 
 	t.Run("create user already logged in", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.TODO()
-		mock, _, handler := SetupHandler(t, ctx)
+		_, _, handler := SetupHandler(t, ctx)
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		ctx = auth.ContextSet(ctx, "user", user)
 
@@ -1008,6 +992,5 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)
-		mock.AssertExpectations(t)
 	})
 }
