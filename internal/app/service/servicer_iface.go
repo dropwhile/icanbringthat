@@ -43,7 +43,7 @@ type Servicer interface {
 	GetEventItemByID(ctx context.Context, eventItemID int) (*model.EventItem, errs.Error)
 	RemoveEventItem(ctx context.Context, userID int, eventItemRefID model.EventItemRefID, failIfChecks FailIfCheckFunc[*model.EventItem]) errs.Error
 	AddEventItem(ctx context.Context, userID int, refID model.EventRefID, description string) (*model.EventItem, errs.Error)
-	UpdateEventItem(ctx context.Context, userID int, refID model.EventItemRefID, description string, failIfChecks func(*model.EventItem) bool) (*model.EventItem, errs.Error)
+	UpdateEventItem(ctx context.Context, userID int, refID model.EventItemRefID, description string, failIfChecks FailIfCheckFunc[*model.EventItem]) (*model.EventItem, errs.Error)
 	AddFavorite(ctx context.Context, userID int, refID model.EventRefID) (*model.Event, errs.Error)
 	RemoveFavorite(ctx context.Context, userID int, refID model.EventRefID) errs.Error
 	GetFavoriteEventsPaginated(ctx context.Context, userID int, limit, offset int, archived bool) ([]*model.Event, *Pagination, errs.Error)

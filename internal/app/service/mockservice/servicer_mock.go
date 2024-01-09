@@ -967,7 +967,7 @@ func (mr *MockServicerMockRecorder) UpdateEvent(ctx, userID, refID, euvs any) *g
 }
 
 // UpdateEventItem mocks base method.
-func (m *MockServicer) UpdateEventItem(ctx context.Context, userID int, refID model.EventItemRefID, description string, failIfChecks func(*model.EventItem) bool) (*model.EventItem, errs.Error) {
+func (m *MockServicer) UpdateEventItem(ctx context.Context, userID int, refID model.EventItemRefID, description string, failIfChecks service.FailIfCheckFunc[*model.EventItem]) (*model.EventItem, errs.Error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateEventItem", ctx, userID, refID, description, failIfChecks)
 	ret0, _ := ret[0].(*model.EventItem)

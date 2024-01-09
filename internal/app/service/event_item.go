@@ -189,7 +189,7 @@ func (s *Service) AddEventItem(
 func (s *Service) UpdateEventItem(
 	ctx context.Context, userID int,
 	refID model.EventItemRefID, description string,
-	failIfChecks func(*model.EventItem) bool,
+	failIfChecks FailIfCheckFunc[*model.EventItem],
 ) (*model.EventItem, errs.Error) {
 	err := validate.Validate.VarCtx(ctx, description, "required,notblank")
 	if err != nil {
