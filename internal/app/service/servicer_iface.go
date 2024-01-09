@@ -41,9 +41,6 @@ type Servicer interface {
 	GetEventItemsByIDs(ctx context.Context, eventItemIDs []int) ([]*model.EventItem, errs.Error)
 	GetEventItem(ctx context.Context, eventItemRefID model.EventItemRefID) (*model.EventItem, errs.Error)
 	GetEventItemByID(ctx context.Context, eventItemID int) (*model.EventItem, errs.Error)
-	// TODO: once generics support lands for gomock, update to
-	// FailIfCheckFunc[*model.EventItem]
-	// ref: https://github.com/uber-go/mock/issues/97
 	RemoveEventItem(ctx context.Context, userID int, eventItemRefID model.EventItemRefID, failIfChecks FailIfCheckFunc[*model.EventItem]) errs.Error
 	AddEventItem(ctx context.Context, userID int, refID model.EventRefID, description string) (*model.EventItem, errs.Error)
 	UpdateEventItem(ctx context.Context, userID int, refID model.EventItemRefID, description string, failIfChecks func(*model.EventItem) bool) (*model.EventItem, errs.Error)
