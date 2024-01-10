@@ -29,8 +29,8 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
-	golang.org/x/crypto v0.17.0
-	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc
+	golang.org/x/crypto v0.18.0
+	golang.org/x/exp v0.0.0-20240110193028-0dcbfd608b1e
 	google.golang.org/protobuf v1.32.0
 	gotest.tools/v3 v3.5.1
 )
@@ -76,7 +76,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
