@@ -55,7 +55,7 @@ func (s *Server) ListNotifications(ctx context.Context,
 
 func (s *Server) DeleteNotification(ctx context.Context,
 	r *icbt.DeleteNotificationRequest,
-) (*icbt.DeleteNotificationResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -72,13 +72,13 @@ func (s *Server) DeleteNotification(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.DeleteNotificationResponse{}
+	response := &icbt.Empty{}
 	return response, nil
 }
 
 func (s *Server) DeleteAllNotifications(ctx context.Context,
-	r *icbt.DeleteAllNotificationsRequest,
-) (*icbt.DeleteAllNotificationsResponse, error) {
+	r *icbt.Empty,
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -90,6 +90,6 @@ func (s *Server) DeleteAllNotifications(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.DeleteAllNotificationsResponse{}
+	response := &icbt.Empty{}
 	return response, nil
 }

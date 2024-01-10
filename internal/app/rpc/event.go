@@ -97,7 +97,7 @@ func (s *Server) CreateEvent(ctx context.Context,
 
 func (s *Server) UpdateEvent(ctx context.Context,
 	r *icbt.UpdateEventRequest,
-) (*icbt.UpdateEventResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -132,7 +132,7 @@ func (s *Server) UpdateEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.UpdateEventResponse{}
+	response := &icbt.Empty{}
 	return response, nil
 }
 
@@ -181,7 +181,7 @@ func (s *Server) GetEventDetails(ctx context.Context,
 
 func (s *Server) DeleteEvent(ctx context.Context,
 	r *icbt.DeleteEventRequest,
-) (*icbt.DeleteEventResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -198,6 +198,6 @@ func (s *Server) DeleteEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.DeleteEventResponse{}
+	response := &icbt.Empty{}
 	return response, nil
 }

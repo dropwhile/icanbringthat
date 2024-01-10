@@ -63,7 +63,7 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 
 func (s *Server) RemoveFavorite(ctx context.Context,
 	r *icbt.RemoveFavoriteRequest,
-) (*icbt.RemoveFavoriteResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -80,7 +80,7 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &icbt.RemoveFavoriteResponse{}, nil
+	return &icbt.Empty{}, nil
 }
 
 func (s *Server) AddFavorite(ctx context.Context,

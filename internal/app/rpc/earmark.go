@@ -171,7 +171,7 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 
 func (s *Server) RemoveEarmark(ctx context.Context,
 	r *icbt.RemoveEarmarkRequest,
-) (*icbt.RemoveEarmarkResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -188,5 +188,5 @@ func (s *Server) RemoveEarmark(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &icbt.RemoveEarmarkResponse{}, nil
+	return &icbt.Empty{}, nil
 }

@@ -206,7 +206,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 			DeleteAllNotifications(ctx, user.ID).
 			Return(nil)
 
-		request := &icbt.DeleteAllNotificationsRequest{}
+		request := &icbt.Empty{}
 		_, err := server.DeleteAllNotifications(ctx, request)
 		assert.NilError(t, err)
 	})

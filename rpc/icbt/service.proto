@@ -6,64 +6,42 @@ import "google/protobuf/timestamp.proto";
 
 service Rpc {
   // events
-  rpc CreateEvent(CreateEventRequest)
-      returns (CreateEventResponse);
-  rpc UpdateEvent(UpdateEventRequest)
-      returns (UpdateEventResponse);
-  rpc DeleteEvent(DeleteEventRequest)
-      returns (DeleteEventResponse);
-  rpc ListEvents(ListEventsRequest)
-      returns (ListEventsResponse);
-  rpc GetEventDetails(GetEventDetailsRequest)
-      returns (GetEventDetailsResponse);
-  rpc ListEventItems(ListEventItemsRequest)
-      returns (ListEventItemsResponse);
-  rpc ListEventEarmarks(ListEventEarmarksRequest)
-      returns (ListEventEarmarksResponse);
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (Empty);
+  rpc DeleteEvent(DeleteEventRequest) returns (Empty);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc GetEventDetails(GetEventDetailsRequest) returns (GetEventDetailsResponse);
+  rpc ListEventItems(ListEventItemsRequest) returns (ListEventItemsResponse);
+  rpc ListEventEarmarks(ListEventEarmarksRequest) returns (ListEventEarmarksResponse);
   // rpc UpdateEventItemsSorting : TODO
 
   // event-items
-  rpc AddEventItem(AddEventItemRequest)
-      returns (AddEventItemResponse);
-  rpc UpdateEventItem(UpdateEventItemRequest)
-      returns (UpdateEventItemResponse);
-  rpc RemoveEventItem(RemoveEventItemRequest)
-      returns (RemoveEventItemResponse);
+  rpc AddEventItem(AddEventItemRequest) returns (AddEventItemResponse);
+  rpc UpdateEventItem(UpdateEventItemRequest) returns (UpdateEventItemResponse);
+  rpc RemoveEventItem(RemoveEventItemRequest) returns (Empty);
 
   // earmarks
-  rpc CreateEarmark(CreateEarmarkRequest)
-      returns (CreateEarmarkResponse);
-  rpc GetEarmarkDetails(GetEarmarkDetailsRequest)
-      returns (GetEarmarkDetailsResponse);
-  rpc RemoveEarmark(RemoveEarmarkRequest)
-      returns (RemoveEarmarkResponse);
-  rpc ListEarmarks(ListEarmarksRequest)
-      returns (ListEarmarksResponse);
+  rpc CreateEarmark(CreateEarmarkRequest) returns (CreateEarmarkResponse);
+  rpc GetEarmarkDetails(GetEarmarkDetailsRequest) returns (GetEarmarkDetailsResponse);
+  rpc RemoveEarmark(RemoveEarmarkRequest) returns (Empty);
+  rpc ListEarmarks(ListEarmarksRequest) returns (ListEarmarksResponse);
 
   // favorites
-  rpc AddFavorite(CreateFavoriteRequest)
-      returns (CreateFavoriteResponse);
-  rpc RemoveFavorite(RemoveFavoriteRequest)
-      returns (RemoveFavoriteResponse);
-  rpc ListFavoriteEvents(ListFavoriteEventsRequest)
-      returns (ListFavoriteEventsResponse);
+  rpc AddFavorite(CreateFavoriteRequest) returns (CreateFavoriteResponse);
+  rpc RemoveFavorite(RemoveFavoriteRequest) returns (Empty);
+  rpc ListFavoriteEvents(ListFavoriteEventsRequest) returns (ListFavoriteEventsResponse);
 
   // notifications
-  rpc DeleteNotification(DeleteNotificationRequest)
-      returns (DeleteNotificationResponse);
-  rpc DeleteAllNotifications(DeleteAllNotificationsRequest)
-      returns (DeleteAllNotificationsResponse);
-  rpc ListNotifications(ListNotificationsRequest)
-      returns (ListNotificationsResponse);
+  rpc DeleteNotification(DeleteNotificationRequest) returns (Empty);
+  rpc DeleteAllNotifications(Empty) returns (Empty);
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
 }
 
 /*
   common
 */
 
-message FilterRequest {
-  bool archived = 1;
-}
+message Empty {}
 
 message PaginationRequest {
   uint32 limit = 1;
@@ -97,16 +75,12 @@ message DeleteEventRequest {
   string ref_id = 1;
 }
 
-message DeleteEventResponse {}
-
 message UpdateEventRequest {
   string ref_id = 1;
   optional string name = 2;
   optional string description = 3;
   optional TimestampTZ when = 4;
 }
-
-message UpdateEventResponse {}
 
 message GetEventDetailsRequest {
   string ref_id = 1;
@@ -170,8 +144,6 @@ message RemoveEventItemRequest {
   string ref_id = 1;
 }
 
-message RemoveEventItemResponse {}
-
 message UpdateEventItemRequest {
   string ref_id = 1;
   string description = 2;
@@ -201,8 +173,6 @@ message CreateEarmarkResponse {
 message RemoveEarmarkRequest {
   string ref_id = 1;
 }
-
-message RemoveEarmarkResponse {}
 
 message GetEarmarkDetailsRequest {
   string ref_id = 1;
@@ -245,8 +215,6 @@ message RemoveFavoriteRequest {
   string event_ref_id = 1; // event ref-id
 }
 
-message RemoveFavoriteResponse {}
-
 message ListFavoriteEventsRequest {
   optional PaginationRequest pagination = 1;
   optional bool archived = 2;
@@ -264,15 +232,9 @@ message Favorite {
 
 /* notifications */
 
-message DeleteAllNotificationsRequest {}
-
-message DeleteAllNotificationsResponse {}
-
 message DeleteNotificationRequest {
   string ref_id = 1;
 }
-
-message DeleteNotificationResponse {}
 
 message ListNotificationsRequest {
   optional PaginationRequest pagination = 1;

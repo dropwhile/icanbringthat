@@ -58,7 +58,7 @@ type NotificationsDeleteAllCmd struct{}
 
 func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.DeleteAllNotificationsRequest{}
+	req := &icbt.Empty{}
 	if _, err := client.DeleteAllNotifications(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}

@@ -38,7 +38,7 @@ func (s *Server) ListEventItems(ctx context.Context,
 
 func (s *Server) RemoveEventItem(ctx context.Context,
 	r *icbt.RemoveEventItemRequest,
-) (*icbt.RemoveEventItemResponse, error) {
+) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -55,7 +55,7 @@ func (s *Server) RemoveEventItem(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	return &icbt.RemoveEventItemResponse{}, nil
+	return &icbt.Empty{}, nil
 }
 
 func (s *Server) AddEventItem(ctx context.Context,
