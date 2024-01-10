@@ -37,9 +37,9 @@ service Rpc {
   rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
 }
 
-/*
-  common
-*/
+/**
+  Common Types
+**/
 
 message Empty {}
 
@@ -58,6 +58,44 @@ message TimestampTZ {
   google.protobuf.Timestamp ts = 1;  // timestamp
   string tz = 2;                     // timezone
 }
+
+message Event {
+  string ref_id = 1;
+  string name = 2;
+  string description = 3;
+  TimestampTZ when = 4;
+  bool archived = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message EventItem {
+  string ref_id = 1;
+  string description = 2;
+  google.protobuf.Timestamp created = 3;
+}
+
+message Earmark {
+  string ref_id = 1;
+  string event_item_ref_id = 2;
+  string note = 3;
+  string owner = 4;
+  google.protobuf.Timestamp created = 5;
+}
+
+message Favorite {
+  string event_ref_id = 1; // event ref-id
+  google.protobuf.Timestamp created = 2;
+}
+
+message Notification {
+  string ref_id = 1;
+  string message = 2;
+  google.protobuf.Timestamp created = 3;
+}
+
+/** 
+  Method specific types
+**/
 
 /* event */
 
@@ -102,15 +140,6 @@ message ListEventsResponse {
   optional PaginationResult pagination = 2;
 }
 
-message Event {
-  string ref_id = 1;
-  string name = 2;
-  string description = 3;
-  TimestampTZ when = 4;
-  bool archived = 5;
-  google.protobuf.Timestamp created = 6;
-}
-
 message ListEventItemsRequest {
   string ref_id = 1;  // event ref-id
 }
@@ -153,12 +182,6 @@ message UpdateEventItemResponse {
   EventItem event_item = 1;
 }
 
-message EventItem {
-  string ref_id = 1;
-  string description = 2;
-  google.protobuf.Timestamp created = 3;
-}
-
 /* earmarks */
 
 message CreateEarmarkRequest {
@@ -193,14 +216,6 @@ message ListEarmarksResponse {
   optional PaginationResult pagination = 2;
 }
 
-message Earmark {
-  string ref_id = 1;
-  string event_item_ref_id = 2;
-  string note = 3;
-  string owner = 4;
-  google.protobuf.Timestamp created = 5;
-}
-
 /* favorites */
 
 message CreateFavoriteRequest {
@@ -225,11 +240,6 @@ message ListFavoriteEventsResponse {
   optional PaginationResult pagination = 2;
 }
 
-message Favorite {
-  string event_ref_id = 1; // event ref-id
-  google.protobuf.Timestamp created = 2;
-}
-
 /* notifications */
 
 message DeleteNotificationRequest {
@@ -243,10 +253,4 @@ message ListNotificationsRequest {
 message ListNotificationsResponse {
   repeated Notification notifications = 1;
   optional PaginationResult pagination = 2;
-}
-
-message Notification {
-  string ref_id = 1;
-  string message = 2;
-  google.protobuf.Timestamp created = 3;
 }
