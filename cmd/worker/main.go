@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"runtime"
 	"sync"
 	"syscall"
 	"time"
@@ -138,7 +139,9 @@ func main() {
 	defer timer.Stop()
 
 	var wg sync.WaitGroup
-	slog.With("version", Version).
+	slog.
+		With("version", Version).
+		With("go", runtime.Version()).
 		Info("starting up...")
 
 	wg.Add(1)

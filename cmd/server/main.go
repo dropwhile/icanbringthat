@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -174,7 +175,9 @@ func main() {
 	}()
 
 	// listen
-	slog.With("version", Version).
+	slog.
+		With("version", Version).
+		With("go", runtime.Version()).
 		Info("starting up...")
 	if config.TLSCert != "" && config.TLSKey != "" {
 		if config.WithQuic {
