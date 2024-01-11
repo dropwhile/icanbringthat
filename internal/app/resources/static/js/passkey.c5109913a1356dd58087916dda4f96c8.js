@@ -109,7 +109,7 @@ async function authPasskey(csrfToken, autofill=false) {
       startAuthResp = await SimpleWebAuthnBrowser.startAuthentication(
         loginJSON.publicKey, autofill);
     } catch (error) {
-        notyf.error('Error:' + error);
+        notyf.error('Error: ' + error);
         return;
     }
 
