@@ -32,7 +32,7 @@
               type="email"
               name="email"
               required
-              autocomplete="email webauthn"
+              autocomplete="email"
               >
           </label>
           <label class="block mt-4 text-sm">
@@ -67,7 +67,7 @@
 
             <button
               class="flex w-full px-4 py-2 text-sm items-center justify-between font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-              onclick="authPasskey('{{.csrfToken}}', true)"
+              onclick="authPasskey('{{.csrfToken}}', false)"
               >
                 <svg
                   viewBox="3 1.5 19.5 19"
