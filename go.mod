@@ -15,7 +15,7 @@ require (
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/go-webauthn/webauthn v0.10.0
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx/v5 v5.5.1
+	github.com/jackc/pgx/v5 v5.5.2
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v3 v3.3.0
