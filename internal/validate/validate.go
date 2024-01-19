@@ -46,8 +46,8 @@ func OptionValuer(field reflect.Value) interface{} {
 	if valuer, ok := field.Interface().(driver.Valuer); ok {
 		val, err := valuer.Value()
 		if err == nil {
-			// return pointer here, so omitnil checks work
-			// for validator
+			// ref: https://github.com/go-playground/validator/issues/1209
+			// return pointer here, so omitnil checks work for validator.
 			return &val
 		}
 		slog.
