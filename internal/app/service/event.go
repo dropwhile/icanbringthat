@@ -88,11 +88,11 @@ func (s *Service) DeleteEvent(
 }
 
 type EventUpdateValues struct {
-	StartTime     mo.Option[time.Time] `validate:"omitempty"`
-	Name          mo.Option[string]    `validate:"omitempty,notblank"`
-	Description   mo.Option[string]    `validate:"omitempty,notblank"`
-	Tz            mo.Option[string]    `validate:"omitempty,timezone"`
-	ItemSortOrder mo.Option[[]int]     `validate:"omitempty,gt=0"`
+	StartTime     mo.Option[time.Time] `validate:"omitnil"`
+	Name          mo.Option[string]    `validate:"omitnil,notblank"`
+	Description   mo.Option[string]    `validate:"omitnil,notblank"`
+	Tz            mo.Option[string]    `validate:"omitnil,timezone"`
+	ItemSortOrder mo.Option[[]int]     `validate:"omitnil,gt=0"`
 }
 
 func (s *Service) UpdateEvent(
@@ -116,23 +116,6 @@ func (s *Service) UpdateEvent(
 			With("error", err).
 			Info("bad field value")
 		return errs.InvalidArgumentError(badField, "bad value")
-	}
-
-	// hacky: see https://github.com/go-playground/validator/issues/1209
-	if euvs.Name.IsPresent() {
-		if err := validate.Validate.VarCtx(ctx, euvs.Name, "notblank"); err != nil {
-			return errs.InvalidArgumentError("Name", "bad value")
-		}
-	}
-	if euvs.Description.IsPresent() {
-		if err := validate.Validate.VarCtx(ctx, euvs.Description, "notblank"); err != nil {
-			return errs.InvalidArgumentError("Description", "bad value")
-		}
-	}
-	if euvs.Tz.IsPresent() {
-		if err := validate.Validate.VarCtx(ctx, euvs.Tz, "notblank,timezone"); err != nil {
-			return errs.InvalidArgumentError("Tz", "bad value")
-		}
 	}
 
 	if val, ok := euvs.StartTime.Get(); ok {

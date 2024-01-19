@@ -44,13 +44,15 @@ func init() {
 
 func OptionValuer(field reflect.Value) interface{} {
 	if valuer, ok := field.Interface().(driver.Valuer); ok {
-		if val, err := valuer.Value(); err == nil {
-			return val
-		} else {
-			slog.
-				With("error", err).
-				Info("error unwrapping valuer type for validation")
+		val, err := valuer.Value()
+		if err == nil {
+			// return pointer here, so omitnil checks work
+			// for validator
+			return &val
 		}
+		slog.
+			With("error", err).
+			Info("error unwrapping valuer type for validation")
 	}
 	return nil
 }

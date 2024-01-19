@@ -119,13 +119,13 @@ type PasswdUpdate struct {
 }
 
 type UserUpdateValues struct {
-	Name      mo.Option[string] `validate:"omitempty,notblank"`
-	Email     mo.Option[string] `validate:"omitempty,notblank,email"`
+	Name      mo.Option[string] `validate:"omitnil,notblank"`
+	Email     mo.Option[string] `validate:"omitnil,notblank,email"`
 	Verified  mo.Option[bool]
 	PWAuth    mo.Option[bool]
 	ApiAccess mo.Option[bool]
 	WebAuthn  mo.Option[bool]
-	PwUpdate  mo.Option[*PasswdUpdate]
+	PwUpdate  mo.Option[*PasswdUpdate] `validate:"omitnil"`
 }
 
 func (s *Service) UpdateUser(
@@ -139,17 +139,6 @@ func (s *Service) UpdateUser(
 			With("error", err).
 			Info("bad field value")
 		return errs.InvalidArgumentError(badField, "bad value")
-	}
-	// hacky: see https://github.com/go-playground/validator/issues/1209
-	if euvs.Name.IsPresent() {
-		if err := validate.Validate.VarCtx(ctx, euvs.Name, "notblank"); err != nil {
-			return errs.InvalidArgumentError("Name", "bad value")
-		}
-	}
-	if euvs.Email.IsPresent() {
-		if err := validate.Validate.VarCtx(ctx, euvs.Email, "notblank,email"); err != nil {
-			return errs.InvalidArgumentError("Email", "bad value")
-		}
 	}
 
 	pwHash := mo.None[[]byte]()
