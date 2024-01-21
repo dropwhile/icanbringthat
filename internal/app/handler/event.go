@@ -160,6 +160,9 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 
 	// sort if needed
 	if len(event.ItemSortOrder) > 0 {
+		// example of deferring a slow logging operation, and to avoid processing
+		// if level is not debug
+		// (note: this example isn't especially slow)
 		slog.DebugContext(ctx, "item sorting",
 			slog.Any("sortOrder",
 				logger.DeferOperation(event.ItemSortOrder, func(i []int) string {
@@ -167,9 +170,10 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 				})),
 		)
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
-		eventItemLen := len(eventItems)
 		sortedList := make([]*model.EventItem, len(event.ItemSortOrder))
 		unsortedList := make([]*model.EventItem, 0)
+
+		eventItemLen := len(eventItems)
 		for j := range eventItems {
 			if idx, ok := sortSet[eventItems[j].ID]; ok && idx < eventItemLen {
 				sortedList[idx] = eventItems[j]
@@ -177,6 +181,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 				unsortedList = append(unsortedList, eventItems[j])
 			}
 		}
+		// put unsorted (likely new) items at the front of the list
 		eventItems = append(unsortedList, sortedList...)
 	}
 
