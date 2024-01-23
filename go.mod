@@ -30,7 +30,7 @@ require (
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.18.0
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 	google.golang.org/protobuf v1.32.0
 	gotest.tools/v3 v3.5.1
 )
