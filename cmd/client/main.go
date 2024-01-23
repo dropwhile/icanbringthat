@@ -31,7 +31,7 @@ type RunArgs struct {
 	ctx    context.Context
 }
 
-type CLI struct {
+type CLI struct { // betteralign:ignore
 	// global options
 	Verbose     verboseFlag      `name:"verbose" short:"v" help:"enable verbose logging"`
 	Quic        bool             `name:"quic" help:"connect with http3/quic"`
@@ -41,7 +41,7 @@ type CLI struct {
 	AuthToken   string           `name:"auth-token" env:"AUTH_TOKEN" required:""`
 
 	// subcommands
-	Events struct {
+	Events struct { // betteralign:ignore
 		Create         EventsCreateCmd       `cmd:"" aliases:"add" help:"create new event"`
 		Update         EventsUpdateCmd       `cmd:"" aliases:"update" help:"update event"`
 		Delete         EventsDeleteCmd       `cmd:"" aliases:"rm" help:"delete event"`
@@ -51,26 +51,26 @@ type CLI struct {
 		ListEarmarks   EventsListEarmarksCmd `cmd:"" aliases:"earmarks,ls-earmarks" help:"list event earmarks"`
 	} `cmd:"" help:"events"`
 
-	EventItems struct {
+	EventItems struct { // betteralign:ignore
 		Add    EventItemsAddCmd    `cmd:"" help:"add item to event"`
 		Update EventItemsUpdateCmd `cmd:"" help:"update event item"`
 		Remove EventItemsRemoveCmd `cmd:"" aliases:"rm" help:"remove event item"`
 	} `cmd:"" help:"event-items"`
 
-	Earmarks struct {
+	Earmarks struct { // betteralign:ignore
 		Create EarmarksCreateCmd     `cmd:"" help:"earmark an item"`
 		Detail EarmarksGetDetailsCmd `cmd:"" aliases:"info,details" help:"get earmark details"`
 		Remove EarmarksRemoveCmd     `cmd:"" help:"remove an earmark"`
 		List   EarmarksListCmd       `cmd:"" help:"list earmarked items"`
 	} `cmd:"" help:"earmarks"`
 
-	Favorites struct {
+	Favorites struct { // betteralign:ignore
 		Add    FavoritesAddCmd    `cmd:"" help:"add favorite"`
 		Remove FavoritesRemoveCmd `cmd:"" aliases:"rm" help:"remove favorite"`
 		List   FavoritesListCmd   `cmd:"" aliases:"ls" help:"list favorites"`
 	} `cmd:"" help:"favorites"`
 
-	Notifications struct {
+	Notifications struct { // betteralign:ignore
 		Delete    NotificationsDeleteCmd    `cmd:"" aliases:"rm" help:"Delete a single notification."`
 		DeleteAll NotificationsDeleteAllCmd `cmd:"" aliases:"clear" help:"Delete all notifications."`
 		List      NotificationsListCmd      `cmd:"" aliases:"ls" help:"List notifications."`

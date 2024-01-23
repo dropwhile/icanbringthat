@@ -26,7 +26,7 @@ type Server struct {
 	isProd    bool
 }
 
-type Options struct {
+type Options struct { // betteralign:ignore
 	Db           model.PgxHandle   `validate:"required"`
 	Redis        *redis.Client     `validate:"required"`
 	Templates    resources.TGetter `validate:"required"`

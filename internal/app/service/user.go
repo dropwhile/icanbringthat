@@ -118,7 +118,7 @@ type PasswdUpdate struct {
 	OldPass []byte `validate:"omitempty,notblank,gt=0"`
 }
 
-type UserUpdateValues struct {
+type UserUpdateValues struct { // betteralign:ignore
 	Name      mo.Option[string] `validate:"omitnil,notblank"`
 	Email     mo.Option[string] `validate:"omitnil,notblank,email"`
 	Verified  mo.Option[bool]

@@ -12,7 +12,7 @@ import (
 )
 
 // env vars that are used to derive EnvConfig values later
-type deriveConfig struct {
+type deriveConfig struct { // betteralign:ignore
 	HMACKey string `env:"HMAC_KEY,required,unset"`
 	// bind/listen
 	ListenHost string `env:"HOST" envDefault:"127.0.0.1"`
@@ -20,7 +20,7 @@ type deriveConfig struct {
 	Listen     string `env:"LISTEN,expand" envDefault:"${HOST}:${PORT}"`
 }
 
-type EnvConfig struct {
+type EnvConfig struct { // betteralign:ignore
 	// general
 	Production bool   `env:"PRODUCTION" envDefault:"true"`
 	RpcApi     bool   `env:"ENABLE_RPC" envDefault:"false"`
