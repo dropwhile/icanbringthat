@@ -46,10 +46,10 @@ export GOOSE_MIGRATION_DIR
 
 define HELP_OUTPUT
 Available targets:
-  help                this help
+* help                this help (default target)
   clean               clean up
   setup               fetch related tools/utils and prepare for build
-* build               build binaries (default target)
+  build               build binaries
   docker-build        build a deployable docker image
   check               run checks and validators
   nilcheck            run nilcheck; noisy/false positives, so not enabled by default
@@ -336,6 +336,3 @@ run: build
 devrun: setup-other
 	@echo ">> Monitoring for change, runnging tests, and restarting..."
 	@modd -f .modd.conf
-
-.PHONY: all
-all: build
