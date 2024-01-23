@@ -77,41 +77,32 @@ help:
 clean:
 	@rm -rf "${BUILDDIR}"
 
+## begin tools
+
+# bench tools
 ${GOBIN}/benchstat:
 	go install golang.org/x/perf/cmd/benchstat@latest
 
-${GOBIN}/stringer:
-	go install golang.org/x/tools/cmd/stringer@latest
+BENCH_TOOLS := ${GOBIN}/benchstat
 
-${GOBIN}/staticcheck:
-	go install honnef.co/go/tools/cmd/staticcheck@latest
+# other tools
+${GOBIN}/modd:
+	go install github.com/cortesi/modd/cmd/modd@latest
 
-${GOBIN}/gosec:
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
+OTHER_TOOLS := ${GOBIN}/modd
 
-${GOBIN}/govulncheck:
-	go install golang.org/x/vuln/cmd/govulncheck@latest
-
-${GOBIN}/errcheck:
-	go install github.com/kisielk/errcheck@latest
-
-${GOBIN}/ineffassign:
-	go install github.com/gordonklaus/ineffassign@latest
-
-${GOBIN}/nilaway:
-	go install go.uber.org/nilaway/cmd/nilaway@latest
+# generate tools
+${GOBIN}/protoc-gen-go:
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
 ${GOBIN}/protoc-gen-twirp:
 	go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
 
-${GOBIN}/protoc-gen-go:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+${GOBIN}/protoc-go-inject-tag:
+	go install github.com/favadi/protoc-go-inject-tag@latest
 
-${GOBIN}/go-errorlint:
-	go install github.com/polyfloyd/go-errorlint@latest
-
-${GOBIN}/modd:
-	go install github.com/cortesi/modd/cmd/modd@latest
+${GOBIN}/go-licenses:
+	go install github.com/google/go-licenses@latest
 
 ${GOBIN}/convergen:
 	go install github.com/reedom/convergen@latest
@@ -122,31 +113,52 @@ ${GOBIN}/ifacemaker:
 ${GOBIN}/mockgen:
 	go install go.uber.org/mock/mockgen@latest
 
-${GOBIN}/deadcode:
-	go install golang.org/x/tools/cmd/deadcode@latest
+${GOBIN}/stringer:
+	go install golang.org/x/tools/cmd/stringer@latest
 
-${GOBIN}/betteralign:
-	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
-
-${GOBIN}/go-licenses:
-	go install github.com/google/go-licenses@latest
-
-${GOBIN}/protoc-go-inject-tag:
-	go install github.com/favadi/protoc-go-inject-tag@latest
-
-${GOBIN}/goose:
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-
-BENCH_TOOLS := ${GOBIN}/benchstat
-OTHER_TOOLS := ${GOBIN}/modd
 GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
 GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses  ${GOBIN}/protoc-go-inject-tag
 GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockgen
+
+# check tools
+${GOBIN}/betteralign:
+	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+
+${GOBIN}/ineffassign:
+	go install github.com/gordonklaus/ineffassign@latest
+
+${GOBIN}/errcheck:
+	go install github.com/kisielk/errcheck@latest
+
+${GOBIN}/go-errorlint:
+	go install github.com/polyfloyd/go-errorlint@latest
+
+${GOBIN}/gosec:
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+${GOBIN}/nilaway:
+	go install go.uber.org/nilaway/cmd/nilaway@latest
+
+${GOBIN}/deadcode:
+	go install golang.org/x/tools/cmd/deadcode@latest
+
+${GOBIN}/govulncheck:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+
+${GOBIN}/staticcheck:
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
-CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/ineffassign ${GOBIN}/deadcode
-CHECK_TOOLS += ${GOBIN}/betteralign
+CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
+
+# migrate tools
+${GOBIN}/goose:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
 MIGRATE_TOOLS += ${GOBIN}/goose
+
+## end tools
 
 .PHONY: setup-build
 setup-build: ${BUILD_TOOLS}
