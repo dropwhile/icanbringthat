@@ -48,22 +48,25 @@ define HELP_OUTPUT
 Available targets:
   help                this help
   clean               clean up
-  all                 build binaries and man pages
+  setup               fetch related tools/utils and prepare for build
+* build               build binaries (default target)
+  docker-build        build a deployable docker image
   check               run checks and validators
-  cover               run tests with cover output
-  generate            run go:generate
-  build               build all binaries
-  test                run tests
-  bench               run benchmarks
   nilcheck            run nilcheck; noisy/false positives, so not enabled by default
-  update-go-deps      updates go.mod and go.sum files
+  deadcode            run deadcode; noisy/false positives, so not enabled by default
+  cover               run tests with cover output
+  bench               run benchmarks
+  test                run tests
+  generate            run code generators (go:generate, etc)
+  emit-license-deps   run go-licenses
+  clean-generated     remove generated files
   migrate             runs db migrations
+  update-go-deps      updates go.mod and go.sum files
   cloc                counts lines of code
   dev-db-create       creates a docker postgres for development
   dev-db-start        starts a previously created docker postgres for development
   dev-db-stop         stops a previously created docker postgres for development
   dev-db-purge        deletes/destroys a previously created docker postgres for development
-  docker-build        build a deployable docker image
   run                 run local server
   devrun              run local server with modd, monitoring/restarting with changes
 endef
@@ -232,12 +235,14 @@ check: setup-check
 	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... go-vet ..."
 	@go vet ./...
-	@echo "... gosec ..."
-	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 	@echo "... ineffassign ..."
 	@${GOBIN}/ineffassign ./...
 	@echo "... govulncheck ..."
 	@${GOBIN}/govulncheck ./...
+	@echo "... betteralign ..."
+	@${GOBIN}/betteralign ./...
+	@echo "... gosec ..."
+	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 
 .PHONY: nilcheck
 nilcheck: setup-check
@@ -250,12 +255,6 @@ deadcode: setup-check
 	@echo ">> Running deadcode (will have some false positives)..."
 	@echo "... deadcode ..."
 	@${GOBIN}/deadcode -test ./...
-
-.PHONY: betteralign
-betteralign: setup-check
-	@echo ">> Running betteralign (will have some false positives)..."
-	@echo "... betteralign ..."
-	@${GOBIN}/betteralign ./...
 
 .PHONY: update-go-deps
 update-go-deps:
