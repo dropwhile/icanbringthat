@@ -47,7 +47,8 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		Created: ts,
 	}
 
-	verifyTpl := template.Must(template.New("").Parse(`{{.Subject}}: {{.VerificationUrl}}`))
+	verifyTpl := template.Must(template.New("").Parse(
+		`{{.Subject}}: <a href="{{.VerificationUrl}}">{{.VerificationUrl}}</a>`))
 
 	t.Run("send verification email", func(t *testing.T) {
 		t.Parallel()
@@ -67,7 +68,6 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		handler.templates = resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_account_email_verify.gohtml": verifyTpl,
-				"mail_account_email_verify.gotxt":  verifyTpl,
 			})
 
 		mock.EXPECT().

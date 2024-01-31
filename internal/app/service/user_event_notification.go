@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/jaytaylor/html2text"
+
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/resources"
 	"github.com/dropwhile/icbt/internal/mail"
@@ -23,10 +25,6 @@ func (s *Service) NotifyUsersPendingEvents(ctx context.Context,
 	}
 
 	tplHtml, err := tplContainer.Get("mail_reminder.gohtml")
-	if err != nil {
-		return fmt.Errorf("template get error: %w", err)
-	}
-	tplPlain, err := tplContainer.Get("mail_reminder.gotxt")
 	if err != nil {
 		return fmt.Errorf("template get error: %w", err)
 	}
@@ -115,14 +113,12 @@ func (s *Service) NotifyUsersPendingEvents(ctx context.Context,
 			return fmt.Errorf("html template exec error: %w", err)
 		}
 
-		var bufPlain bytes.Buffer
-		err = tplPlain.Execute(&bufPlain, vars)
+		messageHtml := bufHtml.String()
+		messagePlain, err := html2text.FromString(messageHtml)
 		if err != nil {
-			return fmt.Errorf("plain template exec error: %w", err)
+			return fmt.Errorf("html->txt conversion error: %w", err)
 		}
 
-		messagePlain := bufPlain.String()
-		messageHtml := bufHtml.String()
 		slog.DebugContext(ctx, "email content",
 			slog.String("plain", messagePlain),
 			slog.String("html", messageHtml),

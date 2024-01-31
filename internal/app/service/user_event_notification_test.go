@@ -72,10 +72,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 					template.New("mail_reminder.gohtml").
 						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 				),
-				"mail_reminder.gotxt": template.Must(
-					template.New("mail_reminder.gotxt").
-						ParseFiles("../resources/templates/txt/mail_reminder.gotxt"),
-				),
 			},
 		)
 
@@ -180,10 +176,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 					template.New("mail_reminder.gohtml").
 						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 				),
-				"mail_reminder.gotxt": template.Must(
-					template.New("mail_reminder.gotxt").
-						ParseFiles("../resources/templates/txt/mail_reminder.gotxt"),
-				),
 			},
 		)
 
@@ -233,10 +225,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 					template.New("mail_reminder.gohtml").
 						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 				),
-				"mail_reminder.gotxt": template.Must(
-					template.New("mail_reminder.gotxt").
-						ParseFiles("../resources/templates/txt/mail_reminder.gotxt"),
-				),
 			},
 		)
 
@@ -282,10 +270,6 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 				"mail_reminder.gohtml": template.Must(
 					template.New("mail_reminder.gohtml").
 						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
-				),
-				"mail_reminder.gotxt": template.Must(
-					template.New("mail_reminder.gotxt").
-						ParseFiles("../resources/templates/txt/mail_reminder.gotxt"),
 				),
 			},
 		)

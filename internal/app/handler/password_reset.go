@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/jaytaylor/html2text"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -195,20 +196,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 		// construct email
 		subject := "Password reset"
 		var buf bytes.Buffer
-		err := x.TemplateExecute(&buf, "mail_password_reset.gotxt",
-			MapSA{
-				"Subject":          subject,
-				"PasswordResetUrl": u.String(),
-			},
-		)
-		if err != nil {
-			x.TemplateError(w)
-			return
-		}
-		messagePlain := buf.String()
-
-		buf.Reset()
-		err = x.TemplateExecute(&buf, "mail_password_reset.gohtml",
+		err := x.TemplateExecute(&buf, "mail_password_reset.gohtml",
 			MapSA{
 				"Subject":          subject,
 				"PasswordResetUrl": u.String(),
@@ -219,6 +207,11 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		messageHtml := buf.String()
+
+		messagePlain, err := html2text.FromString(messageHtml)
+		if err != nil {
+			x.TemplateError(w)
+		}
 
 		slog.DebugContext(ctx, "email content",
 			slog.String("plain", messagePlain),

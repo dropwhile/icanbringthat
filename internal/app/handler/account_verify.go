@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jaytaylor/html2text"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
@@ -50,19 +51,6 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	// construct email
 	subject := "Account Verification"
 	var buf bytes.Buffer
-	err = x.TemplateExecute(&buf, "mail_account_email_verify.gotxt",
-		MapSA{
-			"Subject":         subject,
-			"VerificationUrl": verificationUrl,
-		},
-	)
-	if err != nil {
-		x.TemplateError(w)
-		return
-	}
-	messagePlain := buf.String()
-
-	buf.Reset()
 	err = x.TemplateExecute(&buf, "mail_account_email_verify.gohtml",
 		MapSA{
 			"Subject":         subject,
@@ -74,6 +62,11 @@ func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	messageHtml := buf.String()
+
+	messagePlain, err := html2text.FromString(messageHtml)
+	if err != nil {
+		x.TemplateError(w)
+	}
 
 	slog.DebugContext(ctx, "email content",
 		slog.String("plain", messagePlain),

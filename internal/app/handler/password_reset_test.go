@@ -394,7 +394,8 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		Created: ts,
 	}
 
-	passResetTpl := template.Must(template.New("").Parse(`{{.Subject}}: {{.PasswordResetUrl}}`))
+	passResetTpl := template.Must(template.New("").Parse(
+		`{{.Subject}}: <a href="{{.PasswordResetUrl}}">{{.PasswordResetUrl}}</a>`))
 
 	t.Run("send pw reset email", func(t *testing.T) {
 		t.Parallel()
@@ -409,7 +410,6 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		handler.templates = resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_password_reset.gohtml": passResetTpl,
-				"mail_password_reset.gotxt":  passResetTpl,
 			})
 
 		mock.EXPECT().
@@ -471,7 +471,6 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		handler.templates = resources.MockTContainer(
 			resources.TemplateMap{
 				"mail_password_reset.gohtml": passResetTpl,
-				"mail_password_reset.gotxt":  passResetTpl,
 			})
 
 		mock.EXPECT().
