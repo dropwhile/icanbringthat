@@ -1,25 +1,28 @@
 <!DOCTYPE PUBLIC “-//W3C//DTD XHTML 1.0 Transitional//EN” “https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd”>
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>{{.Subject}}</title>
-  </head>
-  <body>
-    <p>This email is a reminder about {{if .owner}}one of your upcoming events{{else}}an upcoming event{{end}}.</p>
-    <br>
-    <p>Name: {{.eventName}}</p>
-    <p>Description: {{.eventDescription}}</p>
-    <p>When: {{.eventWhen}}</p>
-    <p>Link: {{.eventURL}}</p>
-    <br>
-    {{if .items -}}
-    <p>You have earmarked the following items for this event:</p>
-    {{- end -}}
-    {{- range .items}}
-    <ul>
-        <li>{{.Description}}</li>
-    </ul>
-    {{- end}}
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>{{.Subject}}</title>
+</head>
+
+<body>
+  <p>This email is a reminder about {{if .owner}}one of your upcoming events{{else}}an upcoming event{{end}}.</p>
+  <br>
+  <p>Name: {{.eventName}}</p>
+  <p>Description: {{.eventDescription}}</p>
+  <p>When: {{.eventWhen}}</p>
+  <p>Link: {{.eventURL}}</p>
+  <br>
+  {{if .items -}}
+  <p>You have earmarked the following items for this event:</p>
+  {{- end -}}
+  {{- range .items}}
+  <ul>
+    <li>{{.Description}}</li>
+  </ul>
+  {{- end}}
+</body>
+
 </html>

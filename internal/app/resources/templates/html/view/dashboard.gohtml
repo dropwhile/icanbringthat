@@ -1,178 +1,160 @@
 {{ define "main" }}
-  <!-- Cards -->
-  <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-    <!-- Card -->
-    <a href="/events">
-      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-        <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
-          <svg
-            class="w-5 h-5"
-            aria-hidden="true"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            ></path>
-          </svg>
-        </div>
-        <div>
-          <p
-            class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-          >
-            My Events
-          </p>
-          <p
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-          >
-            {{ .eventCount.Current }}
-          </p>
-        </div>
+<!-- Cards -->
+<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+  <!-- Card -->
+  <a href="/events">
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+          </path>
+        </svg>
       </div>
-    </a>
-    <!-- Card -->
-    <a href="/earmarks">
-      <div
-        class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-      >
-        <div
-          class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500"
-        >
-          <svg
-            class="w-5 h-5"
-            aria-hidden="true"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            ></path>
-          </svg>
-        </div>
-        <div>
-          <p
-            class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-          >
-            My Earmarks
-          </p>
-          <p
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-          >
-            {{ .earmarkCount.Current }}
-          </p>
-        </div>
+      <div>
+        <p
+          class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          My Events
+        </p>
+        <p
+          class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {{ .eventCount.Current }}
+        </p>
       </div>
-    </a>
-    <!-- Card -->
-    <a href="/favorites">
-      <div
-        class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-      >
-        <div
-          class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"
-        >
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="w-5 h-5">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-              />
-          </svg>
-        </div>
-        <div>
-          <p
-            class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
-          >
-            My Favorites
-          </p>
-          <p
-            class="text-lg font-semibold text-gray-700 dark:text-gray-200"
-          >
-            {{ .favoriteCount.Current }}
-          </p>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <h4
-    class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
-  >
-    My Next 10 Upcoming Events
-  </h4>
-  <!-- New Table -->
-  <div class="w-full overflow-hidden rounded-lg shadow-xs">
-    <div class="w-full overflow-x-auto">
-      <table class="w-full whitespace-no-wrap table-auto">
-        <thead>
-          <tr
-            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
-          >
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3 text-center" style="width:11rem">Item Count</th>
-            <th class="px-4 py-3 text-center" style="width:14rem">Event Date</th>
-            <th class="px-4 py-3 text-center" style="width:11rem">Date Created</th>
-          </tr>
-        </thead>
-        <tbody
-          class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
-        >
-        {{ range .events }}
-          <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
-            <td class="px-4 py-3">
-              <div class="flex items-center text-sm">
-                <div>
-                  <a href="/events/{{.RefID }}">
-                    <p class="font-semibold">{{.Name | trunc 45}}</p>
-                  </a>
-                </div>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-sm text-center" style="width:11rem">
-              {{with (index $.eventItemCounts .ID) }}{{.}}{{else}}0{{end}}
-            </td>
-            <td
-              class="px-4 py-3 text-sm text-center" style="width:14rem"
-              x-data="{date: new Date($el.innerText)}"
-              x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'})"
-            >
-              {{.StartTime | formatTS}}
-            </td>
-            <td
-              class="px-4 py-3 text-sm text-center" style="width:14rem"
-              x-data="{date: new Date($el.innerText)}"
-              x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')"
-            >
-              {{.Created | formatTS}}
-            </td>
-          </tr>
-          {{end}}
-        </tbody>
-      </table>
     </div>
+  </a>
+  <!-- Card -->
+  <a href="/earmarks">
     <div
-      class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800"
-    >
-      <span class="flex items-center col-span-3">
-        Showing {{ if eq (len .events) 0 }}0{{else}}1{{end}}-{{len .events}} of {{len .events}}
-      </span>
-      <span class="col-span-2"></span>
-      <!-- Pagination -->
+      class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div
+        class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+          </path>
+        </svg>
+      </div>
+      <div>
+        <p
+          class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          My Earmarks
+        </p>
+        <p
+          class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {{ .earmarkCount.Current }}
+        </p>
+      </div>
     </div>
+  </a>
+  <!-- Card -->
+  <a href="/favorites">
+    <div
+      class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div
+        class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
+        <svg
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="w-5 h-5">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+        </svg>
+      </div>
+      <div>
+        <p
+          class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          My Favorites
+        </p>
+        <p
+          class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {{ .favoriteCount.Current }}
+        </p>
+      </div>
+    </div>
+  </a>
+</div>
+
+<h4
+  class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+  My Next 10 Upcoming Events
+</h4>
+<!-- New Table -->
+<div class="w-full overflow-hidden rounded-lg shadow-xs">
+  <div class="w-full overflow-x-auto">
+    <table class="w-full whitespace-no-wrap table-auto">
+      <thead>
+        <tr
+          class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+          <th class="px-4 py-3">Name</th>
+          <th class="px-4 py-3 text-center" style="width:11rem">Item Count</th>
+          <th class="px-4 py-3 text-center" style="width:14rem">Event Date</th>
+          <th class="px-4 py-3 text-center" style="width:11rem">Date Created</th>
+        </tr>
+      </thead>
+      <tbody
+        class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+        {{ range .events }}
+        <tr
+          class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
+          <td class="px-4 py-3">
+            <div class="flex items-center text-sm">
+              <div>
+                <a href="/events/{{.RefID }}">
+                  <p class="font-semibold">{{.Name | trunc 45}}</p>
+                </a>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm text-center" style="width:11rem">
+            {{with (index $.eventItemCounts .ID) }}{{.}}{{else}}0{{end}}
+          </td>
+          <td
+            class="px-4 py-3 text-sm text-center" style="width:14rem"
+            x-data="{date: new Date($el.innerText)}"
+            x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'})">
+            {{.StartTime | formatTS}}
+          </td>
+          <td
+            class="px-4 py-3 text-sm text-center" style="width:14rem"
+            x-data="{date: new Date($el.innerText)}"
+            x-text="date.toLocaleString('sv-en', {dateStyle: 'short'}) + ' ' + date.toLocaleString('en-us', {hour12: true, hour: '2-digit', minute: '2-digit'}).padStart(8, '0')">
+            {{.Created | formatTS}}
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
   </div>
-  <div style="padding-bottom: 1.25rem"></div>
+  <div
+    class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+    <span class="flex items-center col-span-3">
+      Showing {{ if eq (len .events) 0 }}0{{else}}1{{end}}-{{len .events}} of {{len .events}}
+    </span>
+    <span class="col-span-2"></span>
+    <!-- Pagination -->
+  </div>
+</div>
+<div style="padding-bottom: 1.25rem"></div>
 {{end}}
 {{ template "dashboard_layout" .}}

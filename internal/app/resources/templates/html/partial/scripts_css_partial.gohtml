@@ -15,6 +15,7 @@
 <script src="/static/js/alpinejs@3.x.x.js" defer></script>
 <script src="/static/js/sweetalert2@11.js" defer></script>
 <script src="/static/js/sortable.js" defer></script>
+
 <script src="/static/js/notyf.min.js"></script>
 <script src="/static/js/init-alpine.js"></script>
 <script src="/static/js/simplewebauthn-browser-8.3.6.min.js"></script>
@@ -22,14 +23,14 @@
 
 <script>
   //-- sortable -->
-  htmx.onLoad(function(content) {
+  htmx.onLoad(function (content) {
     var sortables = content.querySelectorAll(".sortable");
     for (var i = 0; i < sortables.length; i++) {
       var sortable = sortables[i];
       new Sortable(sortable, {
-          animation: 150,
-          ghostClass: "sortable-ghost",
-          handle: ".sort-handle"
+        animation: 150,
+        ghostClass: "sortable-ghost",
+        handle: ".sort-handle"
       });
     }
   });
@@ -37,25 +38,25 @@
   //-- htmx error bubbling -->
   htmx.on('htmx:afterRequest', function (evt) {
     const notyf = new Notyf({
-        ripple: false,
-        dismissible: true,
-        duration: 2500,
-        position: {
-          x: 'center',
-          y: 'top',
-        }
+      ripple: false,
+      dismissible: true,
+      duration: 2500,
+      position: {
+        x: 'center',
+        y: 'top',
+      }
     });
     console.debug("detail: ", evt.detail);
     if (evt.detail.successful) {
       // Successful request
     } else if (evt.detail.failed && evt.detail.xhr) {
-        // Server error with response contents, equivalent to htmx:responseError
-        const xhr = evt.detail.xhr;
-        const msg = xhr.statusText ? xhr.statusText.trim() : xhr.responseText.trim();
-        notyf.error(`Unexpected server error: ${msg}`);
+      // Server error with response contents, equivalent to htmx:responseError
+      const xhr = evt.detail.xhr;
+      const msg = xhr.statusText ? xhr.statusText.trim() : xhr.responseText.trim();
+      notyf.error(`Unexpected server error: ${msg}`);
     } else {
-        // Unspecified failure, usually caused by network error
-        notyf.error("Unexpected error, check your connection and try to refresh the page.");
+      // Unspecified failure, usually caused by network error
+      notyf.error("Unexpected error, check your connection and try to refresh the page.");
     }
   });
 
@@ -65,7 +66,7 @@
     var copyText = obj.querySelector('.eventlink');
     var text = location.origin + copyText.innerHTML;
     navigator.clipboard.writeText(text);
-    
+
     var tooltip = obj.querySelector('.tooltiptext');
     tooltip.innerHTML = "Link copied";
   }

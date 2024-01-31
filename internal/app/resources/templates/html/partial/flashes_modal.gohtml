@@ -1,21 +1,21 @@
 {{define "flashes_modal"}}
-  {{if or .success .error }}
-  <script>
-    var notyf = new Notyf({
-      ripple: false,
-      dismissible: true,
-      duration: 2500,
-      position: {
-        x: 'center',
-        y: 'top',
-      }
-    });
-    {{ range .success }}
-      notyf.success("{{.}}");
-    {{ end }}
-    {{ range .error }}
-      notyf.error("{{.}}");
-    {{ end }}
-  </script>
-  {{end}}
+{{if or .success .error }}
+<script>
+  var notyf = new Notyf({
+    ripple: false,
+    dismissible: true,
+    duration: 2500,
+    position: {
+      x: 'center',
+      y: 'top',
+    }
+  });
+  { { range.success } }
+  notyf.success("{{.}}");
+  { { end } }
+  { { range.error } }
+  notyf.error("{{.}}");
+  { { end } }
+</script>
+{{end}}
 {{end}}
