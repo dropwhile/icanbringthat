@@ -65,10 +65,9 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.templates = resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_account_email_verify.gohtml": verifyTpl,
-			})
+		handler.templates = &resources.TemplateMap{
+			"mail_account_email_verify.gohtml": verifyTpl,
+		}
 
 		mock.EXPECT().
 			NewUserVerify(ctx, user.ID).

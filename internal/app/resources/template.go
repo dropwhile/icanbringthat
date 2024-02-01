@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	htmltemplate "html/template"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -16,13 +17,31 @@ const embedMagicStr = "embed"
 //go:embed templates
 var templateEmbedFS embed.FS
 
+type TExecuter interface {
+	Execute(wr io.Writer, data any) error
+	ExecuteTemplate(io.Writer, string, any) error
+}
+
+type TGetter interface {
+	Get(string) (TExecuter, error)
+}
+
+type TemplateMap map[string]TExecuter
+
+func (tm *TemplateMap) Get(name string) (TExecuter, error) {
+	if v, ok := (*tm)[name]; ok {
+		return v, nil
+	}
+	return nil, fmt.Errorf("template not found for name %s", name)
+}
+
 type TContainer struct {
 	tmap  TemplateMap
 	tfs   fs.FS
 	embed bool
 }
 
-func (tc *TContainer) Get(name string) (TemplateIf, error) {
+func (tc *TContainer) Get(name string) (TExecuter, error) {
 	if tc.embed {
 		return tc.tmap.Get(name)
 	}

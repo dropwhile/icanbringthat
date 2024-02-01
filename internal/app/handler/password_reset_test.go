@@ -407,10 +407,9 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.templates = resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_password_reset.gohtml": passResetTpl,
-			})
+		handler.templates = &resources.TemplateMap{
+			"mail_password_reset.gohtml": passResetTpl,
+		}
 
 		mock.EXPECT().
 			GetUserByEmail(ctx, user.Email).
@@ -468,10 +467,9 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		handler.templates = resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_password_reset.gohtml": passResetTpl,
-			})
+		handler.templates = &resources.TemplateMap{
+			"mail_password_reset.gohtml": passResetTpl,
+		}
 
 		mock.EXPECT().
 			GetUserByEmail(ctx, user.Email).

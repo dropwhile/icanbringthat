@@ -67,7 +67,7 @@ func New(opts Options) (*Handler, error) {
 	return handler, nil
 }
 
-func (x *Handler) Template(name string) (resources.TemplateIf, error) {
+func (x *Handler) Template(name string) (resources.TExecuter, error) {
 	return x.templates.Get(name)
 }
 

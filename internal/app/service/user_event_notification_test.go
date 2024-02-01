@@ -66,14 +66,12 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
-		templates := resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_reminder.gohtml": template.Must(
-					template.New("mail_reminder.gohtml").
-						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
-				),
-			},
-		)
+		templates := &resources.TemplateMap{
+			"mail_reminder.gohtml": template.Must(
+				template.New("mail_reminder.gohtml").
+					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
+			),
+		}
 
 		now := time.Now()
 
@@ -170,14 +168,12 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
-		templates := resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_reminder.gohtml": template.Must(
-					template.New("mail_reminder.gohtml").
-						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
-				),
-			},
-		)
+		templates := &resources.TemplateMap{
+			"mail_reminder.gohtml": template.Must(
+				template.New("mail_reminder.gohtml").
+					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
+			),
+		}
 
 		now := time.Now()
 
@@ -219,14 +215,12 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
-		templates := resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_reminder.gohtml": template.Must(
-					template.New("mail_reminder.gohtml").
-						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
-				),
-			},
-		)
+		templates := &resources.TemplateMap{
+			"mail_reminder.gohtml": template.Must(
+				template.New("mail_reminder.gohtml").
+					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
+			),
+		}
 
 		when := time.Now().Add(time.Duration(25) * time.Hour)
 
@@ -265,14 +259,12 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
-		templates := resources.MockTContainer(
-			resources.TemplateMap{
-				"mail_reminder.gohtml": template.Must(
-					template.New("mail_reminder.gohtml").
-						ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
-				),
-			},
-		)
+		templates := &resources.TemplateMap{
+			"mail_reminder.gohtml": template.Must(
+				template.New("mail_reminder.gohtml").
+					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
+			),
+		}
 
 		mock.ExpectQuery("WITH subt").
 			WithArgs().

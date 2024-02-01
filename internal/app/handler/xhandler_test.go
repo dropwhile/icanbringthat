@@ -75,7 +75,7 @@ func SetupHandler(
 	mock := mockservice.NewMockServicer(ctrl)
 	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
-		templates: resources.MockTContainer(resources.TemplateMap{"error-page.gohtml": tpl}),
+		templates: &resources.TemplateMap{"error-page.gohtml": tpl},
 		sessMgr:   session.NewTestSessionManager(),
 		mailer:    &TestMailer{make([]*mail.Mail, 0)},
 		cMAC:      crypto.NewMAC([]byte("test-hmac-key")),
