@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Notification_Delete(t *testing.T) {
@@ -22,7 +22,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -32,7 +32,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:           2,
-		RefID:        refid.Must(model.NewNotificationRefID()),
+		RefID:        util.Must(model.NewNotificationRefID()),
 		UserID:       user.ID,
 		Message:      "",
 		Read:         false,
@@ -124,7 +124,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewNotificationRefID())
+		refID := util.Must(model.NewNotificationRefID())
 		rctx.URLParams.Add("nRefID", refID.String())
 
 		mock.EXPECT().
@@ -153,7 +153,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", refid.Must(model.NewEventRefID()).String())
+		rctx.URLParams.Add("nRefID", util.Must(model.NewEventRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
@@ -203,7 +203,7 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -213,7 +213,7 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:           2,
-		RefID:        refid.Must(model.NewNotificationRefID()),
+		RefID:        util.Must(model.NewNotificationRefID()),
 		UserID:       user.ID,
 		Message:      "",
 		Read:         false,

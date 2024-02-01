@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type NotificationRefIDNull = reftag.NullIDt8
@@ -30,7 +31,7 @@ type Notification struct {
 func NewNotification(ctx context.Context, db PgxHandle,
 	userID int, message string,
 ) (*Notification, error) {
-	refID := refid.Must(NewNotificationRefID())
+	refID := util.Must(NewNotificationRefID())
 	return CreateNotification(ctx, db, refID, userID, message)
 }
 

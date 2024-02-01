@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_GetUserCredentialByRefID(t *testing.T) {
@@ -18,7 +18,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -33,7 +33,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		credRefID := refid.Must(model.NewCredentialRefID())
+		credRefID := util.Must(model.NewCredentialRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
 			WithArgs(credRefID).
@@ -60,7 +60,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		credRefID := refid.Must(model.NewCredentialRefID())
+		credRefID := util.Must(model.NewCredentialRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
 			WithArgs(credRefID).
@@ -79,7 +79,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		credRefID := refid.Must(model.NewCredentialRefID())
+		credRefID := util.Must(model.NewCredentialRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
 			WithArgs(credRefID).
@@ -105,7 +105,7 @@ func TestService_GetUserCredentialsByUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -120,8 +120,8 @@ func TestService_GetUserCredentialsByUser(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		credRefID := refid.Must(model.NewCredentialRefID())
-		credRefID2 := refid.Must(model.NewCredentialRefID())
+		credRefID := util.Must(model.NewCredentialRefID())
+		credRefID2 := util.Must(model.NewCredentialRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_webauthn_").
 			WithArgs(user.ID).
@@ -170,7 +170,7 @@ func TestService_GetUserCredentialCountByUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -227,7 +227,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -238,7 +238,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 
 	credential := &model.UserCredential{
 		ID:         5,
-		RefID:      refid.Must(model.NewCredentialRefID()),
+		RefID:      util.Must(model.NewCredentialRefID()),
 		UserID:     user.ID,
 		KeyName:    "key-name",
 		Credential: []byte{0x00, 0x01},
@@ -312,7 +312,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 
 		user := &model.User{
 			ID:           1,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -358,7 +358,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 
 		user := &model.User{
 			ID:           1,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -389,7 +389,7 @@ func TestService_NewUserCredential(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -406,7 +406,7 @@ func TestService_NewUserCredential(t *testing.T) {
 
 		keyName := "key-name"
 		credential := []byte{0x99, 0x98}
-		credRefID := refid.Must(model.NewCredentialRefID())
+		credRefID := util.Must(model.NewCredentialRefID())
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("INSERT INTO user_webauthn_").

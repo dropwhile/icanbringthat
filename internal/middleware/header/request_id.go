@@ -39,6 +39,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 // RequestIDHeader is the name of the HTTP Header which contains the request id.
@@ -51,7 +52,7 @@ var (
 )
 
 func init() {
-	refID := refid.Must(refid.New())
+	refID := util.Must(refid.New())
 	prefix = refID.String()
 }
 

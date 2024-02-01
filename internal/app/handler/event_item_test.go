@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -26,7 +25,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -35,7 +34,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -47,7 +46,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -206,7 +205,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -215,7 +214,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -227,7 +226,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -565,7 +564,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -574,7 +573,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -586,7 +585,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,

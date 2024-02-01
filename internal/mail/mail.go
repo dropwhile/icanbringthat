@@ -10,6 +10,7 @@ import (
 	"github.com/dropwhile/refid/v2"
 
 	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type MailHeader map[string]string
@@ -43,7 +44,7 @@ func (m *Mailer) SendRaw(mail *Mail) error {
 		return fmt.Errorf("no content")
 	}
 	var buf strings.Builder
-	boundary := refid.Must(refid.New())
+	boundary := util.Must(refid.New())
 	// write headers, set up boundary
 	for k, v := range mail.ExtraHeaders {
 		buf.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))

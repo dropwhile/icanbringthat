@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icbt/internal/crypto"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type UserRefID = reftag.IDt1
@@ -66,7 +66,7 @@ func CheckPass(ctx context.Context,
 func NewUser(ctx context.Context, db PgxHandle,
 	email, name string, rawPass []byte,
 ) (*User, error) {
-	refID := refid.Must(NewUserRefID())
+	refID := util.Must(NewUserRefID())
 	pwHash, err := crypto.HashPW([]byte(rawPass))
 	if err != nil {
 		return nil, fmt.Errorf("error hashing pw: %w", err)

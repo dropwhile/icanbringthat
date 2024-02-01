@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/samber/mo"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_GetUserVerifyByRefID(t *testing.T) {
@@ -19,7 +19,7 @@ func TestService_GetUserVerifyByRefID(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -34,7 +34,7 @@ func TestService_GetUserVerifyByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_").
 			WithArgs(refID).
@@ -57,7 +57,7 @@ func TestService_GetUserVerifyByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_verify_").
 			WithArgs(refID).
@@ -76,7 +76,7 @@ func TestService_NewUserVerify(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -91,7 +91,7 @@ func TestService_NewUserVerify(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("INSERT INTO user_verify_").
@@ -120,7 +120,7 @@ func TestService_SetUserVerified(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -135,7 +135,7 @@ func TestService_SetUserVerified(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 		verify := &model.UserVerify{
 			RefID:   refID,
 			UserID:  user.ID,
@@ -184,7 +184,7 @@ func TestService_SetUserVerified(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 		verify := &model.UserVerify{
 			RefID:   refID,
 			UserID:  user.ID + 1,

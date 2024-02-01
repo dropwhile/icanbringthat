@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type UserPWResetRefID = reftag.IDt5
@@ -28,7 +29,7 @@ const UserPWResetExpiry = 30 * time.Minute
 func NewUserPWReset(ctx context.Context, db PgxHandle,
 	userID int,
 ) (*UserPWReset, error) {
-	refID := refid.Must(NewUserPWResetRefID())
+	refID := util.Must(NewUserPWResetRefID())
 	return CreateUserPWReset(ctx, db, refID, userID)
 }
 

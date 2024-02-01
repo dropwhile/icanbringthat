@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/samber/mo"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
@@ -24,7 +23,7 @@ func TestRpc_ListEvents(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -39,7 +38,7 @@ func TestRpc_ListEvents(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		limit := 10
 		offset := 0
@@ -81,7 +80,7 @@ func TestRpc_ListEvents(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		archived := false
 
@@ -115,7 +114,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -130,8 +129,8 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventRefID := util.Must(model.NewEventRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		eventID := 1
 		eventItemID := 3
 		earmarkID := 4
@@ -166,7 +165,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			Return(
 				[]*model.Earmark{{
 					ID:          earmarkID,
-					RefID:       refid.Must(model.NewEarmarkRefID()),
+					RefID:       util.Must(model.NewEarmarkRefID()),
 					UserID:      user.ID,
 					EventItemID: eventItemID,
 					Note:        "some earmark",
@@ -177,7 +176,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -205,7 +204,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			GetEvent(ctx, eventRefID).
@@ -238,7 +237,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -249,7 +248,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -387,7 +386,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -398,7 +397,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -634,7 +633,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -649,7 +648,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			DeleteEvent(ctx, user.ID, eventRefID).
@@ -682,7 +681,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			DeleteEvent(ctx, user.ID, eventRefID).

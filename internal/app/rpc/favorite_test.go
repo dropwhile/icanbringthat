@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
@@ -21,7 +20,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -36,7 +35,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		ctx := context.TODO()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		limit := 10
 		offset := 0
@@ -81,7 +80,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		archived := false
 
@@ -117,7 +116,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -132,7 +131,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, eventRefID).
@@ -160,7 +159,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, eventRefID).
@@ -179,7 +178,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, eventRefID).
@@ -212,7 +211,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -227,7 +226,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, eventRefID).
@@ -260,7 +259,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, eventRefID).
@@ -279,7 +278,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, eventRefID).
@@ -298,7 +297,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, eventRefID).

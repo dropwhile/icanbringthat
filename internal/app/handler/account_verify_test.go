@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -30,7 +29,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -42,12 +41,12 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 	}
 
 	uv := &model.UserVerify{
-		RefID:   refid.Must(model.NewUserVerifyRefID()),
+		RefID:   util.Must(model.NewUserVerifyRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
 
-	verifyTpl := template.Must(template.New("").Parse(
+	verifyTpl := util.Must(template.New("").Parse(
 		`{{.Subject}}: <a href="{{.VerificationUrl}}">{{.VerificationUrl}}</a>`))
 
 	t.Run("send verification email", func(t *testing.T) {
@@ -90,7 +89,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 				after, found := strings.CutPrefix(msgPlain, "Account Verification: http://example.com/verify/")
 				assert.Assert(t, found)
 				refParts := strings.Split(after, "-")
-				rID := refid.Must(service.ParseUserVerifyRefID(refParts[0]))
+				rID := util.Must(service.ParseUserVerifyRefID(refParts[0]))
 				hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 				assert.NilError(t, err)
 				assert.Assert(t, handler.cMAC.Validate([]byte(rID.String()), hmacBytes))
@@ -119,7 +118,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -131,7 +130,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	}
 
 	uv := &model.UserVerify{
-		RefID:   refid.Must(model.NewUserVerifyRefID()),
+		RefID:   util.Must(model.NewUserVerifyRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -228,7 +227,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewEventItemRefID())
+		refID := util.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
@@ -292,7 +291,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 	t.Run("verify is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refID := refid.Must(model.NewUserVerifyRefID())
+		refID := util.Must(model.NewUserVerifyRefID())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refID.SetTime(rfts)
 

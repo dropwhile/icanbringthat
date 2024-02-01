@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type CredentialRefID = reftag.IDt7
@@ -29,7 +30,7 @@ type UserCredential struct {
 func NewUserCredential(ctx context.Context, db PgxHandle,
 	userID int, keyName string, credential []byte,
 ) (*UserCredential, error) {
-	refID := refid.Must(NewCredentialRefID())
+	refID := util.Must(NewCredentialRefID())
 	return CreateUserCredential(ctx, db, refID, userID, keyName, credential)
 }
 

@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/samber/mo"
 	"go.uber.org/mock/gomock"
@@ -28,7 +27,7 @@ func TestHandler_Event_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -38,7 +37,7 @@ func TestHandler_Event_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -286,7 +285,7 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		user := &model.User{
 			ID:           1,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -338,7 +337,7 @@ func TestHandler_Event_Update(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -348,7 +347,7 @@ func TestHandler_Event_Update(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            1,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -418,7 +417,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.NewEarmarkRefID()).String())
+		rctx.URLParams.Add("eRefID", util.Must(model.NewEarmarkRefID()).String())
 
 		data := url.Values{
 			"name": {event.Name},
@@ -827,7 +826,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -837,7 +836,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            1,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -890,7 +889,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.NewEarmarkRefID()).String())
+		rctx.URLParams.Add("eRefID", util.Must(model.NewEarmarkRefID()).String())
 
 		data := url.Values{
 			"sortOrder": {"1", "3", "2"},
@@ -1096,7 +1095,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -1106,7 +1105,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -1154,7 +1153,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.NewEventItemRefID()).String())
+		rctx.URLParams.Add("eRefID", util.Must(model.NewEventItemRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

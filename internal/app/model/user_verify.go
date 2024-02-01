@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type UserVerifyRefID = reftag.IDt6
@@ -32,7 +33,7 @@ func NewUserVerify(ctx context.Context, db PgxHandle,
 	if userID == 0 {
 		return nil, fmt.Errorf("nil user supplied")
 	}
-	refID := refid.Must(NewUserVerifyRefID())
+	refID := util.Must(NewUserVerifyRefID())
 	return CreateUserVerify(ctx, db, refID, userID)
 }
 

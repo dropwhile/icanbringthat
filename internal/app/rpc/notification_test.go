@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -20,7 +20,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -30,7 +30,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:           2,
-		RefID:        refid.Must(model.NewNotificationRefID()),
+		RefID:        util.Must(model.NewNotificationRefID()),
 		UserID:       user.ID,
 		Message:      "",
 		Read:         false,
@@ -94,7 +94,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -104,7 +104,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:           2,
-		RefID:        refid.Must(model.NewNotificationRefID()),
+		RefID:        util.Must(model.NewNotificationRefID()),
 		UserID:       user.ID,
 		Message:      "",
 		Read:         false,
@@ -186,7 +186,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),

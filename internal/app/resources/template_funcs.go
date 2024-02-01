@@ -3,11 +3,10 @@ package resources
 import (
 	"bytes"
 	"fmt"
-	htmltemplate "html/template"
+	"html/template"
 	"reflect"
 	"regexp"
 	"strings"
-	txttemplate "text/template"
 	"time"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -16,13 +15,14 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 
 	"github.com/dropwhile/icbt/internal/app/model"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 const linkTplTxt = `<a class="text-purple-600 dark:text-purple-400 hover:underline" href="{{.href}}">{{.name}}</a>`
 
 var (
 	linkReplaceRex = regexp.MustCompile(`\blink:[^.\s]+\b`)
-	linkTpl        = htmltemplate.Must(htmltemplate.New("linkTpl").Parse(linkTplTxt))
+	linkTpl        = util.Must(template.New("linkTpl").Parse(linkTplTxt))
 	linksMap       = map[string]string{
 		"/settings": "Account Settings",
 	}
@@ -47,7 +47,7 @@ func linkReplaceFunc(s string) string {
 	return s
 }
 
-var templateFuncMap = txttemplate.FuncMap{
+var templateFuncMap = template.FuncMap{
 	"formatTS": func(t time.Time) string {
 		return t.UTC().Format("2006-01-02T15:04Z07:00")
 	},
@@ -107,7 +107,7 @@ var templateFuncMap = txttemplate.FuncMap{
 		}
 		return truth, nil
 	},
-	"replaceLinks": func(input string) (htmltemplate.HTML, error) {
+	"replaceLinks": func(input string) (template.HTML, error) {
 		body := linkReplaceRex.ReplaceAllStringFunc(input, linkReplaceFunc)
 		p := bluemonday.NewPolicy()
 		p.AllowElements("p", "br", "strong", "sub", "sup", "em")
@@ -120,9 +120,9 @@ var templateFuncMap = txttemplate.FuncMap{
 		p.RequireNoReferrerOnLinks(false)
 		p.AllowAttrs("href", "class").OnElements("a")
 		out := p.Sanitize(body)
-		return htmltemplate.HTML(out), nil // #nosec G203 -- html sanitized by bluemonday
+		return template.HTML(out), nil // #nosec G203 -- html sanitized by bluemonday
 	},
-	"markdown": func(input string) (htmltemplate.HTML, error) {
+	"markdown": func(input string) (template.HTML, error) {
 		b := []byte(input)
 		var buf bytes.Buffer
 		md := goldmark.New(
@@ -148,6 +148,6 @@ var templateFuncMap = txttemplate.FuncMap{
 		p.RequireNoReferrerOnLinks(true)
 		p.AllowAttrs("href").OnElements("a")
 		out := p.SanitizeReader(&buf).String()
-		return htmltemplate.HTML(out), nil // #nosec G203 -- html sanitized by bluemonday
+		return template.HTML(out), nil // #nosec G203 -- html sanitized by bluemonday
 	},
 }

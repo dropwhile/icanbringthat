@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -20,7 +20,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -35,7 +35,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		limit := 10
 		offset := 0
@@ -68,7 +68,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -95,7 +95,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		archived := false
 		earmarkID := 13
@@ -121,7 +121,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -147,7 +147,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -162,8 +162,8 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
-		eventRefID := refid.Must(model.NewEventRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		eventID := 1
 		eventItemID := 4
@@ -200,7 +200,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -226,7 +226,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			GetEvent(ctx, eventRefID).
@@ -259,7 +259,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -274,7 +274,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 		earmarkID := 5
 		eventItemID := 7
 		eventID := 1
@@ -295,7 +295,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -307,7 +307,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			Return(
 				&model.Event{
 					ID:            eventID,
-					RefID:         refid.Must(model.NewEventRefID()),
+					RefID:         util.Must(model.NewEventRefID()),
 					UserID:        user.ID,
 					Name:          "some event",
 					Description:   "some desc",
@@ -320,7 +320,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -360,7 +360,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -375,8 +375,8 @@ func TestRpc_AddEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 		eventItemID := 33
 		eventID := 22
 		note := "some note"
@@ -386,7 +386,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -409,7 +409,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -436,7 +436,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		eventItemID := 33
 		eventID := 22
 		note := "some note"
@@ -446,7 +446,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -470,7 +470,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 
 		user := &model.User{
 			ID:           1,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -482,7 +482,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		eventItemID := 33
 		eventID := 22
 		note := "some note"
@@ -492,7 +492,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -518,7 +518,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		eventItemID := 33
 		eventID := 22
 		note := "some note"
@@ -528,7 +528,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:           eventItemID,
-					RefID:        refid.Must(model.NewEventItemRefID()),
+					RefID:        util.Must(model.NewEventItemRefID()),
 					EventID:      eventID,
 					Description:  "some desc",
 					Created:      tstTs,
@@ -568,7 +568,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -583,7 +583,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
@@ -602,7 +602,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
@@ -635,7 +635,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).

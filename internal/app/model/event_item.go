@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type EventItemRefID = reftag.IDt3
@@ -29,7 +30,7 @@ type EventItem struct {
 func NewEventItem(ctx context.Context, db PgxHandle,
 	eventID int, description string,
 ) (*EventItem, error) {
-	refID := refid.Must(NewEventItemRefID())
+	refID := util.Must(NewEventItemRefID())
 	return CreateEventItem(ctx, db, refID, eventID, description)
 }
 

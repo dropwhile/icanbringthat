@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"go.uber.org/mock/gomock"
@@ -23,7 +22,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -37,7 +36,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            2,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -48,13 +47,13 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:          3,
-		RefID:       refid.Must(model.NewEventItemRefID()),
+		RefID:       util.Must(model.NewEventItemRefID()),
 		EventID:     event.ID,
 		Description: "eventitem",
 	}
 	earmark := &model.Earmark{
 		ID:          4,
-		RefID:       refid.Must(model.NewEarmarkRefID()),
+		RefID:       util.Must(model.NewEarmarkRefID()),
 		EventItemID: eventItem.ID,
 		UserID:      user.ID,
 		Note:        "earmark",
@@ -67,7 +66,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
 		templates := &resources.TemplateMap{
-			"mail_reminder.gohtml": template.Must(
+			"mail_reminder.gohtml": util.Must(
 				template.New("mail_reminder.gohtml").
 					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 			),
@@ -169,7 +168,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
 		templates := &resources.TemplateMap{
-			"mail_reminder.gohtml": template.Must(
+			"mail_reminder.gohtml": util.Must(
 				template.New("mail_reminder.gohtml").
 					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 			),
@@ -216,7 +215,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
 		templates := &resources.TemplateMap{
-			"mail_reminder.gohtml": template.Must(
+			"mail_reminder.gohtml": util.Must(
 				template.New("mail_reminder.gohtml").
 					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 			),
@@ -260,7 +259,7 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		svc := New(Options{Db: mock})
 		mailer := SetupMailerMock(t)
 		templates := &resources.TemplateMap{
-			"mail_reminder.gohtml": template.Must(
+			"mail_reminder.gohtml": util.Must(
 				template.New("mail_reminder.gohtml").
 					ParseFiles("../resources/templates/html/view/mail_reminder.gohtml"),
 			),

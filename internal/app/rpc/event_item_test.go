@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -13,6 +12,7 @@ import (
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -23,7 +23,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -38,7 +38,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		eventID := 3
 
 		mock.EXPECT().
@@ -46,7 +46,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 			Return(
 				[]*model.EventItem{{
 					ID:          eventID,
-					RefID:       refid.Must(model.NewEventItemRefID()),
+					RefID:       util.Must(model.NewEventItemRefID()),
 					EventID:     eventID,
 					Description: "some desc",
 				}}, nil,
@@ -80,7 +80,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 
 		mock.EXPECT().
 			GetEventItemsByEvent(ctx, eventRefID).
@@ -99,7 +99,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -114,7 +114,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 
 		mock.EXPECT().
 			RemoveEventItem(
@@ -150,7 +150,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 
 		mock.EXPECT().
 			RemoveEventItem(
@@ -172,7 +172,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 
 		mock.EXPECT().
 			RemoveEventItem(
@@ -194,7 +194,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 
 		mock.EXPECT().
 			RemoveEventItem(
@@ -216,7 +216,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -231,7 +231,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		eventID := 3
 		description := "some description"
 
@@ -240,7 +240,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Return(
 				&model.EventItem{
 					ID:          eventID,
-					RefID:       refid.Must(model.NewEventItemRefID()),
+					RefID:       util.Must(model.NewEventItemRefID()),
 					EventID:     eventID,
 					Description: description,
 				}, nil,
@@ -261,7 +261,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		description := ""
 
 		mock.EXPECT().
@@ -282,7 +282,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		description := "some description"
 
 		mock.EXPECT().
@@ -303,7 +303,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		description := "some description"
 
 		mock.EXPECT().
@@ -324,7 +324,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventRefID := refid.Must(model.NewEventRefID())
+		eventRefID := util.Must(model.NewEventRefID())
 		description := "some description"
 
 		mock.EXPECT().
@@ -361,7 +361,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -376,7 +376,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		eventItemID := 5
 		eventID := 3
 		description := "some new description"
@@ -424,7 +424,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		description := "some new description"
 
 		mock.EXPECT().
@@ -448,7 +448,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		description := "some new description"
 
 		mock.EXPECT().
@@ -472,7 +472,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		description := "some new description"
 
 		mock.EXPECT().
@@ -496,7 +496,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		description := ""
 
 		mock.EXPECT().
@@ -520,7 +520,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		eventItemRefID := refid.Must(model.NewEventItemRefID())
+		eventItemRefID := util.Must(model.NewEventItemRefID())
 		description := ""
 
 		mock.EXPECT().

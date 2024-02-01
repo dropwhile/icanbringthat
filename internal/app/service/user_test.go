@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pashagolub/pgxmock/v3"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_GetUser(t *testing.T) {
@@ -20,7 +20,7 @@ func TestService_GetUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -78,7 +78,7 @@ func TestService_GetUserByEmail(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -136,7 +136,7 @@ func TestService_GetUserByID(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -194,7 +194,7 @@ func TestService_GetUsersByIDs(t *testing.T) {
 
 	user1 := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -204,7 +204,7 @@ func TestService_GetUsersByIDs(t *testing.T) {
 	}
 	user2 := &model.User{
 		ID:           2,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user2@example.com",
 		Name:         "user2",
 		PWHash:       []byte("00x00"),
@@ -268,7 +268,7 @@ func TestService_NewUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -387,7 +387,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -442,7 +442,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 		user := &model.User{
 			ID:       1,
-			RefID:    refid.Must(model.NewUserRefID()),
+			RefID:    util.Must(model.NewUserRefID()),
 			Email:    "user@example.com",
 			Name:     "user",
 			PWHash:   pwhash,
@@ -491,7 +491,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 		user := &model.User{
 			ID:       1,
-			RefID:    refid.Must(model.NewUserRefID()),
+			RefID:    util.Must(model.NewUserRefID()),
 			Email:    "user@example.com",
 			Name:     "user",
 			PWHash:   pwhash,
@@ -524,7 +524,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 		user := &model.User{
 			ID:       1,
-			RefID:    refid.Must(model.NewUserRefID()),
+			RefID:    util.Must(model.NewUserRefID()),
 			Email:    "user@example.com",
 			Name:     "user",
 			PWHash:   pwhash,
@@ -602,7 +602,7 @@ func TestService_UpdateUserSettings(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -645,7 +645,7 @@ func TestService_DeleteUser(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),

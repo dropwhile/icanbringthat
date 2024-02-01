@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/twitchtv/twirp"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestRpc_AuthHook(t *testing.T) {
@@ -47,7 +47,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx := context.Background()
 		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
-		refID := refid.Must(model.NewUserRefID())
+		refID := util.Must(model.NewUserRefID())
 
 		mock.EXPECT().
 			GetUserByApiKey(ctx, "user-123").
@@ -70,7 +70,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx := context.Background()
 		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
-		refID := refid.Must(model.NewUserRefID())
+		refID := util.Must(model.NewUserRefID())
 
 		mock.EXPECT().
 			GetUserByApiKey(ctx, "user-123").
@@ -93,7 +93,7 @@ func TestRpc_AuthHook(t *testing.T) {
 		ctx := context.Background()
 		_, mock := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "api-key", "user-123")
-		refID := refid.Must(model.NewUserRefID())
+		refID := util.Must(model.NewUserRefID())
 
 		mock.EXPECT().
 			GetUserByApiKey(ctx, "user-123").

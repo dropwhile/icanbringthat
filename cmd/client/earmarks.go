@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -45,7 +46,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("earmarkTpl").
+	t := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
 	if err := t.Execute(os.Stdout, resp.Earmark); err != nil {
@@ -68,7 +69,7 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t2 := template.Must(template.New("earmarkDetailTpl").
+	t2 := util.Must(template.New("earmarkDetailTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
@@ -110,7 +111,7 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t2 := template.Must(template.New("earmarkTpl").
+	t2 := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
 	for _, earmark := range resp.Earmarks {

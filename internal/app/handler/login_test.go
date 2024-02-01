@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -26,7 +25,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	user := &model.User{
 		ID:       1,
-		RefID:    refid.Must(model.NewUserRefID()),
+		RefID:    util.Must(model.NewUserRefID()),
 		Email:    "user@example.com",
 		Name:     "user",
 		PWHash:   pwhash,
@@ -130,7 +129,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 
 	user := &model.User{
 		ID:       1,
-		RefID:    refid.Must(model.NewUserRefID()),
+		RefID:    util.Must(model.NewUserRefID()),
 		Email:    "user@example.com",
 		Name:     "user",
 		PWHash:   util.Must(crypto.HashPW([]byte("00x00"))),

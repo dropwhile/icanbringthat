@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
@@ -32,11 +31,11 @@ func TestService_GetEarmarksByEventID(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					1, refid.Must(model.NewEarmarkRefID()), 1, 1,
+					1, util.Must(model.NewEarmarkRefID()), 1, 1,
 					"some note 1", tstTs, tstTs,
 				).
 				AddRow(
-					2, refid.Must(model.NewEarmarkRefID()), 2, 1,
+					2, util.Must(model.NewEarmarkRefID()), 2, 1,
 					"some note 2", tstTs, tstTs,
 				),
 			)
@@ -89,7 +88,7 @@ func TestService_GetEarmarkByEventItemID(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					earmarkID, refid.Must(model.NewEarmarkRefID()), eventItemID, 1,
+					earmarkID, util.Must(model.NewEarmarkRefID()), eventItemID, 1,
 					"some note 2", tstTs, tstTs,
 				),
 			)
@@ -186,11 +185,11 @@ func TestService_GetEarmarksPaginated(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					1, refid.Must(model.NewEarmarkRefID()), 1, 1,
+					1, util.Must(model.NewEarmarkRefID()), 1, 1,
 					"some note 1", tstTs, tstTs,
 				).
 				AddRow(
-					2, refid.Must(model.NewEarmarkRefID()), 2, 1,
+					2, util.Must(model.NewEarmarkRefID()), 2, 1,
 					"some note 2", tstTs, tstTs,
 				),
 			)
@@ -237,15 +236,15 @@ func TestService_GetEarmarksPaginated(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					1, refid.Must(model.NewEarmarkRefID()), 1, 1,
+					1, util.Must(model.NewEarmarkRefID()), 1, 1,
 					"some note 1", tstTs, tstTs,
 				).
 				AddRow(
-					2, refid.Must(model.NewEarmarkRefID()), 2, 1,
+					2, util.Must(model.NewEarmarkRefID()), 2, 1,
 					"some note 2", tstTs, tstTs,
 				).
 				AddRow(
-					3, refid.Must(model.NewEarmarkRefID()), 3, 1,
+					3, util.Must(model.NewEarmarkRefID()), 3, 1,
 					"some note 2", tstTs, tstTs,
 				),
 			)
@@ -315,11 +314,11 @@ func TestService_GetEarmarks(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					1, refid.Must(model.NewEarmarkRefID()), 1, 1,
+					1, util.Must(model.NewEarmarkRefID()), 1, 1,
 					"some note 1", tstTs, tstTs,
 				).
 				AddRow(
-					2, refid.Must(model.NewEarmarkRefID()), 2, 1,
+					2, util.Must(model.NewEarmarkRefID()), 2, 1,
 					"some note 2", tstTs, tstTs,
 				),
 			)
@@ -363,7 +362,7 @@ func TestService_NewEarmark(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -373,7 +372,7 @@ func TestService_NewEarmark(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -385,7 +384,7 @@ func TestService_NewEarmark(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -393,7 +392,7 @@ func TestService_NewEarmark(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
+		RefID:        util.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",
@@ -476,7 +475,7 @@ func TestService_NewEarmark(t *testing.T) {
 
 		user := &model.User{
 			ID:           33,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -500,7 +499,7 @@ func TestService_NewEarmark(t *testing.T) {
 					"archived", "created", "last_modified",
 				}).
 				AddRow(
-					event.ID, refid.Must(model.NewEventRefID()), 34,
+					event.ID, util.Must(model.NewEventRefID()), 34,
 					"event name", "event desc",
 					false, tstTs, tstTs,
 				),
@@ -523,7 +522,7 @@ func TestService_GetEarmark(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmarkRefID).
@@ -532,7 +531,7 @@ func TestService_GetEarmark(t *testing.T) {
 					"id", "ref_id", "event_item_id", "user_id", "note", "created", "last_modified",
 				}).
 				AddRow(
-					1, refid.Must(model.NewEarmarkRefID()), 1, 1,
+					1, util.Must(model.NewEarmarkRefID()), 1, 1,
 					"some note 1", tstTs, tstTs,
 				),
 			)
@@ -551,7 +550,7 @@ func TestService_GetEarmark(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		earmarkRefID := refid.Must(model.NewEarmarkRefID())
+		earmarkRefID := util.Must(model.NewEarmarkRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM earmark_").
 			WithArgs(earmarkRefID).
@@ -571,7 +570,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -581,7 +580,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -593,7 +592,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -601,7 +600,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
+		RefID:        util.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",
@@ -708,7 +707,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -718,7 +717,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -730,7 +729,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -738,7 +737,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
+		RefID:        util.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",

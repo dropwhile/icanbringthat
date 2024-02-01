@@ -54,14 +54,10 @@ func (tc *TContainer) Get(name string) (TExecuter, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := c.New(name).
+	return c.New(name).
 		Funcs(templateFuncMap).
 		Funcs(sprig.FuncMap()).
 		ParseFS(viewSub, name)
-	if err != nil {
-		return nil, err
-	}
-	return t, nil
 }
 
 func getTemplateFS(templatesDir string) (fs.FS, error) {
@@ -123,7 +119,10 @@ func ParseTemplates(templatesDir string) (*TContainer, error) {
 			if err != nil {
 				return err
 			}
-			t, err := c.New(name).Funcs(templateFuncMap).Funcs(sprig.FuncMap()).ParseFS(tfs, fmt.Sprintf("html/view/%s", name))
+			t, err := c.New(name).
+				Funcs(templateFuncMap).
+				Funcs(sprig.FuncMap()).
+				ParseFS(tfs, fmt.Sprintf("html/view/%s", name))
 			if err != nil {
 				return err
 			}

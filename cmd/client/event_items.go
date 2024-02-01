@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -33,7 +34,7 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventItemTpl").
+	t := util.Must(template.New("eventItemTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
@@ -59,7 +60,7 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventItemTpl").
+	t := util.Must(template.New("eventItemTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
 	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {

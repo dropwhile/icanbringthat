@@ -9,10 +9,9 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/dropwhile/refid/v2"
-
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
@@ -45,7 +44,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 
 		user := &model.User{
 			ID:       1,
-			RefID:    refid.Must(model.NewUserRefID()),
+			RefID:    util.Must(model.NewUserRefID()),
 			Email:    "user@example.com",
 			Name:     "user",
 			PWHash:   []byte("00x00"),

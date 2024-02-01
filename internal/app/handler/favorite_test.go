@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"gotest.tools/v3/assert"
 
@@ -25,7 +24,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -34,7 +33,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -105,7 +104,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewEventRefID())
+		refID := util.Must(model.NewEventRefID())
 		rctx.URLParams.Add("eRefID", refID.String())
 
 		mock.EXPECT().
@@ -134,7 +133,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewEventItemRefID())
+		refID := util.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("eRefID", refID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
@@ -157,7 +156,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -166,7 +165,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       2,
 		Name:         "event",
 		Description:  "description",
@@ -240,7 +239,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", refid.Must(model.NewEventItemRefID()).String())
+		rctx.URLParams.Add("eRefID", util.Must(model.NewEventItemRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

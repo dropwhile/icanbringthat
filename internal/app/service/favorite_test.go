@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
@@ -49,7 +48,7 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 
 	user := &model.User{
 		ID:       1,
-		RefID:    refid.Must(model.NewUserRefID()),
+		RefID:    util.Must(model.NewUserRefID()),
 		Email:    "user@example.com",
 		Name:     "user",
 		PWHash:   []byte("00x00"),
@@ -57,7 +56,7 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            2,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -199,7 +198,7 @@ func TestService_GetFavoriteEvents(t *testing.T) {
 
 	user := &model.User{
 		ID:       1,
-		RefID:    refid.Must(model.NewUserRefID()),
+		RefID:    util.Must(model.NewUserRefID()),
 		Email:    "user@example.com",
 		Name:     "user",
 		PWHash:   []byte("00x00"),
@@ -207,7 +206,7 @@ func TestService_GetFavoriteEvents(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            2,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -320,7 +319,7 @@ func TestService_GetFavoriteByUserEvent(t *testing.T) {
 
 	user := &model.User{
 		ID:       1,
-		RefID:    refid.Must(model.NewUserRefID()),
+		RefID:    util.Must(model.NewUserRefID()),
 		Email:    "user@example.com",
 		Name:     "user",
 		PWHash:   []byte("00x00"),
@@ -328,7 +327,7 @@ func TestService_GetFavoriteByUserEvent(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:            2,
-		RefID:         refid.Must(model.NewEventRefID()),
+		RefID:         util.Must(model.NewEventRefID()),
 		UserID:        user.ID,
 		Name:          "event",
 		Description:   "description",
@@ -389,7 +388,7 @@ func TestService_AddFavorite(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -399,7 +398,7 @@ func TestService_AddFavorite(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -544,7 +543,7 @@ func TestService_RemoveFavorite(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -554,7 +553,7 @@ func TestService_RemoveFavorite(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",

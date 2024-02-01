@@ -5,9 +5,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type EarmarkRefIDNull = reftag.NullIDt4
@@ -31,7 +32,7 @@ type Earmark struct {
 func NewEarmark(ctx context.Context, db PgxHandle,
 	eventItemID, userID int, note string,
 ) (*Earmark, error) {
-	refID := refid.Must(NewEarmarkRefID())
+	refID := util.Must(NewEarmarkRefID())
 	return CreateEarmark(ctx, db, refID, eventItemID, userID, note)
 }
 

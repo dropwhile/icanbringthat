@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -31,7 +32,7 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").
+	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
 	for _, event := range resp.Events {
@@ -56,7 +57,7 @@ func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(
+	t := util.Must(
 		template.New("favoriteTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(strings.TrimLeft(favoriteTpl, "\n")),

@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"gotest.tools/v3/assert"
 
@@ -25,7 +24,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -35,7 +34,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -47,7 +46,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           2,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "eventitem",
 		Created:      ts,
@@ -55,7 +54,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           3,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
+		RefID:        util.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "nothing",
@@ -324,7 +323,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		user := &model.User{
 			ID:           33,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -374,7 +373,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		user := &model.User{
 			ID:           33,
-			RefID:        refid.Must(model.NewUserRefID()),
+			RefID:        util.Must(model.NewUserRefID()),
 			Email:        "user@example.com",
 			Name:         "user",
 			PWHash:       []byte("00x00"),
@@ -426,7 +425,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -440,7 +439,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		earmark := &model.Earmark{
 			ID:           1,
-			RefID:        refid.Must(model.NewEarmarkRefID()),
+			RefID:        util.Must(model.NewEarmarkRefID()),
 			EventItemID:  1,
 			UserID:       user.ID,
 			Note:         "nothing",
@@ -478,7 +477,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		earmark := &model.Earmark{
 			ID:           1,
-			RefID:        refid.Must(model.NewEarmarkRefID()),
+			RefID:        util.Must(model.NewEarmarkRefID()),
 			EventItemID:  1,
 			UserID:       user.ID,
 			Note:         "nothing",
@@ -567,7 +566,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewEarmarkRefID())
+		refID := util.Must(model.NewEarmarkRefID())
 		rctx.URLParams.Add("mRefID", refID.String())
 
 		mock.EXPECT().
@@ -596,7 +595,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", refid.Must(model.NewEventRefID()).String())
+		rctx.URLParams.Add("mRefID", util.Must(model.NewEventRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()

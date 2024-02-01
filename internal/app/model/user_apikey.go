@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type ApiKeyRefID = reftag.IDt9
@@ -29,8 +30,8 @@ func NewApiKey(ctx context.Context, db PgxHandle,
 	}
 	token := strings.Join(
 		[]string{
-			refid.Must(NewApiKeyRefID()).String(),
-			refid.Must(NewApiKeyRefID()).String(),
+			util.Must(NewApiKeyRefID()).String(),
+			util.Must(NewApiKeyRefID()).String(),
 		},
 		":",
 	)

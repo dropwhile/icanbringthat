@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_GetNotificationsCount(t *testing.T) {
@@ -46,7 +46,7 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -83,11 +83,11 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 					"id", "ref_id", "user_id", "read", "message",
 				}).
 				AddRow(
-					1, refid.Must(model.NewNotificationRefID()), user.ID,
+					1, util.Must(model.NewNotificationRefID()), user.ID,
 					false, "some message 1",
 				).
 				AddRow(
-					2, refid.Must(model.NewNotificationRefID()), user.ID,
+					2, util.Must(model.NewNotificationRefID()), user.ID,
 					false, "some message 2",
 				),
 			)
@@ -137,7 +137,7 @@ func TestService_GetNotifications(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -163,11 +163,11 @@ func TestService_GetNotifications(t *testing.T) {
 					"id", "ref_id", "user_id", "read", "message",
 				}).
 				AddRow(
-					1, refid.Must(model.NewNotificationRefID()), user.ID,
+					1, util.Must(model.NewNotificationRefID()), user.ID,
 					false, "some message 1",
 				).
 				AddRow(
-					2, refid.Must(model.NewNotificationRefID()), user.ID,
+					2, util.Must(model.NewNotificationRefID()), user.ID,
 					false, "some message 2",
 				),
 			)
@@ -207,7 +207,7 @@ func TestService_DeleteNotification(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -217,7 +217,7 @@ func TestService_DeleteNotification(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:      2,
-		RefID:   refid.Must(model.NewNotificationRefID()),
+		RefID:   util.Must(model.NewNotificationRefID()),
 		UserID:  user.ID,
 		Message: "message",
 		Read:    false,
@@ -308,7 +308,7 @@ func TestService_DeleteAllNotifications(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -345,7 +345,7 @@ func TestService_NewNotification(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -355,7 +355,7 @@ func TestService_NewNotification(t *testing.T) {
 	}
 	notification := &model.Notification{
 		ID:      2,
-		RefID:   refid.Must(model.NewNotificationRefID()),
+		RefID:   util.Must(model.NewNotificationRefID()),
 		UserID:  user.ID,
 		Message: "message",
 		Read:    false,

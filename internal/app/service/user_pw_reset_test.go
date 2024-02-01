@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/samber/mo"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_GetUserPWResetByRefID(t *testing.T) {
@@ -20,7 +20,7 @@ func TestService_GetUserPWResetByRefID(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -35,7 +35,7 @@ func TestService_GetUserPWResetByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_").
 			WithArgs(refID).
@@ -58,7 +58,7 @@ func TestService_GetUserPWResetByRefID(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 
 		mock.ExpectQuery("^SELECT (.+) FROM user_pw_reset_").
 			WithArgs(refID).
@@ -77,7 +77,7 @@ func TestService_NewUserPWReset(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -92,7 +92,7 @@ func TestService_NewUserPWReset(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 
 		mock.ExpectBegin()
 		mock.ExpectQuery("INSERT INTO user_pw_reset_").
@@ -121,7 +121,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -136,7 +136,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 		upw := &model.UserPWReset{
 			RefID:   refID,
 			UserID:  user.ID,
@@ -185,7 +185,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 		upw := &model.UserPWReset{
 			RefID:   refID,
 			UserID:  user.ID,
@@ -234,7 +234,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		mock := SetupDBMock(t, ctx)
 		svc := New(Options{Db: mock})
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 		upw := &model.UserPWReset{
 			RefID:   refID,
 			UserID:  user.ID + 1,

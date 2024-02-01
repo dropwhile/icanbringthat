@@ -4,10 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/dropwhile/refid/v2/reftag"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/mo"
+
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type EventRefID = reftag.IDt2
@@ -41,7 +42,7 @@ func NewEvent(ctx context.Context, db PgxHandle,
 	startTime time.Time,
 	startTimeTz *TimeZone,
 ) (*Event, error) {
-	refID := refid.Must(NewEventRefID())
+	refID := util.Must(NewEventRefID())
 	return CreateEvent(
 		ctx, db,
 		refID, userID,

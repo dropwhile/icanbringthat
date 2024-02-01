@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestService_DisableRemindersWithNotification(t *testing.T) {
@@ -18,7 +18,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 
 	user := &model.User{
 		ID:     1,
-		RefID:  refid.Must(model.NewUserRefID()),
+		RefID:  util.Must(model.NewUserRefID()),
 		Email:  "user@example.com",
 		Name:   "user",
 		PWHash: []byte("00x00"),
@@ -81,7 +81,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 				[]string{
 					"id", "ref_id", "message", "read",
 				}).
-				AddRow(1, refid.Must(model.NewNotificationRefID()),
+				AddRow(1, util.Must(model.NewNotificationRefID()),
 					msg, false,
 				),
 			)

@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/samber/mo"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -18,12 +17,13 @@ import (
 	"github.com/dropwhile/icbt/internal/crypto"
 	"github.com/dropwhile/icbt/internal/errs"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 func TestHandler_Account_Update(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.NewUserRefID())
+	refID := util.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -386,7 +386,7 @@ func TestHandler_Account_Update(t *testing.T) {
 func TestHandler_Account_Update_Auth(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.NewUserRefID())
+	refID := util.Must(model.NewUserRefID())
 	ts := tstTs
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	user := &model.User{
@@ -780,7 +780,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 func TestHandler_Account_Delete(t *testing.T) {
 	t.Parallel()
 
-	refID := refid.Must(model.NewUserRefID())
+	refID := util.Must(model.NewUserRefID())
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
@@ -820,7 +820,7 @@ func TestHandler_Account_Create(t *testing.T) {
 	pwhash, _ := crypto.HashPW([]byte("00x00"))
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       pwhash,

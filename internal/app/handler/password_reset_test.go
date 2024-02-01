@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -31,7 +30,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -43,7 +42,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefID:   refid.Must(model.NewUserPWResetRefID()),
+		RefID:   util.Must(model.NewUserPWResetRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
@@ -212,7 +211,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		refID := refid.Must(model.NewEventItemRefID())
+		refID := util.Must(model.NewEventItemRefID())
 		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
@@ -324,7 +323,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 	t.Run("pwreset upw is expired", func(t *testing.T) {
 		t.Parallel()
 
-		refID := refid.Must(model.NewUserPWResetRefID())
+		refID := util.Must(model.NewUserPWResetRefID())
 		rfts, _ := time.Parse(time.RFC3339, "2023-01-14T18:29:00Z")
 		refID.SetTime(rfts)
 
@@ -377,7 +376,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -389,12 +388,12 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 	}
 
 	pwr := &model.UserPWReset{
-		RefID:   refid.Must(model.NewUserPWResetRefID()),
+		RefID:   util.Must(model.NewUserPWResetRefID()),
 		UserID:  user.ID,
 		Created: ts,
 	}
 
-	passResetTpl := template.Must(template.New("").Parse(
+	passResetTpl := util.Must(template.New("").Parse(
 		`{{.Subject}}: <a href="{{.PasswordResetUrl}}">{{.PasswordResetUrl}}</a>`))
 
 	t.Run("send pw reset email", func(t *testing.T) {
@@ -435,7 +434,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 				after, found := strings.CutPrefix(msgPlain, "Password reset: http://example.com/forgot-password/")
 				assert.Assert(t, found)
 				refParts := strings.Split(after, "-")
-				rID := refid.Must(service.ParseUserPWResetRefID(refParts[0]))
+				rID := util.Must(service.ParseUserPWResetRefID(refParts[0]))
 				hmacBytes, err := encoder.Base32DecodeString(refParts[1])
 				assert.NilError(t, err)
 				assert.Assert(t, handler.cMAC.Validate([]byte(rID.String()), hmacBytes))

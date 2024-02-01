@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -27,7 +28,7 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("notifTpl").
+	t := util.Must(template.New("notifTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(notifTpl))
 	for _, notif := range resp.Notifications {

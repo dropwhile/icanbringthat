@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v3"
 	"gotest.tools/v3/assert"
@@ -86,7 +85,7 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -96,7 +95,7 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -108,7 +107,7 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -214,7 +213,7 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -224,7 +223,7 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -236,7 +235,7 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -300,7 +299,7 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -310,7 +309,7 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -322,7 +321,7 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -330,7 +329,7 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 	}
 	eventItem2 := &model.EventItem{
 		ID:           4,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item2",
 		Created:      ts,
@@ -417,7 +416,7 @@ func TestService_GetEventItem(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -427,7 +426,7 @@ func TestService_GetEventItem(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -439,7 +438,7 @@ func TestService_GetEventItem(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -498,7 +497,7 @@ func TestService_GetEventItemByID(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -508,7 +507,7 @@ func TestService_GetEventItemByID(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -520,7 +519,7 @@ func TestService_GetEventItemByID(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -579,7 +578,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -589,7 +588,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -601,7 +600,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -810,7 +809,7 @@ func TestService_AddEventItem(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -820,7 +819,7 @@ func TestService_AddEventItem(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -832,7 +831,7 @@ func TestService_AddEventItem(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -988,7 +987,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -998,7 +997,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 	}
 	event := &model.Event{
 		ID:           1,
-		RefID:        refid.Must(model.NewEventRefID()),
+		RefID:        util.Must(model.NewEventRefID()),
 		UserID:       user.ID,
 		Name:         "event",
 		Description:  "description",
@@ -1010,7 +1009,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
-		RefID:        refid.Must(model.NewEventItemRefID()),
+		RefID:        util.Must(model.NewEventItemRefID()),
 		EventID:      event.ID,
 		Description:  "event-item",
 		Created:      ts,
@@ -1018,7 +1017,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 	}
 	earmark := &model.Earmark{
 		ID:           4,
-		RefID:        refid.Must(model.NewEarmarkRefID()),
+		RefID:        util.Must(model.NewEarmarkRefID()),
 		EventItemID:  eventItem.ID,
 		UserID:       user.ID,
 		Note:         "earmark",

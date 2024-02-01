@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-chi/chi/v5"
 	"gotest.tools/v3/assert"
 
@@ -46,7 +45,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 	ts := tstTs
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -57,7 +56,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 	}
 	credential := &model.UserCredential{
 		ID:         3,
-		RefID:      refid.Must(model.NewCredentialRefID()),
+		RefID:      util.Must(model.NewCredentialRefID()),
 		UserID:     user.ID,
 		KeyName:    "key-name",
 		Credential: []byte{0x01, 0x02},

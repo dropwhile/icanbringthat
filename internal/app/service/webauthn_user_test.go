@@ -7,12 +7,12 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/dropwhile/refid/v2"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/errs"
+	"github.com/dropwhile/icbt/internal/util"
 )
 
 type MockCredentialer struct {
@@ -47,7 +47,7 @@ func TestWebAuthnUser_WebAuthnID(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -65,7 +65,7 @@ func TestWebAuthnUser_WebAuthnName(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -83,7 +83,7 @@ func TestWebAuthnUser_WebAuthnDisplayName(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -101,7 +101,7 @@ func TestWebAuthnUser_WebAuthnIcon(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -119,7 +119,7 @@ func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -153,7 +153,7 @@ func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 
 		credentials := []*model.UserCredential{{
 			ID:         3,
-			RefID:      refid.Must(model.NewCredentialRefID()),
+			RefID:      util.Must(model.NewCredentialRefID()),
 			UserID:     user.ID,
 			Credential: jdata,
 			KeyName:    "key-a",
@@ -183,7 +183,7 @@ func TestWebAuthnUser_AddCredential(t *testing.T) {
 
 	user := &model.User{
 		ID:           1,
-		RefID:        refid.Must(model.NewUserRefID()),
+		RefID:        util.Must(model.NewUserRefID()),
 		Email:        "user@example.com",
 		Name:         "user",
 		PWHash:       []byte("00x00"),
@@ -217,7 +217,7 @@ func TestWebAuthnUser_AddCredential(t *testing.T) {
 
 		credential := &model.UserCredential{
 			ID:         3,
-			RefID:      refid.Must(model.NewCredentialRefID()),
+			RefID:      util.Must(model.NewCredentialRefID()),
 			UserID:     user.ID,
 			Credential: jdata,
 			KeyName:    "key-a",

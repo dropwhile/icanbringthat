@@ -10,6 +10,7 @@ import (
 	"github.com/muesli/reflow/indent"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
 
@@ -38,7 +39,7 @@ func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").
+	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
 	for _, event := range resp.Events {
@@ -71,7 +72,7 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("client request: %w", err)
 	}
 
-	t := template.Must(template.New("eventTpl").
+	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
 	if err := t.Execute(os.Stdout, resp.Event); err != nil {
@@ -151,7 +152,7 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	outWriter := indent.NewWriterPipe(os.Stdout, 2, nil)
 
 	fmt.Println("event:")
-	t := template.Must(template.New("eventTpl").
+	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
 	if err := t.Execute(outWriter, resp.Event); err != nil {
@@ -160,7 +161,7 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("items:")
 	if len(resp.Items) > 0 {
-		t2 := template.Must(template.New("eventItemTpl").
+		t2 := util.Must(template.New("eventItemTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(eventItemTpl))
 		for _, item := range resp.Items {
@@ -172,7 +173,7 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("earmarks:")
 	if len(resp.Earmarks) > 0 {
-		t2 := template.Must(template.New("earmarkTpl").
+		t2 := util.Must(template.New("earmarkTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(earmarkTpl))
 		for _, earmark := range resp.Earmarks {
@@ -202,7 +203,7 @@ func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("items:")
 	if len(resp.Items) > 0 {
-		t2 := template.Must(template.New("eventItemTpl").
+		t2 := util.Must(template.New("eventItemTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(eventItemTpl))
 		for _, item := range resp.Items {
@@ -232,7 +233,7 @@ func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 
 	fmt.Println("earmarks:")
 	if len(resp.Earmarks) > 0 {
-		t2 := template.Must(template.New("earmarkTpl").
+		t2 := util.Must(template.New("earmarkTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(earmarkTpl))
 		for _, earmark := range resp.Earmarks {

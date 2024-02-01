@@ -73,7 +73,7 @@ func SetupHandler(
 
 	ctrl := gomock.NewController(t)
 	mock := mockservice.NewMockServicer(ctrl)
-	tpl := template.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
+	tpl := util.Must(template.New("error-page.gohtml").Parse(`{{.ErrorCode}}-{{.ErrorStatus}}`))
 	h := &Handler{
 		templates: &resources.TemplateMap{"error-page.gohtml": tpl},
 		sessMgr:   session.NewTestSessionManager(),
