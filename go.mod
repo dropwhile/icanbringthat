@@ -26,7 +26,7 @@ require (
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/mo v1.11.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	github.com/yuin/goldmark v1.6.0
+	github.com/yuin/goldmark v1.7.0
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
