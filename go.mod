@@ -5,8 +5,8 @@ go 1.21.1
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/alecthomas/kong v0.8.1
-	github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8
-	github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8
+	github.com/alexedwards/scs/goredisstore v0.0.0-20240203174419-a38e822451b6
+	github.com/alexedwards/scs/pgxstore v0.0.0-20240203174419-a38e822451b6
 	github.com/alexedwards/scs/v2 v2.7.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.1
@@ -15,7 +15,7 @@ require (
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/go-webauthn/webauthn v0.10.0
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx/v5 v5.5.2
+	github.com/jackc/pgx/v5 v5.5.3
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/muesli/reflow v0.3.0
@@ -63,7 +63,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
-	github.com/leodido/go-urn v1.3.0 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
