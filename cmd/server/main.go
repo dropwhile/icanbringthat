@@ -6,7 +6,7 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-var cli struct {
+var cli struct { // betteralign:ignore
 	Version kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
 	Run     RunCmd           `cmd:"" help:"run server"`
 }
