@@ -9,7 +9,7 @@ APP_VER             ?= v$(shell git describe --always --tags|sed 's/^v//')
 GITHASH             ?= $(shell git rev-parse --short HEAD)
 GOPATH              := $(shell go env GOPATH)
 GOBIN               := ${GOPATH}/bin
-VERSION_VAR         := main.Version
+VERSION_VAR         := github.com/dropwhile/icbt/internal/util.Version
 DB_DSN              ?= "postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable"
 GOOSE_DRIVER        ?= postgres
 GOOSE_DBSTRING      ?= ${DB_DSN}

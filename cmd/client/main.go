@@ -11,11 +11,9 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icbt/internal/logger"
+	"github.com/dropwhile/icbt/internal/util"
 	"github.com/dropwhile/icbt/rpc/icbt"
 )
-
-// Version holds the server version string
-var Version = "no-version"
 
 type verboseFlag bool
 
@@ -79,6 +77,7 @@ type CLI struct { // betteralign:ignore
 
 func main() {
 	logger.SetupLogging(logger.NewConsoleLogger, nil)
+	vinfo, _ := util.GetVersion()
 
 	cli := CLI{}
 	ctx := kong.Parse(&cli,
@@ -91,13 +90,13 @@ func main() {
 			Compact:      true,
 		}),
 		kong.Vars{
-			"version": Version,
+			"version": vinfo.Version,
 		},
 	)
 
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
-	header.Set("User-Agent", fmt.Sprintf("api-client %s", Version))
+	header.Set("User-Agent", fmt.Sprintf("api-client %s", vinfo.Version))
 
 	reqCtx := context.Background()
 	reqCtx, err := twirp.WithHTTPRequestHeaders(reqCtx, header)
