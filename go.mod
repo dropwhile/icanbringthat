@@ -13,7 +13,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/httplog/v2 v2.0.9
 	github.com/go-playground/validator/v10 v10.17.0
-	github.com/go-webauthn/webauthn v0.10.0
+	github.com/go-webauthn/webauthn v0.10.1
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
@@ -48,7 +48,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/go-webauthn/x v0.1.6 // indirect
+	github.com/go-webauthn/x v0.1.8 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -72,13 +72,13 @@ require (
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
-	github.com/rivo/uniseg v0.4.6 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/mod v0.15.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
