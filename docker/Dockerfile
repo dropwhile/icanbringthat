@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.6
 
 # do the building
-FROM golang:1.21-alpine as builder
+FROM golang:1.22-alpine as builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ENV GOEXPERIMENT=loopvar
