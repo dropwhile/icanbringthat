@@ -330,7 +330,7 @@ docker-build:
 .PHONY: run
 run: build
 	@echo ">> starting dev server..."
-	@exec ./build/bin/server
+	@exec ./build/bin/server run
 
 .PHONY: devrun
 devrun: setup-other

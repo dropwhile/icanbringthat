@@ -3,7 +3,7 @@ package resources
 import (
 	"embed"
 	"fmt"
-	htmltemplate "html/template"
+	"html/template"
 	"io"
 	"io/fs"
 	"os"
@@ -11,8 +11,6 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 )
-
-const embedMagicStr = "embed"
 
 //go:embed templates
 var templateEmbedFS embed.FS
@@ -60,23 +58,25 @@ func (tc *TContainer) Get(name string) (TExecuter, error) {
 		ParseFS(viewSub, name)
 }
 
-func getTemplateFS(templatesDir string) (fs.FS, error) {
+func getTemplateFS(loc Location) (fs.FS, error) {
 	var templateFS fs.FS
-	if templatesDir == embedMagicStr {
+	switch loc {
+	case Embed:
 		var err error
 		templateFS, err = fs.Sub(templateEmbedFS, "templates")
 		if err != nil {
 			return templateFS, err
 		}
-	} else {
-		templateFS = os.DirFS(templatesDir)
+	case Filesystem:
+		sdir := "./internal/app/resources/templates/"
+		templateFS = os.DirFS(sdir)
 	}
 	return templateFS, nil
 }
 
-func getBaseTpl(tfs fs.FS) (*htmltemplate.Template, fs.FS, error) {
+func getBaseTpl(tfs fs.FS) (*template.Template, fs.FS, error) {
 	var subdir string
-	baseTpls, err := htmltemplate.New("").
+	baseTpls, err := template.New("").
 		Funcs(templateFuncMap).
 		Funcs(sprig.FuncMap()).
 		ParseFS(
@@ -96,8 +96,8 @@ func getBaseTpl(tfs fs.FS) (*htmltemplate.Template, fs.FS, error) {
 	return baseTpls, viewSub, nil
 }
 
-func ParseTemplates(templatesDir string) (*TContainer, error) {
-	tfs, err := getTemplateFS(templatesDir)
+func ParseTemplates(loc Location) (*TContainer, error) {
+	tfs, err := getTemplateFS(loc)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func ParseTemplates(templatesDir string) (*TContainer, error) {
 	tc := &TContainer{
 		tfs:   tfs,
 		tmap:  make(TemplateMap, 0),
-		embed: templatesDir == embedMagicStr,
+		embed: loc == Embed,
 	}
 
 	nonViewHtmlTemplates, viewSub, err := getBaseTpl(tfs)

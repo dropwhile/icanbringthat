@@ -61,7 +61,11 @@ func main() {
 
 	logger.SetLevel(config.LogLevel)
 
-	templates, err := resources.ParseTemplates(config.TemplateDir)
+	templateLoc := resources.Embed
+	if config.TemplateDir == "fs" {
+		templateLoc = resources.Filesystem
+	}
+	templates, err := resources.ParseTemplates(templateLoc)
 	if err != nil {
 		slog.With("error", err).
 			Error("failed to parse templates")

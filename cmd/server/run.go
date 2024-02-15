@@ -50,7 +50,11 @@ func (c *RunCmd) Run() error {
 
 	logger.SetLevel(config.LogLevel)
 
-	templates, err := resources.ParseTemplates(config.TemplateDir)
+	templateLoc := resources.Embed
+	if config.TemplateDir == "fs" {
+		templateLoc = resources.Filesystem
+	}
+	templates, err := resources.ParseTemplates(templateLoc)
 	if err != nil {
 		return fmt.Errorf("failed to parse templates: %w", err)
 	}
@@ -123,7 +127,11 @@ func (c *RunCmd) Run() error {
 	defer r.Close()
 
 	// serve static files dir as /static/*
-	staticFS := resources.NewStaticFS(config.StaticDir)
+	staticLoc := resources.Embed
+	if config.StaticDir == "fs" {
+		staticLoc = resources.Filesystem
+	}
+	staticFS := resources.NewStaticFS(staticLoc)
 	r.Get("/static/*", resources.FileServer(staticFS, "/static"))
 	// some other single item static files
 	r.Get("/favicon.ico", resources.ServeSingle(staticFS, "img/favicon.ico"))

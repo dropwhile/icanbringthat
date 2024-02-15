@@ -111,29 +111,13 @@ func Parse() (*EnvConfig, error) {
 		}
 	}
 
-	tplDir := path.Clean(config.TemplateDir)
-	if tplDir != "embed" {
-		if tplDir == "" {
-			return nil, fmt.Errorf("template dir not specified")
-		}
-		_, err := os.Stat(tplDir)
-		if err != nil && os.IsNotExist(err) {
-			return nil, fmt.Errorf("template dir does not exist: %s", tplDir)
-		}
+	if config.TemplateDir != "embed" && config.TemplateDir != "fs" {
+		return nil, fmt.Errorf("template dir must be one of: embed, fs")
 	}
-	config.TemplateDir = tplDir
 
-	staticDir := path.Clean(config.StaticDir)
-	if staticDir != "embed" {
-		if staticDir == "" {
-			return nil, fmt.Errorf("static dir not specified")
-		}
-		_, err := os.Stat(staticDir)
-		if err != nil && os.IsNotExist(err) {
-			return nil, fmt.Errorf("static dir does not exist or is not readable: %s", staticDir)
-		}
+	if config.StaticDir != "embed" && config.StaticDir != "fs" {
+		return nil, fmt.Errorf("static dir must be one of: embed, fs")
 	}
-	config.StaticDir = staticDir
 
 	if config.TLSCert != "" {
 		config.TLSCert = path.Clean(config.TLSCert)

@@ -19,15 +19,26 @@ var (
 	staticFs      fs.FS
 )
 
-func NewStaticFS(staticDir string) fs.FS {
-	if staticDir == "embed" {
+type Location int
+
+const (
+	Embed Location = iota + 1
+	Filesystem
+)
+
+func NewStaticFS(loc Location) fs.FS {
+	switch loc {
+	case Embed:
 		var err error
 		staticFs, err = fs.Sub(staticEmbedFs, "static")
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		staticFs = os.DirFS(staticDir)
+	case Filesystem:
+		sdir := "./internal/app/resources/static/"
+		staticFs = os.DirFS(sdir)
+	default:
+		panic("staticDir must be one of: embed, fs")
 	}
 
 	return staticFs
