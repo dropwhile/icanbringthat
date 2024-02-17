@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"golang.org/x/exp/slog"
 
@@ -133,7 +132,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -185,7 +184,7 @@ func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return

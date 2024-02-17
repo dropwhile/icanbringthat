@@ -55,13 +55,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserByID(ctx, pwr.UserID).
@@ -80,6 +78,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -105,14 +105,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		data := url.Values{
 			"password":         {"newpass"},
@@ -121,6 +118,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -140,14 +139,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		data := url.Values{
 			"password":         {"newpass"},
@@ -156,6 +152,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -175,15 +173,12 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		macBytes[0] += 1
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		data := url.Values{
 			"password":         {"newpass"},
@@ -192,6 +187,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -212,14 +209,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewEventItemRefID())
-		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		data := url.Values{
 			"password":         {"newpass"},
@@ -228,6 +222,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", refID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -247,14 +243,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserPWResetByRefID(ctx, pwr.RefID).
@@ -267,6 +260,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -286,14 +281,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", pwr.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(pwr.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserPWResetByRefID(ctx, pwr.RefID).
@@ -309,6 +301,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", pwr.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 
@@ -332,14 +326,11 @@ func TestHandler_ResetPassword(t *testing.T) {
 		ctx, _ = handler.sessMgr.Load(ctx, "")
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("upwRefID", refID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-
-		rctx.URLParams.Add("hmac", macStr)
 
 		pwr := &model.UserPWReset{
 			UserID:  user.ID,
@@ -358,6 +349,8 @@ func TestHandler_ResetPassword(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("upwRefID", refID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.ResetPassword(rr, req)
 

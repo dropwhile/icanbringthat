@@ -62,7 +62,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
@@ -72,6 +71,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEventItem(rr, req)
 
@@ -95,12 +95,12 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
 
 		data := url.Values{"description": {"some description"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEventItem(rr, req)
 
@@ -121,7 +121,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
@@ -131,6 +130,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEventItem(rr, req)
 
@@ -151,7 +151,6 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, event.RefID, eventItem.Description).
@@ -161,6 +160,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEventItem(rr, req)
 
@@ -181,12 +181,12 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		data := url.Values{"descriptionxxx": {"some description"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEventItem(rr, req)
 
@@ -242,8 +242,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -258,6 +256,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -278,13 +278,13 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"description": {"new description"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", eventItem.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -305,8 +305,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -316,6 +314,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -336,8 +336,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -352,6 +350,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -372,8 +372,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -388,6 +386,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -408,8 +408,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -424,6 +422,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -444,8 +444,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -460,6 +458,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -480,8 +480,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -491,6 +489,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -518,8 +518,6 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		description := "new description"
 
@@ -546,6 +544,8 @@ func TestHandler_EventItem_Update(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/eventItem", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.UpdateEventItem(rr, req)
 
@@ -601,8 +601,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -613,6 +611,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -633,11 +633,11 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", eventItem.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -658,11 +658,11 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", event.RefID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -683,8 +683,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -692,6 +690,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -712,8 +712,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -724,6 +722,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -744,8 +744,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -756,6 +754,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -783,8 +783,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -807,6 +805,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 
@@ -827,8 +827,6 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -839,6 +837,8 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/eventItem", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEventItem(rr, req)
 

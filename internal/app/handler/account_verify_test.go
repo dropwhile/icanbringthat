@@ -148,13 +148,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("uvRefID", uv.RefID.String())
-
-		// generate hmac
-		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
-		// base32 encode hmac
-		macStr := encoder.Base32EncodeToString(macBytes)
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserVerifyByRefID(ctx, uv.RefID).
@@ -165,6 +158,10 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("uvRefID", uv.RefID.String())
+		// generate/add hmac
+		req.SetPathValue("hmac", encoder.Base32EncodeToString(
+			handler.cMAC.Generate([]byte(uv.RefID.String()))))
 		rr := httptest.NewRecorder()
 		handler.VerifyEmail(rr, req)
 
@@ -191,7 +188,6 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
@@ -199,10 +195,10 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
-		rctx.URLParams.Add("hmac", macStr)
-
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("uvRefID", uv.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.VerifyEmail(rr, req)
 
@@ -228,17 +224,16 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewEventItemRefID())
-		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
 
-		rctx.URLParams.Add("hmac", macStr)
-
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("uvRefID", refID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.VerifyEmail(rr, req)
 
@@ -263,13 +258,11 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("uvRefID", uv.RefID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(uv.RefID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserVerifyByRefID(ctx, uv.RefID).
@@ -277,6 +270,8 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("uvRefID", uv.RefID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.VerifyEmail(rr, req)
 
@@ -305,13 +300,11 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("uvRefID", refID.String())
 
 		// generate hmac
 		macBytes := handler.cMAC.Generate([]byte(refID.String()))
 		// base32 encode hmac
 		macStr := encoder.Base32EncodeToString(macBytes)
-		rctx.URLParams.Add("hmac", macStr)
 
 		mock.EXPECT().
 			GetUserVerifyByRefID(ctx, refID).
@@ -325,6 +318,8 @@ func TestHandler_VerifyEmail(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "GET", "http://example.com/verify", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("uvRefID", refID.String())
+		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
 		handler.VerifyEmail(rr, req)
 

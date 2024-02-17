@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 
@@ -280,7 +279,7 @@ func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentialRefID, err := service.ParseCredentialRefID(chi.URLParam(r, "cRefID"))
+	credentialRefID, err := service.ParseCredentialRefID(r.PathValue("cRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "credential", err)
 		return

@@ -3,8 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-
 	"github.com/dropwhile/icbt/internal/app/model"
 	"github.com/dropwhile/icbt/internal/app/service"
 	"github.com/dropwhile/icbt/internal/middleware/auth"
@@ -21,7 +19,7 @@ func (x *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse user-id url param
-	profileUserRefID, err := service.ParseUserRefID(chi.URLParam(r, "uRefID"))
+	profileUserRefID, err := service.ParseUserRefID(r.PathValue("uRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "user", err)
 		return

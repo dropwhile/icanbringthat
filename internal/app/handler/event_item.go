@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -25,7 +24,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -83,13 +82,13 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	eventItemRefID, err := service.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := service.ParseEventItemRefID(r.PathValue("iRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event-item", err)
 		return
@@ -158,7 +157,7 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -201,13 +200,13 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	eventItemRefID, err := service.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := service.ParseEventItemRefID(r.PathValue("iRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event-item", err)
 		return
@@ -286,13 +285,13 @@ func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
 	}
 
-	eventItemRefID, err := service.ParseEventItemRefID(chi.URLParam(r, "iRefID"))
+	eventItemRefID, err := service.ParseEventItemRefID(r.PathValue("iRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event-item", err)
 		return

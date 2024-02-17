@@ -49,13 +49,13 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteNotification(rr, req)
 
@@ -100,9 +100,9 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", "hodor")
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", "hodor")
 		rr := httptest.NewRecorder()
 		handler.DeleteNotification(rr, req)
 
@@ -125,13 +125,13 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewNotificationRefID())
-		rctx.URLParams.Add("nRefID", refID.String())
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, refID).
 			Return(errs.NotFound.Error("notification not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", refID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteNotification(rr, req)
 
@@ -153,9 +153,9 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", util.Must(model.NewEventRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", util.Must(model.NewEventRefID()).String())
 		rr := httptest.NewRecorder()
 		handler.DeleteNotification(rr, req)
 
@@ -177,13 +177,13 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
 		mock.EXPECT().
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteNotification(rr, req)
 
@@ -230,13 +230,13 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("nRefID", notification.RefID.String())
 
 		mock.EXPECT().
 			DeleteAllNotifications(ctx, user.ID).
 			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
+		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteAllNotifications(rr, req)
 

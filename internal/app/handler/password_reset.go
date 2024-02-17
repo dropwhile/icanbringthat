@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/jaytaylor/html2text"
 
@@ -57,8 +56,8 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	hmacStr := chi.URLParam(r, "hmac")
-	refIDStr := chi.URLParam(r, "upwRefID")
+	hmacStr := r.PathValue("hmac")
+	refIDStr := r.PathValue("upwRefID")
 	if hmacStr == "" || refIDStr == "" {
 		x.NotFoundError(w)
 		return
@@ -241,8 +240,8 @@ func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hmacStr := chi.URLParam(r, "hmac")
-	refIDStr := chi.URLParam(r, "upwRefID")
+	hmacStr := r.PathValue("hmac")
+	refIDStr := r.PathValue("upwRefID")
 	if hmacStr == "" || refIDStr == "" {
 		slog.DebugContext(ctx, "missing url query data")
 		x.NotFoundError(w)

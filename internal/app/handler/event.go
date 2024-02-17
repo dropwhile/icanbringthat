@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 	"github.com/samber/mo"
 
@@ -132,7 +131,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -292,7 +291,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -399,7 +398,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -477,7 +476,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	eventRefID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	eventRefID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return
@@ -536,7 +535,7 @@ func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := service.ParseEventRefID(chi.URLParam(r, "eRefID"))
+	refID, err := service.ParseEventRefID(r.PathValue("eRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "event", err)
 		return

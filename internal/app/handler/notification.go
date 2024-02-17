@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
 
 	"github.com/dropwhile/icbt/internal/app/resources"
@@ -85,7 +84,7 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refID, err := service.ParseNotificationRefID(chi.URLParam(r, "nRefID"))
+	refID, err := service.ParseNotificationRefID(r.PathValue("nRefID"))
 	if err != nil {
 		x.BadRefIDError(w, "notification", err)
 		return

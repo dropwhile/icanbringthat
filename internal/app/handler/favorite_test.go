@@ -52,13 +52,13 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, event.RefID).
 			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteFavorite(rr, req)
 
@@ -80,9 +80,9 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", "hodor")
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
+		req.SetPathValue("eRefID", "hodor")
 		rr := httptest.NewRecorder()
 		handler.DeleteFavorite(rr, req)
 
@@ -105,13 +105,13 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewEventRefID())
-		rctx.URLParams.Add("eRefID", refID.String())
 
 		mock.EXPECT().
 			RemoveFavorite(ctx, user.ID, refID).
 			Return(errs.NotFound.Error("event not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
+		req.SetPathValue("eRefID", refID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteFavorite(rr, req)
 
@@ -134,9 +134,9 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewEventItemRefID())
-		rctx.URLParams.Add("eRefID", refID.String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
+		req.SetPathValue("eRefID", refID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteFavorite(rr, req)
 
@@ -184,7 +184,6 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, event.RefID).
@@ -192,6 +191,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.AddFavorite(rr, req)
 
@@ -215,10 +215,10 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", "hodor")
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", "hodor")
 		rr := httptest.NewRecorder()
 		handler.AddFavorite(rr, req)
 
@@ -239,10 +239,10 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", util.Must(model.NewEventItemRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", util.Must(model.NewEventItemRefID()).String())
 		rr := httptest.NewRecorder()
 		handler.AddFavorite(rr, req)
 
@@ -263,7 +263,6 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, event.RefID).
@@ -271,6 +270,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.AddFavorite(rr, req)
 
@@ -291,7 +291,6 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
 
 		mock.EXPECT().
 			AddFavorite(ctx, user.ID, event.RefID).
@@ -299,6 +298,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "PUT", "http://example.com/favorite", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.AddFavorite(rr, req)
 

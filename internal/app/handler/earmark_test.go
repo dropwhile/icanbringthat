@@ -71,8 +71,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		note := "some note"
 
@@ -90,6 +88,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -110,13 +110,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", "hodor")
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", "hodor")
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -137,13 +137,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", eventItem.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", eventItem.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -164,13 +164,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", "hodor")
 
 		data := url.Values{"note": {"some note"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", "hodor")
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -191,13 +191,13 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", event.RefID.String())
 
 		data := url.Values{"note": {"some note"}}
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -218,8 +218,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -229,6 +227,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -249,8 +249,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -263,6 +261,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -283,8 +283,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		mock.EXPECT().
 			GetEvent(ctx, event.RefID).
@@ -307,6 +305,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -338,8 +338,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		note := "some note"
 
@@ -357,6 +355,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -388,8 +388,6 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("eRefID", event.RefID.String())
-		rctx.URLParams.Add("iRefID", eventItem.RefID.String())
 
 		note := "some note"
 
@@ -407,6 +405,8 @@ func TestHandler_Earmark_Create(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/earmark", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("eRefID", event.RefID.String())
+		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.CreateEarmark(rr, req)
 
@@ -453,13 +453,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
 			Return(nil)
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		req.SetPathValue("mRefID", earmark.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEarmark(rr, req)
 
@@ -491,13 +491,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", earmark.RefID.String())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		req.SetPathValue("mRefID", earmark.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEarmark(rr, req)
 
@@ -542,9 +542,9 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", "hodor")
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		req.SetPathValue("mRefID", "hodor")
 		rr := httptest.NewRecorder()
 		handler.DeleteEarmark(rr, req)
 
@@ -567,13 +567,13 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
 		refID := util.Must(model.NewEarmarkRefID())
-		rctx.URLParams.Add("mRefID", refID.String())
 
 		mock.EXPECT().
 			DeleteEarmarkByRefID(ctx, user.ID, refID).
 			Return(errs.NotFound.Error("earmark not found"))
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		req.SetPathValue("mRefID", refID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEarmark(rr, req)
 
@@ -595,9 +595,9 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("mRefID", util.Must(model.NewEventRefID()).String())
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
+		req.SetPathValue("mRefID", util.Must(model.NewEventRefID()).String())
 		rr := httptest.NewRecorder()
 		handler.DeleteEarmark(rr, req)
 

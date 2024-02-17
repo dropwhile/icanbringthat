@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jaytaylor/html2text"
 
 	"github.com/dropwhile/icbt/internal/app/model"
@@ -99,8 +98,8 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hmacStr := chi.URLParam(r, "hmac")
-	refIDStr := chi.URLParam(r, "uvRefID")
+	hmacStr := r.PathValue("hmac")
+	refIDStr := r.PathValue("uvRefID")
 	if hmacStr == "" || refIDStr == "" {
 		slog.DebugContext(ctx, "missing url query data")
 		x.NotFoundError(w)

@@ -72,7 +72,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("cRefID", credential.RefID.String())
 
 		mock.EXPECT().
 			DeleteUserCredential(ctx, user, credential.RefID).
@@ -80,6 +79,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteWebAuthnKey(rr, req)
 
@@ -100,7 +100,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("cRefID", credential.RefID.String())
 
 		mock.EXPECT().
 			DeleteUserCredential(ctx, user, credential.RefID).
@@ -108,6 +107,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteWebAuthnKey(rr, req)
 
@@ -128,7 +128,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("cRefID", credential.RefID.String())
 
 		mock.EXPECT().
 			DeleteUserCredential(ctx, user, credential.RefID).
@@ -136,6 +135,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteWebAuthnKey(rr, req)
 
@@ -156,7 +156,6 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
-		rctx.URLParams.Add("cRefID", credential.RefID.String())
 
 		mock.EXPECT().
 			DeleteUserCredential(ctx, user, credential.RefID).
@@ -164,6 +163,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/event", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
 		handler.DeleteWebAuthnKey(rr, req)
 
