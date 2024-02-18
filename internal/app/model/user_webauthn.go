@@ -10,10 +10,8 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type CredentialRefID = reftag.IDt7
-
-type CredentialRefIDNull struct {
-	reftag.NullIDt7
+type CredentialRefID struct {
+	reftag.IDt7
 }
 
 var NewCredentialRefID = reftag.New[CredentialRefID]

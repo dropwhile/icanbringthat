@@ -11,10 +11,8 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type EventRefID = reftag.IDt2
-
-type EventRefIDNull struct {
-	reftag.NullIDt2
+type EventRefID struct {
+	reftag.IDt2
 }
 
 var NewEventRefID = reftag.New[EventRefID]

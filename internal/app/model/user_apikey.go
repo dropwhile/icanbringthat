@@ -12,7 +12,9 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type ApiKeyRefID = reftag.IDt9
+type ApiKeyRefID struct {
+	reftag.IDt9
+}
 
 var NewApiKeyRefID = reftag.NewRandom[ApiKeyRefID]
 

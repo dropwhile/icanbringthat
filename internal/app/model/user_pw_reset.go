@@ -10,10 +10,8 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type UserPWResetRefID = reftag.IDt5
-
-type UserPWResetRefIDNull struct {
-	reftag.NullIDt5
+type UserPWResetRefID struct {
+	reftag.IDt5
 }
 
 var NewUserPWResetRefID = reftag.New[UserPWResetRefID]

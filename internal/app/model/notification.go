@@ -10,8 +10,6 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type NotificationRefIDNull = reftag.NullIDt8
-
 type NotificationRefID struct {
 	reftag.IDt8
 }

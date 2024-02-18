@@ -11,8 +11,6 @@ import (
 	"github.com/dropwhile/icbt/internal/util"
 )
 
-type EarmarkRefIDNull = reftag.NullIDt4
-
 type EarmarkRefID struct {
 	reftag.IDt4
 }
