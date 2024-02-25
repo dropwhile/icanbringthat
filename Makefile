@@ -8,7 +8,7 @@ GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
 APP_VER             ?= v$(shell git describe --always --tags|sed 's/^v//')
 GITHASH             ?= $(shell git rev-parse --short HEAD)
 GOPATH              := $(shell go env GOPATH)
-GOBIN               := ${GOPATH}/bin
+GOBIN               := ${CURDIR}/.tools
 VERSION_VAR         := github.com/dropwhile/icbt/internal/util.Version
 DB_DSN              ?= "postgres://postgres:password@127.0.0.1:5432/icbt?sslmode=disable"
 GOOSE_DRIVER        ?= postgres
@@ -43,6 +43,8 @@ export GOEXPERIMENT=loopvar
 export GOOSE_DRIVER
 export GOOSE_DBSTRING
 export GOOSE_MIGRATION_DIR
+export GOBIN
+export PATH := ${GOBIN}:${PATH}
 
 define HELP_OUTPUT
 Available targets:
