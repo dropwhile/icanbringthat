@@ -22,8 +22,8 @@ var (
 type Location int
 
 const (
-	Embed Location = iota + 1
-	Filesystem
+	Embed      Location = 1
+	Filesystem Location = 2
 )
 
 func NewStaticFS(loc Location) fs.FS {
