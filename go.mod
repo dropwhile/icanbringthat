@@ -30,7 +30,7 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
-	golang.org/x/crypto v0.19.0
+	golang.org/x/crypto v0.20.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	google.golang.org/protobuf v1.32.0
 	gotest.tools/v3 v3.5.1
@@ -52,7 +52,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
-	github.com/google/pprof v0.0.0-20240225044709-fd706174c886 // indirect
+	github.com/google/pprof v0.0.0-20240227163752-401108e1b7e7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
