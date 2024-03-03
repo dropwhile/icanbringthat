@@ -12,7 +12,7 @@ require (
 	github.com/dropwhile/refid/v2 v2.0.1
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog/v2 v2.0.9
-	github.com/go-playground/validator/v10 v10.18.0
+	github.com/go-playground/validator/v10 v10.19.0
 	github.com/go-webauthn/webauthn v0.10.1
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.5.3
