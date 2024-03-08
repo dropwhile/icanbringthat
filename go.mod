@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/alecthomas/kong v0.8.1
+	github.com/alecthomas/kong v0.9.0
 	github.com/alexedwards/scs/goredisstore v0.0.0-20240203174419-a38e822451b6
 	github.com/alexedwards/scs/pgxstore v0.0.0-20240203174419-a38e822451b6
 	github.com/alexedwards/scs/v2 v2.7.0
