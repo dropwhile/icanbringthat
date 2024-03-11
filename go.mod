@@ -9,7 +9,7 @@ require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20240203174419-a38e822451b6
 	github.com/alexedwards/scs/v2 v2.7.0
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/dropwhile/refid/v2 v2.0.1
+	github.com/dropwhile/refid/v2 v2.0.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog/v2 v2.0.9
 	github.com/go-playground/validator/v10 v10.19.0

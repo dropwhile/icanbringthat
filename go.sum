@@ -36,8 +36,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
-github.com/dropwhile/refid/v2 v2.0.1 h1:M+Ea4BoKBCkqXmd3B9EQ1inxgVEQkBqt1wkCKkE1azY=
-github.com/dropwhile/refid/v2 v2.0.1/go.mod h1:CicFaubBQOp001cusJBV9PKEo6+5Dlz6eUZb1o6jnu4=
+github.com/dropwhile/refid/v2 v2.0.2 h1:XfU3k/MPKtDCVpLNwMjRPHyeCzcgUKiyJFytAOSukEs=
+github.com/dropwhile/refid/v2 v2.0.2/go.mod h1:dy5FKZeK8flm3rgxr5FvkUZKYrKG9QyJM82MuwTK88I=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fxamacker/cbor/v2 v2.6.0 h1:sU6J2usfADwWlYDAFhZBQ6TnLFBHxgesMrQfQgk1tWA=
