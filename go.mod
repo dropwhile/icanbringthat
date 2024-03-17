@@ -5,15 +5,15 @@ go 1.21.1
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/alecthomas/kong v0.9.0
-	github.com/alexedwards/scs/goredisstore v0.0.0-20240203174419-a38e822451b6
-	github.com/alexedwards/scs/pgxstore v0.0.0-20240203174419-a38e822451b6
-	github.com/alexedwards/scs/v2 v2.7.0
+	github.com/alexedwards/scs/goredisstore v0.0.0-20240316134038-7e11d57e8885
+	github.com/alexedwards/scs/pgxstore v0.0.0-20240316134038-7e11d57e8885
+	github.com/alexedwards/scs/v2 v2.8.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog/v2 v2.0.9
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/go-webauthn/webauthn v0.10.1
+	github.com/go-webauthn/webauthn v0.10.2
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
@@ -31,7 +31,7 @@ require (
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.21.0
-	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
+	golang.org/x/exp v0.0.0-20240314144324-c7f7c6466f7f
 	google.golang.org/protobuf v1.33.0
 	gotest.tools/v3 v3.5.1
 )
@@ -48,7 +48,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/go-webauthn/x v0.1.8 // indirect
+	github.com/go-webauthn/x v0.1.9 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
