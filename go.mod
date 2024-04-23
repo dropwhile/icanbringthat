@@ -11,7 +11,7 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.2
 	github.com/go-chi/chi/v5 v5.0.12
-	github.com/go-chi/httplog/v2 v2.0.9
+	github.com/go-chi/httplog/v2 v2.0.11
 	github.com/go-playground/validator/v10 v10.19.0
 	github.com/go-webauthn/webauthn v0.10.2
 	github.com/gorilla/csrf v1.7.2
@@ -52,7 +52,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.0 // indirect
-	github.com/google/pprof v0.0.0-20240416155748-26353dc0451f // indirect
+	github.com/google/pprof v0.0.0-20240422182052-72c8669ad3e7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
