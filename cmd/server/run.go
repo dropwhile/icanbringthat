@@ -189,7 +189,7 @@ func (c *RunCmd) Run() error {
 			if config.WithQuic {
 				handler := server.Handler
 				server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					quicServer.SetQuicHeaders(w.Header()) // #nosec G104 -- this only fails if port cant be determined
+					quicServer.SetQUICHeaders(w.Header()) // #nosec G104 -- this only fails if port cant be determined
 					handler.ServeHTTP(w, r)
 				})
 			}
