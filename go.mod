@@ -32,7 +32,7 @@ require (
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.22.0
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f
-	google.golang.org/protobuf v1.34.0
+	google.golang.org/protobuf v1.34.1
 	gotest.tools/v3 v3.5.1
 )
 
