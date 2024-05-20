@@ -55,10 +55,10 @@ func TestRpc_ListEventItems(t *testing.T) {
 				}}, nil,
 			)
 
-		request := &icbt.ListEventItemsRequest{
+		request := &icbt.EventListItemsRequest{
 			RefId: eventRefID.String(),
 		}
-		response, err := server.ListEventItems(ctx, request)
+		response, err := server.EventListItems(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Items), 1)
 	})
@@ -70,10 +70,10 @@ func TestRpc_ListEventItems(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.ListEventItemsRequest{
+		request := &icbt.EventListItemsRequest{
 			RefId: "hodor",
 		}
-		_, err := server.ListEventItems(ctx, request)
+		_, err := server.EventListItems(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 	})
 
@@ -89,10 +89,10 @@ func TestRpc_ListEventItems(t *testing.T) {
 			GetEventItemsByEvent(ctx, eventRefID).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.ListEventItemsRequest{
+		request := &icbt.EventListItemsRequest{
 			RefId: eventRefID.String(),
 		}
-		_, err := server.ListEventItems(ctx, request)
+		_, err := server.EventListItems(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
 	})
 }
@@ -126,10 +126,10 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(nil)
 
-		request := &icbt.RemoveEventItemRequest{
+		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.RemoveEventItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -140,10 +140,10 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.RemoveEventItemRequest{
+		request := &icbt.EventRemoveItemRequest{
 			RefId: "hodor",
 		}
-		_, err := server.RemoveEventItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
 	})
 
@@ -162,10 +162,10 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.RemoveEventItemRequest{
+		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.RemoveEventItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 	})
 
@@ -184,10 +184,10 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.RemoveEventItemRequest{
+		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.RemoveEventItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 	})
 
@@ -206,10 +206,10 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.NotFound.Error("event-item not found"))
 
-		request := &icbt.RemoveEventItemRequest{
+		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.RemoveEventItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
 	})
 }
@@ -249,11 +249,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		response, err := server.AddEventItem(ctx, request)
+		response, err := server.EventAddItem(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.EventItem.Description, description)
 	})
@@ -271,11 +271,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.AddEventItem(ctx, request)
+		_, err := server.EventAddItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
 	})
 
@@ -292,11 +292,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.AddEventItem(ctx, request)
+		_, err := server.EventAddItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 	})
 
@@ -313,11 +313,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.AddEventItem(ctx, request)
+		_, err := server.EventAddItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 	})
 
@@ -334,11 +334,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.AddEventItem(ctx, request)
+		_, err := server.EventAddItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
 	})
 
@@ -350,11 +350,11 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		description := "some description"
 
-		request := &icbt.AddEventItemRequest{
+		request := &icbt.EventAddItemRequest{
 			EventRefId:  "hodor",
 			Description: description,
 		}
-		_, err := server.AddEventItem(ctx, request)
+		_, err := server.EventAddItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 	})
 }
@@ -398,11 +398,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		response, err := server.UpdateEventItem(ctx, request)
+		response, err := server.EventUpdateItem(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.EventItem.Description, description)
 	})
@@ -413,11 +413,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       "hodor",
 			Description: "some nonsense",
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
 	})
 
@@ -437,11 +437,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 	})
 
@@ -461,11 +461,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
 	})
 
@@ -485,11 +485,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("earmarked by other user"))
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "earmarked by other user")
 	})
 
@@ -509,11 +509,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
 	})
 
@@ -533,11 +533,11 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.NotFound.Error("event-item not found"))
 
-		request := &icbt.UpdateEventItemRequest{
+		request := &icbt.EventUpdateItemRequest{
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.UpdateEventItem(ctx, request)
+		_, err := server.EventUpdateItem(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
 	})
 }

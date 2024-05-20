@@ -76,7 +76,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
+		handler.EventItemCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -105,7 +105,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
+		handler.EventItemCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -135,7 +135,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
+		handler.EventItemCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -165,7 +165,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
+		handler.EventItemCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -191,7 +191,7 @@ func TestHandler_EventItem_Create(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEventItem(rr, req)
+		handler.EventItemCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -262,7 +262,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -289,7 +289,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", eventItem.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -320,7 +320,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -356,7 +356,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -392,7 +392,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -428,7 +428,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -464,7 +464,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -495,7 +495,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -550,7 +550,7 @@ func TestHandler_EventItem_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItem(rr, req)
+		handler.EventItemUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -617,7 +617,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -642,7 +642,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", eventItem.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -667,7 +667,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -696,7 +696,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -728,7 +728,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -760,7 +760,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -811,7 +811,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -843,7 +843,7 @@ func TestHandler_EventItem_Delete(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEventItem(rr, req)
+		handler.EventItemDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)

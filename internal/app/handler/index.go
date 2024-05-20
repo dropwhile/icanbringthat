@@ -9,7 +9,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ShowIndex(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) IndexShow(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session

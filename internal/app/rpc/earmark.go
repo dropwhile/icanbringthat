@@ -16,9 +16,9 @@ import (
 	"github.com/dropwhile/icanbringthat/rpc/icbt"
 )
 
-func (s *Server) ListEventEarmarks(ctx context.Context,
-	r *icbt.ListEventEarmarksRequest,
-) (*icbt.ListEventEarmarksResponse, error) {
+func (s *Server) EventListEarmarks(ctx context.Context,
+	r *icbt.EventListEarmarksRequest,
+) (*icbt.EventListEarmarksResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -44,15 +44,15 @@ func (s *Server) ListEventEarmarks(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &icbt.ListEventEarmarksResponse{
+	response := &icbt.EventListEarmarksResponse{
 		Earmarks: pbEarmarks,
 	}
 	return response, nil
 }
 
-func (s *Server) ListEarmarks(ctx context.Context,
-	r *icbt.ListEarmarksRequest,
-) (*icbt.ListEarmarksResponse, error) {
+func (s *Server) EarmarksList(ctx context.Context,
+	r *icbt.EarmarksListRequest,
+) (*icbt.EarmarksListResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -90,16 +90,16 @@ func (s *Server) ListEarmarks(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &icbt.ListEarmarksResponse{
+	response := &icbt.EarmarksListResponse{
 		Earmarks:   pbEarmarks,
 		Pagination: paginationResult,
 	}
 	return response, nil
 }
 
-func (s *Server) CreateEarmark(ctx context.Context,
-	r *icbt.CreateEarmarkRequest,
-) (*icbt.CreateEarmarkResponse, error) {
+func (s *Server) EarmarkCreate(ctx context.Context,
+	r *icbt.EarmarkCreateRequest,
+) (*icbt.EarmarkCreateResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -126,15 +126,15 @@ func (s *Server) CreateEarmark(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 
-	response := &icbt.CreateEarmarkResponse{
+	response := &icbt.EarmarkCreateResponse{
 		Earmark: pbEarmark,
 	}
 	return response, nil
 }
 
-func (s *Server) GetEarmarkDetails(ctx context.Context,
-	r *icbt.GetEarmarkDetailsRequest,
-) (*icbt.GetEarmarkDetailsResponse, error) {
+func (s *Server) EarmarkGetDetails(ctx context.Context,
+	r *icbt.EarmarkGetDetailsRequest,
+) (*icbt.EarmarkGetDetailsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -165,15 +165,15 @@ func (s *Server) GetEarmarkDetails(ctx context.Context,
 	if err != nil {
 		return nil, twirp.InternalError("db error")
 	}
-	response := &icbt.GetEarmarkDetailsResponse{
+	response := &icbt.EarmarkGetDetailsResponse{
 		Earmark:    pbEarmark,
 		EventRefId: event.RefID.String(),
 	}
 	return response, nil
 }
 
-func (s *Server) RemoveEarmark(ctx context.Context,
-	r *icbt.RemoveEarmarkRequest,
+func (s *Server) EarmarkRemove(ctx context.Context,
+	r *icbt.EarmarkRemoveRequest,
 ) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)

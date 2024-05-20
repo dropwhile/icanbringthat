@@ -102,7 +102,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/send-verification", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.SendVerificationEmail(rr, req)
+		handler.VerifySendEmail(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)

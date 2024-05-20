@@ -21,7 +21,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) VerifySendEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session

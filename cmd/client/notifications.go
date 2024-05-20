@@ -25,8 +25,8 @@ type NotificationsListCmd struct{}
 
 func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListNotificationsRequest{}
-	resp, err := client.ListNotifications(meta.ctx, req)
+	req := &icbt.NotificationsListRequest{}
+	resp, err := client.NotificationsList(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -48,10 +48,10 @@ type NotificationsDeleteCmd struct {
 
 func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.DeleteNotificationRequest{
+	req := &icbt.NotificationDeleteRequest{
 		RefId: cmd.RefID,
 	}
-	if _, err := client.DeleteNotification(meta.ctx, req); err != nil {
+	if _, err := client.NotificationDelete(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 
@@ -63,7 +63,7 @@ type NotificationsDeleteAllCmd struct{}
 func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
 	req := &icbt.Empty{}
-	if _, err := client.DeleteAllNotifications(meta.ctx, req); err != nil {
+	if _, err := client.NotificationsDeleteAll(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil

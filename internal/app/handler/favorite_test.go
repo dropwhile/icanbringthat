@@ -63,7 +63,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteFavorite(rr, req)
+		handler.FavoriteDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -87,7 +87,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		req.SetPathValue("eRefID", "hodor")
 		rr := httptest.NewRecorder()
-		handler.DeleteFavorite(rr, req)
+		handler.FavoriteDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -116,7 +116,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		req.SetPathValue("eRefID", refID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteFavorite(rr, req)
+		handler.FavoriteDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -141,7 +141,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/favorite", nil)
 		req.SetPathValue("eRefID", refID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteFavorite(rr, req)
+		handler.FavoriteDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -196,7 +196,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.AddFavorite(rr, req)
+		handler.FavoriteAdd(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -223,7 +223,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", "hodor")
 		rr := httptest.NewRecorder()
-		handler.AddFavorite(rr, req)
+		handler.FavoriteAdd(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -247,7 +247,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", util.Must(model.NewEventItemRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.AddFavorite(rr, req)
+		handler.FavoriteAdd(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -275,7 +275,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.AddFavorite(rr, req)
+		handler.FavoriteAdd(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -303,7 +303,7 @@ func TestHandler_Favorite_Add(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.AddFavorite(rr, req)
+		handler.FavoriteAdd(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)

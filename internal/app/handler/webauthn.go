@@ -18,7 +18,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func getAuthnInstance(r *http.Request, baseURL string) (*webauthn.WebAuthn, error) {
+func getAuthnInstance(_ *http.Request, baseURL string) (*webauthn.WebAuthn, error) {
 	siteURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
@@ -272,7 +272,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
-func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnDeleteKey(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

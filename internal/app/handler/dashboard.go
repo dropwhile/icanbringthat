@@ -13,7 +13,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
-func (x *Handler) ShowDashboard(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) DashboardShow(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// try to get user from session

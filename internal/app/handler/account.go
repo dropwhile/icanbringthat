@@ -19,7 +19,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) AccountShowCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -47,7 +47,7 @@ func (x *Handler) ShowCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SettingsShow(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -97,7 +97,7 @@ func (x *Handler) ShowSettings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) AccountCreate(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		x.BadFormDataError(w, err)
 		return
@@ -162,7 +162,7 @@ func (x *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SettingsUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -251,7 +251,7 @@ func (x *Handler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SettingsAuthUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -356,7 +356,7 @@ func (x *Handler) UpdateAuthSettings(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SettingsAuthApiUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -441,7 +441,7 @@ func (x *Handler) UpdateApiAuthSettings(w http.ResponseWriter, r *http.Request) 
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) SettingsRemindersUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -521,7 +521,7 @@ func (x *Handler) UpdateRemindersSettings(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
-func (x *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) AccountDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

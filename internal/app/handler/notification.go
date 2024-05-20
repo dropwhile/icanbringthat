@@ -17,7 +17,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) NotificationsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -77,7 +77,7 @@ func (x *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) NotificationDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -118,7 +118,7 @@ func (x *Handler) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *Handler) DeleteAllNotifications(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) NotificationsDeleteAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

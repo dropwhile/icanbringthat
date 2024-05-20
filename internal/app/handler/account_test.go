@@ -59,7 +59,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -103,7 +103,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -147,7 +147,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -192,7 +192,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -229,7 +229,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -269,7 +269,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -318,7 +318,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -364,7 +364,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateSettings(rr, req)
+		handler.SettingsUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -429,7 +429,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateAuthSettings(rr, req)
+		handler.SettingsAuthUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -468,7 +468,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateAuthSettings(rr, req)
+		handler.SettingsAuthUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -513,7 +513,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateAuthSettings(rr, req)
+		handler.SettingsAuthUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -558,7 +558,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateAuthSettings(rr, req)
+		handler.SettingsAuthUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -615,7 +615,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateApiAuthSettings(rr, req)
+		handler.SettingsAuthApiUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -672,7 +672,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateApiAuthSettings(rr, req)
+		handler.SettingsAuthApiUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -714,7 +714,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateApiAuthSettings(rr, req)
+		handler.SettingsAuthApiUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -764,7 +764,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateApiAuthSettings(rr, req)
+		handler.SettingsAuthApiUpdate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -806,7 +806,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 
 	req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/account", nil)
 	rr := httptest.NewRecorder()
-	handler.DeleteAccount(rr, req)
+	handler.AccountDelete(rr, req)
 
 	response := rr.Result()
 	_, err := io.ReadAll(response.Body)
@@ -866,7 +866,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateAccount(rr, req)
+		handler.AccountCreate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -901,7 +901,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateAccount(rr, req)
+		handler.AccountCreate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -928,7 +928,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateAccount(rr, req)
+		handler.AccountCreate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -959,7 +959,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateAccount(rr, req)
+		handler.AccountCreate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -987,7 +987,7 @@ func TestHandler_Account_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/account", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateAccount(rr, req)
+		handler.AccountCreate(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)

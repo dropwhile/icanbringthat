@@ -84,7 +84,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -124,7 +124,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -158,7 +158,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -193,7 +193,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -228,7 +228,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", refID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -266,7 +266,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -307,7 +307,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", pwr.RefID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -355,7 +355,7 @@ func TestHandler_ResetPassword(t *testing.T) {
 		req.SetPathValue("upwRefID", refID.String())
 		req.SetPathValue("hmac", macStr)
 		rr := httptest.NewRecorder()
-		handler.ResetPassword(rr, req)
+		handler.PasswordReset(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -442,7 +442,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/send-password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.SendResetPasswordEmail(rr, req)
+		handler.ResetPasswordSendEmail(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -475,7 +475,7 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/send-password-reset", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.SendResetPasswordEmail(rr, req)
+		handler.ResetPasswordSendEmail(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)

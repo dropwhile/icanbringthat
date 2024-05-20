@@ -34,10 +34,10 @@ type EventsListCmd struct {
 
 func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListEventsRequest{
+	req := &icbt.EventsListRequest{
 		Archived: &cmd.Archived,
 	}
-	resp, err := client.ListEvents(meta.ctx, req)
+	resp, err := client.EventsList(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -62,7 +62,7 @@ type EventsCreateCmd struct {
 
 func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.CreateEventRequest{
+	req := &icbt.EventCreateRequest{
 		Name:        cmd.Name,
 		Description: cmd.Description,
 		When: &icbt.TimestampTZ{
@@ -70,7 +70,7 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 			Tz: cmd.Tz,
 		},
 	}
-	resp, err := client.CreateEvent(meta.ctx, req)
+	resp, err := client.EventCreate(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -94,7 +94,7 @@ type EventsUpdateCmd struct {
 
 func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.UpdateEventRequest{
+	req := &icbt.EventUpdateRequest{
 		RefId: cmd.RefID,
 	}
 	if cmd.Name != nil {
@@ -117,7 +117,7 @@ func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 		return fmt.Errorf("at least one field must be included to update anything")
 	}
 
-	if _, err := client.UpdateEvent(meta.ctx, req); err != nil {
+	if _, err := client.EventUpdate(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil
@@ -129,10 +129,10 @@ type EventsDeleteCmd struct {
 
 func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.DeleteEventRequest{
+	req := &icbt.EventDeleteRequest{
 		RefId: cmd.RefID,
 	}
-	if _, err := client.DeleteEvent(meta.ctx, req); err != nil {
+	if _, err := client.EventDelete(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil
@@ -144,10 +144,10 @@ type EventsGetDetailsCmd struct {
 
 func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.GetEventDetailsRequest{
+	req := &icbt.EventGetDetailsRequest{
 		RefId: cmd.RefID,
 	}
-	resp, err := client.GetEventDetails(meta.ctx, req)
+	resp, err := client.EventGetDetails(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -194,10 +194,10 @@ type EventsListItemsCmd struct {
 
 func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListEventItemsRequest{
+	req := &icbt.EventListItemsRequest{
 		RefId: cmd.RefID,
 	}
-	resp, err := client.ListEventItems(meta.ctx, req)
+	resp, err := client.EventListItems(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -224,10 +224,10 @@ type EventsListEarmarksCmd struct {
 
 func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListEventEarmarksRequest{
+	req := &icbt.EventListEarmarksRequest{
 		RefId: cmd.RefID,
 	}
-	resp, err := client.ListEventEarmarks(meta.ctx, req)
+	resp, err := client.EventListEarmarks(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}

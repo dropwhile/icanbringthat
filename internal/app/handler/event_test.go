@@ -79,7 +79,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -113,7 +113,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -142,7 +142,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -171,7 +171,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -200,7 +200,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -238,7 +238,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -273,7 +273,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -323,7 +323,7 @@ func TestHandler_Event_Create(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "POST", "http://example.com/event", FormData(data))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.CreateEvent(rr, req)
+		handler.EventCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -396,7 +396,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -429,7 +429,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", util.Must(model.NewEarmarkRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -465,7 +465,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -501,7 +501,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -537,7 +537,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -573,7 +573,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -614,7 +614,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -659,7 +659,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -692,7 +692,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -720,7 +720,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -754,7 +754,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -783,7 +783,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -812,7 +812,7 @@ func TestHandler_Event_Update(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEvent(rr, req)
+		handler.EventUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -873,7 +873,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -901,7 +901,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", util.Must(model.NewEarmarkRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -933,7 +933,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -965,7 +965,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -997,7 +997,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1025,7 +1025,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1053,7 +1053,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1081,7 +1081,7 @@ func TestHandler_Event_UpdateSorting(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.UpdateEventItemSorting(rr, req)
+		handler.EventItemSortingUpdate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1137,7 +1137,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEvent(rr, req)
+		handler.EventDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1161,7 +1161,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", util.Must(model.NewEventItemRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEvent(rr, req)
+		handler.EventDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1189,7 +1189,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEvent(rr, req)
+		handler.EventDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -1217,7 +1217,7 @@ func TestHandler_Event_Delete(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("eRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEvent(rr, req)
+		handler.EventDelete(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
