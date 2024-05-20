@@ -22,7 +22,7 @@ require (
 	github.com/pashagolub/pgxmock/v3 v3.4.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.43.1
+	github.com/quic-go/quic-go v0.44.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/mo v1.11.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
