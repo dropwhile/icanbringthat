@@ -21,7 +21,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ForgotPasswordShowForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -48,7 +48,7 @@ func (x *Handler) ShowForgotPasswordForm(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) PasswordResetShowForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -127,7 +127,7 @@ func (x *Handler) ShowPasswordResetForm(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) ResetPasswordSendEmail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session
@@ -233,7 +233,7 @@ func (x *Handler) SendResetPasswordEmail(w http.ResponseWriter, r *http.Request)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func (x *Handler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) PasswordReset(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// attempt to get user from session

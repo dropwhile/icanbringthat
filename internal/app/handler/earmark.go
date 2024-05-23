@@ -22,7 +22,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
-func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EarmarksList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -133,7 +133,7 @@ func (x *Handler) ListEarmarks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) CreateEarmarkShowCreateForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -199,7 +199,7 @@ func (x *Handler) ShowCreateEarmarkForm(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EarmarkCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -288,7 +288,7 @@ func (x *Handler) CreateEarmark(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *Handler) DeleteEarmark(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EarmarkDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

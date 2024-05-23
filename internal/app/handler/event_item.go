@@ -17,7 +17,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemShowCreateForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -75,7 +75,7 @@ func (x *Handler) ShowCreateEventItemForm(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemShowEditForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -150,7 +150,7 @@ func (x *Handler) ShowEventItemEditForm(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -193,7 +193,7 @@ func (x *Handler) CreateEventItem(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", eventRefID), http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -278,7 +278,7 @@ func (x *Handler) UpdateEventItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *Handler) DeleteEventItem(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

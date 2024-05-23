@@ -25,7 +25,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
-func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -124,7 +124,7 @@ func (x *Handler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventShow(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -254,7 +254,7 @@ func (x *Handler) ShowEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) CreateEventShowAddForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -284,7 +284,7 @@ func (x *Handler) ShowCreateEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventShowEditForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -337,7 +337,7 @@ func (x *Handler) ShowEditEventForm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -391,7 +391,7 @@ func (x *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", event.RefID), http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -469,7 +469,7 @@ func (x *Handler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/events/%s", refID), http.StatusSeeOther)
 }
 
-func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventItemSortingUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -528,7 +528,7 @@ func (x *Handler) UpdateEventItemSorting(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (x *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) EventDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

@@ -60,7 +60,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -83,7 +83,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -107,7 +107,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", "hodor")
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -136,7 +136,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", refID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -160,7 +160,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", util.Must(model.NewEventRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -188,7 +188,7 @@ func TestHandler_Notification_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteNotification(rr, req)
+		handler.NotificationDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -241,7 +241,7 @@ func TestHandler_Notification_DeleteAll(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		req.SetPathValue("nRefID", notification.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteAllNotifications(rr, req)
+		handler.NotificationsDeleteAll(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)

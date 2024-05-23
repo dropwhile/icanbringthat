@@ -84,7 +84,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteWebAuthnKey(rr, req)
+		handler.WebAuthnDeleteKey(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -112,7 +112,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteWebAuthnKey(rr, req)
+		handler.WebAuthnDeleteKey(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -140,7 +140,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteWebAuthnKey(rr, req)
+		handler.WebAuthnDeleteKey(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -168,7 +168,7 @@ func TestHandler_DeleteWebAuthnKey(t *testing.T) {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.SetPathValue("cRefID", credential.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteWebAuthnKey(rr, req)
+		handler.WebAuthnDeleteKey(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)

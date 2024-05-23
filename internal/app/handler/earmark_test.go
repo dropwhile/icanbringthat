@@ -94,7 +94,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -121,7 +121,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", "hodor")
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -148,7 +148,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", eventItem.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -175,7 +175,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", "hodor")
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -202,7 +202,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", event.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -233,7 +233,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -267,7 +267,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -311,7 +311,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -361,7 +361,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -411,7 +411,7 @@ func TestHandler_Earmark_Create(t *testing.T) {
 		req.SetPathValue("eRefID", event.RefID.String())
 		req.SetPathValue("iRefID", eventItem.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.CreateEarmark(rr, req)
+		handler.EarmarkCreate(rr, req)
 
 		response := rr.Result()
 		util.MustReadAll(response.Body)
@@ -464,7 +464,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		req.SetPathValue("mRefID", earmark.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -502,7 +502,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		req.SetPathValue("mRefID", earmark.RefID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -525,7 +525,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -549,7 +549,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		req.SetPathValue("mRefID", "hodor")
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -578,7 +578,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		req.SetPathValue("mRefID", refID.String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -602,7 +602,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/earmark", nil)
 		req.SetPathValue("mRefID", util.Must(model.NewEventRefID()).String())
 		rr := httptest.NewRecorder()
-		handler.DeleteEarmark(rr, req)
+		handler.EarmarkDelete(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)

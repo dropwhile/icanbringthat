@@ -29,7 +29,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
-		handler.ShowIndex(rr, req)
+		handler.IndexShow(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
@@ -61,7 +61,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", "http://example.com/notification", nil)
 		rr := httptest.NewRecorder()
-		handler.ShowIndex(rr, req)
+		handler.IndexShow(rr, req)
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)

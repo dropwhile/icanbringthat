@@ -22,7 +22,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
-func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) FavoritesList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -125,7 +125,7 @@ func (x *Handler) ListFavorites(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) FavoriteAdd(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
@@ -177,7 +177,7 @@ func (x *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (x *Handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) FavoriteDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

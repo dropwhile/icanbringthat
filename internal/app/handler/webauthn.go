@@ -272,7 +272,7 @@ func (x *Handler) WebAuthnFinishLogin(w http.ResponseWriter, r *http.Request) {
 	x.Json(w, http.StatusOK, MapSA{"verified": true})
 }
 
-func (x *Handler) DeleteWebAuthnKey(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) WebAuthnDeleteKey(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session

@@ -13,7 +13,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
 
-func (x *Handler) ShowLoginForm(w http.ResponseWriter, r *http.Request) {
+func (x *Handler) LoginShowForm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// get user from session
