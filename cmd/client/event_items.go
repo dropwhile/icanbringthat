@@ -28,11 +28,11 @@ type EventItemsAddCmd struct {
 
 func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.AddEventItemRequest{
+	req := &icbt.EventAddItemRequest{
 		EventRefId:  cmd.EventRefId,
 		Description: cmd.Description,
 	}
-	resp, err := client.AddEventItem(meta.ctx, req)
+	resp, err := client.EventAddItem(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -53,12 +53,12 @@ type EventItemsUpdateCmd struct {
 
 func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.UpdateEventItemRequest{
+	req := &icbt.EventUpdateItemRequest{
 		RefId:       cmd.RefId,
 		Description: cmd.Description,
 	}
 
-	resp, err := client.UpdateEventItem(meta.ctx, req)
+	resp, err := client.EventUpdateItem(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -78,10 +78,10 @@ type EventItemsRemoveCmd struct {
 
 func (cmd *EventItemsRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.RemoveEventItemRequest{
+	req := &icbt.EventRemoveItemRequest{
 		RefId: cmd.RefId,
 	}
-	if _, err := client.RemoveEventItem(meta.ctx, req); err != nil {
+	if _, err := client.EventRemoveItem(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil

@@ -27,10 +27,10 @@ type FavoritesListCmd struct {
 
 func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListFavoriteEventsRequest{
+	req := &icbt.FavoriteListEventsRequest{
 		Archived: &cmd.Archived,
 	}
-	resp, err := client.ListFavoriteEvents(meta.ctx, req)
+	resp, err := client.FavoriteListEvents(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -52,10 +52,10 @@ type FavoritesAddCmd struct {
 
 func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.CreateFavoriteRequest{
+	req := &icbt.FavoriteCreateRequest{
 		EventRefId: cmd.EventRefID,
 	}
-	resp, err := client.AddFavorite(meta.ctx, req)
+	resp, err := client.FavoriteAdd(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -77,10 +77,10 @@ type FavoritesRemoveCmd struct {
 
 func (cmd *FavoritesRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.RemoveFavoriteRequest{
+	req := &icbt.FavoriteRemoveRequest{
 		EventRefId: cmd.EventRefID,
 	}
-	if _, err := client.RemoveFavorite(meta.ctx, req); err != nil {
+	if _, err := client.FavoriteRemove(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil

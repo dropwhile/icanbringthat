@@ -68,11 +68,11 @@ func TestRpc_ListEvents(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.ListEventsRequest{
+		request := &icbt.EventsListRequest{
 			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
 			Archived:   func(b bool) *bool { return &b }(false),
 		}
-		response, err := server.ListEvents(ctx, request)
+		response, err := server.EventsList(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Events), 1)
 	})
@@ -103,10 +103,10 @@ func TestRpc_ListEvents(t *testing.T) {
 				}}, nil,
 			)
 
-		request := &icbt.ListEventsRequest{
+		request := &icbt.EventsListRequest{
 			Archived: func(b bool) *bool { return &b }(false),
 		}
-		response, err := server.ListEvents(ctx, request)
+		response, err := server.EventsList(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Events), 1)
 	})
@@ -190,10 +190,10 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.GetEventDetailsRequest{
+		request := &icbt.EventGetDetailsRequest{
 			RefId: eventRefID.String(),
 		}
-		response, err := server.GetEventDetails(ctx, request)
+		response, err := server.EventGetDetails(ctx, request)
 		assert.NilError(t, err)
 
 		assert.Equal(t, response.Event.Name, "some name")
@@ -213,10 +213,10 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			GetEvent(ctx, eventRefID).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.GetEventDetailsRequest{
+		request := &icbt.EventGetDetailsRequest{
 			RefId: eventRefID.String(),
 		}
-		_, err := server.GetEventDetails(ctx, request)
+		_, err := server.EventGetDetails(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "event not found")
 	})
 
@@ -227,10 +227,10 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.GetEventDetailsRequest{
+		request := &icbt.EventGetDetailsRequest{
 			RefId: "hodor",
 		}
-		_, err := server.GetEventDetails(ctx, request)
+		_, err := server.EventGetDetails(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 	})
 }
@@ -276,13 +276,13 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(event, nil)
 
-		request := &icbt.CreateEventRequest{
+		request := &icbt.EventCreateRequest{
 			Name:        event.Name,
 			Description: event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
-		response, err := server.CreateEvent(ctx, request)
+		response, err := server.EventCreate(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, response.Event.Name, event.Name)
 	})
@@ -301,7 +301,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("tz", "bad value"))
 
-		request := &icbt.CreateEventRequest{
+		request := &icbt.EventCreateRequest{
 			Name:        event.Name,
 			Description: event.Description,
 			When: &icbt.TimestampTZ{
@@ -309,7 +309,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				Tz: "",
 			},
 		}
-		_, err := server.CreateEvent(ctx, request)
+		_, err := server.EventCreate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "tz bad value",
 			map[string]string{"argument": "tz"})
 	})
@@ -321,14 +321,14 @@ func TestRpc_CreateEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.CreateEventRequest{
+		request := &icbt.EventCreateRequest{
 			Name:        event.Name,
 			Description: event.Description,
 			When: &icbt.TimestampTZ{
 				Tz: "UTC",
 			},
 		}
-		_, err := server.CreateEvent(ctx, request)
+		_, err := server.EventCreate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "start_time bad empty value",
 			map[string]string{"argument": "start_time"})
 	})
@@ -347,13 +347,13 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("name", "bad value"))
 
-		request := &icbt.CreateEventRequest{
+		request := &icbt.EventCreateRequest{
 			Name:        "",
 			Description: event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
-		_, err := server.CreateEvent(ctx, request)
+		_, err := server.EventCreate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "name bad value",
 			map[string]string{"argument": "name"})
 	})
@@ -372,13 +372,13 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.CreateEventRequest{
+		request := &icbt.EventCreateRequest{
 			Name:        event.Name,
 			Description: "",
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
-		_, err := server.CreateEvent(ctx, request)
+		_, err := server.EventCreate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value",
 			map[string]string{"argument": "description"})
 	})
@@ -427,14 +427,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -454,7 +454,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
@@ -463,7 +463,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: "",
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -483,7 +483,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
@@ -491,7 +491,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -509,14 +509,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
 			When: &icbt.TimestampTZ{
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -534,14 +534,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId: event.RefID.String(),
 			Name:  &event.Name,
 			When: &icbt.TimestampTZ{
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -555,10 +555,10 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.EXPECT().
 			UpdateEvent(ctx, user.ID, event.RefID, &service.EventUpdateValues{}).
 			Return(errs.InvalidArgument.Error("missing fields"))
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId: event.RefID.String(),
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "missing fields")
 	})
 
@@ -576,14 +576,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
 			When: &icbt.TimestampTZ{
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
 	})
 
@@ -601,14 +601,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
 			When: &icbt.TimestampTZ{
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 	})
 
@@ -619,14 +619,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.UpdateEventRequest{
+		request := &icbt.EventUpdateRequest{
 			RefId:       "hodor",
 			Description: &event.Description,
 			When: &icbt.TimestampTZ{
 				Tz: event.StartTimeTz.String(),
 			},
 		}
-		_, err := server.UpdateEvent(ctx, request)
+		_, err := server.EventUpdate(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 	})
 }
@@ -657,10 +657,10 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			DeleteEvent(ctx, user.ID, eventRefID).
 			Return(nil)
 
-		request := &icbt.DeleteEventRequest{
+		request := &icbt.EventDeleteRequest{
 			RefId: eventRefID.String(),
 		}
-		_, err := server.DeleteEvent(ctx, request)
+		_, err := server.EventDelete(ctx, request)
 		assert.NilError(t, err)
 	})
 
@@ -671,10 +671,10 @@ func TestRpc_DeleteEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.DeleteEventRequest{
+		request := &icbt.EventDeleteRequest{
 			RefId: "hodor",
 		}
-		_, err := server.DeleteEvent(ctx, request)
+		_, err := server.EventDelete(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
 	})
 
@@ -690,10 +690,10 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			DeleteEvent(ctx, user.ID, eventRefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.DeleteEventRequest{
+		request := &icbt.EventDeleteRequest{
 			RefId: eventRefID.String(),
 		}
-		_, err := server.DeleteEvent(ctx, request)
+		_, err := server.EventDelete(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 	})
 }

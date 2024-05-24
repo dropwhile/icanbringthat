@@ -17,9 +17,9 @@ import (
 	"github.com/dropwhile/icanbringthat/rpc/icbt"
 )
 
-func (s *Server) ListEvents(ctx context.Context,
-	r *icbt.ListEventsRequest,
-) (*icbt.ListEventsResponse, error) {
+func (s *Server) EventsList(ctx context.Context,
+	r *icbt.EventsListRequest,
+) (*icbt.EventsListResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -60,16 +60,16 @@ func (s *Server) ListEvents(ctx context.Context,
 		events = evts
 	}
 
-	response := &icbt.ListEventsResponse{
+	response := &icbt.EventsListResponse{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
 	return response, nil
 }
 
-func (s *Server) CreateEvent(ctx context.Context,
-	r *icbt.CreateEventRequest,
-) (*icbt.CreateEventResponse, error) {
+func (s *Server) EventCreate(ctx context.Context,
+	r *icbt.EventCreateRequest,
+) (*icbt.EventCreateResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -92,14 +92,14 @@ func (s *Server) CreateEvent(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.CreateEventResponse{
+	response := &icbt.EventCreateResponse{
 		Event: convert.ToPbEvent(event),
 	}
 	return response, nil
 }
 
-func (s *Server) UpdateEvent(ctx context.Context,
-	r *icbt.UpdateEventRequest,
+func (s *Server) EventUpdate(ctx context.Context,
+	r *icbt.EventUpdateRequest,
 ) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
@@ -139,9 +139,9 @@ func (s *Server) UpdateEvent(ctx context.Context,
 	return response, nil
 }
 
-func (s *Server) GetEventDetails(ctx context.Context,
-	r *icbt.GetEventDetailsRequest,
-) (*icbt.GetEventDetailsResponse, error) {
+func (s *Server) EventGetDetails(ctx context.Context,
+	r *icbt.EventGetDetailsRequest,
+) (*icbt.EventGetDetailsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -174,7 +174,7 @@ func (s *Server) GetEventDetails(ctx context.Context,
 		return nil, twirp.InternalError("db error")
 	}
 
-	response := &icbt.GetEventDetailsResponse{
+	response := &icbt.EventGetDetailsResponse{
 		Event:    pbEvent,
 		Items:    pbEventItems,
 		Earmarks: pbEarmarks,
@@ -182,8 +182,8 @@ func (s *Server) GetEventDetails(ctx context.Context,
 	return response, nil
 }
 
-func (s *Server) DeleteEvent(ctx context.Context,
-	r *icbt.DeleteEventRequest,
+func (s *Server) EventDelete(ctx context.Context,
+	r *icbt.EventDeleteRequest,
 ) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)

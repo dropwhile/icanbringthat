@@ -15,9 +15,9 @@ import (
 	"github.com/dropwhile/icanbringthat/rpc/icbt"
 )
 
-func (s *Server) ListNotifications(ctx context.Context,
-	r *icbt.ListNotificationsRequest,
-) (*icbt.ListNotificationsResponse, error) {
+func (s *Server) NotificationsList(ctx context.Context,
+	r *icbt.NotificationsListRequest,
+) (*icbt.NotificationsListResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -49,15 +49,15 @@ func (s *Server) ListNotifications(ctx context.Context,
 
 	}
 
-	response := &icbt.ListNotificationsResponse{
+	response := &icbt.NotificationsListResponse{
 		Notifications: convert.ToPbList(convert.ToPbNotification, notifications),
 		Pagination:    paginationResult,
 	}
 	return response, nil
 }
 
-func (s *Server) DeleteNotification(ctx context.Context,
-	r *icbt.DeleteNotificationRequest,
+func (s *Server) NotificationDelete(ctx context.Context,
+	r *icbt.NotificationDeleteRequest,
 ) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
@@ -79,7 +79,7 @@ func (s *Server) DeleteNotification(ctx context.Context,
 	return response, nil
 }
 
-func (s *Server) DeleteAllNotifications(ctx context.Context,
+func (s *Server) NotificationsDeleteAll(ctx context.Context,
 	r *icbt.Empty,
 ) (*icbt.Empty, error) {
 	// get user from auth in context

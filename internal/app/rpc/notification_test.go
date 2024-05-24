@@ -62,13 +62,13 @@ func TestRpc_ListNotifications(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.ListNotificationsRequest{
+		request := &icbt.NotificationsListRequest{
 			Pagination: &icbt.PaginationRequest{
 				Limit:  10,
 				Offset: 0,
 			},
 		}
-		response, err := server.ListNotifications(ctx, request)
+		response, err := server.NotificationsList(ctx, request)
 		assert.NilError(t, err)
 		assert.Equal(t, len(response.Notifications), 1)
 	})
@@ -84,8 +84,8 @@ func TestRpc_ListNotifications(t *testing.T) {
 			GetNotifications(ctx, user.ID).
 			Return([]*model.Notification{notification}, nil)
 
-		request := &icbt.ListNotificationsRequest{}
-		response, err := server.ListNotifications(ctx, request)
+		request := &icbt.NotificationsListRequest{}
+		response, err := server.NotificationsList(ctx, request)
 		assert.NilError(t, err)
 
 		assert.Equal(t, len(response.Notifications), 1)
@@ -122,10 +122,10 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.DeleteNotificationRequest{
+		request := &icbt.NotificationDeleteRequest{
 			RefId: "hodor",
 		}
-		_, err := server.DeleteNotification(ctx, request)
+		_, err := server.NotificationDelete(ctx, request)
 		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
 	})
 
@@ -140,10 +140,10 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(errs.NotFound.Error("notification not found"))
 
-		request := &icbt.DeleteNotificationRequest{
+		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.DeleteNotification(ctx, request)
+		_, err := server.NotificationDelete(ctx, request)
 		errs.AssertError(t, err, twirp.NotFound, "notification not found")
 	})
 
@@ -158,10 +158,10 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.DeleteNotificationRequest{
+		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.DeleteNotification(ctx, request)
+		_, err := server.NotificationDelete(ctx, request)
 		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
 	})
 
@@ -176,10 +176,10 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(nil)
 
-		request := &icbt.DeleteNotificationRequest{
+		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.DeleteNotification(ctx, request)
+		_, err := server.NotificationDelete(ctx, request)
 		assert.NilError(t, err)
 	})
 }
@@ -210,7 +210,7 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 			Return(nil)
 
 		request := &icbt.Empty{}
-		_, err := server.DeleteAllNotifications(ctx, request)
+		_, err := server.NotificationsDeleteAll(ctx, request)
 		assert.NilError(t, err)
 	})
 }

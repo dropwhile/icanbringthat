@@ -6,35 +6,39 @@ import "google/protobuf/timestamp.proto";
 
 service Rpc {
   // events
-  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
-  rpc UpdateEvent(UpdateEventRequest) returns (Empty);
-  rpc DeleteEvent(DeleteEventRequest) returns (Empty);
-  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
-  rpc GetEventDetails(GetEventDetailsRequest) returns (GetEventDetailsResponse);
-  rpc ListEventItems(ListEventItemsRequest) returns (ListEventItemsResponse);
-  rpc ListEventEarmarks(ListEventEarmarksRequest) returns (ListEventEarmarksResponse);
+  rpc EventCreate(EventCreateRequest) returns (EventCreateResponse);
+  rpc EventUpdate(EventUpdateRequest) returns (Empty);
+  rpc EventDelete(EventDeleteRequest) returns (Empty);
+  rpc EventsList(EventsListRequest) returns (EventsListResponse);
+  rpc EventGetDetails(EventGetDetailsRequest) returns (EventGetDetailsResponse);
+  rpc EventListItems(EventListItemsRequest) returns (EventListItemsResponse);
+  rpc EventListEarmarks(EventListEarmarksRequest)
+      returns (EventListEarmarksResponse);
   // rpc UpdateEventItemsSorting : TODO
 
   // event-items
-  rpc AddEventItem(AddEventItemRequest) returns (AddEventItemResponse);
-  rpc UpdateEventItem(UpdateEventItemRequest) returns (UpdateEventItemResponse);
-  rpc RemoveEventItem(RemoveEventItemRequest) returns (Empty);
+  rpc EventAddItem(EventAddItemRequest) returns (EventAddItemResponse);
+  rpc EventUpdateItem(EventUpdateItemRequest) returns (EventUpdateItemResponse);
+  rpc EventRemoveItem(EventRemoveItemRequest) returns (Empty);
 
   // earmarks
-  rpc CreateEarmark(CreateEarmarkRequest) returns (CreateEarmarkResponse);
-  rpc GetEarmarkDetails(GetEarmarkDetailsRequest) returns (GetEarmarkDetailsResponse);
-  rpc RemoveEarmark(RemoveEarmarkRequest) returns (Empty);
-  rpc ListEarmarks(ListEarmarksRequest) returns (ListEarmarksResponse);
+  rpc EarmarkCreate(EarmarkCreateRequest) returns (EarmarkCreateResponse);
+  rpc EarmarkGetDetails(EarmarkGetDetailsRequest)
+      returns (EarmarkGetDetailsResponse);
+  rpc EarmarkRemove(EarmarkRemoveRequest) returns (Empty);
+  rpc EarmarksList(EarmarksListRequest) returns (EarmarksListResponse);
 
   // favorites
-  rpc AddFavorite(CreateFavoriteRequest) returns (CreateFavoriteResponse);
-  rpc RemoveFavorite(RemoveFavoriteRequest) returns (Empty);
-  rpc ListFavoriteEvents(ListFavoriteEventsRequest) returns (ListFavoriteEventsResponse);
+  rpc FavoriteAdd(FavoriteCreateRequest) returns (FavoriteCreateResponse);
+  rpc FavoriteRemove(FavoriteRemoveRequest) returns (Empty);
+  rpc FavoriteListEvents(FavoriteListEventsRequest)
+      returns (FavoriteListEventsResponse);
 
   // notifications
-  rpc DeleteNotification(DeleteNotificationRequest) returns (Empty);
-  rpc DeleteAllNotifications(Empty) returns (Empty);
-  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc NotificationDelete(NotificationDeleteRequest) returns (Empty);
+  rpc NotificationsDeleteAll(Empty) returns (Empty);
+  rpc NotificationsList(NotificationsListRequest)
+      returns (NotificationsListResponse);
 }
 
 /**
@@ -99,158 +103,158 @@ message Notification {
 
 /* event */
 
-message CreateEventRequest {
+message EventCreateRequest {
   string name = 1;
   string description = 2;
   TimestampTZ when = 3;
 }
 
-message CreateEventResponse {
+message EventCreateResponse {
   Event event = 1;
 }
 
-message DeleteEventRequest {
+message EventDeleteRequest {
   string ref_id = 1;
 }
 
-message UpdateEventRequest {
+message EventUpdateRequest {
   string ref_id = 1;
   optional string name = 2;
   optional string description = 3;
   optional TimestampTZ when = 4;
 }
 
-message GetEventDetailsRequest {
+message EventGetDetailsRequest {
   string ref_id = 1;
 }
 
-message GetEventDetailsResponse {
+message EventGetDetailsResponse {
   Event event = 1;
   repeated EventItem items = 2;
   repeated Earmark earmarks = 3;
 }
 
-message ListEventsRequest {
+message EventsListRequest {
   optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
-message ListEventsResponse {
+message EventsListResponse {
   repeated Event events = 1;
   optional PaginationResult pagination = 2;
 }
 
-message ListEventItemsRequest {
+message EventListItemsRequest {
   string ref_id = 1;  // event ref-id
 }
 
-message ListEventItemsResponse {
+message EventListItemsResponse {
   repeated EventItem items = 1;
   optional PaginationResult pagination = 2;
 }
 
-message ListEventEarmarksRequest {
+message EventListEarmarksRequest {
   string ref_id = 1;  // event ref-id
 }
 
-message ListEventEarmarksResponse {
+message EventListEarmarksResponse {
   repeated Earmark earmarks = 1;
   optional PaginationResult pagination = 2;
 }
 
 /* event-items */
 
-message AddEventItemRequest {
+message EventAddItemRequest {
   string event_ref_id = 1;
   string description = 2;
 }
 
-message AddEventItemResponse {
+message EventAddItemResponse {
   EventItem event_item = 1;
 }
 
-message RemoveEventItemRequest {
+message EventRemoveItemRequest {
   string ref_id = 1;
 }
 
-message UpdateEventItemRequest {
+message EventUpdateItemRequest {
   string ref_id = 1;
   string description = 2;
 }
 
-message UpdateEventItemResponse {
+message EventUpdateItemResponse {
   EventItem event_item = 1;
 }
 
 /* earmarks */
 
-message CreateEarmarkRequest {
+message EarmarkCreateRequest {
   string event_item_ref_id = 1;
   string note = 2;
 }
 
-message CreateEarmarkResponse {
+message EarmarkCreateResponse {
   Earmark earmark = 1;
 }
 
-message RemoveEarmarkRequest {
+message EarmarkRemoveRequest {
   string ref_id = 1;
 }
 
-message GetEarmarkDetailsRequest {
+message EarmarkGetDetailsRequest {
   string ref_id = 1;
 }
 
-message GetEarmarkDetailsResponse {
+message EarmarkGetDetailsResponse {
   Earmark earmark = 1;
   string event_ref_id = 2;
 }
 
-message ListEarmarksRequest {
+message EarmarksListRequest {
   optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
-message ListEarmarksResponse {
+message EarmarksListResponse {
   repeated Earmark earmarks = 1;
   optional PaginationResult pagination = 2;
 }
 
 /* favorites */
 
-message CreateFavoriteRequest {
+message FavoriteCreateRequest {
   string event_ref_id = 1;  // event ref-id
 }
 
-message CreateFavoriteResponse {
+message FavoriteCreateResponse {
   Favorite favorite = 1;
 }
 
-message RemoveFavoriteRequest {
+message FavoriteRemoveRequest {
   string event_ref_id = 1;  // event ref-id
 }
 
-message ListFavoriteEventsRequest {
+message FavoriteListEventsRequest {
   optional PaginationRequest pagination = 1;
   optional bool archived = 2;
 }
 
-message ListFavoriteEventsResponse {
+message FavoriteListEventsResponse {
   repeated Event events = 1;
   optional PaginationResult pagination = 2;
 }
 
 /* notifications */
 
-message DeleteNotificationRequest {
+message NotificationDeleteRequest {
   string ref_id = 1;
 }
 
-message ListNotificationsRequest {
+message NotificationsListRequest {
   optional PaginationRequest pagination = 1;
 }
 
-message ListNotificationsResponse {
+message NotificationsListResponse {
   repeated Notification notifications = 1;
   optional PaginationResult pagination = 2;
 }

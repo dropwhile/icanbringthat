@@ -16,9 +16,9 @@ import (
 	"github.com/dropwhile/icanbringthat/rpc/icbt"
 )
 
-func (s *Server) ListFavoriteEvents(ctx context.Context,
-	r *icbt.ListFavoriteEventsRequest,
-) (*icbt.ListFavoriteEventsResponse, error) {
+func (s *Server) FavoriteListEvents(ctx context.Context,
+	r *icbt.FavoriteListEventsRequest,
+) (*icbt.FavoriteListEventsResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -57,15 +57,15 @@ func (s *Server) ListFavoriteEvents(ctx context.Context,
 		events = favs
 	}
 
-	response := &icbt.ListFavoriteEventsResponse{
+	response := &icbt.FavoriteListEventsResponse{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
 	}
 	return response, nil
 }
 
-func (s *Server) RemoveFavorite(ctx context.Context,
-	r *icbt.RemoveFavoriteRequest,
+func (s *Server) FavoriteRemove(ctx context.Context,
+	r *icbt.FavoriteRemoveRequest,
 ) (*icbt.Empty, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
@@ -86,9 +86,9 @@ func (s *Server) RemoveFavorite(ctx context.Context,
 	return &icbt.Empty{}, nil
 }
 
-func (s *Server) AddFavorite(ctx context.Context,
-	r *icbt.CreateFavoriteRequest,
-) (*icbt.CreateFavoriteResponse, error) {
+func (s *Server) FavoriteAdd(ctx context.Context,
+	r *icbt.FavoriteCreateRequest,
+) (*icbt.FavoriteCreateResponse, error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
@@ -105,7 +105,7 @@ func (s *Server) AddFavorite(ctx context.Context,
 		return nil, convert.ToTwirpError(errx)
 	}
 
-	response := &icbt.CreateFavoriteResponse{
+	response := &icbt.FavoriteCreateResponse{
 		Favorite: &icbt.Favorite{
 			EventRefId: r.EventRefId,
 			Created:    timestamppb.New(favorite.Created),

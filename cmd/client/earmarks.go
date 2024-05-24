@@ -40,11 +40,11 @@ type EarmarksCreateCmd struct {
 
 func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.CreateEarmarkRequest{
+	req := &icbt.EarmarkCreateRequest{
 		EventItemRefId: cmd.EventItemRefID,
 		Note:           cmd.Note,
 	}
-	resp, err := client.CreateEarmark(meta.ctx, req)
+	resp, err := client.EarmarkCreate(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -64,10 +64,10 @@ type EarmarksGetDetailsCmd struct {
 
 func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.GetEarmarkDetailsRequest{
+	req := &icbt.EarmarkGetDetailsRequest{
 		RefId: cmd.RefID,
 	}
-	resp, err := client.GetEarmarkDetails(meta.ctx, req)
+	resp, err := client.EarmarkGetDetails(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -91,10 +91,10 @@ type EarmarksRemoveCmd struct {
 
 func (cmd *EarmarksRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.RemoveEarmarkRequest{
+	req := &icbt.EarmarkRemoveRequest{
 		RefId: cmd.RefID,
 	}
-	if _, err := client.RemoveEarmark(meta.ctx, req); err != nil {
+	if _, err := client.EarmarkRemove(meta.ctx, req); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil
@@ -106,10 +106,10 @@ type EarmarksListCmd struct {
 
 func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.ListEarmarksRequest{
+	req := &icbt.EarmarksListRequest{
 		Archived: &cmd.Archived,
 	}
-	resp, err := client.ListEarmarks(meta.ctx, req)
+	resp, err := client.EarmarksList(meta.ctx, req)
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}

@@ -33,49 +33,49 @@ const _ = twirp.TwirpPackageMinVersion_8_1_0
 
 type Rpc interface {
 	// events
-	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
+	EventCreate(context.Context, *EventCreateRequest) (*EventCreateResponse, error)
 
-	UpdateEvent(context.Context, *UpdateEventRequest) (*Empty, error)
+	EventUpdate(context.Context, *EventUpdateRequest) (*Empty, error)
 
-	DeleteEvent(context.Context, *DeleteEventRequest) (*Empty, error)
+	EventDelete(context.Context, *EventDeleteRequest) (*Empty, error)
 
-	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
+	EventsList(context.Context, *EventsListRequest) (*EventsListResponse, error)
 
-	GetEventDetails(context.Context, *GetEventDetailsRequest) (*GetEventDetailsResponse, error)
+	EventGetDetails(context.Context, *EventGetDetailsRequest) (*EventGetDetailsResponse, error)
 
-	ListEventItems(context.Context, *ListEventItemsRequest) (*ListEventItemsResponse, error)
+	EventListItems(context.Context, *EventListItemsRequest) (*EventListItemsResponse, error)
 
-	ListEventEarmarks(context.Context, *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error)
+	EventListEarmarks(context.Context, *EventListEarmarksRequest) (*EventListEarmarksResponse, error)
 
 	// event-items
-	AddEventItem(context.Context, *AddEventItemRequest) (*AddEventItemResponse, error)
+	EventAddItem(context.Context, *EventAddItemRequest) (*EventAddItemResponse, error)
 
-	UpdateEventItem(context.Context, *UpdateEventItemRequest) (*UpdateEventItemResponse, error)
+	EventUpdateItem(context.Context, *EventUpdateItemRequest) (*EventUpdateItemResponse, error)
 
-	RemoveEventItem(context.Context, *RemoveEventItemRequest) (*Empty, error)
+	EventRemoveItem(context.Context, *EventRemoveItemRequest) (*Empty, error)
 
 	// earmarks
-	CreateEarmark(context.Context, *CreateEarmarkRequest) (*CreateEarmarkResponse, error)
+	EarmarkCreate(context.Context, *EarmarkCreateRequest) (*EarmarkCreateResponse, error)
 
-	GetEarmarkDetails(context.Context, *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error)
+	EarmarkGetDetails(context.Context, *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error)
 
-	RemoveEarmark(context.Context, *RemoveEarmarkRequest) (*Empty, error)
+	EarmarkRemove(context.Context, *EarmarkRemoveRequest) (*Empty, error)
 
-	ListEarmarks(context.Context, *ListEarmarksRequest) (*ListEarmarksResponse, error)
+	EarmarksList(context.Context, *EarmarksListRequest) (*EarmarksListResponse, error)
 
 	// favorites
-	AddFavorite(context.Context, *CreateFavoriteRequest) (*CreateFavoriteResponse, error)
+	FavoriteAdd(context.Context, *FavoriteCreateRequest) (*FavoriteCreateResponse, error)
 
-	RemoveFavorite(context.Context, *RemoveFavoriteRequest) (*Empty, error)
+	FavoriteRemove(context.Context, *FavoriteRemoveRequest) (*Empty, error)
 
-	ListFavoriteEvents(context.Context, *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error)
+	FavoriteListEvents(context.Context, *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error)
 
 	// notifications
-	DeleteNotification(context.Context, *DeleteNotificationRequest) (*Empty, error)
+	NotificationDelete(context.Context, *NotificationDeleteRequest) (*Empty, error)
 
-	DeleteAllNotifications(context.Context, *Empty) (*Empty, error)
+	NotificationsDeleteAll(context.Context, *Empty) (*Empty, error)
 
-	ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsResponse, error)
+	NotificationsList(context.Context, *NotificationsListRequest) (*NotificationsListResponse, error)
 }
 
 // ===================
@@ -113,26 +113,26 @@ func NewRpcProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clien
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "icbt", "Rpc")
 	urls := [20]string{
-		serviceURL + "CreateEvent",
-		serviceURL + "UpdateEvent",
-		serviceURL + "DeleteEvent",
-		serviceURL + "ListEvents",
-		serviceURL + "GetEventDetails",
-		serviceURL + "ListEventItems",
-		serviceURL + "ListEventEarmarks",
-		serviceURL + "AddEventItem",
-		serviceURL + "UpdateEventItem",
-		serviceURL + "RemoveEventItem",
-		serviceURL + "CreateEarmark",
-		serviceURL + "GetEarmarkDetails",
-		serviceURL + "RemoveEarmark",
-		serviceURL + "ListEarmarks",
-		serviceURL + "AddFavorite",
-		serviceURL + "RemoveFavorite",
-		serviceURL + "ListFavoriteEvents",
-		serviceURL + "DeleteNotification",
-		serviceURL + "DeleteAllNotifications",
-		serviceURL + "ListNotifications",
+		serviceURL + "EventCreate",
+		serviceURL + "EventUpdate",
+		serviceURL + "EventDelete",
+		serviceURL + "EventsList",
+		serviceURL + "EventGetDetails",
+		serviceURL + "EventListItems",
+		serviceURL + "EventListEarmarks",
+		serviceURL + "EventAddItem",
+		serviceURL + "EventUpdateItem",
+		serviceURL + "EventRemoveItem",
+		serviceURL + "EarmarkCreate",
+		serviceURL + "EarmarkGetDetails",
+		serviceURL + "EarmarkRemove",
+		serviceURL + "EarmarksList",
+		serviceURL + "FavoriteAdd",
+		serviceURL + "FavoriteRemove",
+		serviceURL + "FavoriteListEvents",
+		serviceURL + "NotificationDelete",
+		serviceURL + "NotificationsDeleteAll",
+		serviceURL + "NotificationsList",
 	}
 
 	return &rpcProtobufClient{
@@ -143,26 +143,26 @@ func NewRpcProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clien
 	}
 }
 
-func (c *rpcProtobufClient) CreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
+func (c *rpcProtobufClient) EventCreate(ctx context.Context, in *EventCreateRequest) (*EventCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
-	caller := c.callCreateEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventCreate")
+	caller := c.callEventCreate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+		caller = func(ctx context.Context, req *EventCreateRequest) (*EventCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEventRequest)
+					typedReq, ok := req.(*EventCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventCreateRequest) when calling interceptor")
 					}
-					return c.callCreateEvent(ctx, typedReq)
+					return c.callEventCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEventResponse)
+				typedResp, ok := resp.(*EventCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -172,8 +172,8 @@ func (c *rpcProtobufClient) CreateEvent(ctx context.Context, in *CreateEventRequ
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callCreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
-	out := new(CreateEventResponse)
+func (c *rpcProtobufClient) callEventCreate(ctx context.Context, in *EventCreateRequest) (*EventCreateResponse, error) {
+	out := new(EventCreateResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -189,20 +189,20 @@ func (c *rpcProtobufClient) callCreateEvent(ctx context.Context, in *CreateEvent
 	return out, nil
 }
 
-func (c *rpcProtobufClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest) (*Empty, error) {
+func (c *rpcProtobufClient) EventUpdate(ctx context.Context, in *EventUpdateRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
-	caller := c.callUpdateEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdate")
+	caller := c.callEventUpdate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateEventRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventUpdateRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventRequest)
+					typedReq, ok := req.(*EventUpdateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateRequest) when calling interceptor")
 					}
-					return c.callUpdateEvent(ctx, typedReq)
+					return c.callEventUpdate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -218,7 +218,7 @@ func (c *rpcProtobufClient) UpdateEvent(ctx context.Context, in *UpdateEventRequ
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callUpdateEvent(ctx context.Context, in *UpdateEventRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callEventUpdate(ctx context.Context, in *EventUpdateRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
@@ -235,20 +235,20 @@ func (c *rpcProtobufClient) callUpdateEvent(ctx context.Context, in *UpdateEvent
 	return out, nil
 }
 
-func (c *rpcProtobufClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest) (*Empty, error) {
+func (c *rpcProtobufClient) EventDelete(ctx context.Context, in *EventDeleteRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
-	caller := c.callDeleteEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventDelete")
+	caller := c.callEventDelete
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *DeleteEventRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventDeleteRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteEventRequest)
+					typedReq, ok := req.(*EventDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventDeleteRequest) when calling interceptor")
 					}
-					return c.callDeleteEvent(ctx, typedReq)
+					return c.callEventDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -264,7 +264,7 @@ func (c *rpcProtobufClient) DeleteEvent(ctx context.Context, in *DeleteEventRequ
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callDeleteEvent(ctx context.Context, in *DeleteEventRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callEventDelete(ctx context.Context, in *EventDeleteRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
@@ -281,26 +281,26 @@ func (c *rpcProtobufClient) callDeleteEvent(ctx context.Context, in *DeleteEvent
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+func (c *rpcProtobufClient) EventsList(ctx context.Context, in *EventsListRequest) (*EventsListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
-	caller := c.callListEvents
+	ctx = ctxsetters.WithMethodName(ctx, "EventsList")
+	caller := c.callEventsList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+		caller = func(ctx context.Context, req *EventsListRequest) (*EventsListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventsRequest)
+					typedReq, ok := req.(*EventsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventsListRequest) when calling interceptor")
 					}
-					return c.callListEvents(ctx, typedReq)
+					return c.callEventsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventsResponse)
+				typedResp, ok := resp.(*EventsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -310,8 +310,8 @@ func (c *rpcProtobufClient) ListEvents(ctx context.Context, in *ListEventsReques
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
-	out := new(ListEventsResponse)
+func (c *rpcProtobufClient) callEventsList(ctx context.Context, in *EventsListRequest) (*EventsListResponse, error) {
+	out := new(EventsListResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -327,26 +327,26 @@ func (c *rpcProtobufClient) callListEvents(ctx context.Context, in *ListEventsRe
 	return out, nil
 }
 
-func (c *rpcProtobufClient) GetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+func (c *rpcProtobufClient) EventGetDetails(ctx context.Context, in *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
-	caller := c.callGetEventDetails
+	ctx = ctxsetters.WithMethodName(ctx, "EventGetDetails")
+	caller := c.callEventGetDetails
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+		caller = func(ctx context.Context, req *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEventDetailsRequest)
+					typedReq, ok := req.(*EventGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventGetDetailsRequest) when calling interceptor")
 					}
-					return c.callGetEventDetails(ctx, typedReq)
+					return c.callEventGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEventDetailsResponse)
+				typedResp, ok := resp.(*EventGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -356,8 +356,8 @@ func (c *rpcProtobufClient) GetEventDetails(ctx context.Context, in *GetEventDet
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callGetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
-	out := new(GetEventDetailsResponse)
+func (c *rpcProtobufClient) callEventGetDetails(ctx context.Context, in *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
+	out := new(EventGetDetailsResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -373,26 +373,26 @@ func (c *rpcProtobufClient) callGetEventDetails(ctx context.Context, in *GetEven
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListEventItems(ctx context.Context, in *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+func (c *rpcProtobufClient) EventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventItems")
-	caller := c.callListEventItems
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	caller := c.callEventListItems
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+		caller = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventItemsRequest)
+					typedReq, ok := req.(*EventListItemsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventItemsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
 					}
-					return c.callListEventItems(ctx, typedReq)
+					return c.callEventListItems(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventItemsResponse)
+				typedResp, ok := resp.(*EventListItemsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventItemsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -402,8 +402,8 @@ func (c *rpcProtobufClient) ListEventItems(ctx context.Context, in *ListEventIte
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListEventItems(ctx context.Context, in *ListEventItemsRequest) (*ListEventItemsResponse, error) {
-	out := new(ListEventItemsResponse)
+func (c *rpcProtobufClient) callEventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	out := new(EventListItemsResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -419,26 +419,26 @@ func (c *rpcProtobufClient) callListEventItems(ctx context.Context, in *ListEven
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListEventEarmarks(ctx context.Context, in *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+func (c *rpcProtobufClient) EventListEarmarks(ctx context.Context, in *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventEarmarks")
-	caller := c.callListEventEarmarks
+	ctx = ctxsetters.WithMethodName(ctx, "EventListEarmarks")
+	caller := c.callEventListEarmarks
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+		caller = func(ctx context.Context, req *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventEarmarksRequest)
+					typedReq, ok := req.(*EventListEarmarksRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListEarmarksRequest) when calling interceptor")
 					}
-					return c.callListEventEarmarks(ctx, typedReq)
+					return c.callEventListEarmarks(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventEarmarksResponse)
+				typedResp, ok := resp.(*EventListEarmarksResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListEarmarksResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -448,8 +448,8 @@ func (c *rpcProtobufClient) ListEventEarmarks(ctx context.Context, in *ListEvent
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListEventEarmarks(ctx context.Context, in *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
-	out := new(ListEventEarmarksResponse)
+func (c *rpcProtobufClient) callEventListEarmarks(ctx context.Context, in *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
+	out := new(EventListEarmarksResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -465,26 +465,26 @@ func (c *rpcProtobufClient) callListEventEarmarks(ctx context.Context, in *ListE
 	return out, nil
 }
 
-func (c *rpcProtobufClient) AddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+func (c *rpcProtobufClient) EventAddItem(ctx context.Context, in *EventAddItemRequest) (*EventAddItemResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
-	caller := c.callAddEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventAddItem")
+	caller := c.callEventAddItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+		caller = func(ctx context.Context, req *EventAddItemRequest) (*EventAddItemResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*AddEventItemRequest)
+					typedReq, ok := req.(*EventAddItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventAddItemRequest) when calling interceptor")
 					}
-					return c.callAddEventItem(ctx, typedReq)
+					return c.callEventAddItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*AddEventItemResponse)
+				typedResp, ok := resp.(*EventAddItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventAddItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -494,8 +494,8 @@ func (c *rpcProtobufClient) AddEventItem(ctx context.Context, in *AddEventItemRe
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callAddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
-	out := new(AddEventItemResponse)
+func (c *rpcProtobufClient) callEventAddItem(ctx context.Context, in *EventAddItemRequest) (*EventAddItemResponse, error) {
+	out := new(EventAddItemResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -511,26 +511,26 @@ func (c *rpcProtobufClient) callAddEventItem(ctx context.Context, in *AddEventIt
 	return out, nil
 }
 
-func (c *rpcProtobufClient) UpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+func (c *rpcProtobufClient) EventUpdateItem(ctx context.Context, in *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
-	caller := c.callUpdateEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdateItem")
+	caller := c.callEventUpdateItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+		caller = func(ctx context.Context, req *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventItemRequest)
+					typedReq, ok := req.(*EventUpdateItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateItemRequest) when calling interceptor")
 					}
-					return c.callUpdateEventItem(ctx, typedReq)
+					return c.callEventUpdateItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateEventItemResponse)
+				typedResp, ok := resp.(*EventUpdateItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventUpdateItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -540,8 +540,8 @@ func (c *rpcProtobufClient) UpdateEventItem(ctx context.Context, in *UpdateEvent
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callUpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
-	out := new(UpdateEventItemResponse)
+func (c *rpcProtobufClient) callEventUpdateItem(ctx context.Context, in *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
+	out := new(EventUpdateItemResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -557,20 +557,20 @@ func (c *rpcProtobufClient) callUpdateEventItem(ctx context.Context, in *UpdateE
 	return out, nil
 }
 
-func (c *rpcProtobufClient) RemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*Empty, error) {
+func (c *rpcProtobufClient) EventRemoveItem(ctx context.Context, in *EventRemoveItemRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
-	caller := c.callRemoveEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventRemoveItem")
+	caller := c.callEventRemoveItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveEventItemRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventRemoveItemRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEventItemRequest)
+					typedReq, ok := req.(*EventRemoveItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventRemoveItemRequest) when calling interceptor")
 					}
-					return c.callRemoveEventItem(ctx, typedReq)
+					return c.callEventRemoveItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -586,7 +586,7 @@ func (c *rpcProtobufClient) RemoveEventItem(ctx context.Context, in *RemoveEvent
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callRemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callEventRemoveItem(ctx context.Context, in *EventRemoveItemRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
@@ -603,26 +603,26 @@ func (c *rpcProtobufClient) callRemoveEventItem(ctx context.Context, in *RemoveE
 	return out, nil
 }
 
-func (c *rpcProtobufClient) CreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+func (c *rpcProtobufClient) EarmarkCreate(ctx context.Context, in *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
-	caller := c.callCreateEarmark
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkCreate")
+	caller := c.callEarmarkCreate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+		caller = func(ctx context.Context, req *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEarmarkRequest)
+					typedReq, ok := req.(*EarmarkCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkCreateRequest) when calling interceptor")
 					}
-					return c.callCreateEarmark(ctx, typedReq)
+					return c.callEarmarkCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEarmarkResponse)
+				typedResp, ok := resp.(*EarmarkCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -632,8 +632,8 @@ func (c *rpcProtobufClient) CreateEarmark(ctx context.Context, in *CreateEarmark
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callCreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
-	out := new(CreateEarmarkResponse)
+func (c *rpcProtobufClient) callEarmarkCreate(ctx context.Context, in *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
+	out := new(EarmarkCreateResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -649,26 +649,26 @@ func (c *rpcProtobufClient) callCreateEarmark(ctx context.Context, in *CreateEar
 	return out, nil
 }
 
-func (c *rpcProtobufClient) GetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+func (c *rpcProtobufClient) EarmarkGetDetails(ctx context.Context, in *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
-	caller := c.callGetEarmarkDetails
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkGetDetails")
+	caller := c.callEarmarkGetDetails
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+		caller = func(ctx context.Context, req *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					typedReq, ok := req.(*EarmarkGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkGetDetailsRequest) when calling interceptor")
 					}
-					return c.callGetEarmarkDetails(ctx, typedReq)
+					return c.callEarmarkGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				typedResp, ok := resp.(*EarmarkGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -678,8 +678,8 @@ func (c *rpcProtobufClient) GetEarmarkDetails(ctx context.Context, in *GetEarmar
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callGetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
-	out := new(GetEarmarkDetailsResponse)
+func (c *rpcProtobufClient) callEarmarkGetDetails(ctx context.Context, in *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
+	out := new(EarmarkGetDetailsResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -695,20 +695,20 @@ func (c *rpcProtobufClient) callGetEarmarkDetails(ctx context.Context, in *GetEa
 	return out, nil
 }
 
-func (c *rpcProtobufClient) RemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*Empty, error) {
+func (c *rpcProtobufClient) EarmarkRemove(ctx context.Context, in *EarmarkRemoveRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
-	caller := c.callRemoveEarmark
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkRemove")
+	caller := c.callEarmarkRemove
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveEarmarkRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EarmarkRemoveRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEarmarkRequest)
+					typedReq, ok := req.(*EarmarkRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkRemoveRequest) when calling interceptor")
 					}
-					return c.callRemoveEarmark(ctx, typedReq)
+					return c.callEarmarkRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -724,7 +724,7 @@ func (c *rpcProtobufClient) RemoveEarmark(ctx context.Context, in *RemoveEarmark
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callRemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callEarmarkRemove(ctx context.Context, in *EarmarkRemoveRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
@@ -741,26 +741,26 @@ func (c *rpcProtobufClient) callRemoveEarmark(ctx context.Context, in *RemoveEar
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+func (c *rpcProtobufClient) EarmarksList(ctx context.Context, in *EarmarksListRequest) (*EarmarksListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
-	caller := c.callListEarmarks
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarksList")
+	caller := c.callEarmarksList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+		caller = func(ctx context.Context, req *EarmarksListRequest) (*EarmarksListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEarmarksRequest)
+					typedReq, ok := req.(*EarmarksListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarksListRequest) when calling interceptor")
 					}
-					return c.callListEarmarks(ctx, typedReq)
+					return c.callEarmarksList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEarmarksResponse)
+				typedResp, ok := resp.(*EarmarksListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarksListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -770,8 +770,8 @@ func (c *rpcProtobufClient) ListEarmarks(ctx context.Context, in *ListEarmarksRe
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
-	out := new(ListEarmarksResponse)
+func (c *rpcProtobufClient) callEarmarksList(ctx context.Context, in *EarmarksListRequest) (*EarmarksListResponse, error) {
+	out := new(EarmarksListResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -787,26 +787,26 @@ func (c *rpcProtobufClient) callListEarmarks(ctx context.Context, in *ListEarmar
 	return out, nil
 }
 
-func (c *rpcProtobufClient) AddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+func (c *rpcProtobufClient) FavoriteAdd(ctx context.Context, in *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
-	caller := c.callAddFavorite
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteAdd")
+	caller := c.callFavoriteAdd
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+		caller = func(ctx context.Context, req *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateFavoriteRequest)
+					typedReq, ok := req.(*FavoriteCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteCreateRequest) when calling interceptor")
 					}
-					return c.callAddFavorite(ctx, typedReq)
+					return c.callFavoriteAdd(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateFavoriteResponse)
+				typedResp, ok := resp.(*FavoriteCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -816,8 +816,8 @@ func (c *rpcProtobufClient) AddFavorite(ctx context.Context, in *CreateFavoriteR
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callAddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
-	out := new(CreateFavoriteResponse)
+func (c *rpcProtobufClient) callFavoriteAdd(ctx context.Context, in *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
+	out := new(FavoriteCreateResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -833,20 +833,20 @@ func (c *rpcProtobufClient) callAddFavorite(ctx context.Context, in *CreateFavor
 	return out, nil
 }
 
-func (c *rpcProtobufClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest) (*Empty, error) {
+func (c *rpcProtobufClient) FavoriteRemove(ctx context.Context, in *FavoriteRemoveRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
-	caller := c.callRemoveFavorite
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteRemove")
+	caller := c.callFavoriteRemove
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveFavoriteRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *FavoriteRemoveRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveFavoriteRequest)
+					typedReq, ok := req.(*FavoriteRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteRemoveRequest) when calling interceptor")
 					}
-					return c.callRemoveFavorite(ctx, typedReq)
+					return c.callFavoriteRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -862,7 +862,7 @@ func (c *rpcProtobufClient) RemoveFavorite(ctx context.Context, in *RemoveFavori
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callRemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callFavoriteRemove(ctx context.Context, in *FavoriteRemoveRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
@@ -879,26 +879,26 @@ func (c *rpcProtobufClient) callRemoveFavorite(ctx context.Context, in *RemoveFa
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListFavoriteEvents(ctx context.Context, in *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+func (c *rpcProtobufClient) FavoriteListEvents(ctx context.Context, in *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListFavoriteEvents")
-	caller := c.callListFavoriteEvents
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteListEvents")
+	caller := c.callFavoriteListEvents
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+		caller = func(ctx context.Context, req *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListFavoriteEventsRequest)
+					typedReq, ok := req.(*FavoriteListEventsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListFavoriteEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteListEventsRequest) when calling interceptor")
 					}
-					return c.callListFavoriteEvents(ctx, typedReq)
+					return c.callFavoriteListEvents(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListFavoriteEventsResponse)
+				typedResp, ok := resp.(*FavoriteListEventsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoriteEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteListEventsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -908,8 +908,8 @@ func (c *rpcProtobufClient) ListFavoriteEvents(ctx context.Context, in *ListFavo
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListFavoriteEvents(ctx context.Context, in *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
-	out := new(ListFavoriteEventsResponse)
+func (c *rpcProtobufClient) callFavoriteListEvents(ctx context.Context, in *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
+	out := new(FavoriteListEventsResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -925,20 +925,20 @@ func (c *rpcProtobufClient) callListFavoriteEvents(ctx context.Context, in *List
 	return out, nil
 }
 
-func (c *rpcProtobufClient) DeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*Empty, error) {
+func (c *rpcProtobufClient) NotificationDelete(ctx context.Context, in *NotificationDeleteRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
-	caller := c.callDeleteNotification
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationDelete")
+	caller := c.callNotificationDelete
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *DeleteNotificationRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *NotificationDeleteRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteNotificationRequest)
+					typedReq, ok := req.(*NotificationDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationDeleteRequest) when calling interceptor")
 					}
-					return c.callDeleteNotification(ctx, typedReq)
+					return c.callNotificationDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -954,7 +954,7 @@ func (c *rpcProtobufClient) DeleteNotification(ctx context.Context, in *DeleteNo
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callDeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*Empty, error) {
+func (c *rpcProtobufClient) callNotificationDelete(ctx context.Context, in *NotificationDeleteRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
@@ -971,11 +971,11 @@ func (c *rpcProtobufClient) callDeleteNotification(ctx context.Context, in *Dele
 	return out, nil
 }
 
-func (c *rpcProtobufClient) DeleteAllNotifications(ctx context.Context, in *Empty) (*Empty, error) {
+func (c *rpcProtobufClient) NotificationsDeleteAll(ctx context.Context, in *Empty) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
-	caller := c.callDeleteAllNotifications
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsDeleteAll")
+	caller := c.callNotificationsDeleteAll
 	if c.interceptor != nil {
 		caller = func(ctx context.Context, req *Empty) (*Empty, error) {
 			resp, err := c.interceptor(
@@ -984,7 +984,7 @@ func (c *rpcProtobufClient) DeleteAllNotifications(ctx context.Context, in *Empt
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*Empty) when calling interceptor")
 					}
-					return c.callDeleteAllNotifications(ctx, typedReq)
+					return c.callNotificationsDeleteAll(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1000,7 +1000,7 @@ func (c *rpcProtobufClient) DeleteAllNotifications(ctx context.Context, in *Empt
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callDeleteAllNotifications(ctx context.Context, in *Empty) (*Empty, error) {
+func (c *rpcProtobufClient) callNotificationsDeleteAll(ctx context.Context, in *Empty) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
@@ -1017,26 +1017,26 @@ func (c *rpcProtobufClient) callDeleteAllNotifications(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *rpcProtobufClient) ListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+func (c *rpcProtobufClient) NotificationsList(ctx context.Context, in *NotificationsListRequest) (*NotificationsListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
-	caller := c.callListNotifications
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsList")
+	caller := c.callNotificationsList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+		caller = func(ctx context.Context, req *NotificationsListRequest) (*NotificationsListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListNotificationsRequest)
+					typedReq, ok := req.(*NotificationsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationsListRequest) when calling interceptor")
 					}
-					return c.callListNotifications(ctx, typedReq)
+					return c.callNotificationsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListNotificationsResponse)
+				typedResp, ok := resp.(*NotificationsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*NotificationsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1046,8 +1046,8 @@ func (c *rpcProtobufClient) ListNotifications(ctx context.Context, in *ListNotif
 	return caller(ctx, in)
 }
 
-func (c *rpcProtobufClient) callListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
-	out := new(ListNotificationsResponse)
+func (c *rpcProtobufClient) callNotificationsList(ctx context.Context, in *NotificationsListRequest) (*NotificationsListResponse, error) {
+	out := new(NotificationsListResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1098,26 +1098,26 @@ func NewRpcJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOpt
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "icbt", "Rpc")
 	urls := [20]string{
-		serviceURL + "CreateEvent",
-		serviceURL + "UpdateEvent",
-		serviceURL + "DeleteEvent",
-		serviceURL + "ListEvents",
-		serviceURL + "GetEventDetails",
-		serviceURL + "ListEventItems",
-		serviceURL + "ListEventEarmarks",
-		serviceURL + "AddEventItem",
-		serviceURL + "UpdateEventItem",
-		serviceURL + "RemoveEventItem",
-		serviceURL + "CreateEarmark",
-		serviceURL + "GetEarmarkDetails",
-		serviceURL + "RemoveEarmark",
-		serviceURL + "ListEarmarks",
-		serviceURL + "AddFavorite",
-		serviceURL + "RemoveFavorite",
-		serviceURL + "ListFavoriteEvents",
-		serviceURL + "DeleteNotification",
-		serviceURL + "DeleteAllNotifications",
-		serviceURL + "ListNotifications",
+		serviceURL + "EventCreate",
+		serviceURL + "EventUpdate",
+		serviceURL + "EventDelete",
+		serviceURL + "EventsList",
+		serviceURL + "EventGetDetails",
+		serviceURL + "EventListItems",
+		serviceURL + "EventListEarmarks",
+		serviceURL + "EventAddItem",
+		serviceURL + "EventUpdateItem",
+		serviceURL + "EventRemoveItem",
+		serviceURL + "EarmarkCreate",
+		serviceURL + "EarmarkGetDetails",
+		serviceURL + "EarmarkRemove",
+		serviceURL + "EarmarksList",
+		serviceURL + "FavoriteAdd",
+		serviceURL + "FavoriteRemove",
+		serviceURL + "FavoriteListEvents",
+		serviceURL + "NotificationDelete",
+		serviceURL + "NotificationsDeleteAll",
+		serviceURL + "NotificationsList",
 	}
 
 	return &rpcJSONClient{
@@ -1128,26 +1128,26 @@ func NewRpcJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOpt
 	}
 }
 
-func (c *rpcJSONClient) CreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
+func (c *rpcJSONClient) EventCreate(ctx context.Context, in *EventCreateRequest) (*EventCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
-	caller := c.callCreateEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventCreate")
+	caller := c.callEventCreate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+		caller = func(ctx context.Context, req *EventCreateRequest) (*EventCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEventRequest)
+					typedReq, ok := req.(*EventCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventCreateRequest) when calling interceptor")
 					}
-					return c.callCreateEvent(ctx, typedReq)
+					return c.callEventCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEventResponse)
+				typedResp, ok := resp.(*EventCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1157,8 +1157,8 @@ func (c *rpcJSONClient) CreateEvent(ctx context.Context, in *CreateEventRequest)
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callCreateEvent(ctx context.Context, in *CreateEventRequest) (*CreateEventResponse, error) {
-	out := new(CreateEventResponse)
+func (c *rpcJSONClient) callEventCreate(ctx context.Context, in *EventCreateRequest) (*EventCreateResponse, error) {
+	out := new(EventCreateResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1174,20 +1174,20 @@ func (c *rpcJSONClient) callCreateEvent(ctx context.Context, in *CreateEventRequ
 	return out, nil
 }
 
-func (c *rpcJSONClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest) (*Empty, error) {
+func (c *rpcJSONClient) EventUpdate(ctx context.Context, in *EventUpdateRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
-	caller := c.callUpdateEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdate")
+	caller := c.callEventUpdate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateEventRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventUpdateRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventRequest)
+					typedReq, ok := req.(*EventUpdateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateRequest) when calling interceptor")
 					}
-					return c.callUpdateEvent(ctx, typedReq)
+					return c.callEventUpdate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1203,7 +1203,7 @@ func (c *rpcJSONClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest)
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callUpdateEvent(ctx context.Context, in *UpdateEventRequest) (*Empty, error) {
+func (c *rpcJSONClient) callEventUpdate(ctx context.Context, in *EventUpdateRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
@@ -1220,20 +1220,20 @@ func (c *rpcJSONClient) callUpdateEvent(ctx context.Context, in *UpdateEventRequ
 	return out, nil
 }
 
-func (c *rpcJSONClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest) (*Empty, error) {
+func (c *rpcJSONClient) EventDelete(ctx context.Context, in *EventDeleteRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
-	caller := c.callDeleteEvent
+	ctx = ctxsetters.WithMethodName(ctx, "EventDelete")
+	caller := c.callEventDelete
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *DeleteEventRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventDeleteRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteEventRequest)
+					typedReq, ok := req.(*EventDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventDeleteRequest) when calling interceptor")
 					}
-					return c.callDeleteEvent(ctx, typedReq)
+					return c.callEventDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1249,7 +1249,7 @@ func (c *rpcJSONClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest)
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callDeleteEvent(ctx context.Context, in *DeleteEventRequest) (*Empty, error) {
+func (c *rpcJSONClient) callEventDelete(ctx context.Context, in *EventDeleteRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
@@ -1266,26 +1266,26 @@ func (c *rpcJSONClient) callDeleteEvent(ctx context.Context, in *DeleteEventRequ
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
+func (c *rpcJSONClient) EventsList(ctx context.Context, in *EventsListRequest) (*EventsListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
-	caller := c.callListEvents
+	ctx = ctxsetters.WithMethodName(ctx, "EventsList")
+	caller := c.callEventsList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+		caller = func(ctx context.Context, req *EventsListRequest) (*EventsListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventsRequest)
+					typedReq, ok := req.(*EventsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventsListRequest) when calling interceptor")
 					}
-					return c.callListEvents(ctx, typedReq)
+					return c.callEventsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventsResponse)
+				typedResp, ok := resp.(*EventsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1295,8 +1295,8 @@ func (c *rpcJSONClient) ListEvents(ctx context.Context, in *ListEventsRequest) (
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListEvents(ctx context.Context, in *ListEventsRequest) (*ListEventsResponse, error) {
-	out := new(ListEventsResponse)
+func (c *rpcJSONClient) callEventsList(ctx context.Context, in *EventsListRequest) (*EventsListResponse, error) {
+	out := new(EventsListResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1312,26 +1312,26 @@ func (c *rpcJSONClient) callListEvents(ctx context.Context, in *ListEventsReques
 	return out, nil
 }
 
-func (c *rpcJSONClient) GetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+func (c *rpcJSONClient) EventGetDetails(ctx context.Context, in *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
-	caller := c.callGetEventDetails
+	ctx = ctxsetters.WithMethodName(ctx, "EventGetDetails")
+	caller := c.callEventGetDetails
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+		caller = func(ctx context.Context, req *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEventDetailsRequest)
+					typedReq, ok := req.(*EventGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventGetDetailsRequest) when calling interceptor")
 					}
-					return c.callGetEventDetails(ctx, typedReq)
+					return c.callEventGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEventDetailsResponse)
+				typedResp, ok := resp.(*EventGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1341,8 +1341,8 @@ func (c *rpcJSONClient) GetEventDetails(ctx context.Context, in *GetEventDetails
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callGetEventDetails(ctx context.Context, in *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
-	out := new(GetEventDetailsResponse)
+func (c *rpcJSONClient) callEventGetDetails(ctx context.Context, in *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
+	out := new(EventGetDetailsResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1358,26 +1358,26 @@ func (c *rpcJSONClient) callGetEventDetails(ctx context.Context, in *GetEventDet
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListEventItems(ctx context.Context, in *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+func (c *rpcJSONClient) EventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventItems")
-	caller := c.callListEventItems
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
+	caller := c.callEventListItems
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+		caller = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventItemsRequest)
+					typedReq, ok := req.(*EventListItemsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventItemsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
 					}
-					return c.callListEventItems(ctx, typedReq)
+					return c.callEventListItems(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventItemsResponse)
+				typedResp, ok := resp.(*EventListItemsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventItemsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1387,8 +1387,8 @@ func (c *rpcJSONClient) ListEventItems(ctx context.Context, in *ListEventItemsRe
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListEventItems(ctx context.Context, in *ListEventItemsRequest) (*ListEventItemsResponse, error) {
-	out := new(ListEventItemsResponse)
+func (c *rpcJSONClient) callEventListItems(ctx context.Context, in *EventListItemsRequest) (*EventListItemsResponse, error) {
+	out := new(EventListItemsResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1404,26 +1404,26 @@ func (c *rpcJSONClient) callListEventItems(ctx context.Context, in *ListEventIte
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListEventEarmarks(ctx context.Context, in *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+func (c *rpcJSONClient) EventListEarmarks(ctx context.Context, in *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventEarmarks")
-	caller := c.callListEventEarmarks
+	ctx = ctxsetters.WithMethodName(ctx, "EventListEarmarks")
+	caller := c.callEventListEarmarks
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+		caller = func(ctx context.Context, req *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventEarmarksRequest)
+					typedReq, ok := req.(*EventListEarmarksRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListEarmarksRequest) when calling interceptor")
 					}
-					return c.callListEventEarmarks(ctx, typedReq)
+					return c.callEventListEarmarks(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventEarmarksResponse)
+				typedResp, ok := resp.(*EventListEarmarksResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListEarmarksResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1433,8 +1433,8 @@ func (c *rpcJSONClient) ListEventEarmarks(ctx context.Context, in *ListEventEarm
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListEventEarmarks(ctx context.Context, in *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
-	out := new(ListEventEarmarksResponse)
+func (c *rpcJSONClient) callEventListEarmarks(ctx context.Context, in *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
+	out := new(EventListEarmarksResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1450,26 +1450,26 @@ func (c *rpcJSONClient) callListEventEarmarks(ctx context.Context, in *ListEvent
 	return out, nil
 }
 
-func (c *rpcJSONClient) AddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
+func (c *rpcJSONClient) EventAddItem(ctx context.Context, in *EventAddItemRequest) (*EventAddItemResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
-	caller := c.callAddEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventAddItem")
+	caller := c.callEventAddItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+		caller = func(ctx context.Context, req *EventAddItemRequest) (*EventAddItemResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*AddEventItemRequest)
+					typedReq, ok := req.(*EventAddItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventAddItemRequest) when calling interceptor")
 					}
-					return c.callAddEventItem(ctx, typedReq)
+					return c.callEventAddItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*AddEventItemResponse)
+				typedResp, ok := resp.(*EventAddItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventAddItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1479,8 +1479,8 @@ func (c *rpcJSONClient) AddEventItem(ctx context.Context, in *AddEventItemReques
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callAddEventItem(ctx context.Context, in *AddEventItemRequest) (*AddEventItemResponse, error) {
-	out := new(AddEventItemResponse)
+func (c *rpcJSONClient) callEventAddItem(ctx context.Context, in *EventAddItemRequest) (*EventAddItemResponse, error) {
+	out := new(EventAddItemResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1496,26 +1496,26 @@ func (c *rpcJSONClient) callAddEventItem(ctx context.Context, in *AddEventItemRe
 	return out, nil
 }
 
-func (c *rpcJSONClient) UpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+func (c *rpcJSONClient) EventUpdateItem(ctx context.Context, in *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
-	caller := c.callUpdateEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdateItem")
+	caller := c.callEventUpdateItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+		caller = func(ctx context.Context, req *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventItemRequest)
+					typedReq, ok := req.(*EventUpdateItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateItemRequest) when calling interceptor")
 					}
-					return c.callUpdateEventItem(ctx, typedReq)
+					return c.callEventUpdateItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateEventItemResponse)
+				typedResp, ok := resp.(*EventUpdateItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventUpdateItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1525,8 +1525,8 @@ func (c *rpcJSONClient) UpdateEventItem(ctx context.Context, in *UpdateEventItem
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callUpdateEventItem(ctx context.Context, in *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
-	out := new(UpdateEventItemResponse)
+func (c *rpcJSONClient) callEventUpdateItem(ctx context.Context, in *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
+	out := new(EventUpdateItemResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1542,20 +1542,20 @@ func (c *rpcJSONClient) callUpdateEventItem(ctx context.Context, in *UpdateEvent
 	return out, nil
 }
 
-func (c *rpcJSONClient) RemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*Empty, error) {
+func (c *rpcJSONClient) EventRemoveItem(ctx context.Context, in *EventRemoveItemRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
-	caller := c.callRemoveEventItem
+	ctx = ctxsetters.WithMethodName(ctx, "EventRemoveItem")
+	caller := c.callEventRemoveItem
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveEventItemRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EventRemoveItemRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEventItemRequest)
+					typedReq, ok := req.(*EventRemoveItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventRemoveItemRequest) when calling interceptor")
 					}
-					return c.callRemoveEventItem(ctx, typedReq)
+					return c.callEventRemoveItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1571,7 +1571,7 @@ func (c *rpcJSONClient) RemoveEventItem(ctx context.Context, in *RemoveEventItem
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callRemoveEventItem(ctx context.Context, in *RemoveEventItemRequest) (*Empty, error) {
+func (c *rpcJSONClient) callEventRemoveItem(ctx context.Context, in *EventRemoveItemRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
@@ -1588,26 +1588,26 @@ func (c *rpcJSONClient) callRemoveEventItem(ctx context.Context, in *RemoveEvent
 	return out, nil
 }
 
-func (c *rpcJSONClient) CreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+func (c *rpcJSONClient) EarmarkCreate(ctx context.Context, in *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
-	caller := c.callCreateEarmark
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkCreate")
+	caller := c.callEarmarkCreate
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+		caller = func(ctx context.Context, req *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEarmarkRequest)
+					typedReq, ok := req.(*EarmarkCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkCreateRequest) when calling interceptor")
 					}
-					return c.callCreateEarmark(ctx, typedReq)
+					return c.callEarmarkCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEarmarkResponse)
+				typedResp, ok := resp.(*EarmarkCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1617,8 +1617,8 @@ func (c *rpcJSONClient) CreateEarmark(ctx context.Context, in *CreateEarmarkRequ
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callCreateEarmark(ctx context.Context, in *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
-	out := new(CreateEarmarkResponse)
+func (c *rpcJSONClient) callEarmarkCreate(ctx context.Context, in *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
+	out := new(EarmarkCreateResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1634,26 +1634,26 @@ func (c *rpcJSONClient) callCreateEarmark(ctx context.Context, in *CreateEarmark
 	return out, nil
 }
 
-func (c *rpcJSONClient) GetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+func (c *rpcJSONClient) EarmarkGetDetails(ctx context.Context, in *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
-	caller := c.callGetEarmarkDetails
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkGetDetails")
+	caller := c.callEarmarkGetDetails
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+		caller = func(ctx context.Context, req *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					typedReq, ok := req.(*EarmarkGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkGetDetailsRequest) when calling interceptor")
 					}
-					return c.callGetEarmarkDetails(ctx, typedReq)
+					return c.callEarmarkGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				typedResp, ok := resp.(*EarmarkGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1663,8 +1663,8 @@ func (c *rpcJSONClient) GetEarmarkDetails(ctx context.Context, in *GetEarmarkDet
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callGetEarmarkDetails(ctx context.Context, in *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
-	out := new(GetEarmarkDetailsResponse)
+func (c *rpcJSONClient) callEarmarkGetDetails(ctx context.Context, in *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
+	out := new(EarmarkGetDetailsResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1680,20 +1680,20 @@ func (c *rpcJSONClient) callGetEarmarkDetails(ctx context.Context, in *GetEarmar
 	return out, nil
 }
 
-func (c *rpcJSONClient) RemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*Empty, error) {
+func (c *rpcJSONClient) EarmarkRemove(ctx context.Context, in *EarmarkRemoveRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
-	caller := c.callRemoveEarmark
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkRemove")
+	caller := c.callEarmarkRemove
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveEarmarkRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *EarmarkRemoveRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEarmarkRequest)
+					typedReq, ok := req.(*EarmarkRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkRemoveRequest) when calling interceptor")
 					}
-					return c.callRemoveEarmark(ctx, typedReq)
+					return c.callEarmarkRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1709,7 +1709,7 @@ func (c *rpcJSONClient) RemoveEarmark(ctx context.Context, in *RemoveEarmarkRequ
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callRemoveEarmark(ctx context.Context, in *RemoveEarmarkRequest) (*Empty, error) {
+func (c *rpcJSONClient) callEarmarkRemove(ctx context.Context, in *EarmarkRemoveRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
@@ -1726,26 +1726,26 @@ func (c *rpcJSONClient) callRemoveEarmark(ctx context.Context, in *RemoveEarmark
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+func (c *rpcJSONClient) EarmarksList(ctx context.Context, in *EarmarksListRequest) (*EarmarksListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
-	caller := c.callListEarmarks
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarksList")
+	caller := c.callEarmarksList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+		caller = func(ctx context.Context, req *EarmarksListRequest) (*EarmarksListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEarmarksRequest)
+					typedReq, ok := req.(*EarmarksListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarksListRequest) when calling interceptor")
 					}
-					return c.callListEarmarks(ctx, typedReq)
+					return c.callEarmarksList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEarmarksResponse)
+				typedResp, ok := resp.(*EarmarksListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarksListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1755,8 +1755,8 @@ func (c *rpcJSONClient) ListEarmarks(ctx context.Context, in *ListEarmarksReques
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListEarmarks(ctx context.Context, in *ListEarmarksRequest) (*ListEarmarksResponse, error) {
-	out := new(ListEarmarksResponse)
+func (c *rpcJSONClient) callEarmarksList(ctx context.Context, in *EarmarksListRequest) (*EarmarksListResponse, error) {
+	out := new(EarmarksListResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1772,26 +1772,26 @@ func (c *rpcJSONClient) callListEarmarks(ctx context.Context, in *ListEarmarksRe
 	return out, nil
 }
 
-func (c *rpcJSONClient) AddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+func (c *rpcJSONClient) FavoriteAdd(ctx context.Context, in *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
-	caller := c.callAddFavorite
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteAdd")
+	caller := c.callFavoriteAdd
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+		caller = func(ctx context.Context, req *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateFavoriteRequest)
+					typedReq, ok := req.(*FavoriteCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteCreateRequest) when calling interceptor")
 					}
-					return c.callAddFavorite(ctx, typedReq)
+					return c.callFavoriteAdd(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateFavoriteResponse)
+				typedResp, ok := resp.(*FavoriteCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1801,8 +1801,8 @@ func (c *rpcJSONClient) AddFavorite(ctx context.Context, in *CreateFavoriteReque
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callAddFavorite(ctx context.Context, in *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
-	out := new(CreateFavoriteResponse)
+func (c *rpcJSONClient) callFavoriteAdd(ctx context.Context, in *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
+	out := new(FavoriteCreateResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1818,20 +1818,20 @@ func (c *rpcJSONClient) callAddFavorite(ctx context.Context, in *CreateFavoriteR
 	return out, nil
 }
 
-func (c *rpcJSONClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest) (*Empty, error) {
+func (c *rpcJSONClient) FavoriteRemove(ctx context.Context, in *FavoriteRemoveRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
-	caller := c.callRemoveFavorite
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteRemove")
+	caller := c.callFavoriteRemove
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *RemoveFavoriteRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *FavoriteRemoveRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveFavoriteRequest)
+					typedReq, ok := req.(*FavoriteRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteRemoveRequest) when calling interceptor")
 					}
-					return c.callRemoveFavorite(ctx, typedReq)
+					return c.callFavoriteRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1847,7 +1847,7 @@ func (c *rpcJSONClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRe
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callRemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest) (*Empty, error) {
+func (c *rpcJSONClient) callFavoriteRemove(ctx context.Context, in *FavoriteRemoveRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
@@ -1864,26 +1864,26 @@ func (c *rpcJSONClient) callRemoveFavorite(ctx context.Context, in *RemoveFavori
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListFavoriteEvents(ctx context.Context, in *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+func (c *rpcJSONClient) FavoriteListEvents(ctx context.Context, in *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListFavoriteEvents")
-	caller := c.callListFavoriteEvents
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteListEvents")
+	caller := c.callFavoriteListEvents
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+		caller = func(ctx context.Context, req *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListFavoriteEventsRequest)
+					typedReq, ok := req.(*FavoriteListEventsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListFavoriteEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteListEventsRequest) when calling interceptor")
 					}
-					return c.callListFavoriteEvents(ctx, typedReq)
+					return c.callFavoriteListEvents(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListFavoriteEventsResponse)
+				typedResp, ok := resp.(*FavoriteListEventsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoriteEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteListEventsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1893,8 +1893,8 @@ func (c *rpcJSONClient) ListFavoriteEvents(ctx context.Context, in *ListFavorite
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListFavoriteEvents(ctx context.Context, in *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
-	out := new(ListFavoriteEventsResponse)
+func (c *rpcJSONClient) callFavoriteListEvents(ctx context.Context, in *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
+	out := new(FavoriteListEventsResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1910,20 +1910,20 @@ func (c *rpcJSONClient) callListFavoriteEvents(ctx context.Context, in *ListFavo
 	return out, nil
 }
 
-func (c *rpcJSONClient) DeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*Empty, error) {
+func (c *rpcJSONClient) NotificationDelete(ctx context.Context, in *NotificationDeleteRequest) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
-	caller := c.callDeleteNotification
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationDelete")
+	caller := c.callNotificationDelete
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *DeleteNotificationRequest) (*Empty, error) {
+		caller = func(ctx context.Context, req *NotificationDeleteRequest) (*Empty, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteNotificationRequest)
+					typedReq, ok := req.(*NotificationDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationDeleteRequest) when calling interceptor")
 					}
-					return c.callDeleteNotification(ctx, typedReq)
+					return c.callNotificationDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1939,7 +1939,7 @@ func (c *rpcJSONClient) DeleteNotification(ctx context.Context, in *DeleteNotifi
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callDeleteNotification(ctx context.Context, in *DeleteNotificationRequest) (*Empty, error) {
+func (c *rpcJSONClient) callNotificationDelete(ctx context.Context, in *NotificationDeleteRequest) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
@@ -1956,11 +1956,11 @@ func (c *rpcJSONClient) callDeleteNotification(ctx context.Context, in *DeleteNo
 	return out, nil
 }
 
-func (c *rpcJSONClient) DeleteAllNotifications(ctx context.Context, in *Empty) (*Empty, error) {
+func (c *rpcJSONClient) NotificationsDeleteAll(ctx context.Context, in *Empty) (*Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
-	caller := c.callDeleteAllNotifications
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsDeleteAll")
+	caller := c.callNotificationsDeleteAll
 	if c.interceptor != nil {
 		caller = func(ctx context.Context, req *Empty) (*Empty, error) {
 			resp, err := c.interceptor(
@@ -1969,7 +1969,7 @@ func (c *rpcJSONClient) DeleteAllNotifications(ctx context.Context, in *Empty) (
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*Empty) when calling interceptor")
 					}
-					return c.callDeleteAllNotifications(ctx, typedReq)
+					return c.callNotificationsDeleteAll(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -1985,7 +1985,7 @@ func (c *rpcJSONClient) DeleteAllNotifications(ctx context.Context, in *Empty) (
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callDeleteAllNotifications(ctx context.Context, in *Empty) (*Empty, error) {
+func (c *rpcJSONClient) callNotificationsDeleteAll(ctx context.Context, in *Empty) (*Empty, error) {
 	out := new(Empty)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
@@ -2002,26 +2002,26 @@ func (c *rpcJSONClient) callDeleteAllNotifications(ctx context.Context, in *Empt
 	return out, nil
 }
 
-func (c *rpcJSONClient) ListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+func (c *rpcJSONClient) NotificationsList(ctx context.Context, in *NotificationsListRequest) (*NotificationsListResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "icbt")
 	ctx = ctxsetters.WithServiceName(ctx, "Rpc")
-	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
-	caller := c.callListNotifications
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsList")
+	caller := c.callNotificationsList
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+		caller = func(ctx context.Context, req *NotificationsListRequest) (*NotificationsListResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListNotificationsRequest)
+					typedReq, ok := req.(*NotificationsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationsListRequest) when calling interceptor")
 					}
-					return c.callListNotifications(ctx, typedReq)
+					return c.callNotificationsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListNotificationsResponse)
+				typedResp, ok := resp.(*NotificationsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*NotificationsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2031,8 +2031,8 @@ func (c *rpcJSONClient) ListNotifications(ctx context.Context, in *ListNotificat
 	return caller(ctx, in)
 }
 
-func (c *rpcJSONClient) callListNotifications(ctx context.Context, in *ListNotificationsRequest) (*ListNotificationsResponse, error) {
-	out := new(ListNotificationsResponse)
+func (c *rpcJSONClient) callNotificationsList(ctx context.Context, in *NotificationsListRequest) (*NotificationsListResponse, error) {
+	out := new(NotificationsListResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -2145,65 +2145,65 @@ func (s *rpcServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	switch method {
-	case "CreateEvent":
-		s.serveCreateEvent(ctx, resp, req)
+	case "EventCreate":
+		s.serveEventCreate(ctx, resp, req)
 		return
-	case "UpdateEvent":
-		s.serveUpdateEvent(ctx, resp, req)
+	case "EventUpdate":
+		s.serveEventUpdate(ctx, resp, req)
 		return
-	case "DeleteEvent":
-		s.serveDeleteEvent(ctx, resp, req)
+	case "EventDelete":
+		s.serveEventDelete(ctx, resp, req)
 		return
-	case "ListEvents":
-		s.serveListEvents(ctx, resp, req)
+	case "EventsList":
+		s.serveEventsList(ctx, resp, req)
 		return
-	case "GetEventDetails":
-		s.serveGetEventDetails(ctx, resp, req)
+	case "EventGetDetails":
+		s.serveEventGetDetails(ctx, resp, req)
 		return
-	case "ListEventItems":
-		s.serveListEventItems(ctx, resp, req)
+	case "EventListItems":
+		s.serveEventListItems(ctx, resp, req)
 		return
-	case "ListEventEarmarks":
-		s.serveListEventEarmarks(ctx, resp, req)
+	case "EventListEarmarks":
+		s.serveEventListEarmarks(ctx, resp, req)
 		return
-	case "AddEventItem":
-		s.serveAddEventItem(ctx, resp, req)
+	case "EventAddItem":
+		s.serveEventAddItem(ctx, resp, req)
 		return
-	case "UpdateEventItem":
-		s.serveUpdateEventItem(ctx, resp, req)
+	case "EventUpdateItem":
+		s.serveEventUpdateItem(ctx, resp, req)
 		return
-	case "RemoveEventItem":
-		s.serveRemoveEventItem(ctx, resp, req)
+	case "EventRemoveItem":
+		s.serveEventRemoveItem(ctx, resp, req)
 		return
-	case "CreateEarmark":
-		s.serveCreateEarmark(ctx, resp, req)
+	case "EarmarkCreate":
+		s.serveEarmarkCreate(ctx, resp, req)
 		return
-	case "GetEarmarkDetails":
-		s.serveGetEarmarkDetails(ctx, resp, req)
+	case "EarmarkGetDetails":
+		s.serveEarmarkGetDetails(ctx, resp, req)
 		return
-	case "RemoveEarmark":
-		s.serveRemoveEarmark(ctx, resp, req)
+	case "EarmarkRemove":
+		s.serveEarmarkRemove(ctx, resp, req)
 		return
-	case "ListEarmarks":
-		s.serveListEarmarks(ctx, resp, req)
+	case "EarmarksList":
+		s.serveEarmarksList(ctx, resp, req)
 		return
-	case "AddFavorite":
-		s.serveAddFavorite(ctx, resp, req)
+	case "FavoriteAdd":
+		s.serveFavoriteAdd(ctx, resp, req)
 		return
-	case "RemoveFavorite":
-		s.serveRemoveFavorite(ctx, resp, req)
+	case "FavoriteRemove":
+		s.serveFavoriteRemove(ctx, resp, req)
 		return
-	case "ListFavoriteEvents":
-		s.serveListFavoriteEvents(ctx, resp, req)
+	case "FavoriteListEvents":
+		s.serveFavoriteListEvents(ctx, resp, req)
 		return
-	case "DeleteNotification":
-		s.serveDeleteNotification(ctx, resp, req)
+	case "NotificationDelete":
+		s.serveNotificationDelete(ctx, resp, req)
 		return
-	case "DeleteAllNotifications":
-		s.serveDeleteAllNotifications(ctx, resp, req)
+	case "NotificationsDeleteAll":
+		s.serveNotificationsDeleteAll(ctx, resp, req)
 		return
-	case "ListNotifications":
-		s.serveListNotifications(ctx, resp, req)
+	case "NotificationsList":
+		s.serveNotificationsList(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -2212,7 +2212,7 @@ func (s *rpcServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s *rpcServer) serveCreateEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventCreate(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2220,9 +2220,9 @@ func (s *rpcServer) serveCreateEvent(ctx context.Context, resp http.ResponseWrit
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveCreateEventJSON(ctx, resp, req)
+		s.serveEventCreateJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveCreateEventProtobuf(ctx, resp, req)
+		s.serveEventCreateProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2230,9 +2230,9 @@ func (s *rpcServer) serveCreateEvent(ctx context.Context, resp http.ResponseWrit
 	}
 }
 
-func (s *rpcServer) serveCreateEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventCreateJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventCreate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2245,29 +2245,29 @@ func (s *rpcServer) serveCreateEventJSON(ctx context.Context, resp http.Response
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(CreateEventRequest)
+	reqContent := new(EventCreateRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.CreateEvent
+	handler := s.Rpc.EventCreate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+		handler = func(ctx context.Context, req *EventCreateRequest) (*EventCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEventRequest)
+					typedReq, ok := req.(*EventCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.CreateEvent(ctx, typedReq)
+					return s.Rpc.EventCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEventResponse)
+				typedResp, ok := resp.(*EventCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2276,7 +2276,7 @@ func (s *rpcServer) serveCreateEventJSON(ctx context.Context, resp http.Response
 	}
 
 	// Call service method
-	var respContent *CreateEventResponse
+	var respContent *EventCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2287,7 +2287,7 @@ func (s *rpcServer) serveCreateEventJSON(ctx context.Context, resp http.Response
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEventResponse and nil error while calling CreateEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventCreateResponse and nil error while calling EventCreate. nil responses are not supported"))
 		return
 	}
 
@@ -2313,9 +2313,9 @@ func (s *rpcServer) serveCreateEventJSON(ctx context.Context, resp http.Response
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveCreateEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventCreateProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventCreate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2327,28 +2327,28 @@ func (s *rpcServer) serveCreateEventProtobuf(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(CreateEventRequest)
+	reqContent := new(EventCreateRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.CreateEvent
+	handler := s.Rpc.EventCreate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+		handler = func(ctx context.Context, req *EventCreateRequest) (*EventCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEventRequest)
+					typedReq, ok := req.(*EventCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.CreateEvent(ctx, typedReq)
+					return s.Rpc.EventCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEventResponse)
+				typedResp, ok := resp.(*EventCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEventResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2357,7 +2357,7 @@ func (s *rpcServer) serveCreateEventProtobuf(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *CreateEventResponse
+	var respContent *EventCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2368,7 +2368,7 @@ func (s *rpcServer) serveCreateEventProtobuf(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEventResponse and nil error while calling CreateEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventCreateResponse and nil error while calling EventCreate. nil responses are not supported"))
 		return
 	}
 
@@ -2392,7 +2392,7 @@ func (s *rpcServer) serveCreateEventProtobuf(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveUpdateEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdate(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2400,9 +2400,9 @@ func (s *rpcServer) serveUpdateEvent(ctx context.Context, resp http.ResponseWrit
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveUpdateEventJSON(ctx, resp, req)
+		s.serveEventUpdateJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveUpdateEventProtobuf(ctx, resp, req)
+		s.serveEventUpdateProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2410,9 +2410,9 @@ func (s *rpcServer) serveUpdateEvent(ctx context.Context, resp http.ResponseWrit
 	}
 }
 
-func (s *rpcServer) serveUpdateEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdateJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2425,23 +2425,23 @@ func (s *rpcServer) serveUpdateEventJSON(ctx context.Context, resp http.Response
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(UpdateEventRequest)
+	reqContent := new(EventUpdateRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.UpdateEvent
+	handler := s.Rpc.EventUpdate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateEventRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventUpdateRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventRequest)
+					typedReq, ok := req.(*EventUpdateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateRequest) when calling interceptor")
 					}
-					return s.Rpc.UpdateEvent(ctx, typedReq)
+					return s.Rpc.EventUpdate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2467,7 +2467,7 @@ func (s *rpcServer) serveUpdateEventJSON(ctx context.Context, resp http.Response
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling UpdateEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventUpdate. nil responses are not supported"))
 		return
 	}
 
@@ -2493,9 +2493,9 @@ func (s *rpcServer) serveUpdateEventJSON(ctx context.Context, resp http.Response
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveUpdateEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdateProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2507,22 +2507,22 @@ func (s *rpcServer) serveUpdateEventProtobuf(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(UpdateEventRequest)
+	reqContent := new(EventUpdateRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.UpdateEvent
+	handler := s.Rpc.EventUpdate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateEventRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventUpdateRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventRequest)
+					typedReq, ok := req.(*EventUpdateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateRequest) when calling interceptor")
 					}
-					return s.Rpc.UpdateEvent(ctx, typedReq)
+					return s.Rpc.EventUpdate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2548,7 +2548,7 @@ func (s *rpcServer) serveUpdateEventProtobuf(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling UpdateEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventUpdate. nil responses are not supported"))
 		return
 	}
 
@@ -2572,7 +2572,7 @@ func (s *rpcServer) serveUpdateEventProtobuf(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteEvent(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventDelete(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2580,9 +2580,9 @@ func (s *rpcServer) serveDeleteEvent(ctx context.Context, resp http.ResponseWrit
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveDeleteEventJSON(ctx, resp, req)
+		s.serveEventDeleteJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveDeleteEventProtobuf(ctx, resp, req)
+		s.serveEventDeleteProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2590,9 +2590,9 @@ func (s *rpcServer) serveDeleteEvent(ctx context.Context, resp http.ResponseWrit
 	}
 }
 
-func (s *rpcServer) serveDeleteEventJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventDeleteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventDelete")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2605,23 +2605,23 @@ func (s *rpcServer) serveDeleteEventJSON(ctx context.Context, resp http.Response
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(DeleteEventRequest)
+	reqContent := new(EventDeleteRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.DeleteEvent
+	handler := s.Rpc.EventDelete
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *DeleteEventRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventDeleteRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteEventRequest)
+					typedReq, ok := req.(*EventDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventDeleteRequest) when calling interceptor")
 					}
-					return s.Rpc.DeleteEvent(ctx, typedReq)
+					return s.Rpc.EventDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2647,7 +2647,7 @@ func (s *rpcServer) serveDeleteEventJSON(ctx context.Context, resp http.Response
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventDelete. nil responses are not supported"))
 		return
 	}
 
@@ -2673,9 +2673,9 @@ func (s *rpcServer) serveDeleteEventJSON(ctx context.Context, resp http.Response
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteEventProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventDeleteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteEvent")
+	ctx = ctxsetters.WithMethodName(ctx, "EventDelete")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2687,22 +2687,22 @@ func (s *rpcServer) serveDeleteEventProtobuf(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(DeleteEventRequest)
+	reqContent := new(EventDeleteRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.DeleteEvent
+	handler := s.Rpc.EventDelete
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *DeleteEventRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventDeleteRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteEventRequest)
+					typedReq, ok := req.(*EventDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteEventRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventDeleteRequest) when calling interceptor")
 					}
-					return s.Rpc.DeleteEvent(ctx, typedReq)
+					return s.Rpc.EventDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2728,7 +2728,7 @@ func (s *rpcServer) serveDeleteEventProtobuf(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteEvent. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventDelete. nil responses are not supported"))
 		return
 	}
 
@@ -2752,7 +2752,7 @@ func (s *rpcServer) serveDeleteEventProtobuf(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEvents(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventsList(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2760,9 +2760,9 @@ func (s *rpcServer) serveListEvents(ctx context.Context, resp http.ResponseWrite
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListEventsJSON(ctx, resp, req)
+		s.serveEventsListJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListEventsProtobuf(ctx, resp, req)
+		s.serveEventsListProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2770,9 +2770,9 @@ func (s *rpcServer) serveListEvents(ctx context.Context, resp http.ResponseWrite
 	}
 }
 
-func (s *rpcServer) serveListEventsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventsListJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	ctx = ctxsetters.WithMethodName(ctx, "EventsList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2785,29 +2785,29 @@ func (s *rpcServer) serveListEventsJSON(ctx context.Context, resp http.ResponseW
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListEventsRequest)
+	reqContent := new(EventsListRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListEvents
+	handler := s.Rpc.EventsList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+		handler = func(ctx context.Context, req *EventsListRequest) (*EventsListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventsRequest)
+					typedReq, ok := req.(*EventsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventsListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEvents(ctx, typedReq)
+					return s.Rpc.EventsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventsResponse)
+				typedResp, ok := resp.(*EventsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2816,7 +2816,7 @@ func (s *rpcServer) serveListEventsJSON(ctx context.Context, resp http.ResponseW
 	}
 
 	// Call service method
-	var respContent *ListEventsResponse
+	var respContent *EventsListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2827,7 +2827,7 @@ func (s *rpcServer) serveListEventsJSON(ctx context.Context, resp http.ResponseW
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventsResponse and nil error while calling ListEvents. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventsListResponse and nil error while calling EventsList. nil responses are not supported"))
 		return
 	}
 
@@ -2853,9 +2853,9 @@ func (s *rpcServer) serveListEventsJSON(ctx context.Context, resp http.ResponseW
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEventsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventsListProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEvents")
+	ctx = ctxsetters.WithMethodName(ctx, "EventsList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2867,28 +2867,28 @@ func (s *rpcServer) serveListEventsProtobuf(ctx context.Context, resp http.Respo
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListEventsRequest)
+	reqContent := new(EventsListRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListEvents
+	handler := s.Rpc.EventsList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventsRequest) (*ListEventsResponse, error) {
+		handler = func(ctx context.Context, req *EventsListRequest) (*EventsListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventsRequest)
+					typedReq, ok := req.(*EventsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventsListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEvents(ctx, typedReq)
+					return s.Rpc.EventsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventsResponse)
+				typedResp, ok := resp.(*EventsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2897,7 +2897,7 @@ func (s *rpcServer) serveListEventsProtobuf(ctx context.Context, resp http.Respo
 	}
 
 	// Call service method
-	var respContent *ListEventsResponse
+	var respContent *EventsListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2908,7 +2908,7 @@ func (s *rpcServer) serveListEventsProtobuf(ctx context.Context, resp http.Respo
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventsResponse and nil error while calling ListEvents. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventsListResponse and nil error while calling EventsList. nil responses are not supported"))
 		return
 	}
 
@@ -2932,7 +2932,7 @@ func (s *rpcServer) serveListEventsProtobuf(ctx context.Context, resp http.Respo
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveGetEventDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventGetDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2940,9 +2940,9 @@ func (s *rpcServer) serveGetEventDetails(ctx context.Context, resp http.Response
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveGetEventDetailsJSON(ctx, resp, req)
+		s.serveEventGetDetailsJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveGetEventDetailsProtobuf(ctx, resp, req)
+		s.serveEventGetDetailsProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2950,9 +2950,9 @@ func (s *rpcServer) serveGetEventDetails(ctx context.Context, resp http.Response
 	}
 }
 
-func (s *rpcServer) serveGetEventDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventGetDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	ctx = ctxsetters.WithMethodName(ctx, "EventGetDetails")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2965,29 +2965,29 @@ func (s *rpcServer) serveGetEventDetailsJSON(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(GetEventDetailsRequest)
+	reqContent := new(EventGetDetailsRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.GetEventDetails
+	handler := s.Rpc.EventGetDetails
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+		handler = func(ctx context.Context, req *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEventDetailsRequest)
+					typedReq, ok := req.(*EventGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventGetDetailsRequest) when calling interceptor")
 					}
-					return s.Rpc.GetEventDetails(ctx, typedReq)
+					return s.Rpc.EventGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEventDetailsResponse)
+				typedResp, ok := resp.(*EventGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2996,7 +2996,7 @@ func (s *rpcServer) serveGetEventDetailsJSON(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *GetEventDetailsResponse
+	var respContent *EventGetDetailsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3007,7 +3007,7 @@ func (s *rpcServer) serveGetEventDetailsJSON(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEventDetailsResponse and nil error while calling GetEventDetails. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventGetDetailsResponse and nil error while calling EventGetDetails. nil responses are not supported"))
 		return
 	}
 
@@ -3033,9 +3033,9 @@ func (s *rpcServer) serveGetEventDetailsJSON(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventGetDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetEventDetails")
+	ctx = ctxsetters.WithMethodName(ctx, "EventGetDetails")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3047,28 +3047,28 @@ func (s *rpcServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(GetEventDetailsRequest)
+	reqContent := new(EventGetDetailsRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.GetEventDetails
+	handler := s.Rpc.EventGetDetails
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetEventDetailsRequest) (*GetEventDetailsResponse, error) {
+		handler = func(ctx context.Context, req *EventGetDetailsRequest) (*EventGetDetailsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEventDetailsRequest)
+					typedReq, ok := req.(*EventGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEventDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventGetDetailsRequest) when calling interceptor")
 					}
-					return s.Rpc.GetEventDetails(ctx, typedReq)
+					return s.Rpc.EventGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEventDetailsResponse)
+				typedResp, ok := resp.(*EventGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEventDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3077,7 +3077,7 @@ func (s *rpcServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.
 	}
 
 	// Call service method
-	var respContent *GetEventDetailsResponse
+	var respContent *EventGetDetailsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3088,7 +3088,7 @@ func (s *rpcServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEventDetailsResponse and nil error while calling GetEventDetails. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventGetDetailsResponse and nil error while calling EventGetDetails. nil responses are not supported"))
 		return
 	}
 
@@ -3112,7 +3112,7 @@ func (s *rpcServer) serveGetEventDetailsProtobuf(ctx context.Context, resp http.
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEventItems(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListItems(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -3120,9 +3120,9 @@ func (s *rpcServer) serveListEventItems(ctx context.Context, resp http.ResponseW
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListEventItemsJSON(ctx, resp, req)
+		s.serveEventListItemsJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListEventItemsProtobuf(ctx, resp, req)
+		s.serveEventListItemsProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -3130,9 +3130,9 @@ func (s *rpcServer) serveListEventItems(ctx context.Context, resp http.ResponseW
 	}
 }
 
-func (s *rpcServer) serveListEventItemsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListItemsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventItems")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3145,29 +3145,29 @@ func (s *rpcServer) serveListEventItemsJSON(ctx context.Context, resp http.Respo
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListEventItemsRequest)
+	reqContent := new(EventListItemsRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListEventItems
+	handler := s.Rpc.EventListItems
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+		handler = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventItemsRequest)
+					typedReq, ok := req.(*EventListItemsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventItemsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEventItems(ctx, typedReq)
+					return s.Rpc.EventListItems(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventItemsResponse)
+				typedResp, ok := resp.(*EventListItemsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventItemsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3176,7 +3176,7 @@ func (s *rpcServer) serveListEventItemsJSON(ctx context.Context, resp http.Respo
 	}
 
 	// Call service method
-	var respContent *ListEventItemsResponse
+	var respContent *EventListItemsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3187,7 +3187,7 @@ func (s *rpcServer) serveListEventItemsJSON(ctx context.Context, resp http.Respo
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventItemsResponse and nil error while calling ListEventItems. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListItemsResponse and nil error while calling EventListItems. nil responses are not supported"))
 		return
 	}
 
@@ -3213,9 +3213,9 @@ func (s *rpcServer) serveListEventItemsJSON(ctx context.Context, resp http.Respo
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEventItemsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListItemsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventItems")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListItems")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3227,28 +3227,28 @@ func (s *rpcServer) serveListEventItemsProtobuf(ctx context.Context, resp http.R
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListEventItemsRequest)
+	reqContent := new(EventListItemsRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListEventItems
+	handler := s.Rpc.EventListItems
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventItemsRequest) (*ListEventItemsResponse, error) {
+		handler = func(ctx context.Context, req *EventListItemsRequest) (*EventListItemsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventItemsRequest)
+					typedReq, ok := req.(*EventListItemsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventItemsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListItemsRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEventItems(ctx, typedReq)
+					return s.Rpc.EventListItems(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventItemsResponse)
+				typedResp, ok := resp.(*EventListItemsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventItemsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListItemsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3257,7 +3257,7 @@ func (s *rpcServer) serveListEventItemsProtobuf(ctx context.Context, resp http.R
 	}
 
 	// Call service method
-	var respContent *ListEventItemsResponse
+	var respContent *EventListItemsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3268,7 +3268,7 @@ func (s *rpcServer) serveListEventItemsProtobuf(ctx context.Context, resp http.R
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventItemsResponse and nil error while calling ListEventItems. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListItemsResponse and nil error while calling EventListItems. nil responses are not supported"))
 		return
 	}
 
@@ -3292,7 +3292,7 @@ func (s *rpcServer) serveListEventItemsProtobuf(ctx context.Context, resp http.R
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEventEarmarks(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListEarmarks(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -3300,9 +3300,9 @@ func (s *rpcServer) serveListEventEarmarks(ctx context.Context, resp http.Respon
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListEventEarmarksJSON(ctx, resp, req)
+		s.serveEventListEarmarksJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListEventEarmarksProtobuf(ctx, resp, req)
+		s.serveEventListEarmarksProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -3310,9 +3310,9 @@ func (s *rpcServer) serveListEventEarmarks(ctx context.Context, resp http.Respon
 	}
 }
 
-func (s *rpcServer) serveListEventEarmarksJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListEarmarksJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventEarmarks")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListEarmarks")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3325,29 +3325,29 @@ func (s *rpcServer) serveListEventEarmarksJSON(ctx context.Context, resp http.Re
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListEventEarmarksRequest)
+	reqContent := new(EventListEarmarksRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListEventEarmarks
+	handler := s.Rpc.EventListEarmarks
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+		handler = func(ctx context.Context, req *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventEarmarksRequest)
+					typedReq, ok := req.(*EventListEarmarksRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListEarmarksRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEventEarmarks(ctx, typedReq)
+					return s.Rpc.EventListEarmarks(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventEarmarksResponse)
+				typedResp, ok := resp.(*EventListEarmarksResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListEarmarksResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3356,7 +3356,7 @@ func (s *rpcServer) serveListEventEarmarksJSON(ctx context.Context, resp http.Re
 	}
 
 	// Call service method
-	var respContent *ListEventEarmarksResponse
+	var respContent *EventListEarmarksResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3367,7 +3367,7 @@ func (s *rpcServer) serveListEventEarmarksJSON(ctx context.Context, resp http.Re
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventEarmarksResponse and nil error while calling ListEventEarmarks. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListEarmarksResponse and nil error while calling EventListEarmarks. nil responses are not supported"))
 		return
 	}
 
@@ -3393,9 +3393,9 @@ func (s *rpcServer) serveListEventEarmarksJSON(ctx context.Context, resp http.Re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEventEarmarksProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventListEarmarksProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEventEarmarks")
+	ctx = ctxsetters.WithMethodName(ctx, "EventListEarmarks")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3407,28 +3407,28 @@ func (s *rpcServer) serveListEventEarmarksProtobuf(ctx context.Context, resp htt
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListEventEarmarksRequest)
+	reqContent := new(EventListEarmarksRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListEventEarmarks
+	handler := s.Rpc.EventListEarmarks
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEventEarmarksRequest) (*ListEventEarmarksResponse, error) {
+		handler = func(ctx context.Context, req *EventListEarmarksRequest) (*EventListEarmarksResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEventEarmarksRequest)
+					typedReq, ok := req.(*EventListEarmarksRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEventEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventListEarmarksRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEventEarmarks(ctx, typedReq)
+					return s.Rpc.EventListEarmarks(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEventEarmarksResponse)
+				typedResp, ok := resp.(*EventListEarmarksResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEventEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventListEarmarksResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3437,7 +3437,7 @@ func (s *rpcServer) serveListEventEarmarksProtobuf(ctx context.Context, resp htt
 	}
 
 	// Call service method
-	var respContent *ListEventEarmarksResponse
+	var respContent *EventListEarmarksResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3448,7 +3448,7 @@ func (s *rpcServer) serveListEventEarmarksProtobuf(ctx context.Context, resp htt
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEventEarmarksResponse and nil error while calling ListEventEarmarks. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventListEarmarksResponse and nil error while calling EventListEarmarks. nil responses are not supported"))
 		return
 	}
 
@@ -3472,7 +3472,7 @@ func (s *rpcServer) serveListEventEarmarksProtobuf(ctx context.Context, resp htt
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveAddEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventAddItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -3480,9 +3480,9 @@ func (s *rpcServer) serveAddEventItem(ctx context.Context, resp http.ResponseWri
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveAddEventItemJSON(ctx, resp, req)
+		s.serveEventAddItemJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveAddEventItemProtobuf(ctx, resp, req)
+		s.serveEventAddItemProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -3490,9 +3490,9 @@ func (s *rpcServer) serveAddEventItem(ctx context.Context, resp http.ResponseWri
 	}
 }
 
-func (s *rpcServer) serveAddEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventAddItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventAddItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3505,29 +3505,29 @@ func (s *rpcServer) serveAddEventItemJSON(ctx context.Context, resp http.Respons
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(AddEventItemRequest)
+	reqContent := new(EventAddItemRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.AddEventItem
+	handler := s.Rpc.EventAddItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+		handler = func(ctx context.Context, req *EventAddItemRequest) (*EventAddItemResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*AddEventItemRequest)
+					typedReq, ok := req.(*EventAddItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventAddItemRequest) when calling interceptor")
 					}
-					return s.Rpc.AddEventItem(ctx, typedReq)
+					return s.Rpc.EventAddItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*AddEventItemResponse)
+				typedResp, ok := resp.(*EventAddItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventAddItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3536,7 +3536,7 @@ func (s *rpcServer) serveAddEventItemJSON(ctx context.Context, resp http.Respons
 	}
 
 	// Call service method
-	var respContent *AddEventItemResponse
+	var respContent *EventAddItemResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3547,7 +3547,7 @@ func (s *rpcServer) serveAddEventItemJSON(ctx context.Context, resp http.Respons
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *AddEventItemResponse and nil error while calling AddEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventAddItemResponse and nil error while calling EventAddItem. nil responses are not supported"))
 		return
 	}
 
@@ -3573,9 +3573,9 @@ func (s *rpcServer) serveAddEventItemJSON(ctx context.Context, resp http.Respons
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveAddEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventAddItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "AddEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventAddItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3587,28 +3587,28 @@ func (s *rpcServer) serveAddEventItemProtobuf(ctx context.Context, resp http.Res
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(AddEventItemRequest)
+	reqContent := new(EventAddItemRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.AddEventItem
+	handler := s.Rpc.EventAddItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *AddEventItemRequest) (*AddEventItemResponse, error) {
+		handler = func(ctx context.Context, req *EventAddItemRequest) (*EventAddItemResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*AddEventItemRequest)
+					typedReq, ok := req.(*EventAddItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*AddEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventAddItemRequest) when calling interceptor")
 					}
-					return s.Rpc.AddEventItem(ctx, typedReq)
+					return s.Rpc.EventAddItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*AddEventItemResponse)
+				typedResp, ok := resp.(*EventAddItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*AddEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventAddItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3617,7 +3617,7 @@ func (s *rpcServer) serveAddEventItemProtobuf(ctx context.Context, resp http.Res
 	}
 
 	// Call service method
-	var respContent *AddEventItemResponse
+	var respContent *EventAddItemResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3628,7 +3628,7 @@ func (s *rpcServer) serveAddEventItemProtobuf(ctx context.Context, resp http.Res
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *AddEventItemResponse and nil error while calling AddEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventAddItemResponse and nil error while calling EventAddItem. nil responses are not supported"))
 		return
 	}
 
@@ -3652,7 +3652,7 @@ func (s *rpcServer) serveAddEventItemProtobuf(ctx context.Context, resp http.Res
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveUpdateEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdateItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -3660,9 +3660,9 @@ func (s *rpcServer) serveUpdateEventItem(ctx context.Context, resp http.Response
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveUpdateEventItemJSON(ctx, resp, req)
+		s.serveEventUpdateItemJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveUpdateEventItemProtobuf(ctx, resp, req)
+		s.serveEventUpdateItemProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -3670,9 +3670,9 @@ func (s *rpcServer) serveUpdateEventItem(ctx context.Context, resp http.Response
 	}
 }
 
-func (s *rpcServer) serveUpdateEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdateItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdateItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3685,29 +3685,29 @@ func (s *rpcServer) serveUpdateEventItemJSON(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(UpdateEventItemRequest)
+	reqContent := new(EventUpdateItemRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.UpdateEventItem
+	handler := s.Rpc.EventUpdateItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+		handler = func(ctx context.Context, req *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventItemRequest)
+					typedReq, ok := req.(*EventUpdateItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateItemRequest) when calling interceptor")
 					}
-					return s.Rpc.UpdateEventItem(ctx, typedReq)
+					return s.Rpc.EventUpdateItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateEventItemResponse)
+				typedResp, ok := resp.(*EventUpdateItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventUpdateItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3716,7 +3716,7 @@ func (s *rpcServer) serveUpdateEventItemJSON(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *UpdateEventItemResponse
+	var respContent *EventUpdateItemResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3727,7 +3727,7 @@ func (s *rpcServer) serveUpdateEventItemJSON(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventItemResponse and nil error while calling UpdateEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventUpdateItemResponse and nil error while calling EventUpdateItem. nil responses are not supported"))
 		return
 	}
 
@@ -3753,9 +3753,9 @@ func (s *rpcServer) serveUpdateEventItemJSON(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventUpdateItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventUpdateItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3767,28 +3767,28 @@ func (s *rpcServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(UpdateEventItemRequest)
+	reqContent := new(EventUpdateItemRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.UpdateEventItem
+	handler := s.Rpc.EventUpdateItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateEventItemRequest) (*UpdateEventItemResponse, error) {
+		handler = func(ctx context.Context, req *EventUpdateItemRequest) (*EventUpdateItemResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateEventItemRequest)
+					typedReq, ok := req.(*EventUpdateItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventUpdateItemRequest) when calling interceptor")
 					}
-					return s.Rpc.UpdateEventItem(ctx, typedReq)
+					return s.Rpc.EventUpdateItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateEventItemResponse)
+				typedResp, ok := resp.(*EventUpdateItemResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEventItemResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EventUpdateItemResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -3797,7 +3797,7 @@ func (s *rpcServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.
 	}
 
 	// Call service method
-	var respContent *UpdateEventItemResponse
+	var respContent *EventUpdateItemResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -3808,7 +3808,7 @@ func (s *rpcServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEventItemResponse and nil error while calling UpdateEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EventUpdateItemResponse and nil error while calling EventUpdateItem. nil responses are not supported"))
 		return
 	}
 
@@ -3832,7 +3832,7 @@ func (s *rpcServer) serveUpdateEventItemProtobuf(ctx context.Context, resp http.
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveEventItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventRemoveItem(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -3840,9 +3840,9 @@ func (s *rpcServer) serveRemoveEventItem(ctx context.Context, resp http.Response
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveRemoveEventItemJSON(ctx, resp, req)
+		s.serveEventRemoveItemJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveRemoveEventItemProtobuf(ctx, resp, req)
+		s.serveEventRemoveItemProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -3850,9 +3850,9 @@ func (s *rpcServer) serveRemoveEventItem(ctx context.Context, resp http.Response
 	}
 }
 
-func (s *rpcServer) serveRemoveEventItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventRemoveItemJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventRemoveItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3865,23 +3865,23 @@ func (s *rpcServer) serveRemoveEventItemJSON(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(RemoveEventItemRequest)
+	reqContent := new(EventRemoveItemRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.RemoveEventItem
+	handler := s.Rpc.EventRemoveItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveEventItemRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventRemoveItemRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEventItemRequest)
+					typedReq, ok := req.(*EventRemoveItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventRemoveItemRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveEventItem(ctx, typedReq)
+					return s.Rpc.EventRemoveItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -3907,7 +3907,7 @@ func (s *rpcServer) serveRemoveEventItemJSON(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventRemoveItem. nil responses are not supported"))
 		return
 	}
 
@@ -3933,9 +3933,9 @@ func (s *rpcServer) serveRemoveEventItemJSON(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveEventItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEventRemoveItemProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEventItem")
+	ctx = ctxsetters.WithMethodName(ctx, "EventRemoveItem")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -3947,22 +3947,22 @@ func (s *rpcServer) serveRemoveEventItemProtobuf(ctx context.Context, resp http.
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(RemoveEventItemRequest)
+	reqContent := new(EventRemoveItemRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.RemoveEventItem
+	handler := s.Rpc.EventRemoveItem
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveEventItemRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EventRemoveItemRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEventItemRequest)
+					typedReq, ok := req.(*EventRemoveItemRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEventItemRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EventRemoveItemRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveEventItem(ctx, typedReq)
+					return s.Rpc.EventRemoveItem(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -3988,7 +3988,7 @@ func (s *rpcServer) serveRemoveEventItemProtobuf(ctx context.Context, resp http.
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveEventItem. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EventRemoveItem. nil responses are not supported"))
 		return
 	}
 
@@ -4012,7 +4012,7 @@ func (s *rpcServer) serveRemoveEventItemProtobuf(ctx context.Context, resp http.
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveCreateEarmark(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkCreate(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4020,9 +4020,9 @@ func (s *rpcServer) serveCreateEarmark(ctx context.Context, resp http.ResponseWr
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveCreateEarmarkJSON(ctx, resp, req)
+		s.serveEarmarkCreateJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveCreateEarmarkProtobuf(ctx, resp, req)
+		s.serveEarmarkCreateProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4030,9 +4030,9 @@ func (s *rpcServer) serveCreateEarmark(ctx context.Context, resp http.ResponseWr
 	}
 }
 
-func (s *rpcServer) serveCreateEarmarkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkCreateJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkCreate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4045,29 +4045,29 @@ func (s *rpcServer) serveCreateEarmarkJSON(ctx context.Context, resp http.Respon
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(CreateEarmarkRequest)
+	reqContent := new(EarmarkCreateRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.CreateEarmark
+	handler := s.Rpc.EarmarkCreate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+		handler = func(ctx context.Context, req *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEarmarkRequest)
+					typedReq, ok := req.(*EarmarkCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.CreateEarmark(ctx, typedReq)
+					return s.Rpc.EarmarkCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEarmarkResponse)
+				typedResp, ok := resp.(*EarmarkCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4076,7 +4076,7 @@ func (s *rpcServer) serveCreateEarmarkJSON(ctx context.Context, resp http.Respon
 	}
 
 	// Call service method
-	var respContent *CreateEarmarkResponse
+	var respContent *EarmarkCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4087,7 +4087,7 @@ func (s *rpcServer) serveCreateEarmarkJSON(ctx context.Context, resp http.Respon
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEarmarkResponse and nil error while calling CreateEarmark. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarkCreateResponse and nil error while calling EarmarkCreate. nil responses are not supported"))
 		return
 	}
 
@@ -4113,9 +4113,9 @@ func (s *rpcServer) serveCreateEarmarkJSON(ctx context.Context, resp http.Respon
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkCreateProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "CreateEarmark")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkCreate")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4127,28 +4127,28 @@ func (s *rpcServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.Re
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(CreateEarmarkRequest)
+	reqContent := new(EarmarkCreateRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.CreateEarmark
+	handler := s.Rpc.EarmarkCreate
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateEarmarkRequest) (*CreateEarmarkResponse, error) {
+		handler = func(ctx context.Context, req *EarmarkCreateRequest) (*EarmarkCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateEarmarkRequest)
+					typedReq, ok := req.(*EarmarkCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.CreateEarmark(ctx, typedReq)
+					return s.Rpc.EarmarkCreate(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateEarmarkResponse)
+				typedResp, ok := resp.(*EarmarkCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateEarmarkResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4157,7 +4157,7 @@ func (s *rpcServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.Re
 	}
 
 	// Call service method
-	var respContent *CreateEarmarkResponse
+	var respContent *EarmarkCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4168,7 +4168,7 @@ func (s *rpcServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.Re
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateEarmarkResponse and nil error while calling CreateEarmark. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarkCreateResponse and nil error while calling EarmarkCreate. nil responses are not supported"))
 		return
 	}
 
@@ -4192,7 +4192,7 @@ func (s *rpcServer) serveCreateEarmarkProtobuf(ctx context.Context, resp http.Re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveGetEarmarkDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkGetDetails(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4200,9 +4200,9 @@ func (s *rpcServer) serveGetEarmarkDetails(ctx context.Context, resp http.Respon
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveGetEarmarkDetailsJSON(ctx, resp, req)
+		s.serveEarmarkGetDetailsJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveGetEarmarkDetailsProtobuf(ctx, resp, req)
+		s.serveEarmarkGetDetailsProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4210,9 +4210,9 @@ func (s *rpcServer) serveGetEarmarkDetails(ctx context.Context, resp http.Respon
 	}
 }
 
-func (s *rpcServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkGetDetailsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkGetDetails")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4225,29 +4225,29 @@ func (s *rpcServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.Re
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(GetEarmarkDetailsRequest)
+	reqContent := new(EarmarkGetDetailsRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.GetEarmarkDetails
+	handler := s.Rpc.EarmarkGetDetails
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+		handler = func(ctx context.Context, req *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					typedReq, ok := req.(*EarmarkGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkGetDetailsRequest) when calling interceptor")
 					}
-					return s.Rpc.GetEarmarkDetails(ctx, typedReq)
+					return s.Rpc.EarmarkGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				typedResp, ok := resp.(*EarmarkGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4256,7 +4256,7 @@ func (s *rpcServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.Re
 	}
 
 	// Call service method
-	var respContent *GetEarmarkDetailsResponse
+	var respContent *EarmarkGetDetailsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4267,7 +4267,7 @@ func (s *rpcServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.Re
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEarmarkDetailsResponse and nil error while calling GetEarmarkDetails. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarkGetDetailsResponse and nil error while calling EarmarkGetDetails. nil responses are not supported"))
 		return
 	}
 
@@ -4293,9 +4293,9 @@ func (s *rpcServer) serveGetEarmarkDetailsJSON(ctx context.Context, resp http.Re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkGetDetailsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetEarmarkDetails")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkGetDetails")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4307,28 +4307,28 @@ func (s *rpcServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp htt
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(GetEarmarkDetailsRequest)
+	reqContent := new(EarmarkGetDetailsRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.GetEarmarkDetails
+	handler := s.Rpc.EarmarkGetDetails
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetEarmarkDetailsRequest) (*GetEarmarkDetailsResponse, error) {
+		handler = func(ctx context.Context, req *EarmarkGetDetailsRequest) (*EarmarkGetDetailsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetEarmarkDetailsRequest)
+					typedReq, ok := req.(*EarmarkGetDetailsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetEarmarkDetailsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkGetDetailsRequest) when calling interceptor")
 					}
-					return s.Rpc.GetEarmarkDetails(ctx, typedReq)
+					return s.Rpc.EarmarkGetDetails(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetEarmarkDetailsResponse)
+				typedResp, ok := resp.(*EarmarkGetDetailsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetEarmarkDetailsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarkGetDetailsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4337,7 +4337,7 @@ func (s *rpcServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp htt
 	}
 
 	// Call service method
-	var respContent *GetEarmarkDetailsResponse
+	var respContent *EarmarkGetDetailsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4348,7 +4348,7 @@ func (s *rpcServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp htt
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEarmarkDetailsResponse and nil error while calling GetEarmarkDetails. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarkGetDetailsResponse and nil error while calling EarmarkGetDetails. nil responses are not supported"))
 		return
 	}
 
@@ -4372,7 +4372,7 @@ func (s *rpcServer) serveGetEarmarkDetailsProtobuf(ctx context.Context, resp htt
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveEarmark(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkRemove(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4380,9 +4380,9 @@ func (s *rpcServer) serveRemoveEarmark(ctx context.Context, resp http.ResponseWr
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveRemoveEarmarkJSON(ctx, resp, req)
+		s.serveEarmarkRemoveJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveRemoveEarmarkProtobuf(ctx, resp, req)
+		s.serveEarmarkRemoveProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4390,9 +4390,9 @@ func (s *rpcServer) serveRemoveEarmark(ctx context.Context, resp http.ResponseWr
 	}
 }
 
-func (s *rpcServer) serveRemoveEarmarkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkRemoveJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkRemove")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4405,23 +4405,23 @@ func (s *rpcServer) serveRemoveEarmarkJSON(ctx context.Context, resp http.Respon
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(RemoveEarmarkRequest)
+	reqContent := new(EarmarkRemoveRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.RemoveEarmark
+	handler := s.Rpc.EarmarkRemove
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveEarmarkRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EarmarkRemoveRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEarmarkRequest)
+					typedReq, ok := req.(*EarmarkRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkRemoveRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveEarmark(ctx, typedReq)
+					return s.Rpc.EarmarkRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -4447,7 +4447,7 @@ func (s *rpcServer) serveRemoveEarmarkJSON(ctx context.Context, resp http.Respon
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveEarmark. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EarmarkRemove. nil responses are not supported"))
 		return
 	}
 
@@ -4473,9 +4473,9 @@ func (s *rpcServer) serveRemoveEarmarkJSON(ctx context.Context, resp http.Respon
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveEarmarkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarkRemoveProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveEarmark")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarkRemove")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4487,22 +4487,22 @@ func (s *rpcServer) serveRemoveEarmarkProtobuf(ctx context.Context, resp http.Re
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(RemoveEarmarkRequest)
+	reqContent := new(EarmarkRemoveRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.RemoveEarmark
+	handler := s.Rpc.EarmarkRemove
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveEarmarkRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *EarmarkRemoveRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveEarmarkRequest)
+					typedReq, ok := req.(*EarmarkRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveEarmarkRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarkRemoveRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveEarmark(ctx, typedReq)
+					return s.Rpc.EarmarkRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -4528,7 +4528,7 @@ func (s *rpcServer) serveRemoveEarmarkProtobuf(ctx context.Context, resp http.Re
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveEarmark. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling EarmarkRemove. nil responses are not supported"))
 		return
 	}
 
@@ -4552,7 +4552,7 @@ func (s *rpcServer) serveRemoveEarmarkProtobuf(ctx context.Context, resp http.Re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEarmarks(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarksList(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4560,9 +4560,9 @@ func (s *rpcServer) serveListEarmarks(ctx context.Context, resp http.ResponseWri
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListEarmarksJSON(ctx, resp, req)
+		s.serveEarmarksListJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListEarmarksProtobuf(ctx, resp, req)
+		s.serveEarmarksListProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4570,9 +4570,9 @@ func (s *rpcServer) serveListEarmarks(ctx context.Context, resp http.ResponseWri
 	}
 }
 
-func (s *rpcServer) serveListEarmarksJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarksListJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarksList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4585,29 +4585,29 @@ func (s *rpcServer) serveListEarmarksJSON(ctx context.Context, resp http.Respons
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListEarmarksRequest)
+	reqContent := new(EarmarksListRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListEarmarks
+	handler := s.Rpc.EarmarksList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+		handler = func(ctx context.Context, req *EarmarksListRequest) (*EarmarksListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEarmarksRequest)
+					typedReq, ok := req.(*EarmarksListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarksListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEarmarks(ctx, typedReq)
+					return s.Rpc.EarmarksList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEarmarksResponse)
+				typedResp, ok := resp.(*EarmarksListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarksListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4616,7 +4616,7 @@ func (s *rpcServer) serveListEarmarksJSON(ctx context.Context, resp http.Respons
 	}
 
 	// Call service method
-	var respContent *ListEarmarksResponse
+	var respContent *EarmarksListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4627,7 +4627,7 @@ func (s *rpcServer) serveListEarmarksJSON(ctx context.Context, resp http.Respons
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEarmarksResponse and nil error while calling ListEarmarks. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarksListResponse and nil error while calling EarmarksList. nil responses are not supported"))
 		return
 	}
 
@@ -4653,9 +4653,9 @@ func (s *rpcServer) serveListEarmarksJSON(ctx context.Context, resp http.Respons
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListEarmarksProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveEarmarksListProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListEarmarks")
+	ctx = ctxsetters.WithMethodName(ctx, "EarmarksList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4667,28 +4667,28 @@ func (s *rpcServer) serveListEarmarksProtobuf(ctx context.Context, resp http.Res
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListEarmarksRequest)
+	reqContent := new(EarmarksListRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListEarmarks
+	handler := s.Rpc.EarmarksList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListEarmarksRequest) (*ListEarmarksResponse, error) {
+		handler = func(ctx context.Context, req *EarmarksListRequest) (*EarmarksListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListEarmarksRequest)
+					typedReq, ok := req.(*EarmarksListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListEarmarksRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*EarmarksListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListEarmarks(ctx, typedReq)
+					return s.Rpc.EarmarksList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListEarmarksResponse)
+				typedResp, ok := resp.(*EarmarksListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListEarmarksResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*EarmarksListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4697,7 +4697,7 @@ func (s *rpcServer) serveListEarmarksProtobuf(ctx context.Context, resp http.Res
 	}
 
 	// Call service method
-	var respContent *ListEarmarksResponse
+	var respContent *EarmarksListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4708,7 +4708,7 @@ func (s *rpcServer) serveListEarmarksProtobuf(ctx context.Context, resp http.Res
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListEarmarksResponse and nil error while calling ListEarmarks. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *EarmarksListResponse and nil error while calling EarmarksList. nil responses are not supported"))
 		return
 	}
 
@@ -4732,7 +4732,7 @@ func (s *rpcServer) serveListEarmarksProtobuf(ctx context.Context, resp http.Res
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveAddFavorite(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteAdd(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4740,9 +4740,9 @@ func (s *rpcServer) serveAddFavorite(ctx context.Context, resp http.ResponseWrit
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveAddFavoriteJSON(ctx, resp, req)
+		s.serveFavoriteAddJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveAddFavoriteProtobuf(ctx, resp, req)
+		s.serveFavoriteAddProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4750,9 +4750,9 @@ func (s *rpcServer) serveAddFavorite(ctx context.Context, resp http.ResponseWrit
 	}
 }
 
-func (s *rpcServer) serveAddFavoriteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteAddJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteAdd")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4765,29 +4765,29 @@ func (s *rpcServer) serveAddFavoriteJSON(ctx context.Context, resp http.Response
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(CreateFavoriteRequest)
+	reqContent := new(FavoriteCreateRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.AddFavorite
+	handler := s.Rpc.FavoriteAdd
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+		handler = func(ctx context.Context, req *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateFavoriteRequest)
+					typedReq, ok := req.(*FavoriteCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.AddFavorite(ctx, typedReq)
+					return s.Rpc.FavoriteAdd(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateFavoriteResponse)
+				typedResp, ok := resp.(*FavoriteCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4796,7 +4796,7 @@ func (s *rpcServer) serveAddFavoriteJSON(ctx context.Context, resp http.Response
 	}
 
 	// Call service method
-	var respContent *CreateFavoriteResponse
+	var respContent *FavoriteCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4807,7 +4807,7 @@ func (s *rpcServer) serveAddFavoriteJSON(ctx context.Context, resp http.Response
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateFavoriteResponse and nil error while calling AddFavorite. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FavoriteCreateResponse and nil error while calling FavoriteAdd. nil responses are not supported"))
 		return
 	}
 
@@ -4833,9 +4833,9 @@ func (s *rpcServer) serveAddFavoriteJSON(ctx context.Context, resp http.Response
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteAddProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "AddFavorite")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteAdd")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4847,28 +4847,28 @@ func (s *rpcServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(CreateFavoriteRequest)
+	reqContent := new(FavoriteCreateRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.AddFavorite
+	handler := s.Rpc.FavoriteAdd
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *CreateFavoriteRequest) (*CreateFavoriteResponse, error) {
+		handler = func(ctx context.Context, req *FavoriteCreateRequest) (*FavoriteCreateResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*CreateFavoriteRequest)
+					typedReq, ok := req.(*FavoriteCreateRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*CreateFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteCreateRequest) when calling interceptor")
 					}
-					return s.Rpc.AddFavorite(ctx, typedReq)
+					return s.Rpc.FavoriteAdd(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*CreateFavoriteResponse)
+				typedResp, ok := resp.(*FavoriteCreateResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*CreateFavoriteResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteCreateResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -4877,7 +4877,7 @@ func (s *rpcServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *CreateFavoriteResponse
+	var respContent *FavoriteCreateResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -4888,7 +4888,7 @@ func (s *rpcServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *CreateFavoriteResponse and nil error while calling AddFavorite. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FavoriteCreateResponse and nil error while calling FavoriteAdd. nil responses are not supported"))
 		return
 	}
 
@@ -4912,7 +4912,7 @@ func (s *rpcServer) serveAddFavoriteProtobuf(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveFavorite(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteRemove(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -4920,9 +4920,9 @@ func (s *rpcServer) serveRemoveFavorite(ctx context.Context, resp http.ResponseW
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveRemoveFavoriteJSON(ctx, resp, req)
+		s.serveFavoriteRemoveJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveRemoveFavoriteProtobuf(ctx, resp, req)
+		s.serveFavoriteRemoveProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -4930,9 +4930,9 @@ func (s *rpcServer) serveRemoveFavorite(ctx context.Context, resp http.ResponseW
 	}
 }
 
-func (s *rpcServer) serveRemoveFavoriteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteRemoveJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteRemove")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -4945,23 +4945,23 @@ func (s *rpcServer) serveRemoveFavoriteJSON(ctx context.Context, resp http.Respo
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(RemoveFavoriteRequest)
+	reqContent := new(FavoriteRemoveRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.RemoveFavorite
+	handler := s.Rpc.FavoriteRemove
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveFavoriteRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *FavoriteRemoveRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveFavoriteRequest)
+					typedReq, ok := req.(*FavoriteRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteRemoveRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveFavorite(ctx, typedReq)
+					return s.Rpc.FavoriteRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -4987,7 +4987,7 @@ func (s *rpcServer) serveRemoveFavoriteJSON(ctx context.Context, resp http.Respo
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveFavorite. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling FavoriteRemove. nil responses are not supported"))
 		return
 	}
 
@@ -5013,9 +5013,9 @@ func (s *rpcServer) serveRemoveFavoriteJSON(ctx context.Context, resp http.Respo
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveRemoveFavoriteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteRemoveProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "RemoveFavorite")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteRemove")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5027,22 +5027,22 @@ func (s *rpcServer) serveRemoveFavoriteProtobuf(ctx context.Context, resp http.R
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(RemoveFavoriteRequest)
+	reqContent := new(FavoriteRemoveRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.RemoveFavorite
+	handler := s.Rpc.FavoriteRemove
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *RemoveFavoriteRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *FavoriteRemoveRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*RemoveFavoriteRequest)
+					typedReq, ok := req.(*FavoriteRemoveRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*RemoveFavoriteRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteRemoveRequest) when calling interceptor")
 					}
-					return s.Rpc.RemoveFavorite(ctx, typedReq)
+					return s.Rpc.FavoriteRemove(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -5068,7 +5068,7 @@ func (s *rpcServer) serveRemoveFavoriteProtobuf(ctx context.Context, resp http.R
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling RemoveFavorite. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling FavoriteRemove. nil responses are not supported"))
 		return
 	}
 
@@ -5092,7 +5092,7 @@ func (s *rpcServer) serveRemoveFavoriteProtobuf(ctx context.Context, resp http.R
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListFavoriteEvents(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteListEvents(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -5100,9 +5100,9 @@ func (s *rpcServer) serveListFavoriteEvents(ctx context.Context, resp http.Respo
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListFavoriteEventsJSON(ctx, resp, req)
+		s.serveFavoriteListEventsJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListFavoriteEventsProtobuf(ctx, resp, req)
+		s.serveFavoriteListEventsProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -5110,9 +5110,9 @@ func (s *rpcServer) serveListFavoriteEvents(ctx context.Context, resp http.Respo
 	}
 }
 
-func (s *rpcServer) serveListFavoriteEventsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteListEventsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListFavoriteEvents")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteListEvents")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5125,29 +5125,29 @@ func (s *rpcServer) serveListFavoriteEventsJSON(ctx context.Context, resp http.R
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListFavoriteEventsRequest)
+	reqContent := new(FavoriteListEventsRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListFavoriteEvents
+	handler := s.Rpc.FavoriteListEvents
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+		handler = func(ctx context.Context, req *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListFavoriteEventsRequest)
+					typedReq, ok := req.(*FavoriteListEventsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListFavoriteEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteListEventsRequest) when calling interceptor")
 					}
-					return s.Rpc.ListFavoriteEvents(ctx, typedReq)
+					return s.Rpc.FavoriteListEvents(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListFavoriteEventsResponse)
+				typedResp, ok := resp.(*FavoriteListEventsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoriteEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteListEventsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -5156,7 +5156,7 @@ func (s *rpcServer) serveListFavoriteEventsJSON(ctx context.Context, resp http.R
 	}
 
 	// Call service method
-	var respContent *ListFavoriteEventsResponse
+	var respContent *FavoriteListEventsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -5167,7 +5167,7 @@ func (s *rpcServer) serveListFavoriteEventsJSON(ctx context.Context, resp http.R
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListFavoriteEventsResponse and nil error while calling ListFavoriteEvents. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FavoriteListEventsResponse and nil error while calling FavoriteListEvents. nil responses are not supported"))
 		return
 	}
 
@@ -5193,9 +5193,9 @@ func (s *rpcServer) serveListFavoriteEventsJSON(ctx context.Context, resp http.R
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListFavoriteEventsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveFavoriteListEventsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListFavoriteEvents")
+	ctx = ctxsetters.WithMethodName(ctx, "FavoriteListEvents")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5207,28 +5207,28 @@ func (s *rpcServer) serveListFavoriteEventsProtobuf(ctx context.Context, resp ht
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListFavoriteEventsRequest)
+	reqContent := new(FavoriteListEventsRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListFavoriteEvents
+	handler := s.Rpc.FavoriteListEvents
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListFavoriteEventsRequest) (*ListFavoriteEventsResponse, error) {
+		handler = func(ctx context.Context, req *FavoriteListEventsRequest) (*FavoriteListEventsResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListFavoriteEventsRequest)
+					typedReq, ok := req.(*FavoriteListEventsRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListFavoriteEventsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*FavoriteListEventsRequest) when calling interceptor")
 					}
-					return s.Rpc.ListFavoriteEvents(ctx, typedReq)
+					return s.Rpc.FavoriteListEvents(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListFavoriteEventsResponse)
+				typedResp, ok := resp.(*FavoriteListEventsResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListFavoriteEventsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*FavoriteListEventsResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -5237,7 +5237,7 @@ func (s *rpcServer) serveListFavoriteEventsProtobuf(ctx context.Context, resp ht
 	}
 
 	// Call service method
-	var respContent *ListFavoriteEventsResponse
+	var respContent *FavoriteListEventsResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -5248,7 +5248,7 @@ func (s *rpcServer) serveListFavoriteEventsProtobuf(ctx context.Context, resp ht
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListFavoriteEventsResponse and nil error while calling ListFavoriteEvents. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FavoriteListEventsResponse and nil error while calling FavoriteListEvents. nil responses are not supported"))
 		return
 	}
 
@@ -5272,7 +5272,7 @@ func (s *rpcServer) serveListFavoriteEventsProtobuf(ctx context.Context, resp ht
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteNotification(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationDelete(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -5280,9 +5280,9 @@ func (s *rpcServer) serveDeleteNotification(ctx context.Context, resp http.Respo
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveDeleteNotificationJSON(ctx, resp, req)
+		s.serveNotificationDeleteJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveDeleteNotificationProtobuf(ctx, resp, req)
+		s.serveNotificationDeleteProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -5290,9 +5290,9 @@ func (s *rpcServer) serveDeleteNotification(ctx context.Context, resp http.Respo
 	}
 }
 
-func (s *rpcServer) serveDeleteNotificationJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationDeleteJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationDelete")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5305,23 +5305,23 @@ func (s *rpcServer) serveDeleteNotificationJSON(ctx context.Context, resp http.R
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(DeleteNotificationRequest)
+	reqContent := new(NotificationDeleteRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.DeleteNotification
+	handler := s.Rpc.NotificationDelete
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *DeleteNotificationRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *NotificationDeleteRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteNotificationRequest)
+					typedReq, ok := req.(*NotificationDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationDeleteRequest) when calling interceptor")
 					}
-					return s.Rpc.DeleteNotification(ctx, typedReq)
+					return s.Rpc.NotificationDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -5347,7 +5347,7 @@ func (s *rpcServer) serveDeleteNotificationJSON(ctx context.Context, resp http.R
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteNotification. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling NotificationDelete. nil responses are not supported"))
 		return
 	}
 
@@ -5373,9 +5373,9 @@ func (s *rpcServer) serveDeleteNotificationJSON(ctx context.Context, resp http.R
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteNotificationProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationDeleteProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteNotification")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationDelete")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5387,22 +5387,22 @@ func (s *rpcServer) serveDeleteNotificationProtobuf(ctx context.Context, resp ht
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(DeleteNotificationRequest)
+	reqContent := new(NotificationDeleteRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.DeleteNotification
+	handler := s.Rpc.NotificationDelete
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *DeleteNotificationRequest) (*Empty, error) {
+		handler = func(ctx context.Context, req *NotificationDeleteRequest) (*Empty, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*DeleteNotificationRequest)
+					typedReq, ok := req.(*NotificationDeleteRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*DeleteNotificationRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationDeleteRequest) when calling interceptor")
 					}
-					return s.Rpc.DeleteNotification(ctx, typedReq)
+					return s.Rpc.NotificationDelete(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -5428,7 +5428,7 @@ func (s *rpcServer) serveDeleteNotificationProtobuf(ctx context.Context, resp ht
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteNotification. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling NotificationDelete. nil responses are not supported"))
 		return
 	}
 
@@ -5452,7 +5452,7 @@ func (s *rpcServer) serveDeleteNotificationProtobuf(ctx context.Context, resp ht
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteAllNotifications(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsDeleteAll(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -5460,9 +5460,9 @@ func (s *rpcServer) serveDeleteAllNotifications(ctx context.Context, resp http.R
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveDeleteAllNotificationsJSON(ctx, resp, req)
+		s.serveNotificationsDeleteAllJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveDeleteAllNotificationsProtobuf(ctx, resp, req)
+		s.serveNotificationsDeleteAllProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -5470,9 +5470,9 @@ func (s *rpcServer) serveDeleteAllNotifications(ctx context.Context, resp http.R
 	}
 }
 
-func (s *rpcServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsDeleteAllJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsDeleteAll")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5492,7 +5492,7 @@ func (s *rpcServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp ht
 		return
 	}
 
-	handler := s.Rpc.DeleteAllNotifications
+	handler := s.Rpc.NotificationsDeleteAll
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *Empty) (*Empty, error) {
 			resp, err := s.interceptor(
@@ -5501,7 +5501,7 @@ func (s *rpcServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp ht
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*Empty) when calling interceptor")
 					}
-					return s.Rpc.DeleteAllNotifications(ctx, typedReq)
+					return s.Rpc.NotificationsDeleteAll(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -5527,7 +5527,7 @@ func (s *rpcServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp ht
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteAllNotifications. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling NotificationsDeleteAll. nil responses are not supported"))
 		return
 	}
 
@@ -5553,9 +5553,9 @@ func (s *rpcServer) serveDeleteAllNotificationsJSON(ctx context.Context, resp ht
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsDeleteAllProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "DeleteAllNotifications")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsDeleteAll")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5573,7 +5573,7 @@ func (s *rpcServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, res
 		return
 	}
 
-	handler := s.Rpc.DeleteAllNotifications
+	handler := s.Rpc.NotificationsDeleteAll
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *Empty) (*Empty, error) {
 			resp, err := s.interceptor(
@@ -5582,7 +5582,7 @@ func (s *rpcServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, res
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*Empty) when calling interceptor")
 					}
-					return s.Rpc.DeleteAllNotifications(ctx, typedReq)
+					return s.Rpc.NotificationsDeleteAll(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -5608,7 +5608,7 @@ func (s *rpcServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, res
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling DeleteAllNotifications. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *Empty and nil error while calling NotificationsDeleteAll. nil responses are not supported"))
 		return
 	}
 
@@ -5632,7 +5632,7 @@ func (s *rpcServer) serveDeleteAllNotificationsProtobuf(ctx context.Context, res
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListNotifications(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsList(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -5640,9 +5640,9 @@ func (s *rpcServer) serveListNotifications(ctx context.Context, resp http.Respon
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveListNotificationsJSON(ctx, resp, req)
+		s.serveNotificationsListJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveListNotificationsProtobuf(ctx, resp, req)
+		s.serveNotificationsListProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -5650,9 +5650,9 @@ func (s *rpcServer) serveListNotifications(ctx context.Context, resp http.Respon
 	}
 }
 
-func (s *rpcServer) serveListNotificationsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsListJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5665,29 +5665,29 @@ func (s *rpcServer) serveListNotificationsJSON(ctx context.Context, resp http.Re
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(ListNotificationsRequest)
+	reqContent := new(NotificationsListRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.Rpc.ListNotifications
+	handler := s.Rpc.NotificationsList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+		handler = func(ctx context.Context, req *NotificationsListRequest) (*NotificationsListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListNotificationsRequest)
+					typedReq, ok := req.(*NotificationsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationsListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListNotifications(ctx, typedReq)
+					return s.Rpc.NotificationsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListNotificationsResponse)
+				typedResp, ok := resp.(*NotificationsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*NotificationsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -5696,7 +5696,7 @@ func (s *rpcServer) serveListNotificationsJSON(ctx context.Context, resp http.Re
 	}
 
 	// Call service method
-	var respContent *ListNotificationsResponse
+	var respContent *NotificationsListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -5707,7 +5707,7 @@ func (s *rpcServer) serveListNotificationsJSON(ctx context.Context, resp http.Re
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListNotificationsResponse and nil error while calling ListNotifications. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *NotificationsListResponse and nil error while calling NotificationsList. nil responses are not supported"))
 		return
 	}
 
@@ -5733,9 +5733,9 @@ func (s *rpcServer) serveListNotificationsJSON(ctx context.Context, resp http.Re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *rpcServer) serveListNotificationsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *rpcServer) serveNotificationsListProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "ListNotifications")
+	ctx = ctxsetters.WithMethodName(ctx, "NotificationsList")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -5747,28 +5747,28 @@ func (s *rpcServer) serveListNotificationsProtobuf(ctx context.Context, resp htt
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(ListNotificationsRequest)
+	reqContent := new(NotificationsListRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.Rpc.ListNotifications
+	handler := s.Rpc.NotificationsList
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *ListNotificationsRequest) (*ListNotificationsResponse, error) {
+		handler = func(ctx context.Context, req *NotificationsListRequest) (*NotificationsListResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*ListNotificationsRequest)
+					typedReq, ok := req.(*NotificationsListRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*ListNotificationsRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*NotificationsListRequest) when calling interceptor")
 					}
-					return s.Rpc.ListNotifications(ctx, typedReq)
+					return s.Rpc.NotificationsList(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*ListNotificationsResponse)
+				typedResp, ok := resp.(*NotificationsListResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*ListNotificationsResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*NotificationsListResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -5777,7 +5777,7 @@ func (s *rpcServer) serveListNotificationsProtobuf(ctx context.Context, resp htt
 	}
 
 	// Call service method
-	var respContent *ListNotificationsResponse
+	var respContent *NotificationsListResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -5788,7 +5788,7 @@ func (s *rpcServer) serveListNotificationsProtobuf(ctx context.Context, resp htt
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *ListNotificationsResponse and nil error while calling ListNotifications. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *NotificationsListResponse and nil error while calling NotificationsList. nil responses are not supported"))
 		return
 	}
 
@@ -6393,91 +6393,91 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 1371 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0x5d, 0x6f, 0xdb, 0xd4,
-	0x1b, 0x9f, 0x9d, 0xa6, 0x49, 0x9e, 0x34, 0xd9, 0xbf, 0x67, 0x5d, 0xea, 0x7a, 0xfb, 0xd3, 0x62,
-	0x34, 0xb1, 0x17, 0x2d, 0xd1, 0xca, 0x2e, 0x06, 0x4c, 0x82, 0x86, 0x65, 0xa4, 0x02, 0x4d, 0x60,
-	0x6d, 0x20, 0x76, 0x13, 0x39, 0xc9, 0x49, 0x6a, 0x11, 0xc7, 0x99, 0x7d, 0xd2, 0x6a, 0xbd, 0x47,
-	0x9a, 0x04, 0x43, 0x88, 0x0b, 0xee, 0xb9, 0xe6, 0x13, 0xf0, 0x21, 0xf8, 0x4e, 0xc8, 0xe7, 0xc5,
-	0x39, 0xc7, 0x2f, 0x4d, 0x3a, 0x55, 0x2a, 0x77, 0xb1, 0x9f, 0x97, 0xf3, 0x7b, 0x7e, 0xe7, 0x79,
-	0x8b, 0xa1, 0x16, 0xe2, 0xe0, 0xd8, 0x1d, 0xe0, 0xe6, 0x2c, 0xf0, 0x89, 0x8f, 0xd6, 0xdc, 0x41,
-	0x9f, 0x98, 0xbb, 0x63, 0xdf, 0x1f, 0x4f, 0x70, 0x8b, 0xbe, 0xeb, 0xcf, 0x47, 0x2d, 0xe2, 0x7a,
-	0x38, 0x24, 0x8e, 0x37, 0x63, 0x6a, 0x56, 0x09, 0x8a, 0x1d, 0x6f, 0x46, 0x5e, 0x5b, 0x07, 0xb0,
-	0xf9, 0x8d, 0x33, 0x76, 0xa7, 0x0e, 0x71, 0xfd, 0xa9, 0x8d, 0x5f, 0xcd, 0x71, 0x48, 0xd0, 0x16,
-	0x14, 0x27, 0xae, 0xe7, 0x12, 0x43, 0xdb, 0xd3, 0x6e, 0xd7, 0x6c, 0xf6, 0x80, 0x1a, 0xb0, 0xee,
-	0x8f, 0x46, 0x21, 0x26, 0x86, 0x4e, 0x5f, 0xf3, 0x27, 0xeb, 0x3b, 0xf8, 0x9f, 0xec, 0x22, 0x9c,
-	0x4f, 0xce, 0xe9, 0x21, 0xd2, 0x1e, 0xf8, 0xf3, 0x29, 0x31, 0x0a, 0x4c, 0x9b, 0x3e, 0x58, 0x87,
-	0x50, 0x7d, 0x2e, 0x60, 0x3f, 0x7f, 0x89, 0xee, 0x82, 0x4e, 0x42, 0xea, 0xaf, 0xba, 0x6f, 0x36,
-	0x59, 0x80, 0x4d, 0x11, 0x60, 0x33, 0xd6, 0xb4, 0x75, 0x12, 0xa2, 0x3a, 0xe8, 0xe4, 0x94, 0x1e,
-	0x52, 0xb1, 0x75, 0x72, 0x6a, 0xfd, 0xa3, 0x41, 0xb1, 0x73, 0x8c, 0xa7, 0x04, 0x5d, 0x87, 0xf5,
-	0x00, 0x8f, 0x7a, 0xee, 0x90, 0x7a, 0xaa, 0xd8, 0xc5, 0x00, 0x8f, 0x0e, 0x87, 0x08, 0xc1, 0xda,
-	0xd4, 0xf1, 0x30, 0x37, 0xa1, 0xbf, 0xd1, 0x1e, 0x54, 0x87, 0x38, 0x1c, 0x04, 0xee, 0x2c, 0x0a,
-	0x8c, 0x62, 0xab, 0xd8, 0xf2, 0x2b, 0x74, 0x0b, 0xd6, 0x4e, 0x8e, 0xf0, 0xd4, 0x58, 0xa3, 0xa0,
-	0x36, 0x9b, 0x11, 0xf7, 0x4d, 0x09, 0xb3, 0x4d, 0xc5, 0xc8, 0x84, 0xb2, 0x13, 0x0c, 0x8e, 0xdc,
-	0x63, 0x3c, 0x34, 0x8a, 0x7b, 0xda, 0xed, 0xb2, 0x1d, 0x3f, 0xa3, 0x87, 0x50, 0x1a, 0x04, 0xd8,
-	0x21, 0x78, 0x68, 0xac, 0x2f, 0x0d, 0x4d, 0xa8, 0x5a, 0xa7, 0x50, 0xa1, 0xe1, 0x1c, 0x12, 0xec,
-	0xe5, 0x85, 0x94, 0x80, 0xaf, 0xa7, 0xe1, 0x4b, 0x67, 0x17, 0x56, 0x3f, 0xfb, 0x2f, 0x0d, 0x4a,
-	0x1d, 0x27, 0xf0, 0x9c, 0xe0, 0xc7, 0xbc, 0xa3, 0xef, 0xc0, 0x26, 0x8e, 0xe0, 0xf5, 0x5c, 0x82,
-	0xbd, 0x1e, 0xd7, 0x60, 0x00, 0xea, 0x58, 0xe0, 0xb6, 0x63, 0xe2, 0x7d, 0x82, 0x39, 0xbb, 0xf4,
-	0x77, 0x94, 0x0e, 0xfe, 0xc9, 0x14, 0x07, 0x94, 0xd7, 0x8a, 0xcd, 0x1e, 0x64, 0xb4, 0xc5, 0xd5,
-	0xd1, 0xf6, 0xa1, 0xfc, 0xd4, 0x39, 0xf6, 0x03, 0x97, 0x44, 0x17, 0xba, 0xc1, 0x60, 0x29, 0x98,
-	0x81, 0xbe, 0x63, 0x68, 0xa4, 0x33, 0xf4, 0xd5, 0xcf, 0x98, 0xc3, 0xc6, 0x33, 0x9f, 0xb8, 0x23,
-	0x77, 0x40, 0x4b, 0x20, 0x8f, 0x15, 0x03, 0x4a, 0x1e, 0x0e, 0x43, 0x67, 0x2c, 0xd2, 0x4c, 0x3c,
-	0xbe, 0xe3, 0x45, 0xbc, 0x02, 0xf4, 0x05, 0xfd, 0xd9, 0x61, 0x01, 0xb0, 0xda, 0x15, 0x99, 0xac,
-	0xe5, 0x67, 0xb2, 0x9e, 0x9f, 0xc9, 0x85, 0x33, 0x33, 0xd9, 0x7a, 0x04, 0xd7, 0x94, 0x23, 0xc3,
-	0x99, 0x3f, 0x0d, 0x31, 0x7a, 0x1f, 0x8a, 0x94, 0x44, 0x5e, 0x9d, 0x55, 0x66, 0xce, 0x74, 0x98,
-	0xc4, 0xba, 0x07, 0xe8, 0x09, 0x9e, 0xe0, 0x04, 0xd8, 0x6c, 0xa6, 0xac, 0xbf, 0x35, 0x40, 0x2f,
-	0x66, 0x43, 0x67, 0x25, 0x6d, 0xb4, 0x2d, 0xd7, 0x6e, 0xf7, 0x0a, 0x8b, 0xf9, 0x8d, 0xa6, 0xa1,
-	0x5b, 0x19, 0x05, 0xdc, 0xd5, 0x94, 0xc0, 0x23, 0xb5, 0xbb, 0x4b, 0xaa, 0xb8, 0xab, 0xb3, 0xe8,
-	0xdf, 0x68, 0x5a, 0xbb, 0x04, 0xc5, 0x5e, 0xe4, 0xbe, 0x5d, 0x87, 0x8d, 0x9e, 0xe4, 0x87, 0x0a,
-	0x28, 0x45, 0x2d, 0x68, 0x7c, 0x89, 0x09, 0xc5, 0xfd, 0x04, 0x13, 0xc7, 0x9d, 0x84, 0x4b, 0x82,
-	0xfd, 0x55, 0x83, 0xed, 0x94, 0xc5, 0xca, 0xc4, 0xa2, 0x5b, 0x50, 0x8c, 0xaa, 0x2c, 0x34, 0xf4,
-	0xbd, 0xc2, 0xed, 0xea, 0xfe, 0x55, 0x49, 0x85, 0x56, 0x19, 0x93, 0xa2, 0x3b, 0x50, 0xc6, 0xac,
-	0x68, 0x43, 0xa3, 0x40, 0x35, 0x6b, 0x5c, 0x93, 0xbd, 0xb5, 0x63, 0x71, 0x04, 0x68, 0xf3, 0x6b,
-	0x37, 0x64, 0x88, 0x62, 0xf4, 0x8f, 0x01, 0x66, 0x71, 0x97, 0xe7, 0x78, 0xb6, 0x99, 0x8b, 0xd4,
-	0x00, 0xe9, 0x5e, 0xb1, 0x25, 0xe5, 0x88, 0xe3, 0x5d, 0xa9, 0x05, 0x46, 0xf7, 0x54, 0xee, 0x6a,
-	0x8b, 0x26, 0x18, 0x11, 0x5b, 0x83, 0x6a, 0x6f, 0x61, 0xd2, 0xae, 0x42, 0xa5, 0x27, 0xc4, 0xd6,
-	0x4f, 0x1a, 0x20, 0x19, 0x10, 0x27, 0xe7, 0x03, 0x58, 0xa7, 0x14, 0x44, 0x43, 0xa1, 0x90, 0x64,
-	0x87, 0x8b, 0xd0, 0xa7, 0x0a, 0x6c, 0x56, 0xd4, 0x8d, 0x34, 0xec, 0x68, 0x68, 0xa5, 0x50, 0x27,
-	0x40, 0x59, 0x4d, 0xb8, 0x1e, 0xc3, 0x88, 0xb8, 0x5d, 0x76, 0xb3, 0x3f, 0x6b, 0xd0, 0x48, 0x1a,
-	0x70, 0xec, 0xf1, 0xad, 0x69, 0x67, 0xde, 0xda, 0x45, 0xa2, 0x7f, 0x00, 0x46, 0x0c, 0x86, 0x5f,
-	0xfa, 0xb2, 0x00, 0x7e, 0xd7, 0x60, 0x27, 0xc3, 0x86, 0xc7, 0x20, 0xa7, 0x94, 0x76, 0x66, 0x4a,
-	0x5d, 0x68, 0x1c, 0x3f, 0xc0, 0xb5, 0x83, 0xe1, 0x70, 0x41, 0x15, 0x0f, 0x61, 0x79, 0x73, 0x5f,
-	0xda, 0x05, 0xad, 0xa7, 0xb0, 0xa5, 0xba, 0xe6, 0x91, 0x36, 0x01, 0x16, 0xf3, 0x8c, 0xe7, 0x7e,
-	0xea, 0xca, 0x2a, 0xf1, 0x64, 0x8b, 0x7a, 0x80, 0x8d, 0x3d, 0xff, 0x18, 0xa7, 0x50, 0xe6, 0x10,
-	0xfd, 0x2d, 0x34, 0xa4, 0x7e, 0xb7, 0xdc, 0x60, 0x85, 0x58, 0x0e, 0x61, 0x3b, 0xe5, 0xf2, 0x1d,
-	0xc3, 0x79, 0x01, 0x5b, 0xbc, 0xeb, 0xf3, 0x8b, 0xe5, 0xd8, 0x32, 0xc7, 0xbc, 0x76, 0xe6, 0x98,
-	0xd7, 0x17, 0x63, 0xde, 0xfa, 0x1c, 0xae, 0x27, 0xdc, 0x72, 0x7c, 0x1f, 0x42, 0x89, 0x67, 0x0e,
-	0x07, 0x97, 0xc8, 0x2b, 0x21, 0xb5, 0xee, 0xc3, 0x16, 0xe7, 0x59, 0x05, 0x96, 0xc3, 0xf2, 0x03,
-	0x30, 0xa2, 0x46, 0xcb, 0x74, 0x57, 0x6b, 0xce, 0x23, 0xd8, 0xc9, 0x30, 0x39, 0x27, 0xce, 0x54,
-	0x6e, 0xea, 0xc9, 0xdc, 0xb4, 0x7e, 0xd3, 0xe0, 0x1a, 0xad, 0xb4, 0x44, 0x61, 0x5e, 0x62, 0xd7,
-	0x7d, 0xab, 0xc1, 0x96, 0x0a, 0xe9, 0x72, 0xeb, 0xfe, 0x63, 0x91, 0x2e, 0x62, 0x9f, 0x5b, 0xb9,
-	0xf2, 0xad, 0x27, 0xd0, 0x48, 0x9a, 0xf2, 0x58, 0xee, 0x42, 0x79, 0xc4, 0xdf, 0x71, 0x76, 0xeb,
-	0x0c, 0x5e, 0xac, 0x19, 0xcb, 0x23, 0x00, 0x2c, 0xdb, 0xce, 0x0f, 0xe0, 0x0f, 0xde, 0x48, 0x85,
-	0xe5, 0x7f, 0x66, 0xb4, 0xbe, 0xd5, 0xc0, 0xcc, 0x02, 0x76, 0x59, 0x23, 0x76, 0x1f, 0x76, 0xd8,
-	0x9a, 0x28, 0x2f, 0xd4, 0x4b, 0x6a, 0x74, 0xcc, 0x06, 0x9b, 0x6c, 0x71, 0x31, 0xd4, 0x26, 0xc1,
-	0xfd, 0xc9, 0x6f, 0x31, 0x71, 0x12, 0xe7, 0xea, 0x11, 0xd4, 0xa6, 0xb2, 0x80, 0x53, 0x86, 0xd8,
-	0x69, 0x4a, 0x3c, 0xaa, 0xe2, 0x45, 0x12, 0xb8, 0xff, 0x4b, 0x15, 0x0a, 0xf6, 0x6c, 0x80, 0xda,
-	0x50, 0x95, 0x36, 0x75, 0x64, 0x30, 0x77, 0xe9, 0xff, 0x0b, 0xe6, 0x4e, 0x86, 0x84, 0x47, 0xf4,
-	0x10, 0xaa, 0xd2, 0x08, 0x11, 0x3e, 0xd2, 0x8b, 0xb9, 0x29, 0xd2, 0xc2, 0x9b, 0x91, 0xd7, 0x91,
-	0x95, 0xb4, 0xe9, 0x0b, 0xab, 0xf4, 0xf2, 0xaf, 0x5a, 0x7d, 0x06, 0xb0, 0x58, 0xf1, 0x10, 0xbf,
-	0xa2, 0xd4, 0x16, 0x6a, 0x1a, 0x69, 0x01, 0x07, 0xfb, 0x0c, 0xae, 0x26, 0xb6, 0x68, 0x74, 0x93,
-	0x29, 0x67, 0xaf, 0xe3, 0xe6, 0xff, 0x73, 0xa4, 0xdc, 0xdf, 0x57, 0x50, 0x57, 0x77, 0x37, 0x74,
-	0x23, 0x71, 0xb6, 0xbc, 0x02, 0x9a, 0x37, 0xb3, 0x85, 0xdc, 0xd9, 0x73, 0x69, 0xa3, 0x16, 0xfd,
-	0x14, 0xbd, 0x97, 0x30, 0x49, 0xf4, 0x7e, 0x73, 0x37, 0x57, 0xce, 0xbd, 0x76, 0x60, 0x43, 0x5e,
-	0x57, 0x10, 0xbf, 0xca, 0x8c, 0xed, 0xc8, 0x34, 0xb3, 0x44, 0x0b, 0xe6, 0x12, 0x9b, 0x82, 0x60,
-	0x2e, 0x7b, 0x27, 0x11, 0xcc, 0xe5, 0xad, 0x17, 0x8f, 0xe1, 0x6a, 0x62, 0xfb, 0x11, 0xfe, 0xb2,
-	0x97, 0x22, 0x35, 0x11, 0xba, 0x50, 0x53, 0xb6, 0x02, 0x64, 0x2a, 0x09, 0xaa, 0x0c, 0x7a, 0xf3,
-	0x46, 0xa6, 0x6c, 0x41, 0x7a, 0x6a, 0x76, 0x0b, 0xd2, 0xf3, 0xf6, 0x00, 0x41, 0x7a, 0xfe, 0xd0,
-	0x7f, 0x04, 0x35, 0x65, 0xe7, 0x10, 0xf8, 0xb2, 0x16, 0x11, 0x35, 0xb2, 0x0e, 0x6c, 0xc8, 0xf3,
-	0x54, 0x5c, 0x57, 0xc6, 0xd8, 0x17, 0xd7, 0x95, 0x39, 0x7e, 0xbb, 0x50, 0x3d, 0x18, 0x0e, 0xe3,
-	0x8f, 0x1a, 0x0a, 0x05, 0x89, 0xc9, 0x24, 0xb2, 0x32, 0x67, 0xf8, 0x7d, 0x02, 0x75, 0x75, 0xa0,
-	0x09, 0x67, 0x99, 0x63, 0x4e, 0x0d, 0xe6, 0x7b, 0xf6, 0x97, 0x4c, 0x9d, 0x1b, 0x48, 0x4a, 0xd9,
-	0xcc, 0x51, 0x67, 0xee, 0xe5, 0x2b, 0x70, 0x50, 0x6d, 0xf1, 0xa1, 0x40, 0xf9, 0xa4, 0xb2, 0x2b,
-	0x77, 0x91, 0x8c, 0xd9, 0xa0, 0x82, 0xdb, 0x87, 0x06, 0xd3, 0x3c, 0x98, 0x4c, 0x94, 0x66, 0x8d,
-	0x64, 0x35, 0xd5, 0x86, 0x97, 0xa8, 0xaa, 0x2e, 0x95, 0x68, 0xd6, 0x78, 0x91, 0x4b, 0x34, 0x73,
-	0x28, 0xb4, 0xef, 0xbf, 0xbc, 0x37, 0x76, 0xc9, 0xd1, 0xbc, 0xdf, 0x1c, 0xf8, 0x5e, 0x6b, 0x18,
-	0xf8, 0xb3, 0x93, 0x23, 0x77, 0x82, 0x5b, 0xee, 0xc0, 0x99, 0xf6, 0x03, 0x77, 0x3a, 0x26, 0x47,
-	0x0e, 0x69, 0x05, 0xb3, 0x41, 0x2b, 0x72, 0xd4, 0x5f, 0xa7, 0xdf, 0x7b, 0x3e, 0xfa, 0x37, 0x00,
-	0x00, 0xff, 0xff, 0x5a, 0x6f, 0xf7, 0xcd, 0xd5, 0x15, 0x00, 0x00,
+	// 1361 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0x5b, 0x6f, 0x1b, 0x45,
+	0x14, 0xee, 0xac, 0xe3, 0xd8, 0x3e, 0x8e, 0x5d, 0x32, 0x6d, 0x92, 0xcd, 0xb6, 0x90, 0xb0, 0xa8,
+	0xa2, 0x17, 0xd5, 0x16, 0xa1, 0x0f, 0x05, 0x2a, 0x41, 0x4c, 0x52, 0x1c, 0x81, 0x2a, 0x58, 0xa5,
+	0x20, 0xfa, 0x62, 0xad, 0xed, 0xb1, 0xb3, 0xc2, 0xeb, 0x75, 0x77, 0xc7, 0x89, 0x9a, 0x77, 0xa4,
+	0x4a, 0x5c, 0x84, 0x78, 0xe0, 0x9d, 0x67, 0x7e, 0x01, 0x3f, 0x82, 0xff, 0x84, 0x76, 0x66, 0x76,
+	0x3d, 0xb3, 0x97, 0xac, 0x5b, 0x45, 0x6a, 0xdf, 0xb2, 0x3e, 0x97, 0xf9, 0xce, 0x77, 0xae, 0x0a,
+	0x34, 0x02, 0xe2, 0x9f, 0x3a, 0x03, 0xd2, 0x9a, 0xf9, 0x1e, 0xf5, 0xf0, 0x8a, 0x33, 0xe8, 0x53,
+	0x63, 0x67, 0xec, 0x79, 0xe3, 0x09, 0x69, 0xb3, 0xdf, 0xfa, 0xf3, 0x51, 0x9b, 0x3a, 0x2e, 0x09,
+	0xa8, 0xed, 0xce, 0xb8, 0x9a, 0x59, 0x81, 0xf2, 0xa1, 0x3b, 0xa3, 0x2f, 0xcc, 0x7d, 0x58, 0xff,
+	0xd6, 0x1e, 0x3b, 0x53, 0x9b, 0x3a, 0xde, 0xd4, 0x22, 0xcf, 0xe7, 0x24, 0xa0, 0xf8, 0x3a, 0x94,
+	0x27, 0x8e, 0xeb, 0x50, 0x1d, 0xed, 0xa2, 0xdb, 0x0d, 0x8b, 0x7f, 0xe0, 0x4d, 0x58, 0xf5, 0x46,
+	0xa3, 0x80, 0x50, 0x5d, 0x63, 0x3f, 0x8b, 0x2f, 0xf3, 0x7b, 0x78, 0x47, 0x76, 0x11, 0xcc, 0x27,
+	0xaf, 0xe8, 0x21, 0xd4, 0x1e, 0x78, 0xf3, 0x29, 0xd5, 0x4b, 0x5c, 0x9b, 0x7d, 0x98, 0x47, 0x50,
+	0x3f, 0x8e, 0x60, 0x1f, 0x3f, 0xc3, 0x77, 0x41, 0xa3, 0x01, 0xf3, 0x57, 0xdf, 0x33, 0x5a, 0x3c,
+	0xc0, 0x56, 0x14, 0x60, 0x2b, 0xd6, 0xb4, 0x34, 0x1a, 0xe0, 0x26, 0x68, 0xf4, 0x9c, 0x3d, 0x52,
+	0xb3, 0x34, 0x7a, 0x6e, 0xfe, 0x87, 0xa0, 0x7c, 0x78, 0x4a, 0xa6, 0x14, 0x6f, 0xc0, 0xaa, 0x4f,
+	0x46, 0x3d, 0x67, 0xc8, 0x3c, 0xd5, 0xac, 0xb2, 0x4f, 0x46, 0x47, 0x43, 0x8c, 0x61, 0x65, 0x6a,
+	0xbb, 0x44, 0x98, 0xb0, 0xbf, 0xf1, 0x2e, 0xd4, 0x87, 0x24, 0x18, 0xf8, 0xce, 0x2c, 0x0c, 0x8c,
+	0x61, 0xab, 0x59, 0xf2, 0x4f, 0xf8, 0x16, 0xac, 0x9c, 0x9d, 0x90, 0xa9, 0xbe, 0xc2, 0x40, 0xad,
+	0xb7, 0x42, 0xee, 0x5b, 0x12, 0x66, 0x8b, 0x89, 0xb1, 0x01, 0x55, 0xdb, 0x1f, 0x9c, 0x38, 0xa7,
+	0x64, 0xa8, 0x97, 0x77, 0xd1, 0xed, 0xaa, 0x15, 0x7f, 0xe3, 0x07, 0x50, 0x19, 0xf8, 0xc4, 0xa6,
+	0x64, 0xa8, 0xaf, 0x16, 0x86, 0x16, 0xa9, 0x9a, 0xe7, 0x50, 0x63, 0xe1, 0x1c, 0x51, 0xe2, 0xe6,
+	0x85, 0x94, 0x80, 0xaf, 0xa5, 0xe1, 0x4b, 0x6f, 0x97, 0x96, 0x7f, 0xfb, 0x1f, 0x04, 0x95, 0x43,
+	0xdb, 0x77, 0x6d, 0xff, 0xa7, 0xbc, 0xa7, 0xef, 0xc0, 0x3a, 0x09, 0xe1, 0xf5, 0x1c, 0x4a, 0xdc,
+	0x9e, 0xd0, 0xe0, 0x00, 0x9a, 0x24, 0xc2, 0x6d, 0xc5, 0xc4, 0x7b, 0x94, 0x08, 0x76, 0xd9, 0xdf,
+	0x61, 0x39, 0x78, 0x67, 0x53, 0xe2, 0x33, 0x5e, 0x6b, 0x16, 0xff, 0x90, 0xd1, 0x96, 0x97, 0x47,
+	0xdb, 0x87, 0xea, 0x63, 0xfb, 0xd4, 0xf3, 0x1d, 0x1a, 0x26, 0x74, 0x8d, 0xc3, 0x52, 0x30, 0x03,
+	0xfb, 0x8d, 0xa3, 0x91, 0xde, 0xd0, 0x96, 0x7f, 0x63, 0x0e, 0x6b, 0x4f, 0x3c, 0xea, 0x8c, 0x9c,
+	0x01, 0x6b, 0x81, 0x3c, 0x56, 0x74, 0xa8, 0xb8, 0x24, 0x08, 0xec, 0x71, 0x54, 0x66, 0xd1, 0xe7,
+	0x6b, 0x26, 0xe2, 0x39, 0x60, 0x56, 0x04, 0x5f, 0xb2, 0xef, 0xa8, 0x77, 0xa3, 0x4a, 0x46, 0xf9,
+	0x95, 0xac, 0xe5, 0x57, 0x72, 0xe9, 0xc2, 0x4a, 0x36, 0x1f, 0xc2, 0x35, 0xe5, 0xc9, 0x60, 0xe6,
+	0x4d, 0x03, 0x82, 0xdf, 0x87, 0x32, 0x23, 0x51, 0x74, 0x67, 0x9d, 0x9b, 0x33, 0x4d, 0x8b, 0x4b,
+	0xcc, 0x7b, 0x02, 0xec, 0x01, 0x99, 0x90, 0x05, 0xd8, 0x6c, 0xa6, 0xcc, 0x7f, 0x91, 0xd0, 0x7e,
+	0x3a, 0x1b, 0xda, 0x45, 0xda, 0x78, 0x4b, 0xee, 0xdd, 0xee, 0x15, 0x1e, 0xf3, 0x4b, 0x84, 0xf0,
+	0xad, 0x8c, 0x06, 0xee, 0x22, 0x25, 0xf0, 0x50, 0xed, 0x6e, 0x41, 0x17, 0x77, 0x35, 0x1e, 0xfd,
+	0x4b, 0x84, 0x3a, 0x15, 0x28, 0xf7, 0x42, 0xf7, 0x9d, 0x26, 0xac, 0xf5, 0x24, 0x3f, 0x4c, 0xc0,
+	0x28, 0x6a, 0xc3, 0x26, 0x83, 0xfe, 0x15, 0xa1, 0x07, 0x84, 0xda, 0xce, 0x24, 0x28, 0x08, 0xf6,
+	0x77, 0x04, 0x5b, 0x29, 0x8b, 0xa5, 0x89, 0xc5, 0xb7, 0xa0, 0x1c, 0x76, 0x59, 0xa0, 0x6b, 0xbb,
+	0xa5, 0xdb, 0xf5, 0xbd, 0xab, 0x92, 0x0a, 0xeb, 0x32, 0x2e, 0xc5, 0x77, 0xa0, 0x4a, 0x78, 0xd3,
+	0x06, 0x7a, 0x89, 0x69, 0x36, 0x84, 0x26, 0xff, 0xd5, 0x8a, 0xc5, 0x21, 0xa0, 0x75, 0x66, 0x1f,
+	0x7c, 0xe3, 0x04, 0x34, 0x42, 0xff, 0x08, 0x60, 0x16, 0x4f, 0x79, 0x81, 0x67, 0x8b, 0xbb, 0x48,
+	0x2d, 0x90, 0xee, 0x15, 0x4b, 0x52, 0x0e, 0x39, 0xde, 0x91, 0x46, 0x60, 0x98, 0xa7, 0x6a, 0x17,
+	0x2d, 0x86, 0x60, 0x48, 0x6c, 0x03, 0xea, 0xbd, 0x85, 0x49, 0xa7, 0x0e, 0xb5, 0x5e, 0x24, 0x36,
+	0x7f, 0x8e, 0xca, 0x41, 0x00, 0x12, 0xe4, 0x7c, 0x00, 0xab, 0x8c, 0x82, 0x70, 0x29, 0x94, 0x92,
+	0xec, 0x08, 0x11, 0xfe, 0x4c, 0x81, 0xcd, 0x9b, 0x7a, 0x33, 0x0d, 0x3b, 0x5c, 0x5a, 0x29, 0xd4,
+	0x09, 0x50, 0x66, 0x0b, 0x36, 0x98, 0xf3, 0x10, 0x45, 0xc8, 0x6d, 0x51, 0x66, 0x7f, 0x41, 0xa2,
+	0x16, 0x24, 0x03, 0x81, 0x3d, 0xce, 0x1a, 0xba, 0x30, 0x6b, 0x97, 0x89, 0xfe, 0x23, 0xd0, 0x63,
+	0x30, 0x22, 0xe9, 0x45, 0x01, 0xfc, 0x89, 0x60, 0x3b, 0xc3, 0x46, 0xc4, 0x20, 0x97, 0x14, 0xba,
+	0xb0, 0xa4, 0x2e, 0x35, 0x8e, 0x1f, 0xc5, 0x0c, 0xda, 0x1f, 0x0e, 0xf9, 0x1a, 0xe1, 0x21, 0x14,
+	0x0f, 0xf7, 0xc2, 0x29, 0x68, 0x3e, 0x86, 0xeb, 0xaa, 0x6b, 0x11, 0x69, 0x0b, 0x60, 0xb1, 0xcf,
+	0x44, 0xed, 0xa7, 0x52, 0x56, 0x8b, 0x37, 0x5b, 0x3c, 0x03, 0x2c, 0xe2, 0x7a, 0xa7, 0x44, 0x46,
+	0x99, 0x43, 0xf4, 0x77, 0xc2, 0x80, 0xcf, 0xbb, 0x62, 0x83, 0x25, 0x62, 0x39, 0x12, 0x53, 0x45,
+	0x76, 0xf9, 0x9a, 0xe1, 0x3c, 0x85, 0xeb, 0x22, 0xa5, 0xea, 0xaa, 0xc9, 0x5c, 0xf3, 0xe8, 0xc2,
+	0x35, 0xaf, 0x2d, 0xd6, 0xbc, 0xf9, 0x05, 0x6c, 0x24, 0xdc, 0x0a, 0x7c, 0x1f, 0x42, 0x45, 0x54,
+	0x8e, 0x00, 0x97, 0xa8, 0xab, 0x48, 0x6a, 0xde, 0x8f, 0x81, 0x71, 0xa6, 0x0b, 0x58, 0x0e, 0x3b,
+	0x80, 0xab, 0x2f, 0x3d, 0x9c, 0x47, 0xb0, 0x9d, 0x61, 0xf2, 0x8a, 0x38, 0x53, 0xb5, 0xa9, 0x25,
+	0x6b, 0xd3, 0xfc, 0x03, 0xc1, 0xb5, 0xa8, 0xc1, 0xde, 0x92, 0xa9, 0xfb, 0x1b, 0x8a, 0xd9, 0x55,
+	0xe7, 0xee, 0x1b, 0xea, 0xfb, 0x4f, 0x60, 0x23, 0xba, 0xe4, 0xd4, 0x32, 0x2c, 0xec, 0x7c, 0xf3,
+	0x00, 0x36, 0x93, 0xa6, 0x22, 0x96, 0xbb, 0x50, 0x1d, 0x09, 0x89, 0x60, 0xb7, 0xc9, 0xe1, 0x45,
+	0xfa, 0x56, 0x2c, 0x97, 0x01, 0xa8, 0xe5, 0x56, 0x0c, 0xe0, 0x2f, 0x04, 0xdb, 0x91, 0x2d, 0x9b,
+	0xa5, 0x6c, 0x39, 0xbd, 0x1d, 0x49, 0x36, 0xb2, 0x80, 0xbd, 0xa9, 0x15, 0xbb, 0x07, 0xdb, 0xf2,
+	0x29, 0xbd, 0xd4, 0xb5, 0x38, 0x06, 0x5d, 0xb6, 0xb9, 0xbc, 0xfe, 0x49, 0x82, 0xfb, 0x1b, 0xa9,
+	0xe8, 0xd4, 0xb6, 0x78, 0x08, 0x8d, 0xa9, 0x2c, 0x14, 0x94, 0x61, 0xfe, 0x9a, 0x6c, 0x67, 0xa9,
+	0x8a, 0x97, 0x49, 0xe0, 0xde, 0xaf, 0x75, 0x28, 0x59, 0xb3, 0x01, 0xee, 0x40, 0x5d, 0xba, 0xd4,
+	0xb1, 0x2e, 0x25, 0x4e, 0xe9, 0x1e, 0x63, 0x3b, 0x43, 0x22, 0x22, 0x7a, 0x20, 0x7c, 0xf0, 0x15,
+	0xa2, 0xf8, 0x50, 0x0e, 0x73, 0x23, 0x2a, 0x0b, 0x77, 0x46, 0x5f, 0xc4, 0x56, 0x3c, 0x77, 0x8a,
+	0x95, 0x92, 0x4e, 0xd5, 0xea, 0x73, 0x80, 0xc5, 0x89, 0x87, 0xb7, 0x24, 0x23, 0x39, 0x9f, 0x86,
+	0x9e, 0x16, 0x08, 0xb0, 0x4f, 0xe0, 0x6a, 0xe2, 0x8a, 0xc6, 0x37, 0x25, 0xe5, 0xd4, 0xc4, 0x37,
+	0xde, 0xcd, 0x91, 0x0a, 0x7f, 0x5f, 0x43, 0x53, 0xbd, 0xdd, 0xf0, 0x0d, 0xc9, 0x20, 0x79, 0x02,
+	0x1a, 0x37, 0xb3, 0x85, 0xc2, 0xd9, 0xb1, 0xb8, 0xa8, 0xe5, 0x3b, 0x0a, 0xbf, 0x97, 0x30, 0x49,
+	0x1c, 0x65, 0xc6, 0x4e, 0xae, 0x5c, 0x78, 0x3d, 0x84, 0x35, 0xf9, 0x5c, 0xc1, 0x72, 0x2a, 0xd5,
+	0xeb, 0xc8, 0x30, 0xb2, 0x44, 0x09, 0xe6, 0x16, 0x97, 0x82, 0xc2, 0x5c, 0xea, 0x26, 0x51, 0x98,
+	0xcb, 0x38, 0x2f, 0x1e, 0x09, 0x7f, 0x8b, 0xeb, 0x47, 0xf1, 0x97, 0x3a, 0x8a, 0xd4, 0x42, 0xe8,
+	0x42, 0x43, 0xb9, 0x0a, 0xb0, 0xa1, 0x2c, 0x17, 0xb5, 0x78, 0x6f, 0x64, 0xca, 0x24, 0xd2, 0x93,
+	0xbb, 0x3b, 0x26, 0x3d, 0xe7, 0x0e, 0x88, 0x49, 0xcf, 0x5d, 0xfa, 0x0f, 0x63, 0x7c, 0x3c, 0x90,
+	0x04, 0x3e, 0x65, 0x33, 0xa8, 0x91, 0x85, 0xe9, 0x92, 0xf6, 0x69, 0x9c, 0xae, 0xf4, 0xda, 0x37,
+	0x8c, 0x2c, 0x91, 0x00, 0xd0, 0x85, 0x7a, 0x34, 0xb1, 0xf7, 0x87, 0xc3, 0xa8, 0x2a, 0x33, 0x57,
+	0x63, 0x54, 0x95, 0x39, 0xcb, 0xef, 0x53, 0x68, 0xaa, 0x0b, 0x2d, 0xe9, 0xec, 0x82, 0x60, 0x7e,
+	0x00, 0x9c, 0xde, 0x1b, 0x78, 0x47, 0xb5, 0x4f, 0xad, 0x3a, 0x63, 0x37, 0x5f, 0x41, 0x80, 0xea,
+	0x00, 0x4e, 0x6f, 0x80, 0xc8, 0x71, 0xee, 0x6e, 0x50, 0xc1, 0xed, 0xc1, 0xa6, 0x32, 0xa7, 0xb9,
+	0xea, 0xfe, 0x64, 0x82, 0x65, 0x35, 0xd5, 0xe6, 0x18, 0xd6, 0x53, 0xb3, 0x3d, 0xaa, 0x96, 0xbc,
+	0xf5, 0x62, 0xec, 0xe4, 0xca, 0x79, 0x34, 0x9d, 0xfb, 0xcf, 0xee, 0x8d, 0x1d, 0x7a, 0x32, 0xef,
+	0xb7, 0x06, 0x9e, 0xdb, 0x1e, 0xfa, 0xde, 0xec, 0xec, 0xc4, 0x99, 0x90, 0xb6, 0x33, 0xb0, 0xa7,
+	0x7d, 0xdf, 0x99, 0x8e, 0xe9, 0x89, 0x4d, 0xdb, 0xfe, 0x6c, 0xd0, 0x0e, 0x1d, 0xf5, 0x57, 0xd9,
+	0xff, 0x7b, 0x3e, 0xfe, 0x3f, 0x00, 0x00, 0xff, 0xff, 0xe6, 0x01, 0xf1, 0x7f, 0xd5, 0x15, 0x00,
+	0x00,
 }
