@@ -60,7 +60,7 @@
     https://www.alexedwards.net/blog/how-to-hash-and-verify-passwords-with-argon2-in-go
 
 *   markdown for go:  
-    github.com/yuin/goldmark v1.5.6
+    https://github.com/yuin/goldmark
 
 *   use t.cleanup instead of defer in tests  
     https://brandur.org/fragments/go-prefer-t-cleanup-with-parallel-subtests  
@@ -72,7 +72,7 @@
 *   chi routing docs  
     https://go-chi.io/
 
-## config notes
+## pgbouncer config notes
 | QueryExecMode                | pgbouncer pool_mode | a usable config? |
 | ---------------------------- | ------------------- | ---------------- |
 | QueryExecModeCacheStatement  | session             | no               |
