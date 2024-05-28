@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.6
 
 # do the building
-FROM golang:1.22-alpine as builder
+FROM golang:alpine as builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ENV GOEXPERIMENT=loopvar
@@ -26,8 +26,6 @@ ENV BIND_ADDRESS=0.0.0.0
 ENV BIND_PORT=8000
 ENV TPL_DIR=embed
 ENV STATIC_DIR=embed
-ENV TPL_DIR="embed"
-ENV STATIC_DIR="embed"
 ENV LOG_LEVEL=debug
 ENV LOG_TRACE=false
 ENV LOG_FORMAT=plain
