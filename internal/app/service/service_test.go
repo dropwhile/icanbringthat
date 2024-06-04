@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/pashagolub/pgxmock/v3"
+	"github.com/pashagolub/pgxmock/v4"
 	pg_query "github.com/pganalyze/pg_query_go/v5"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"

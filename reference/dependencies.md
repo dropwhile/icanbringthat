@@ -108,7 +108,7 @@
 * URL: https://github.com/muesli/reflow
 * License: [MIT](https://github.com/muesli/reflow/blob/v0.3.0/LICENSE)
 
-### github.com/pashagolub/pgxmock/v3
+### github.com/pashagolub/pgxmock/v4
 * URL: https://github.com/pashagolub/pgxmock
 * License: [BSD-3-Clause](https://github.com/pashagolub/pgxmock/blob/master/LICENSE)
 

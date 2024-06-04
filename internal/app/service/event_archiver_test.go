@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pashagolub/pgxmock/v3"
+	"github.com/pashagolub/pgxmock/v4"
 	"gotest.tools/v3/assert"
 )
 
