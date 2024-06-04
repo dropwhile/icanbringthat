@@ -30,8 +30,8 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
-	golang.org/x/crypto v0.23.0
-	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc
+	golang.org/x/crypto v0.24.0
+	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	google.golang.org/protobuf v1.34.1
 	gotest.tools/v3 v3.5.1
 )
@@ -76,12 +76,12 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/mod v0.18.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/tools v0.22.0 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
