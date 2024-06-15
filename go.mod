@@ -26,12 +26,12 @@ require (
 	github.com/redis/go-redis/v9 v9.5.3
 	github.com/samber/mo v1.11.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	github.com/yuin/goldmark v1.7.1
+	github.com/yuin/goldmark v1.7.2
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.24.0
-	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
+	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
 	google.golang.org/protobuf v1.34.2
 	gotest.tools/v3 v3.5.1
 )
