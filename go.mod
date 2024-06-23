@@ -10,7 +10,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.8.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.2
-	github.com/go-chi/chi/v5 v5.0.13
+	github.com/go-chi/chi/v5 v5.0.14
 	github.com/go-chi/httplog/v2 v2.0.11
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/go-webauthn/webauthn v0.10.2
@@ -24,7 +24,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.45.0
 	github.com/redis/go-redis/v9 v9.5.3
-	github.com/samber/mo v1.11.0
+	github.com/samber/mo v1.12.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	github.com/yuin/goldmark v1.7.2
 	github.com/yuin/goldmark-emoji v1.0.2
@@ -52,7 +52,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.1 // indirect
-	github.com/google/pprof v0.0.0-20240618054019-d3b898a103f8 // indirect
+	github.com/google/pprof v0.0.0-20240622144329-c177fd99eaa9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
