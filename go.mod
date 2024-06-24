@@ -27,7 +27,7 @@ require (
 	github.com/samber/mo v1.12.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	github.com/yuin/goldmark v1.7.3
-	github.com/yuin/goldmark-emoji v1.0.2
+	github.com/yuin/goldmark-emoji v1.0.3
 	github.com/zeebo/blake3 v0.2.3
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.24.0
