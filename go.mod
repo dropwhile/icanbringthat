@@ -10,7 +10,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.8.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dropwhile/refid/v2 v2.0.2
-	github.com/go-chi/chi/v5 v5.0.14
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/httplog/v2 v2.0.11
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/go-webauthn/webauthn v0.10.2
