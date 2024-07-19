@@ -87,14 +87,7 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -215,14 +208,7 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -300,27 +286,8 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 	t.Parallel()
 
 	ts := tstTs
-	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
-	}
 	event := &model.Event{
-		ID:           1,
-		RefID:        util.Must(model.NewEventRefID()),
-		UserID:       user.ID,
-		Name:         "event",
-		Description:  "description",
-		Archived:     false,
-		StartTime:    ts,
-		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
@@ -417,27 +384,8 @@ func TestService_GetEventItem(t *testing.T) {
 	t.Parallel()
 
 	ts := tstTs
-	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
-	}
 	event := &model.Event{
-		ID:           1,
-		RefID:        util.Must(model.NewEventRefID()),
-		UserID:       user.ID,
-		Name:         "event",
-		Description:  "description",
-		Archived:     false,
-		StartTime:    ts,
-		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	eventItem := &model.EventItem{
 		ID:           3,
@@ -498,27 +446,8 @@ func TestService_GetEventItemByID(t *testing.T) {
 	t.Parallel()
 
 	ts := tstTs
-	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
-	}
 	event := &model.Event{
-		ID:           1,
-		RefID:        util.Must(model.NewEventRefID()),
-		UserID:       user.ID,
-		Name:         "event",
-		Description:  "description",
-		Archived:     false,
-		StartTime:    ts,
-		StartTimeTz:  util.Must(ParseTimeZone("Etc/UTC")),
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	eventItem := &model.EventItem{
 		ID:           3,

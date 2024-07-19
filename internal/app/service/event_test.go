@@ -23,14 +23,7 @@ func TestService_GetEvent(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -95,14 +88,7 @@ func TestService_GetEventByID(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -167,14 +153,7 @@ func TestService_GetEventsByIDs(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -1250,14 +1229,7 @@ func TestService_GetEventsPaginated(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -1403,14 +1375,7 @@ func TestService_GetEventsComingSoonPaginated(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
@@ -1535,14 +1500,7 @@ func TestService_GetEvents(t *testing.T) {
 
 	ts := tstTs
 	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      ts,
-		LastModified: ts,
+		ID: 1,
 	}
 	event := &model.Event{
 		ID:           1,
