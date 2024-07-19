@@ -46,6 +46,9 @@ func init() {
 }
 
 func OptionValuer(field reflect.Value) interface{} {
+	if valuer, ok := field.Interface().(mo.Option[[]int]); ok {
+		return valuer.OrEmpty()
+	}
 	if valuer, ok := field.Interface().(driver.Valuer); ok {
 		val, err := valuer.Value()
 		if err == nil {
