@@ -99,24 +99,6 @@ func TestWebAuthnUser_WebAuthnDisplayName(t *testing.T) {
 	assert.Equal(t, o.WebAuthnDisplayName(), user.Email)
 }
 
-func TestWebAuthnUser_WebAuthnIcon(t *testing.T) {
-	t.Parallel()
-
-	user := &model.User{
-		ID:           1,
-		RefID:        util.Must(model.NewUserRefID()),
-		Email:        "user@example.com",
-		Name:         "user",
-		PWHash:       []byte("00x00"),
-		Verified:     true,
-		Created:      tstTs,
-		LastModified: tstTs,
-	}
-
-	o := WebAuthnUser{User: user, svc: nil}
-	assert.Equal(t, o.WebAuthnIcon(), "")
-}
-
 func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 	t.Parallel()
 

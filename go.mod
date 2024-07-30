@@ -13,7 +13,7 @@ require (
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-playground/validator/v10 v10.22.0
-	github.com/go-webauthn/webauthn v0.10.2
+	github.com/go-webauthn/webauthn v0.11.0
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056

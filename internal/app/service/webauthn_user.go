@@ -56,12 +56,6 @@ func (u *WebAuthnUser) WebAuthnDisplayName() string {
 	return u.Email
 }
 
-// WebAuthnIcon is a deprecated option.
-// Deprecated: this has been removed from the specification recommendation. Suggest a blank string.
-func (u *WebAuthnUser) WebAuthnIcon() string {
-	return ""
-}
-
 // WebAuthnCredentials provides the list of Credential objects owned by the user.
 func (u *WebAuthnUser) WebAuthnCredentials() []webauthn.Credential {
 	ctx := context.Background()

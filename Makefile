@@ -153,9 +153,13 @@ ${GOBIN}/govulncheck:
 ${GOBIN}/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 
+${GOBIN}/nilness:
+	go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
+
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
+CHECK_TOOLS += ${GOBIN}/nilness
 
 # migrate tools
 ${GOBIN}/goose:
@@ -237,6 +241,8 @@ check: setup-check
 	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... go-vet ..."
 	@go vet ./...
+	@echo "... nilness ..."
+	@${GOBIN}/nilness ./...
 	@echo "... ineffassign ..."
 	@${GOBIN}/ineffassign ./...
 	@echo "... govulncheck ..."
