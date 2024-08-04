@@ -22,7 +22,7 @@ require (
 	github.com/pashagolub/pgxmock/v4 v4.2.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.45.1
+	github.com/quic-go/quic-go v0.45.2
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/samber/mo v1.13.0
 	github.com/twitchtv/twirp v8.1.3+incompatible
@@ -77,10 +77,10 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	golang.org/x/mod v0.19.0 // indirect
+	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 )
