@@ -37,6 +37,7 @@ REDIS_PASS          ?=
 
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
+export GOTOOLCHAIN=local
 #export CGO_ENABLED=0
 ## enable go 1.21 loopvar "experiment"
 export GOEXPERIMENT=loopvar
