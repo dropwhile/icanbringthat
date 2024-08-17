@@ -1,6 +1,8 @@
 module github.com/dropwhile/icanbringthat
 
-go 1.22.3
+go 1.23
+
+toolchain go1.23.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -48,7 +50,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/go-webauthn/x v0.1.13 // indirect
+	github.com/go-webauthn/x v0.1.14 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.1 // indirect
