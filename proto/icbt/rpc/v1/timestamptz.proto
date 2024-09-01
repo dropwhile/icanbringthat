@@ -1,0 +1,10 @@
+syntax = "proto3";
+package icbt.rpc.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+message TimestampTZ {
+  google.protobuf.Timestamp ts = 1; // timestamp
+  string tz = 2 [(buf.validate.field).string.min_len = 3]; // timezone
+}

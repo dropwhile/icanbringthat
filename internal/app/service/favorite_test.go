@@ -109,9 +109,9 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
 		assert.NilError(t, err)
 		assert.Equal(t, len(events), currentCount)
-		assert.Equal(t, pagination.Limit, uint32(limit))
-		assert.Equal(t, pagination.Offset, uint32(offset))
-		assert.Equal(t, pagination.Count, uint32(currentCount))
+		assert.Equal(t, pagination.Limit, limit)
+		assert.Equal(t, pagination.Offset, offset)
+		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -157,9 +157,9 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
 		assert.NilError(t, err)
 		assert.Equal(t, len(events), archivedCount)
-		assert.Equal(t, pagination.Limit, uint32(limit))
-		assert.Equal(t, pagination.Offset, uint32(offset))
-		assert.Equal(t, pagination.Count, uint32(archivedCount))
+		assert.Equal(t, pagination.Limit, limit)
+		assert.Equal(t, pagination.Offset, offset)
+		assert.Equal(t, pagination.Count, archivedCount)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -187,9 +187,9 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
 		assert.NilError(t, err)
 		assert.Equal(t, len(events), currentCount)
-		assert.Equal(t, pagination.Limit, uint32(limit))
-		assert.Equal(t, pagination.Offset, uint32(offset))
-		assert.Equal(t, pagination.Count, uint32(currentCount))
+		assert.Equal(t, pagination.Limit, limit)
+		assert.Equal(t, pagination.Offset, offset)
+		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

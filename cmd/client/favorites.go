@@ -9,10 +9,11 @@ import (
 	"os"
 	"strings"
 
+	"connectrpc.com/connect"
 	"github.com/Masterminds/sprig/v3"
 
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 const favoriteTpl = `
@@ -30,7 +31,7 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 	req := &icbt.FavoriteListEventsRequest{
 		Archived: &cmd.Archived,
 	}
-	resp, err := client.FavoriteListEvents(meta.ctx, req)
+	resp, err := client.FavoriteListEvents(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -38,7 +39,7 @@ func (cmd *FavoritesListCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
-	for _, event := range resp.Events {
+	for _, event := range resp.Msg.Events {
 		if err := t.Execute(os.Stdout, event); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}
@@ -52,10 +53,10 @@ type FavoritesAddCmd struct {
 
 func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.FavoriteCreateRequest{
+	req := &icbt.FavoriteAddRequest{
 		EventRefId: cmd.EventRefID,
 	}
-	resp, err := client.FavoriteAdd(meta.ctx, req)
+	resp, err := client.FavoriteAdd(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -65,7 +66,7 @@ func (cmd *FavoritesAddCmd) Run(meta *RunArgs) error {
 			Funcs(sprig.FuncMap()).
 			Parse(strings.TrimLeft(favoriteTpl, "\n")),
 	)
-	if err := t.Execute(os.Stdout, resp.Favorite); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.Favorite); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -80,7 +81,7 @@ func (cmd *FavoritesRemoveCmd) Run(meta *RunArgs) error {
 	req := &icbt.FavoriteRemoveRequest{
 		EventRefId: cmd.EventRefID,
 	}
-	if _, err := client.FavoriteRemove(meta.ctx, req); err != nil {
+	if _, err := client.FavoriteRemove(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil

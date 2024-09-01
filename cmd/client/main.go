@@ -9,13 +9,13 @@ import (
 	"log/slog"
 	"net/http"
 
+	"connectrpc.com/connect"
 	"github.com/alecthomas/kong"
 	"github.com/quic-go/quic-go/http3"
-	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icanbringthat/internal/logger"
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	"github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1/rpcv1connect"
 )
 
 type verboseFlag bool
@@ -28,18 +28,18 @@ func (v verboseFlag) BeforeApply() error {
 
 type RunArgs struct {
 	cli    *CLI
-	client icbt.Rpc
+	client rpcv1connect.IcbtRpcServiceClient
 	ctx    context.Context
 }
 
 type CLI struct { // betteralign:ignore
 	// global options
-	Verbose     verboseFlag      `name:"verbose" short:"v" help:"enable verbose logging"`
-	Quic        bool             `name:"quic" help:"connect with http3/quic"`
-	Version     kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
-	BaseURL     string           `name:"base-url" short:"b" env:"BASE_URL" required:""`
-	TwirpPrefix string           `name:"api-prefix" short:"p" env:"API_PREFIX" default:"/api"`
-	AuthToken   string           `name:"auth-token" env:"AUTH_TOKEN" required:""`
+	Verbose   verboseFlag      `name:"verbose" short:"v" help:"enable verbose logging"`
+	Quic      bool             `name:"quic" help:"connect with http3/quic"`
+	Version   kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
+	BaseURL   string           `name:"base-url" short:"b" env:"BASE_URL" required:""`
+	ApiPrefix string           `name:"api-prefix" short:"p" env:"API_PREFIX" default:"/api"`
+	AuthToken string           `name:"auth-token" env:"AUTH_TOKEN" required:""`
 
 	// subcommands
 	Events struct { // betteralign:ignore
@@ -97,29 +97,22 @@ func main() {
 		},
 	)
 
-	header := http.Header{}
-	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
-	header.Set("User-Agent", fmt.Sprintf("api-client %s", vinfo.Version))
-
-	reqCtx := context.Background()
-	reqCtx, err := twirp.WithHTTPRequestHeaders(reqCtx, header)
-	if err != nil {
-		ctx.FatalIfErrorf(err)
-		return
-	}
-
 	hc := &http.Client{}
 	if cli.Quic {
 		hc.Transport = &http3.RoundTripper{}
 	}
 
-	client := icbt.NewRpcProtobufClient(
-		cli.BaseURL, hc,
-		twirp.WithClientPathPrefix(cli.TwirpPrefix),
+	header := http.Header{}
+	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
+	header.Set("User-Agent", fmt.Sprintf("api-client %s", vinfo.Version))
+	interceptors := connect.WithInterceptors(NewAddHeadersInterceptor(header))
+
+	client := rpcv1connect.NewIcbtRpcServiceClient(
+		hc, cli.BaseURL+cli.ApiPrefix, interceptors,
 	)
-	err = ctx.Run(&RunArgs{
+	err := ctx.Run(&RunArgs{
 		cli:    &cli,
-		ctx:    reqCtx,
+		ctx:    context.Background(),
 		client: client,
 	})
 	ctx.FatalIfErrorf(err)

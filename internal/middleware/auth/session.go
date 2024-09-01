@@ -49,7 +49,7 @@ type GetInter interface {
 	GetInt(ctx context.Context, key string) int
 }
 
-func Load(userGetter UserGetter, intGetter GetInter) func(next http.Handler) http.Handler {
+func Load(userGetter UserGetter, intGetter GetInter) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()

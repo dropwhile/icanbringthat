@@ -296,9 +296,9 @@ func (s *Service) GetEventsPaginated(
 		events = evts
 	}
 	pagination := &Pagination{
-		Limit:  uint32(limit),
-		Offset: uint32(offset),
-		Count:  uint32(count),
+		Limit:  limit,
+		Offset: offset,
+		Count:  count,
 	}
 	return events, pagination, nil
 }
@@ -324,9 +324,9 @@ func (s *Service) GetEventsComingSoonPaginated(
 		events = evts
 	}
 	pagination := &Pagination{
-		Limit:  uint32(limit),
-		Offset: uint32(offset),
-		Count:  uint32(eventCount.Current),
+		Limit:  limit,
+		Offset: offset,
+		Count:  eventCount.Current,
 	}
 	return events, pagination, nil
 }

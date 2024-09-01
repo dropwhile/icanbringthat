@@ -5,8 +5,7 @@ package convert
 
 import (
 	"github.com/dropwhile/icanbringthat/internal/app/model"
-	"github.com/dropwhile/icanbringthat/internal/app/service"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 //go:generate convergen
@@ -29,9 +28,4 @@ type Convergen interface {
 	// :case:off
 	// :conv TimeToTimestamp Created Created
 	ToPbEventItem(*model.EventItem) *icbt.EventItem
-
-	// :typecast
-	// :stringer
-	// :case:off
-	ToPbPagination(*service.Pagination) *icbt.PaginationResult
 }

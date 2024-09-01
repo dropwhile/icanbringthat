@@ -10,7 +10,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 	"golang.org/x/crypto/argon2"
 )
 

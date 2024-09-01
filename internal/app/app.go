@@ -21,10 +21,11 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 	"github.com/dropwhile/icanbringthat/internal/middleware/debug"
 	"github.com/dropwhile/icanbringthat/internal/middleware/header"
+	"github.com/dropwhile/icanbringthat/internal/middleware/strip"
 	"github.com/dropwhile/icanbringthat/internal/session"
 )
 
-const TwirpPrefix = "/api"
+const RpcPrefix = "/api"
 
 type App struct {
 	*chi.Mux
@@ -206,14 +207,16 @@ func New(
 			return nil, err
 		}
 
-		r.Route(TwirpPrefix, func(r chi.Router) {
+		r.Route(RpcPrefix, func(r chi.Router) {
 			// add auth token middleware here instead,
 			// which pulls an auth token from a header,
 			// looks it up in the db, and sets the user in the context
 			r.NotFound(http.NotFound)
 			r.Use(middleware.NoCache)
 			r.Use(auth.LoadAuthToken)
-			r.Mount("/", rpcServer.GenHandler(TwirpPrefix))
+			r.Use(strip.StripPrefix(RpcPrefix))
+			r.Use(rpc.RequireApiKey(service))
+			r.Mount("/", rpcServer.GenHandler())
 		})
 	}
 

@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/twitchtv/twirp"
+	"connectrpc.com/connect"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -16,7 +16,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/errs"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 var eventItemFailIfCheck service.FailIfCheckFunc[*model.EventItem]
@@ -58,9 +58,9 @@ func TestRpc_ListEventItems(t *testing.T) {
 		request := &icbt.EventListItemsRequest{
 			RefId: eventRefID.String(),
 		}
-		response, err := server.EventListItems(ctx, request)
+		response, err := server.EventListItems(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Items), 1)
+		assert.Equal(t, len(response.Msg.Items), 1)
 	})
 
 	t.Run("list event items with bad refid should fail", func(t *testing.T) {
@@ -73,8 +73,9 @@ func TestRpc_ListEventItems(t *testing.T) {
 		request := &icbt.EventListItemsRequest{
 			RefId: "hodor",
 		}
-		_, err := server.EventListItems(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		_, err := server.EventListItems(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
 	})
 
 	t.Run("list event items with missing event should fail", func(t *testing.T) {
@@ -92,8 +93,9 @@ func TestRpc_ListEventItems(t *testing.T) {
 		request := &icbt.EventListItemsRequest{
 			RefId: eventRefID.String(),
 		}
-		_, err := server.EventListItems(ctx, request)
-		errs.AssertError(t, err, twirp.NotFound, "event not found")
+		_, err := server.EventListItems(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
 	})
 }
 
@@ -129,7 +131,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.EventRemoveItem(ctx, request)
+		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
 
@@ -143,8 +145,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		request := &icbt.EventRemoveItemRequest{
 			RefId: "hodor",
 		}
-		_, err := server.EventRemoveItem(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
+		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event-item ref-id")
 	})
 
 	t.Run("remove event item not event owner should fail", func(t *testing.T) {
@@ -165,8 +168,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.EventRemoveItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
+		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
 	})
 
 	t.Run("remove event item with archived event should fail", func(t *testing.T) {
@@ -187,8 +191,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.EventRemoveItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
+		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
 	})
 
 	t.Run("remove event item with event item not found should fail", func(t *testing.T) {
@@ -209,8 +214,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		request := &icbt.EventRemoveItemRequest{
 			RefId: eventItemRefID.String(),
 		}
-		_, err := server.EventRemoveItem(ctx, request)
-		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
+		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event-item not found")
 	})
 }
 
@@ -253,9 +259,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		response, err := server.EventAddItem(ctx, request)
+		response, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.EventItem.Description, description)
+		assert.Equal(t, response.Msg.EventItem.Description, description)
 	})
 
 	t.Run("add event item with empty description should fail", func(t *testing.T) {
@@ -275,8 +281,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventAddItem(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
+		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "description bad value")
 	})
 
 	t.Run("add event item with user not event owner should fail", func(t *testing.T) {
@@ -296,8 +303,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventAddItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
+		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
 	})
 
 	t.Run("add event item to archived event should fail", func(t *testing.T) {
@@ -317,8 +325,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventAddItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
+		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
 	})
 
 	t.Run("add event item to missing event should fail", func(t *testing.T) {
@@ -338,8 +347,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  eventRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventAddItem(ctx, request)
-		errs.AssertError(t, err, twirp.NotFound, "event not found")
+		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
 	})
 
 	t.Run("add event item with bad event ref-id should fail", func(t *testing.T) {
@@ -354,8 +364,9 @@ func TestRpc_AddEventItem(t *testing.T) {
 			EventRefId:  "hodor",
 			Description: description,
 		}
-		_, err := server.EventAddItem(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event ref-id")
+		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
 	})
 }
 
@@ -402,9 +413,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		response, err := server.EventUpdateItem(ctx, request)
+		response, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.EventItem.Description, description)
+		assert.Equal(t, response.Msg.EventItem.Description, description)
 	})
 
 	t.Run("update event item with bad refid should fail", func(t *testing.T) {
@@ -417,8 +428,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       "hodor",
 			Description: "some nonsense",
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id bad event-item ref-id")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event-item ref-id")
 	})
 
 	t.Run("update event item with archived event should fail", func(t *testing.T) {
@@ -441,8 +453,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "event is archived")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
 	})
 
 	t.Run("update event item with user not event owner should fail", func(t *testing.T) {
@@ -465,8 +478,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "not event owner")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
 	})
 
 	t.Run("update event item with earmarked by other should fail", func(t *testing.T) {
@@ -489,8 +503,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "earmarked by other user")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "earmarked by other user")
 	})
 
 	t.Run("update event item with bad description should fail", func(t *testing.T) {
@@ -513,8 +528,9 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "description bad value")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "description bad value")
 	})
 
 	t.Run("update event item with event item not found should fail", func(t *testing.T) {
@@ -537,7 +553,8 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			RefId:       eventItemRefID.String(),
 			Description: description,
 		}
-		_, err := server.EventUpdateItem(ctx, request)
-		errs.AssertError(t, err, twirp.NotFound, "event-item not found")
+		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event-item not found")
 	})
 }

@@ -1,0 +1,1552 @@
+openapi: 3.1.0
+info:
+  title: ICanBringThat
+  version: v1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: ApiToken
+  schemas:
+    icbt.rpc.v1.PaginationRequest:
+      type: object
+      properties:
+        limit:
+          exclusiveMinimum: 0
+          type: integer
+          title: limit
+        offset:
+          type: integer
+          title: offset
+      title: PaginationRequest
+      additionalProperties: false
+    icbt.rpc.v1.PaginationResult:
+      type: object
+      properties:
+        limit:
+          type: integer
+          title: limit
+        offset:
+          type: integer
+          title: offset
+        count:
+          type: integer
+          title: count
+      title: PaginationResult
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      title: Connect-Protocol-Version
+      enum:
+        - 1
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - CodeNotFound
+          enum:
+            - CodeCanceled
+            - CodeUnknown
+            - CodeInvalidArgument
+            - CodeDeadlineExceeded
+            - CodeNotFound
+            - CodeAlreadyExists
+            - CodePermissionDenied
+            - CodeResourceExhausted
+            - CodeFailedPrecondition
+            - CodeAborted
+            - CodeOutOfRange
+            - CodeInternal
+            - CodeUnavailable
+            - CodeDataLoss
+            - CodeUnauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        detail:
+          $ref: '#/components/schemas/google.protobuf.Any'
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    google.protobuf.Any:
+      type: object
+      properties:
+        type:
+          type: string
+        value:
+          type: string
+          format: binary
+        debug:
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+    google.protobuf.Timestamp:
+      type: string
+      format: date-time
+      description: |-
+        A Timestamp represents a point in time independent of any time zone or local
+         calendar, encoded as a count of seconds and fractions of seconds at
+         nanosecond resolution. The count is relative to an epoch at UTC midnight on
+         January 1, 1970, in the proleptic Gregorian calendar which extends the
+         Gregorian calendar backwards to year one.
+
+         All minutes are 60 seconds long. Leap seconds are "smeared" so that no leap
+         second table is needed for interpretation, using a [24-hour linear
+         smear](https://developers.google.com/time/smear).
+
+         The range is from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z. By
+         restricting to that range, we ensure that we can convert to and from [RFC
+         3339](https://www.ietf.org/rfc/rfc3339.txt) date strings.
+
+         # Examples
+
+         Example 1: Compute Timestamp from POSIX `time()`.
+
+             Timestamp timestamp;
+             timestamp.set_seconds(time(NULL));
+             timestamp.set_nanos(0);
+
+         Example 2: Compute Timestamp from POSIX `gettimeofday()`.
+
+             struct timeval tv;
+             gettimeofday(&tv, NULL);
+
+             Timestamp timestamp;
+             timestamp.set_seconds(tv.tv_sec);
+             timestamp.set_nanos(tv.tv_usec * 1000);
+
+         Example 3: Compute Timestamp from Win32 `GetSystemTimeAsFileTime()`.
+
+             FILETIME ft;
+             GetSystemTimeAsFileTime(&ft);
+             UINT64 ticks = (((UINT64)ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+
+             // A Windows tick is 100 nanoseconds. Windows epoch 1601-01-01T00:00:00Z
+             // is 11644473600 seconds before Unix epoch 1970-01-01T00:00:00Z.
+             Timestamp timestamp;
+             timestamp.set_seconds((INT64) ((ticks / 10000000) - 11644473600LL));
+             timestamp.set_nanos((INT32) ((ticks % 10000000) * 100));
+
+         Example 4: Compute Timestamp from Java `System.currentTimeMillis()`.
+
+             long millis = System.currentTimeMillis();
+
+             Timestamp timestamp = Timestamp.newBuilder().setSeconds(millis / 1000)
+                 .setNanos((int) ((millis % 1000) * 1000000)).build();
+
+         Example 5: Compute Timestamp from Java `Instant.now()`.
+
+             Instant now = Instant.now();
+
+             Timestamp timestamp =
+                 Timestamp.newBuilder().setSeconds(now.getEpochSecond())
+                     .setNanos(now.getNano()).build();
+
+         Example 6: Compute Timestamp from current time in Python.
+
+             timestamp = Timestamp()
+             timestamp.GetCurrentTime()
+
+         # JSON Mapping
+
+         In JSON format, the Timestamp type is encoded as a string in the
+         [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format. That is, the
+         format is "{year}-{month}-{day}T{hour}:{min}:{sec}[.{frac_sec}]Z"
+         where {year} is always expressed using four digits while {month}, {day},
+         {hour}, {min}, and {sec} are zero-padded to two digits each. The fractional
+         seconds, which can go up to 9 digits (i.e. up to 1 nanosecond resolution),
+         are optional. The "Z" suffix indicates the timezone ("UTC"); the timezone
+         is required. A proto3 JSON serializer should always use UTC (as indicated by
+         "Z") when printing the Timestamp type and a proto3 JSON parser should be
+         able to accept both UTC and other timezones (as indicated by an offset).
+
+         For example, "2017-01-15T01:30:15.01Z" encodes 15.01 seconds past
+         01:30 UTC on January 15, 2017.
+
+         In JavaScript, one can convert a Date object to this format using the
+         standard
+         [toISOString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString)
+         method. In Python, a standard `datetime.datetime` object can be converted
+         to this format using
+         [`strftime`](https://docs.python.org/2/library/time.html#time.strftime) with
+         the time format spec '%Y-%m-%dT%H:%M:%S.%fZ'. Likewise, in Java, one can use
+         the Joda Time's [`ISODateTimeFormat.dateTime()`](
+         http://joda-time.sourceforge.net/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateTime()
+         ) to obtain a formatter capable of generating timestamps in this format.
+    icbt.rpc.v1.Earmark:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+        eventItemRefId:
+          type: string
+          title: event_item_ref_id
+        note:
+          type: string
+          title: note
+        owner:
+          type: string
+          title: owner
+        created:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Earmark
+      additionalProperties: false
+    icbt.rpc.v1.EarmarkCreateRequest:
+      type: object
+      properties:
+        eventItemRefId:
+          type: string
+          title: event_item_ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+        note:
+          type: string
+          title: note
+          description: required, but can be empty
+      title: EarmarkCreateRequest
+      additionalProperties: false
+    icbt.rpc.v1.EarmarkCreateResponse:
+      type: object
+      properties:
+        earmark:
+          $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+      title: EarmarkCreateResponse
+      additionalProperties: false
+    icbt.rpc.v1.EarmarkGetDetailsRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EarmarkGetDetailsRequest
+      additionalProperties: false
+    icbt.rpc.v1.EarmarkGetDetailsResponse:
+      type: object
+      properties:
+        earmark:
+          $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+        eventRefId:
+          type: string
+          title: event_ref_id
+      title: EarmarkGetDetailsResponse
+      additionalProperties: false
+    icbt.rpc.v1.EarmarkRemoveRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EarmarkRemoveRequest
+      additionalProperties: false
+    icbt.rpc.v1.EarmarksListRequest:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - archived
+            - not:
+                anyOf:
+                  - required:
+                      - archived
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+        archived:
+          type: boolean
+          title: archived
+      title: EarmarksListRequest
+      additionalProperties: false
+    icbt.rpc.v1.EarmarksListResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        earmarks:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+          title: earmarks
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: EarmarksListResponse
+      additionalProperties: false
+    icbt.rpc.v1.TimestampTZ:
+      type: object
+      properties:
+        ts:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        tz:
+          type: string
+          title: tz
+          minLength: 3
+          description: timezone
+      title: TimestampTZ
+      additionalProperties: false
+    icbt.rpc.v1.Event:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        when:
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+        archived:
+          type: boolean
+          title: archived
+        created:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Event
+      additionalProperties: false
+    icbt.rpc.v1.EventAddItemRequest:
+      type: object
+      properties:
+        eventRefId:
+          type: string
+          title: event_ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+        description:
+          type: string
+          title: description
+      title: EventAddItemRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventAddItemResponse:
+      type: object
+      properties:
+        eventItem:
+          $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+      title: EventAddItemResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          minLength: 1
+        description:
+          type: string
+          title: description
+          minLength: 1
+        when:
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+      title: EventCreateRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventCreateResponse:
+      type: object
+      properties:
+        event:
+          $ref: '#/components/schemas/icbt.rpc.v1.Event'
+      title: EventCreateResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventDeleteRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EventDeleteRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventGetDetailsRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EventGetDetailsRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventGetDetailsResponse:
+      type: object
+      properties:
+        event:
+          $ref: '#/components/schemas/icbt.rpc.v1.Event'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+          title: items
+        earmarks:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+          title: earmarks
+      title: EventGetDetailsResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventItem:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+        description:
+          type: string
+          title: description
+        created:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: EventItem
+      additionalProperties: false
+    icbt.rpc.v1.EventListEarmarksRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EventListEarmarksRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventListEarmarksResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        earmarks:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+          title: earmarks
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: EventListEarmarksResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventListItemsRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EventListItemsRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventListItemsResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+          title: items
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: EventListItemsResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventRemoveItemRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: EventRemoveItemRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventUpdateItemRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+        description:
+          type: string
+          title: description
+      title: EventUpdateItemRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventUpdateItemResponse:
+      type: object
+      properties:
+        eventItem:
+          $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+      title: EventUpdateItemResponse
+      additionalProperties: false
+    icbt.rpc.v1.EventUpdateRequest:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - description
+            - not:
+                anyOf:
+                  - required:
+                      - description
+        - anyOf:
+            - required:
+                - name
+            - not:
+                anyOf:
+                  - required:
+                      - name
+        - anyOf:
+            - required:
+                - when
+            - not:
+                anyOf:
+                  - required:
+                      - when
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        when:
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+      title: EventUpdateRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventsListRequest:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - archived
+            - not:
+                anyOf:
+                  - required:
+                      - archived
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+        archived:
+          type: boolean
+          title: archived
+      title: EventsListRequest
+      additionalProperties: false
+    icbt.rpc.v1.EventsListResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Event'
+          title: events
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: EventsListResponse
+      additionalProperties: false
+    icbt.rpc.v1.Favorite:
+      type: object
+      properties:
+        eventRefId:
+          type: string
+          title: event_ref_id
+          description: event ref-id
+        created:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Favorite
+      additionalProperties: false
+    icbt.rpc.v1.FavoriteAddRequest:
+      type: object
+      properties:
+        eventRefId:
+          type: string
+          title: event_ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: FavoriteAddRequest
+      additionalProperties: false
+    icbt.rpc.v1.FavoriteAddResponse:
+      type: object
+      properties:
+        favorite:
+          $ref: '#/components/schemas/icbt.rpc.v1.Favorite'
+      title: FavoriteAddResponse
+      additionalProperties: false
+    icbt.rpc.v1.FavoriteListEventsRequest:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - archived
+            - not:
+                anyOf:
+                  - required:
+                      - archived
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+        archived:
+          type: boolean
+          title: archived
+      title: FavoriteListEventsRequest
+      additionalProperties: false
+    icbt.rpc.v1.FavoriteListEventsResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Event'
+          title: events
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: FavoriteListEventsResponse
+      additionalProperties: false
+    icbt.rpc.v1.FavoriteRemoveRequest:
+      type: object
+      properties:
+        eventRefId:
+          type: string
+          title: event_ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: FavoriteRemoveRequest
+      additionalProperties: false
+    icbt.rpc.v1.Notification:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+        message:
+          type: string
+          title: message
+        created:
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Notification
+      additionalProperties: false
+    icbt.rpc.v1.NotificationDeleteRequest:
+      type: object
+      properties:
+        refId:
+          type: string
+          title: ref_id
+          description: |+
+            must be in refid format:
+            ```
+            this.matches('^[0-9a-zA-Z]{26}$')
+            ```
+
+      title: NotificationDeleteRequest
+      additionalProperties: false
+    icbt.rpc.v1.NotificationsDeleteAllRequest:
+      type: object
+      title: NotificationsDeleteAllRequest
+      additionalProperties: false
+    icbt.rpc.v1.NotificationsListRequest:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+      title: NotificationsListRequest
+      additionalProperties: false
+    icbt.rpc.v1.NotificationsListResponse:
+      type: object
+      allOf:
+        - anyOf:
+            - required:
+                - pagination
+            - not:
+                anyOf:
+                  - required:
+                      - pagination
+      anyOf:
+        - required:
+            - pagination
+        - not:
+            anyOf:
+              - required:
+                  - pagination
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/icbt.rpc.v1.Notification'
+          title: notifications
+        pagination:
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+      title: NotificationsListResponse
+      additionalProperties: false
+    google.protobuf.Empty:
+      type: object
+      description: |-
+        A generic empty message that you can re-use to avoid defining duplicated
+         empty messages in your APIs. A typical example is to use it as the request
+         or the response type of an API method. For instance:
+
+             service Foo {
+               rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
+             }
+security:
+  - bearerAuth: []
+paths:
+  /icbt.rpc.v1.IcbtRpcService/EarmarkCreate:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: earmark
+      operationId: icbt.rpc.v1.IcbtRpcService.EarmarkCreate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EarmarkCreateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EarmarkCreateResponse'
+  /icbt.rpc.v1.IcbtRpcService/EarmarkGetDetails:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EarmarkGetDetails
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EarmarkGetDetailsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EarmarkGetDetailsResponse'
+  /icbt.rpc.v1.IcbtRpcService/EarmarkRemove:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EarmarkRemove
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EarmarkRemoveRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/EarmarksList:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EarmarksList
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EarmarksListRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EarmarksListResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventCreate:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: events
+      operationId: icbt.rpc.v1.IcbtRpcService.EventCreate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventCreateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventCreateResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventUpdate:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventUpdate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventUpdateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/EventDelete:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventDelete
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventDeleteRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/EventsList:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventsList
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventsListRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventsListResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventGetDetails:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventGetDetails
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventGetDetailsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventGetDetailsResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventListItems:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventListItems
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventListItemsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventListItemsResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventListEarmarks:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: 'rpc UpdateEventItemsSorting : TODO'
+      operationId: icbt.rpc.v1.IcbtRpcService.EventListEarmarks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventListEarmarksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventListEarmarksResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventAddItem:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: event-items
+      operationId: icbt.rpc.v1.IcbtRpcService.EventAddItem
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventAddItemRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventAddItemResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventUpdateItem:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventUpdateItem
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventUpdateItemRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.EventUpdateItemResponse'
+  /icbt.rpc.v1.IcbtRpcService/EventRemoveItem:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.EventRemoveItem
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.EventRemoveItemRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/FavoriteAdd:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: favorites
+      operationId: icbt.rpc.v1.IcbtRpcService.FavoriteAdd
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.FavoriteAddRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.FavoriteAddResponse'
+  /icbt.rpc.v1.IcbtRpcService/FavoriteRemove:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.FavoriteRemove
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.FavoriteRemoveRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/FavoriteListEvents:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.FavoriteListEvents
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.FavoriteListEventsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.FavoriteListEventsResponse'
+  /icbt.rpc.v1.IcbtRpcService/NotificationDelete:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      description: notifications
+      operationId: icbt.rpc.v1.IcbtRpcService.NotificationDelete
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.NotificationDeleteRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/NotificationsDeleteAll:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.NotificationsDeleteAll
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.NotificationsDeleteAllRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.protobuf.Empty'
+  /icbt.rpc.v1.IcbtRpcService/NotificationsList:
+    post:
+      tags:
+        - icbt.rpc.v1.IcbtRpcService
+      operationId: icbt.rpc.v1.IcbtRpcService.NotificationsList
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+        - name: Connect-Timeout-Ms
+          in: header
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/icbt.rpc.v1.NotificationsListRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/icbt.rpc.v1.NotificationsListResponse'
+tags:
+  - name: icbt.rpc.v1.IcbtRpcService

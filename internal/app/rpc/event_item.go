@@ -5,112 +5,116 @@ package rpc
 
 import (
 	"context"
+	"errors"
 
-	"github.com/twitchtv/twirp"
+	"connectrpc.com/connect"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/dropwhile/icanbringthat/internal/app/convert"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 func (s *Server) EventListItems(ctx context.Context,
-	r *icbt.EventListItemsRequest,
-) (*icbt.EventListItemsResponse, error) {
+	req *connect.Request[icbt.EventListItemsRequest],
+) (*connect.Response[icbt.EventListItemsResponse], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(r.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
 
 	items, errx := s.svc.GetEventItemsByEvent(ctx, refID)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
 	response := &icbt.EventListItemsResponse{
 		Items: convert.ToPbList(convert.ToPbEventItem, items),
 	}
-	return response, nil
+	return connect.NewResponse(response), nil
 }
 
 func (s *Server) EventRemoveItem(ctx context.Context,
-	r *icbt.EventRemoveItemRequest,
-) (*icbt.Empty, error) {
+	req *connect.Request[icbt.EventRemoveItemRequest],
+) (*connect.Response[emptypb.Empty], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventItemRefID(r.RefId)
+	refID, err := service.ParseEventItemRefID(req.Msg.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event-item ref-id"))
 	}
 
 	errx := s.svc.RemoveEventItem(ctx, user.ID, refID, nil)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	return &icbt.Empty{}, nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
 func (s *Server) EventAddItem(ctx context.Context,
-	r *icbt.EventAddItemRequest,
-) (*icbt.EventAddItemResponse, error) {
+	req *connect.Request[icbt.EventAddItemRequest],
+) (*connect.Response[icbt.EventAddItemResponse], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(r.EventRefId)
+	refID, err := service.ParseEventRefID(req.Msg.EventRefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad event ref-id")
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
 
 	eventItem, errx := s.svc.AddEventItem(
-		ctx, user.ID, refID, r.Description,
+		ctx, user.ID, refID, req.Msg.Description,
 	)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
 	response := &icbt.EventAddItemResponse{
 		EventItem: convert.ToPbEventItem(eventItem),
 	}
-	return response, nil
+	return connect.NewResponse(response), nil
 }
 
 func (s *Server) EventUpdateItem(ctx context.Context,
-	r *icbt.EventUpdateItemRequest,
-) (*icbt.EventUpdateItemResponse, error) {
+	req *connect.Request[icbt.EventUpdateItemRequest],
+) (*connect.Response[icbt.EventUpdateItemResponse], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventItemRefID(r.RefId)
+	refID, err := service.ParseEventItemRefID(req.Msg.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "bad event-item ref-id")
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event-item ref-id"))
 	}
 
 	eventItem, errx := s.svc.UpdateEventItem(
-		ctx, user.ID, refID, r.Description, nil,
+		ctx, user.ID, refID, req.Msg.Description, nil,
 	)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
 	response := &icbt.EventUpdateItemResponse{
 		EventItem: convert.ToPbEventItem(eventItem),
 	}
-	return response, nil
+	return connect.NewResponse(response), nil
 }

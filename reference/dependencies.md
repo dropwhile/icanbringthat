@@ -64,7 +64,7 @@
 * URL: https://github.com/alexedwards/scs
 * License: [MIT](https://github.com/alexedwards/scs/blob/v2.7.0/LICENSE)
 
-### github.com/caarlos0/env/v10
+### github.com/caarlos0/env/v11
 * URL: https://github.com/caarlos0/env
 * License: [MIT](https://github.com/caarlos0/env/blob/v10.0.0/LICENSE.md)
 
@@ -132,9 +132,9 @@
 * URL: https://github.com/samber/mo
 * License: [MIT](https://github.com/samber/mo/blob/master/LICENSE)
 
-### github.com/twitchtv/twirp
-* URL: https://github.com/twitchtv/twirp
-* License: [Apache-2.0](https://github.com/twitchtv/twirp/blob/v8.1.3/LICENSE)
+### github.com/connectrpc/connect-go
+* URL: https://github.com/connectrpc/connect-go
+* License: [Apache-2.0](https://github.com/connectrpc/connect-go/blob/v1.16.2/LICENSE)
 
 ### github.com/yuin/goldmark
 * URL: https://github.com/yuin/goldmark

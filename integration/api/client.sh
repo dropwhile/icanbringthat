@@ -17,9 +17,9 @@ echo "list notifications"
 echo
 
 echo "event detail"
-./build/bin/client events detail --ref-id 0662e3hdgwf05n7hc0jzsbhwbw
+./build/bin/client events detail 0662e3hdgwf05n7hc0jzsbhwbw
 echo
 
 echo "earmark detail"
-./build/bin/client earmarks detail --ref-id 0662e7ha4cr08jpaf483jcdvwr
+./build/bin/client earmarks detail 0662e7ha4cr08jpaf483jcdvwr
 echo

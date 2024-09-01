@@ -8,10 +8,11 @@ import (
 	"html/template"
 	"os"
 
+	"connectrpc.com/connect"
 	"github.com/Masterminds/sprig/v3"
 
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 const earmarkTpl = `
@@ -44,7 +45,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 		EventItemRefId: cmd.EventItemRefID,
 		Note:           cmd.Note,
 	}
-	resp, err := client.EarmarkCreate(meta.ctx, req)
+	resp, err := client.EarmarkCreate(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -52,7 +53,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
-	if err := t.Execute(os.Stdout, resp.Earmark); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.Earmark); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -67,7 +68,7 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 	req := &icbt.EarmarkGetDetailsRequest{
 		RefId: cmd.RefID,
 	}
-	resp, err := client.EarmarkGetDetails(meta.ctx, req)
+	resp, err := client.EarmarkGetDetails(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -77,8 +78,8 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
 		map[string]interface{}{
-			"Earmark":    resp.Earmark,
-			"EventRefId": resp.EventRefId,
+			"Earmark":    resp.Msg.Earmark,
+			"EventRefId": resp.Msg.EventRefId,
 		}); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -94,7 +95,7 @@ func (cmd *EarmarksRemoveCmd) Run(meta *RunArgs) error {
 	req := &icbt.EarmarkRemoveRequest{
 		RefId: cmd.RefID,
 	}
-	if _, err := client.EarmarkRemove(meta.ctx, req); err != nil {
+	if _, err := client.EarmarkRemove(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil
@@ -109,7 +110,7 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	req := &icbt.EarmarksListRequest{
 		Archived: &cmd.Archived,
 	}
-	resp, err := client.EarmarksList(meta.ctx, req)
+	resp, err := client.EarmarksList(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -117,7 +118,7 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	t2 := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
-	for _, earmark := range resp.Earmarks {
+	for _, earmark := range resp.Msg.Earmarks {
 		if err := t2.Execute(os.Stdout, earmark); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}

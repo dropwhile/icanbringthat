@@ -8,10 +8,11 @@ import (
 	"html/template"
 	"os"
 
+	"connectrpc.com/connect"
 	"github.com/Masterminds/sprig/v3"
 
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 const eventItemTpl = `
@@ -32,7 +33,7 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 		EventRefId:  cmd.EventRefId,
 		Description: cmd.Description,
 	}
-	resp, err := client.EventAddItem(meta.ctx, req)
+	resp, err := client.EventAddItem(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -40,7 +41,7 @@ func (cmd *EventItemsAddCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventItemTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
-	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -58,7 +59,7 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 		Description: cmd.Description,
 	}
 
-	resp, err := client.EventUpdateItem(meta.ctx, req)
+	resp, err := client.EventUpdateItem(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -66,7 +67,7 @@ func (cmd *EventItemsUpdateCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventItemTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventItemTpl))
-	if err := t.Execute(os.Stdout, resp.EventItem); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.EventItem); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -81,7 +82,7 @@ func (cmd *EventItemsRemoveCmd) Run(meta *RunArgs) error {
 	req := &icbt.EventRemoveItemRequest{
 		RefId: cmd.RefId,
 	}
-	if _, err := client.EventRemoveItem(meta.ctx, req); err != nil {
+	if _, err := client.EventRemoveItem(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil

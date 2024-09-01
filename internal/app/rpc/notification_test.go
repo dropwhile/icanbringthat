@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/twitchtv/twirp"
+	"connectrpc.com/connect"
 	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -15,7 +15,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/errs"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 func TestRpc_ListNotifications(t *testing.T) {
@@ -56,8 +56,8 @@ func TestRpc_ListNotifications(t *testing.T) {
 			Return(
 				[]*model.Notification{notification},
 				&service.Pagination{
-					Limit:  uint32(limit),
-					Offset: uint32(offset),
+					Limit:  limit,
+					Offset: offset,
 					Count:  1,
 				}, nil,
 			)
@@ -68,9 +68,9 @@ func TestRpc_ListNotifications(t *testing.T) {
 				Offset: 0,
 			},
 		}
-		response, err := server.NotificationsList(ctx, request)
+		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Notifications), 1)
+		assert.Equal(t, len(response.Msg.Notifications), 1)
 	})
 
 	t.Run("list notifications non-paginated should succeed", func(t *testing.T) {
@@ -85,10 +85,10 @@ func TestRpc_ListNotifications(t *testing.T) {
 			Return([]*model.Notification{notification}, nil)
 
 		request := &icbt.NotificationsListRequest{}
-		response, err := server.NotificationsList(ctx, request)
+		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Notifications), 1)
+		assert.Equal(t, len(response.Msg.Notifications), 1)
 	})
 }
 
@@ -125,8 +125,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		request := &icbt.NotificationDeleteRequest{
 			RefId: "hodor",
 		}
-		_, err := server.NotificationDelete(ctx, request)
-		errs.AssertError(t, err, twirp.InvalidArgument, "ref_id incorrect value type")
+		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad notification ref-id")
 	})
 
 	t.Run("delete notification with no matching refid should fail", func(t *testing.T) {
@@ -143,8 +144,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.NotificationDelete(ctx, request)
-		errs.AssertError(t, err, twirp.NotFound, "notification not found")
+		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodeNotFound, "notification not found")
 	})
 
 	t.Run("delete notification for different user should fail", func(t *testing.T) {
@@ -161,8 +163,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.NotificationDelete(ctx, request)
-		errs.AssertError(t, err, twirp.PermissionDenied, "permission denied")
+		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
+		rpcErr := AsConnectError(t, err)
+		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")
 	})
 
 	t.Run("delete notification should succeed", func(t *testing.T) {
@@ -179,7 +182,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		request := &icbt.NotificationDeleteRequest{
 			RefId: notification.RefID.String(),
 		}
-		_, err := server.NotificationDelete(ctx, request)
+		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
 }
@@ -209,8 +212,8 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 			DeleteAllNotifications(ctx, user.ID).
 			Return(nil)
 
-		request := &icbt.Empty{}
-		_, err := server.NotificationsDeleteAll(ctx, request)
+		request := &icbt.NotificationsDeleteAllRequest{}
+		_, err := server.NotificationsDeleteAll(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
 }

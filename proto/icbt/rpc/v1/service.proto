@@ -1,0 +1,41 @@
+syntax = "proto3";
+package icbt.rpc.v1;
+
+import "google/protobuf/empty.proto";
+import "icbt/rpc/v1/earmark.proto";
+import "icbt/rpc/v1/event.proto";
+import "icbt/rpc/v1/favorite.proto";
+import "icbt/rpc/v1/notification.proto";
+
+service IcbtRpcService {
+  // earmark
+  rpc EarmarkCreate(EarmarkCreateRequest) returns (EarmarkCreateResponse);
+  rpc EarmarkGetDetails(EarmarkGetDetailsRequest) returns (EarmarkGetDetailsResponse);
+  rpc EarmarkRemove(EarmarkRemoveRequest) returns (google.protobuf.Empty);
+  rpc EarmarksList(EarmarksListRequest) returns (EarmarksListResponse);
+
+  // events
+  rpc EventCreate(EventCreateRequest) returns (EventCreateResponse);
+  rpc EventUpdate(EventUpdateRequest) returns (google.protobuf.Empty);
+  rpc EventDelete(EventDeleteRequest) returns (google.protobuf.Empty);
+  rpc EventsList(EventsListRequest) returns (EventsListResponse);
+  rpc EventGetDetails(EventGetDetailsRequest) returns (EventGetDetailsResponse);
+  rpc EventListItems(EventListItemsRequest) returns (EventListItemsResponse);
+  rpc EventListEarmarks(EventListEarmarksRequest) returns (EventListEarmarksResponse);
+  // rpc UpdateEventItemsSorting : TODO
+
+  // event-items
+  rpc EventAddItem(EventAddItemRequest) returns (EventAddItemResponse);
+  rpc EventUpdateItem(EventUpdateItemRequest) returns (EventUpdateItemResponse);
+  rpc EventRemoveItem(EventRemoveItemRequest) returns (google.protobuf.Empty);
+
+  // favorites
+  rpc FavoriteAdd(FavoriteAddRequest) returns (FavoriteAddResponse);
+  rpc FavoriteRemove(FavoriteRemoveRequest) returns (google.protobuf.Empty);
+  rpc FavoriteListEvents(FavoriteListEventsRequest) returns (FavoriteListEventsResponse);
+
+  // notifications
+  rpc NotificationDelete(NotificationDeleteRequest) returns (google.protobuf.Empty);
+  rpc NotificationsDeleteAll(NotificationsDeleteAllRequest) returns (google.protobuf.Empty);
+  rpc NotificationsList(NotificationsListRequest) returns (NotificationsListResponse);
+}

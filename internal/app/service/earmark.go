@@ -85,9 +85,9 @@ func (s *Service) GetEarmarksPaginated(
 		earmarks = elems
 	}
 	pagination := &Pagination{
-		Limit:  uint32(limit),
-		Offset: uint32(offset),
-		Count:  uint32(count),
+		Limit:  limit,
+		Offset: offset,
+		Count:  count,
 	}
 	return earmarks, pagination, nil
 }

@@ -1,0 +1,37 @@
+syntax = "proto3";
+package icbt.rpc.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "icbt/rpc/v1/pagination.proto";
+
+/** Common Types **/
+
+message Notification {
+  string ref_id = 1;
+  string message = 2;
+  google.protobuf.Timestamp created = 3;
+}
+
+/** Method specific types **/
+
+/* event */
+
+message NotificationDeleteRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message NotificationsDeleteAllRequest {}
+
+message NotificationsListRequest {
+  optional icbt.rpc.v1.PaginationRequest pagination = 1;
+}
+
+message NotificationsListResponse {
+  repeated Notification notifications = 1;
+  optional icbt.rpc.v1.PaginationResult pagination = 2;
+}

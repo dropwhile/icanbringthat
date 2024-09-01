@@ -86,13 +86,13 @@ func decodePWHash(pwHash []byte) (hash, salt []byte, p *argonParams, err error) 
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	p.saltLength = uint32(len(salt))
+	p.saltLength = uint32(len(salt)) // #nosec G115 -- size is actually uint32
 
 	hash, err = base64.RawStdEncoding.Strict().DecodeString(vals[5])
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	p.keyLength = uint32(len(hash))
+	p.keyLength = uint32(len(hash)) // #nosec G115 -- size is actually uint32
 
 	return hash, salt, p, nil
 }

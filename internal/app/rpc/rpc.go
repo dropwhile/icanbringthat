@@ -5,10 +5,13 @@ package rpc
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
+	"net/http"
 
+	"connectrpc.com/connect"
+	connectValidate "connectrpc.com/validate"
 	"github.com/redis/go-redis/v9"
-	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
@@ -16,7 +19,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/crypto"
 	"github.com/dropwhile/icanbringthat/internal/mail"
 	"github.com/dropwhile/icanbringthat/internal/validate"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	"github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1/rpcv1connect"
 )
 
 type Server struct {
@@ -65,15 +68,17 @@ func New(opts Options) (*Server, error) {
 	return svr, nil
 }
 
-func (s *Server) GenHandler(prefix string) icbt.TwirpServer {
-	twirpHandler := icbt.NewRpcServer(
-		s,
-		twirp.WithServerPathPrefix(prefix),
-		twirp.WithServerHooks(
-			&twirp.ServerHooks{
-				RequestReceived: AuthHook(s.svc),
-			},
-		),
+func (s *Server) GenHandler() http.Handler {
+	rpcValidateInterceptor, err := connectValidate.NewInterceptor()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	interceptors := connect.WithInterceptors(
+		// NewAuthInterceptor(s.svc),
+		rpcValidateInterceptor,
 	)
-	return twirpHandler
+	api := http.NewServeMux()
+	api.Handle(rpcv1connect.NewIcbtRpcServiceHandler(s, interceptors))
+	return api
 }

@@ -16,9 +16,9 @@ import (
 type FailIfCheckFunc[T any] func(T) bool
 
 type Pagination struct {
-	Limit  uint32
-	Offset uint32
-	Count  uint32
+	Limit  int
+	Offset int
+	Count  int
 }
 
 func TxnFunc(ctx context.Context, db model.PgxHandle,

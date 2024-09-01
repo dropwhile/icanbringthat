@@ -98,9 +98,9 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 		notifications, pagination, err := svc.GetNotificationsPaginated(ctx, userID, limit, offset)
 		assert.NilError(t, err)
 		assert.Equal(t, len(notifications), count)
-		assert.Equal(t, pagination.Limit, uint32(limit))
-		assert.Equal(t, pagination.Offset, uint32(offset))
-		assert.Equal(t, pagination.Count, uint32(count))
+		assert.Equal(t, pagination.Limit, limit)
+		assert.Equal(t, pagination.Offset, offset)
+		assert.Equal(t, pagination.Count, count)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
@@ -126,9 +126,9 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 		notifications, pagination, err := svc.GetNotificationsPaginated(ctx, userID, limit, offset)
 		assert.NilError(t, err)
 		assert.Equal(t, len(notifications), 0)
-		assert.Equal(t, pagination.Limit, uint32(limit))
-		assert.Equal(t, pagination.Offset, uint32(offset))
-		assert.Equal(t, pagination.Count, uint32(0))
+		assert.Equal(t, pagination.Limit, limit)
+		assert.Equal(t, pagination.Offset, offset)
+		assert.Equal(t, pagination.Count, 0)
 		// we make sure that all expectations were met
 		assert.Assert(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")

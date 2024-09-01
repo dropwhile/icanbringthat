@@ -5,45 +5,45 @@ package rpc
 
 import (
 	"context"
+	"errors"
 
-	"github.com/twitchtv/twirp"
+	"connectrpc.com/connect"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/dropwhile/icanbringthat/internal/app/convert"
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 func (s *Server) NotificationsList(ctx context.Context,
-	r *icbt.NotificationsListRequest,
-) (*icbt.NotificationsListResponse, error) {
+	req *connect.Request[icbt.NotificationsListRequest],
+) (*connect.Response[icbt.NotificationsListResponse], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
 	var paginationResult *icbt.PaginationResult
 	var notifications []*model.Notification
-	if r.Pagination != nil {
-		limit := int(r.Pagination.Limit)
-		offset := int(r.Pagination.Offset)
+	if req.Msg.Pagination != nil {
+		limit := int(req.Msg.Pagination.Limit)
+		offset := int(req.Msg.Pagination.Offset)
 		notifs, pagination, errx := s.svc.GetNotificationsPaginated(ctx, user.ID, limit, offset)
 		if errx != nil {
-			return nil, convert.ToTwirpError(errx)
+			return nil, convert.ToConnectRpcError(errx)
 		}
 
 		notifications = notifs
-		paginationResult = &icbt.PaginationResult{
-			Limit:  uint32(limit),
-			Offset: uint32(offset),
-			Count:  pagination.Count,
-		}
+		paginationResult = convert.ToPbPagination(pagination)
 	} else {
 		notifs, errx := s.svc.GetNotifications(ctx, user.ID)
 		if errx != nil {
-			return nil, convert.ToTwirpError(errx)
+			return nil, convert.ToConnectRpcError(errx)
 		}
 		notifications = notifs
 
@@ -53,46 +53,44 @@ func (s *Server) NotificationsList(ctx context.Context,
 		Notifications: convert.ToPbList(convert.ToPbNotification, notifications),
 		Pagination:    paginationResult,
 	}
-	return response, nil
+	return connect.NewResponse(response), nil
 }
 
 func (s *Server) NotificationDelete(ctx context.Context,
-	r *icbt.NotificationDeleteRequest,
-) (*icbt.Empty, error) {
+	req *connect.Request[icbt.NotificationDeleteRequest],
+) (*connect.Response[emptypb.Empty], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseNotificationRefID(r.RefId)
+	refID, err := service.ParseNotificationRefID(req.Msg.RefId)
 	if err != nil {
-		return nil, twirp.InvalidArgumentError("ref_id", "incorrect value type")
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad notification ref-id"))
 	}
 
 	errx := s.svc.DeleteNotification(ctx, user.ID, refID)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.Empty{}
-	return response, nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
 func (s *Server) NotificationsDeleteAll(ctx context.Context,
-	r *icbt.Empty,
-) (*icbt.Empty, error) {
+	req *connect.Request[icbt.NotificationsDeleteAllRequest],
+) (*connect.Response[emptypb.Empty], error) {
 	// get user from auth in context
 	user, err := auth.UserFromContext(ctx)
 	if err != nil || user == nil {
-		return nil, twirp.Unauthenticated.Error("invalid credentials")
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
 	errx := s.svc.DeleteAllNotifications(ctx, user.ID)
 	if errx != nil {
-		return nil, convert.ToTwirpError(errx)
+		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.Empty{}
-	return response, nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }

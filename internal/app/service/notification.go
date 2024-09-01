@@ -59,9 +59,9 @@ func (s *Service) GetNotificationsPaginated(
 		notifications = notifs
 	}
 	pagination := &Pagination{
-		Limit:  uint32(limit),
-		Offset: uint32(offset),
-		Count:  uint32(notifCount),
+		Limit:  limit,
+		Offset: offset,
+		Count:  notifCount,
 	}
 	return notifications, pagination, nil
 }
@@ -89,13 +89,9 @@ func (s *Service) DeleteNotification(
 	notification, err := model.GetNotificationByRefID(ctx, s.Db, refID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return errs.NotFound.
-			Error("notification not found").
-			Wrap(err)
+		return errs.NotFound.Error("notification not found")
 	case err != nil:
-		return errs.Internal.
-			Error("db error").
-			Wrap(err)
+		return errs.Internal.Errorf("db error: %w", err)
 	}
 
 	if userID != notification.UserID {
@@ -104,9 +100,7 @@ func (s *Service) DeleteNotification(
 
 	err = model.DeleteNotification(ctx, s.Db, notification.ID)
 	if err != nil {
-		return errs.Internal.
-			Error("db error").
-			Wrap(err)
+		return errs.Internal.Errorf("db error: %w", err)
 	}
 	return nil
 }

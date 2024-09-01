@@ -5,16 +5,17 @@ package convert
 
 import (
 	"context"
+	"errors"
+	"math"
 	"time"
 
+	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/twitchtv/twirp"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/errs"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 func ToPbList[T any, V any](converter func(*T) *V, in []*T) []*V {
@@ -69,58 +70,26 @@ func ToPbEarmark(ctx context.Context, svc service.Servicer, src *model.Earmark) 
 	return
 }
 
-func ToTwirpError(src errs.Error) twirp.Error {
-	var twErrCode twirp.ErrorCode
-	switch src.Code() {
-	/*
-		case somerr.BadRoute:
-			errString = "bad_route"
-		case somerr.Malformed:
-			errString = "malformed"
-	*/
-	case errs.NoError:
-		twErrCode = twirp.NoError
-	case errs.Canceled:
-		twErrCode = twirp.Canceled
-	case errs.Unknown:
-		twErrCode = twirp.Unknown
-	case errs.InvalidArgument:
-		twErrCode = twirp.InvalidArgument
-	case errs.DeadlineExceeded:
-		twErrCode = twirp.DeadlineExceeded
-	case errs.NotFound:
-		twErrCode = twirp.NotFound
-	case errs.AlreadyExists:
-		twErrCode = twirp.AlreadyExists
-	case errs.PermissionDenied:
-		twErrCode = twirp.PermissionDenied
-	case errs.Unauthenticated:
-		twErrCode = twirp.Unauthenticated
-	case errs.ResourceExhausted:
-		twErrCode = twirp.ResourceExhausted
-	case errs.FailedPrecondition:
-		twErrCode = twirp.FailedPrecondition
-	case errs.Aborted:
-		twErrCode = twirp.Aborted
-	case errs.OutOfRange:
-		twErrCode = twirp.OutOfRange
-	case errs.Unimplemented:
-		twErrCode = twirp.Unimplemented
-	case errs.Internal:
-		twErrCode = twirp.Internal
-	case errs.Unavailable:
-		twErrCode = twirp.Unavailable
-	case errs.DataLoss:
-		twErrCode = twirp.DataLoss
+func ToConnectRpcError(src errs.Error) *connect.Error {
+	var rawErr error
+	if err := src.Unwrap(); err != nil {
+		rawErr = err
+	} else {
+		rawErr = errors.New(src.Msg())
 	}
-	twerr := twirp.NewError(twErrCode, src.Msg())
-	for k, v := range src.MetaMap() {
-		twerr = twerr.WithMeta(k, v)
+	code := src.Code()
+	if code == errs.NoError {
+		code = errs.Unknown
 	}
-	if u, ok := src.(interface {
-		Unwrap() error
-	}); ok {
-		twerr = twirp.WrapError(twerr, u.Unwrap())
+	e := connect.NewError(connect.Code(code), rawErr)
+	return e
+}
+
+func ToPbPagination(src *service.Pagination) (dst *icbt.PaginationResult) {
+	dst = &icbt.PaginationResult{
+		Limit:  uint32(min(max(src.Limit, 0), math.MaxUint32)),  // #nosec G115 -- safe conversion
+		Offset: uint32(min(max(src.Offset, 0), math.MaxUint32)), // #nosec G115 -- safe conversion
+		Count:  uint32(min(max(src.Count, 0), math.MaxUint32)),  // #nosec G115 -- safe conversion
 	}
-	return twerr
+	return
 }

@@ -12,14 +12,16 @@
 // permissions and limitations under the License.
 //
 // originally from: https://github.com/twitchtv/twirp/blob/3c51d65f753a1049c77bc51e0e8c7922b1fb7e4d/errors.go
-// modified 2023
+// modified 2023-2024
 package errs
 
 import (
+	"errors"
 	"fmt"
+	"maps"
 )
 
-// Error represents an error in a Twirp service call.
+// Error represents an error in a service call.
 type Error interface {
 	// Code is of the valid error codes.
 	Code() ErrorCode
@@ -39,14 +41,14 @@ type Error interface {
 	// MetaMap returns the complete key-value metadata map stored on the error.
 	MetaMap() map[string]string
 
-	// Error returns a string of the form "twirp error <Code>: <Msg>"
+	// Error returns a string of the form "error <Code>: <Msg>"
 	Error() string
 
-	// wrap another error
-	Wrap(err error) Error
+	// unwrap
+	Unwrap() error
 }
 
-// ErrorCode represents a Twirp error type.
+// ErrorCode represents a error type.
 //
 //go:generate stringer -type=ErrorCode
 type ErrorCode byte
@@ -139,110 +141,87 @@ const (
 	Unauthenticated ErrorCode = 0x10
 )
 
-// code.Error(msg) builds a new Twirp error with code and msg. Example:
+// code.Error(msg) builds a new error with code and msg. Example:
 //
-//	twirp.NotFound.Error("Resource not found")
-//	twirp.Internal.Error("Oops")
+//	errs.NotFound.Error("Resource not found")
+//	errs.Internal.Error("Oops")
 func (code ErrorCode) Error(msg string) Error {
-	return NewError(code, msg)
+	return newError(code, msg)
 }
 
-func (code ErrorCode) Is(err error) bool {
-	if u, ok := err.(interface{ Code() ErrorCode }); ok {
-		return u.Code() == code
-	}
-	return false
-}
-
-// code.Errorf(msg, args...) builds a new Twirp error with code and formatted msg.
+// code.Errorf(msg, args...) builds a new error with code and formatted msg.
 // The format may include "%w" to wrap other errors. Examples:
 //
-//	twirp.Internal.Error("Oops: %w", originalErr)
-//	twirp.NotFound.Error("Resource not found with id: %q", resourceID)
+//	errs.Internal.Error("Oops: %w", originalErr)
+//	errs.NotFound.Error("Resource not found with id: %q", resourceID)
 func (code ErrorCode) Errorf(msgFmt string, a ...interface{}) Error {
-	return NewErrorf(code, msgFmt, a...)
-}
-
-// NewError builds a twirp.Error. The code must be one of the valid predefined constants.
-// To add metadata, use .WithMeta(key, value) method after building the error.
-func NewError(code ErrorCode, msg string) Error {
-	return &svcerr{code: code, msg: msg}
-}
-
-// NewErrorf builds a twirp.Error with a formatted msg.
-// The format may include "%w" to wrap other errors. Examples:
-//
-//	twirp.NewErrorf(twirp.Internal, "Oops: %w", originalErr)
-//	twirp.NewErrorf(twirp.NotFound, "resource with id: %q", resourceID)
-func NewErrorf(code ErrorCode, msgFmt string, a ...interface{}) Error {
-	err := fmt.Errorf(msgFmt, a...)       // format error message, may include "%w" with an original error
-	svcerr := NewError(code, err.Error()) // use the error as msg
-	return svcerr.Wrap(err)               // wrap so the original error can be identified with errors.Is
+	return newErrorf(code, msgFmt, a...)
 }
 
 // InvalidArgumentError is a convenience constructor for InvalidArgument errors.
 // The argument name is included on the "argument" metadata for convenience.
 func InvalidArgumentError(argument string, msg string) Error {
-	err := NewError(InvalidArgument, argument+" "+msg)
+	err := newError(InvalidArgument, argument+" "+msg)
 	err = err.WithMeta("argument", argument)
 	return err
 }
 
-// twirp.Error implementation
-type svcerr struct {
+// newError builds a errs.Error. The code must be one of the valid predefined constants.
+// To add metadata, use .WithMeta(key, value) method after building the error.
+func newError(code ErrorCode, msg string) Error {
+	return &svcErr{code: code, err: errors.New(msg)}
+}
+
+// newErrorf builds a errs.Error with a formatted msg.
+// The format may include "%w" to wrap other errors. Examples:
+//
+//	errs.newErrorf(errs.Internal, "Oops: %w", originalErr)
+//	errs.newErrorf(errs.NotFound, "resource with id: %q", resourceID)
+func newErrorf(code ErrorCode, msgFmt string, a ...interface{}) Error {
+	return &svcErr{code: code, err: fmt.Errorf(msgFmt, a...)}
+}
+
+type svcErr struct {
+	err  error
 	meta map[string]string
-	msg  string
 	code ErrorCode
 }
 
-func (e *svcerr) Code() ErrorCode            { return e.code }
-func (e *svcerr) Msg() string                { return e.msg }
-func (e *svcerr) Wrap(err error) Error       { return &wraperr{e, err} }
-func (e *svcerr) MetaMap() map[string]string { return e.meta }
-func (e *svcerr) Error() string              { return fmt.Sprintf("error %s: %s", e.code, e.msg) }
+func (e *svcErr) Code() ErrorCode            { return e.code }
+func (e *svcErr) MetaMap() map[string]string { return e.meta }
+func (e *svcErr) Unwrap() error              { return e.err }
 
-func (e *svcerr) Meta(key string) string {
-	if e.meta != nil {
-		return e.meta[key] // also returns "" if key is not in meta map
+func (e *svcErr) Msg() string {
+	if e.err != nil {
+		return e.err.Error()
 	}
 	return ""
 }
 
-func (e *svcerr) WithMeta(key string, value string) Error {
-	newErr := &svcerr{
-		code: e.code,
-		msg:  e.msg,
-		meta: make(map[string]string, len(e.meta)),
+func (e *svcErr) Error() string {
+	msg := e.Msg()
+	code := e.code.String()
+	if msg == "" {
+		return code
 	}
-	for k, v := range e.meta {
-		newErr.meta[k] = v
-	}
-	newErr.meta[key] = value
-	return newErr
+	return code + ": " + msg
 }
 
-// wraperr is the error returned by twirp.InternalErrorWith(err), which is used by clients.
-// Implements Unwrap() to allow go 1.13+ errors.Is/As checks,
-// and Cause() to allow (github.com/pkg/errors).Unwrap.
-type wraperr struct {
-	wrapper Error
-	cause   error
-}
-
-func (e *wraperr) Code() ErrorCode            { return e.wrapper.Code() }
-func (e *wraperr) Msg() string                { return e.wrapper.Msg() }
-func (e *wraperr) Meta(key string) string     { return e.wrapper.Meta(key) }
-func (e *wraperr) MetaMap() map[string]string { return e.wrapper.MetaMap() }
-func (e *wraperr) Error() string              { return e.wrapper.Error() }
-func (e *wraperr) Unwrap() error              { return e.cause }
-func (e *wraperr) Wrap(err error) Error       { return &wraperr{e, err} }
-func (e *wraperr) WithMeta(key string, val string) Error {
-	return &wraperr{e.wrapper.WithMeta(key, val), e.cause}
-}
-
-func (e *wraperr) Is(err error) bool {
+func (e *svcErr) Is(err error) bool {
 	if u, ok := err.(interface{ Code() ErrorCode }); ok {
 		return u.Code() == e.Code()
 	}
 	return false
+}
+
+func (e *svcErr) Meta(key string) string {
+	// note: this returns "" (zero value of string) if key is not in meta map, or if map is nil
+	return e.meta[key]
+}
+
+func (e *svcErr) WithMeta(key string, value string) Error {
+	newMeta := make(map[string]string, len(e.meta))
+	maps.Copy(newMeta, e.meta)
+	newMeta[key] = value
+	return &svcErr{code: e.code, err: e.err, meta: newMeta}
 }

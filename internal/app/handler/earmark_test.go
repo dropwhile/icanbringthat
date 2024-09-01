@@ -441,13 +441,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		t.Parallel()
 
 		earmark := &model.Earmark{
-			ID:           1,
-			RefID:        util.Must(model.NewEarmarkRefID()),
-			EventItemID:  1,
-			UserID:       user.ID,
-			Note:         "nothing",
-			Created:      ts,
-			LastModified: ts,
+			RefID: util.Must(model.NewEarmarkRefID()),
 		}
 
 		ctx := context.TODO()
@@ -479,13 +473,7 @@ func TestHandler_Earmark_Delete(t *testing.T) {
 		t.Parallel()
 
 		earmark := &model.Earmark{
-			ID:           1,
-			RefID:        util.Must(model.NewEarmarkRefID()),
-			EventItemID:  1,
-			UserID:       user.ID,
-			Note:         "nothing",
-			Created:      ts,
-			LastModified: ts,
+			RefID: util.Must(model.NewEarmarkRefID()),
 		}
 
 		ctx := context.TODO()

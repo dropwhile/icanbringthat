@@ -1,0 +1,24 @@
+version: v2
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package_prefix
+      module: buf.build/bufbuild/protovalidate
+    - file_option: go_package
+      module: buf.build/envoyproxy/protoc-gen-validate
+  override:
+    - file_option: go_package_prefix
+      value: github.com/dropwhile/icanbringthat/rpc
+
+plugins:
+  - local: protoc-gen-go
+    out: ../rpc/
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: ../rpc/
+    opt: paths=source_relative
+  - local: protoc-gen-connect-openapi
+    out: ../reference/
+    opt:
+      - path=openapi.yaml
+      - base=auth-base.yaml

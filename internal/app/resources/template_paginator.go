@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+
+	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
 type Page struct {
@@ -106,10 +108,13 @@ func NewPgInput(max, step, current int, baseUrl string, extraQargs url.Values) *
 	}
 }
 
-func CalculateMaxPageNum(size, step int) int {
-	maxPage := size / step
-	if size%step != 0 {
-		maxPage++
+func CalculateMaxPageNum[T util.AnyInteger](size, step T) T {
+	maxPage := T(0)
+	if step > 0 && size > 0 {
+		maxPage = size / step
+		if size%step != 0 {
+			maxPage++
+		}
 	}
 	return maxPage
 }

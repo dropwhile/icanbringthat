@@ -98,14 +98,23 @@ ${GOBIN}/modd:
 OTHER_TOOLS := ${GOBIN}/modd
 
 # generate tools
+${GOBIN}/buf:
+	go install github.com/bufbuild/buf/cmd/buf@latest
+
+${GOBIN}/protoc-gen-connect-go:
+	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
+
 ${GOBIN}/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
-${GOBIN}/protoc-gen-twirp:
-	go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
+${GOBIN}/protoc-gen-connect-openapi:
+	go install github.com/sudorandom/protoc-gen-connect-openapi@main
 
-${GOBIN}/protoc-go-inject-tag:
-	go install github.com/favadi/protoc-go-inject-tag@latest
+#${GOBIN}/protoc-go-inject-tag:
+#	go install github.com/favadi/protoc-go-inject-tag@latest
+
+#${GOBIN}/protoc-gen-twirp:
+#	go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
 
 ${GOBIN}/go-licenses:
 	go install github.com/google/go-licenses@latest
@@ -122,9 +131,11 @@ ${GOBIN}/mockgen:
 ${GOBIN}/stringer:
 	go install golang.org/x/tools/cmd/stringer@latest
 
-GENERATE_TOOLS := ${GOBIN}/stringer ${GOBIN}/protoc-gen-twirp ${GOBIN}/protoc-gen-go
-GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses  ${GOBIN}/protoc-go-inject-tag
+GENERATE_TOOLS := ${GOBIN}/stringer 
+GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses
 GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockgen
+GENERATE_TOOLS += ${GOBIN}/buf ${GOBIN}/protoc-gen-connect-go ${GOBIN}/protoc-gen-go
+GENERATE_TOOLS += ${GOBIN}/protoc-gen-connect-openapi
 
 # check tools
 ${GOBIN}/betteralign:
@@ -344,4 +355,4 @@ run: build
 .PHONY: devrun
 devrun: setup-other
 	@echo ">> Monitoring for change, runnging tests, and restarting..."
-	@modd -f .modd.conf
+	@${GOBIN}/modd -f .modd.conf

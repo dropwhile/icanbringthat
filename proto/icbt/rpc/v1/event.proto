@@ -1,0 +1,142 @@
+syntax = "proto3";
+package icbt.rpc.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "icbt/rpc/v1/earmark.proto";
+import "icbt/rpc/v1/pagination.proto";
+import "icbt/rpc/v1/timestamptz.proto";
+
+/** Common Types **/
+
+message Event {
+  string ref_id = 1;
+  string name = 2;
+  string description = 3;
+  icbt.rpc.v1.TimestampTZ when = 4;
+  bool archived = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message EventItem {
+  string ref_id = 1;
+  string description = 2;
+  google.protobuf.Timestamp created = 3;
+}
+
+/** Method specific types **/
+
+message EventCreateRequest {
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  string description = 2 [(buf.validate.field).string.min_len = 1];
+  icbt.rpc.v1.TimestampTZ when = 3;
+}
+
+message EventCreateResponse {
+  Event event = 1;
+}
+
+message EventDeleteRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message EventUpdateRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+  optional string name = 2;
+  optional string description = 3;
+  optional icbt.rpc.v1.TimestampTZ when = 4;
+}
+
+message EventGetDetailsRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message EventGetDetailsResponse {
+  Event event = 1;
+  repeated EventItem items = 2;
+  repeated icbt.rpc.v1.Earmark earmarks = 3;
+}
+
+message EventsListRequest {
+  optional icbt.rpc.v1.PaginationRequest pagination = 1;
+  optional bool archived = 2;
+}
+
+message EventsListResponse {
+  repeated Event events = 1;
+  optional icbt.rpc.v1.PaginationResult pagination = 2;
+}
+
+message EventListItemsRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message EventListItemsResponse {
+  repeated EventItem items = 1;
+  optional icbt.rpc.v1.PaginationResult pagination = 2;
+}
+
+message EventListEarmarksRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message EventListEarmarksResponse {
+  repeated icbt.rpc.v1.Earmark earmarks = 1;
+  optional icbt.rpc.v1.PaginationResult pagination = 2;
+}
+
+/* event-items */
+
+message EventAddItemRequest {
+  string event_ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+  string description = 2;
+}
+
+message EventAddItemResponse {
+  EventItem event_item = 1;
+}
+
+message EventRemoveItemRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+}
+
+message EventUpdateItemRequest {
+  string ref_id = 1 [(buf.validate.field).cel = {
+    id: "refid.format"
+    message: "must be in refid format"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+  }];
+  string description = 2;
+}
+
+message EventUpdateItemResponse {
+  EventItem event_item = 1;
+}

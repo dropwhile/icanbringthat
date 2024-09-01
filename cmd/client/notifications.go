@@ -8,10 +8,11 @@ import (
 	"html/template"
 	"os"
 
+	"connectrpc.com/connect"
 	"github.com/Masterminds/sprig/v3"
 
 	"github.com/dropwhile/icanbringthat/internal/util"
-	"github.com/dropwhile/icanbringthat/rpc/icbt"
+	icbt "github.com/dropwhile/icanbringthat/rpc/icbt/rpc/v1"
 )
 
 const notifTpl = `
@@ -26,7 +27,7 @@ type NotificationsListCmd struct{}
 func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
 	req := &icbt.NotificationsListRequest{}
-	resp, err := client.NotificationsList(meta.ctx, req)
+	resp, err := client.NotificationsList(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -34,7 +35,7 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("notifTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(notifTpl))
-	for _, notif := range resp.Notifications {
+	for _, notif := range resp.Msg.Notifications {
 		if err := t.Execute(os.Stdout, notif); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}
@@ -51,7 +52,7 @@ func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {
 	req := &icbt.NotificationDeleteRequest{
 		RefId: cmd.RefID,
 	}
-	if _, err := client.NotificationDelete(meta.ctx, req); err != nil {
+	if _, err := client.NotificationDelete(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 
@@ -62,8 +63,8 @@ type NotificationsDeleteAllCmd struct{}
 
 func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.Empty{}
-	if _, err := client.NotificationsDeleteAll(meta.ctx, req); err != nil {
+	req := &icbt.NotificationsDeleteAllRequest{}
+	if _, err := client.NotificationsDeleteAll(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
 	return nil
