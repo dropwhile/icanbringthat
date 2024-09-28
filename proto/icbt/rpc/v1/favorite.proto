@@ -3,24 +3,21 @@ package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
+import "icbt/rpc/v1/constraints.proto";
 import "icbt/rpc/v1/event.proto";
 import "icbt/rpc/v1/pagination.proto";
 
 /** Common Types **/
 
 message Favorite {
-  string event_ref_id = 1; // event ref-id
+  string event_ref_id = 1;
   google.protobuf.Timestamp created = 2;
 }
 
 /** Method specific types **/
 
 message FavoriteAddRequest {
-  string event_ref_id = 1 [(buf.validate.field).cel = {
-    id: "refid.format"
-    message: "must be in refid format"
-    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
-  }];
+  string event_ref_id = 1 [(buf.validate.field).string.(refid) = true];
 }
 
 message FavoriteAddResponse {
@@ -28,11 +25,7 @@ message FavoriteAddResponse {
 }
 
 message FavoriteRemoveRequest {
-  string event_ref_id = 1 [(buf.validate.field).cel = {
-    id: "refid.format"
-    message: "must be in refid format"
-    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
-  }];
+  string event_ref_id = 1 [(buf.validate.field).string.(refid) = true];
 }
 
 message FavoriteListEventsRequest {

@@ -5,6 +5,11 @@ import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
 message TimestampTZ {
-  google.protobuf.Timestamp ts = 1; // timestamp
-  string tz = 2 [(buf.validate.field).string.min_len = 3]; // timezone
+  // timestamp
+  google.protobuf.Timestamp ts = 1;
+  // timezone
+  string tz = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.example = "UTC"
+  ];
 }

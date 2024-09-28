@@ -1,0 +1,12 @@
+edition = "2023";
+package icbt.rpc.v1;
+
+import "buf/validate/validate.proto";
+
+extend buf.validate.StringRules {
+  bool refid = 70000001 [(buf.validate.predefined).cel = {
+    id: "string.refid"
+    expression: "this.matches('^[0-9a-zA-Z]{26}$')"
+    message: "must be in refid format"
+  }];
+}
