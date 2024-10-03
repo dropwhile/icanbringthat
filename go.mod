@@ -44,7 +44,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/bufbuild/protovalidate-go v0.7.1 // indirect
+	github.com/bufbuild/protovalidate-go v0.7.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -58,7 +58,7 @@ require (
 	github.com/google/cel-go v0.21.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.1 // indirect
-	github.com/google/pprof v0.0.0-20240929191954-255acd752d31 // indirect
+	github.com/google/pprof v0.0.0-20241001023024-f4c0cfd0cf1d // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
