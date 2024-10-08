@@ -3,7 +3,7 @@ module github.com/dropwhile/icanbringthat
 go 1.23.1
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240920164238-5a7b106cbb87.2
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.1-20240920164238-5a7b106cbb87.1
 	connectrpc.com/connect v1.17.0
 	connectrpc.com/validate v0.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -34,7 +34,7 @@ require (
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.28.0
 	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 	gotest.tools/v3 v3.5.1
 )
 
@@ -58,7 +58,7 @@ require (
 	github.com/google/cel-go v0.21.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.1 // indirect
-	github.com/google/pprof v0.0.0-20241001023024-f4c0cfd0cf1d // indirect
+	github.com/google/pprof v0.0.0-20241008150032-332c0e1a4a34 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -88,8 +88,8 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/tools v0.26.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240930140551-af27646dc61f // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240930140551-af27646dc61f // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20241007155032-5fefd90f89a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241007155032-5fefd90f89a9 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
