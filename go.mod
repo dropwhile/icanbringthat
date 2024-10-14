@@ -26,7 +26,7 @@ require (
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.47.0
-	github.com/redis/go-redis/v9 v9.6.1
+	github.com/redis/go-redis/v9 v9.6.2
 	github.com/samber/mo v1.13.0
 	github.com/yuin/goldmark v1.7.6
 	github.com/yuin/goldmark-emoji v1.0.4
