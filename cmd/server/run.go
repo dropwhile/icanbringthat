@@ -164,18 +164,19 @@ func (c *RunCmd) Run() error {
 
 		// We received an interrupt signal, shut down.
 		slog.Info("Server shutting down...")
-		if err := server.Shutdown(context.Background()); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
 			// Error from closing listeners, or context timeout:
-			slog.With("error", err).
-				Error("HTTP server shutdown error")
+			slog.With("error", err).Error("HTTP server shutdown error")
 		}
+
 		if quicServer != nil {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 			defer cancel()
 			if err := quicServer.Shutdown(ctx); err != nil {
 				// Error from closing listeners, or context timeout:
-				slog.With("error", err).
-					Error("HTTP/3 server shutdown error")
+				slog.With("error", err).Error("HTTP/3 server shutdown error")
 			}
 		}
 		close(idleConnsClosed)
