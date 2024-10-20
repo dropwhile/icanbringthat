@@ -170,7 +170,9 @@ func (c *RunCmd) Run() error {
 				Error("HTTP server shutdown error")
 		}
 		if quicServer != nil {
-			if err := quicServer.CloseGracefully(time.Second * 2); err != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+			defer cancel()
+			if err := quicServer.Shutdown(ctx); err != nil {
 				// Error from closing listeners, or context timeout:
 				slog.With("error", err).
 					Error("HTTP/3 server shutdown error")
