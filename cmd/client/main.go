@@ -99,7 +99,7 @@ func main() {
 
 	hc := &http.Client{}
 	if cli.Quic {
-		hc.Transport = &http3.RoundTripper{}
+		hc.Transport = &http3.Transport{}
 	}
 
 	header := http.Header{}
