@@ -3,7 +3,7 @@ module github.com/dropwhile/icanbringthat
 go 1.23.1
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.1-20240920164238-5a7b106cbb87.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.2-20240920164238-5a7b106cbb87.1
 	connectrpc.com/connect v1.17.0
 	connectrpc.com/validate v0.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -34,7 +34,7 @@ require (
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.29.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/protobuf v1.35.2
 	gotest.tools/v3 v3.5.1
 )
 
