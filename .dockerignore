@@ -3,6 +3,7 @@
 .envrc
 .modd.conf
 .vscode
+.tools
 server.key
 server.crt
 notes.txt
