@@ -59,7 +59,7 @@ require (
 	github.com/google/cel-go v0.22.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-tpm v0.9.1 // indirect
-	github.com/google/pprof v0.0.0-20241122213907-cbe949e5a41b // indirect
+	github.com/google/pprof v0.0.0-20241128161848-dc51965c6481 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
