@@ -145,8 +145,8 @@ components:
           title: owner
         created:
           allOf:
-            - title: created
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created
       title: Earmark
       additionalProperties: false
     icbt.rpc.v1.EarmarkCreateRequest:
@@ -166,8 +166,8 @@ components:
       properties:
         earmark:
           allOf:
-            - title: earmark
             - $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+          title: earmark
       title: EarmarkCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EarmarkGetDetailsRequest:
@@ -183,8 +183,8 @@ components:
       properties:
         earmark:
           allOf:
-            - title: earmark
             - $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
+          title: earmark
         eventRefId:
           type: string
           title: event_ref_id
@@ -218,8 +218,8 @@ components:
       properties:
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+          title: pagination
         archived:
           type: boolean
           title: archived
@@ -250,8 +250,8 @@ components:
           title: earmarks
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: EarmarksListResponse
       additionalProperties: false
     icbt.rpc.v1.TimestampTZ:
@@ -259,9 +259,9 @@ components:
       properties:
         ts:
           allOf:
-            - title: ts
-              description: timestamp
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: ts
+          description: timestamp
         tz:
           type: string
           examples:
@@ -285,15 +285,15 @@ components:
           title: description
         when:
           allOf:
-            - title: when
             - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+          title: when
         archived:
           type: boolean
           title: archived
         created:
           allOf:
-            - title: created
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created
       title: Event
       additionalProperties: false
     icbt.rpc.v1.EventAddItemRequest:
@@ -312,8 +312,8 @@ components:
       properties:
         eventItem:
           allOf:
-            - title: event_item
             - $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+          title: event_item
       title: EventAddItemResponse
       additionalProperties: false
     icbt.rpc.v1.EventCreateRequest:
@@ -329,8 +329,8 @@ components:
           minLength: 1
         when:
           allOf:
-            - title: when
             - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+          title: when
       title: EventCreateRequest
       additionalProperties: false
     icbt.rpc.v1.EventCreateResponse:
@@ -338,8 +338,8 @@ components:
       properties:
         event:
           allOf:
-            - title: event
             - $ref: '#/components/schemas/icbt.rpc.v1.Event'
+          title: event
       title: EventCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EventDeleteRequest:
@@ -363,8 +363,8 @@ components:
       properties:
         event:
           allOf:
-            - title: event
             - $ref: '#/components/schemas/icbt.rpc.v1.Event'
+          title: event
         items:
           type: array
           items:
@@ -388,8 +388,8 @@ components:
           title: description
         created:
           allOf:
-            - title: created
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created
       title: EventItem
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksRequest:
@@ -425,8 +425,8 @@ components:
           title: earmarks
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: EventListEarmarksResponse
       additionalProperties: false
     icbt.rpc.v1.EventListItemsRequest:
@@ -462,8 +462,8 @@ components:
           title: items
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: EventListItemsResponse
       additionalProperties: false
     icbt.rpc.v1.EventRemoveItemRequest:
@@ -490,8 +490,8 @@ components:
       properties:
         eventItem:
           allOf:
-            - title: event_item
             - $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
+          title: event_item
       title: EventUpdateItemResponse
       additionalProperties: false
     icbt.rpc.v1.EventUpdateRequest:
@@ -530,8 +530,8 @@ components:
           title: description
         when:
           allOf:
-            - title: when
             - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
+          title: when
       title: EventUpdateRequest
       additionalProperties: false
     icbt.rpc.v1.EventsListRequest:
@@ -554,8 +554,8 @@ components:
       properties:
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+          title: pagination
         archived:
           type: boolean
           title: archived
@@ -586,8 +586,8 @@ components:
           title: events
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: EventsListResponse
       additionalProperties: false
     icbt.rpc.v1.Favorite:
@@ -598,8 +598,8 @@ components:
           title: event_ref_id
         created:
           allOf:
-            - title: created
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created
       title: Favorite
       additionalProperties: false
     icbt.rpc.v1.FavoriteAddRequest:
@@ -615,8 +615,8 @@ components:
       properties:
         favorite:
           allOf:
-            - title: favorite
             - $ref: '#/components/schemas/icbt.rpc.v1.Favorite'
+          title: favorite
       title: FavoriteAddResponse
       additionalProperties: false
     icbt.rpc.v1.FavoriteListEventsRequest:
@@ -639,8 +639,8 @@ components:
       properties:
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+          title: pagination
         archived:
           type: boolean
           title: archived
@@ -671,8 +671,8 @@ components:
           title: events
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: FavoriteListEventsResponse
       additionalProperties: false
     icbt.rpc.v1.FavoriteRemoveRequest:
@@ -694,8 +694,8 @@ components:
           title: message
         created:
           allOf:
-            - title: created
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created
       title: Notification
       additionalProperties: false
     icbt.rpc.v1.NotificationDeleteRequest:
@@ -730,8 +730,8 @@ components:
       properties:
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
+          title: pagination
       title: NotificationsListRequest
       additionalProperties: false
     icbt.rpc.v1.NotificationsListResponse:
@@ -759,8 +759,8 @@ components:
           title: notifications
         pagination:
           allOf:
-            - title: pagination
             - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
+          title: pagination
       title: NotificationsListResponse
       additionalProperties: false
     google.protobuf.Empty:
