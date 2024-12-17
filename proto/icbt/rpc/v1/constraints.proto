@@ -3,6 +3,8 @@ package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
 
+option features.field_presence = IMPLICIT;
+
 extend buf.validate.StringRules {
   bool refid = 70000001 [(buf.validate.predefined).cel = {
     id: "string.refid"

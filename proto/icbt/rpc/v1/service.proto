@@ -1,4 +1,4 @@
-syntax = "proto3";
+edition = "2023";
 package icbt.rpc.v1;
 
 import "google/protobuf/empty.proto";
@@ -6,6 +6,8 @@ import "icbt/rpc/v1/earmark.proto";
 import "icbt/rpc/v1/event.proto";
 import "icbt/rpc/v1/favorite.proto";
 import "icbt/rpc/v1/notification.proto";
+
+option features.field_presence = IMPLICIT;
 
 service IcbtRpcService {
   // earmark

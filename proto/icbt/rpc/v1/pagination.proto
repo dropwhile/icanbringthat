@@ -1,7 +1,9 @@
-syntax = "proto3";
+edition = "2023";
 package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
+
+option features.field_presence = IMPLICIT;
 
 message PaginationRequest {
   uint32 limit = 1 [(buf.validate.field).uint32.gt = 0];

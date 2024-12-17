@@ -1,4 +1,4 @@
-syntax = "proto3";
+edition = "2023";
 package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
@@ -6,6 +6,8 @@ import "google/protobuf/timestamp.proto";
 import "icbt/rpc/v1/constraints.proto";
 import "icbt/rpc/v1/event.proto";
 import "icbt/rpc/v1/pagination.proto";
+
+option features.field_presence = IMPLICIT;
 
 /** Common Types **/
 
@@ -29,11 +31,11 @@ message FavoriteRemoveRequest {
 }
 
 message FavoriteListEventsRequest {
-  optional icbt.rpc.v1.PaginationRequest pagination = 1;
-  optional bool archived = 2;
+  icbt.rpc.v1.PaginationRequest pagination = 1 [features.field_presence = EXPLICIT];
+  bool archived = 2 [features.field_presence = EXPLICIT];
 }
 
 message FavoriteListEventsResponse {
   repeated icbt.rpc.v1.Event events = 1;
-  optional icbt.rpc.v1.PaginationResult pagination = 2;
+  icbt.rpc.v1.PaginationResult pagination = 2 [features.field_presence = EXPLICIT];
 }

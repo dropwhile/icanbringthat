@@ -200,21 +200,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EarmarksListRequest:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - archived
-            - not:
-                anyOf:
-                  - required:
-                      - archived
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
       properties:
         pagination:
           allOf:
@@ -227,21 +212,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EarmarksListResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         earmarks:
           type: array
@@ -402,21 +372,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         earmarks:
           type: array
@@ -439,21 +394,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EventListItemsResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         items:
           type: array
@@ -496,28 +436,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EventUpdateRequest:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - description
-            - not:
-                anyOf:
-                  - required:
-                      - description
-        - anyOf:
-            - required:
-                - name
-            - not:
-                anyOf:
-                  - required:
-                      - name
-        - anyOf:
-            - required:
-                - when
-            - not:
-                anyOf:
-                  - required:
-                      - when
       properties:
         refId:
           type: string
@@ -536,21 +454,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EventsListRequest:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - archived
-            - not:
-                anyOf:
-                  - required:
-                      - archived
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
       properties:
         pagination:
           allOf:
@@ -563,21 +466,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.EventsListResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         events:
           type: array
@@ -621,21 +509,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.FavoriteListEventsRequest:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - archived
-            - not:
-                anyOf:
-                  - required:
-                      - archived
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
       properties:
         pagination:
           allOf:
@@ -648,21 +521,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.FavoriteListEventsResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         events:
           type: array
@@ -712,21 +570,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.NotificationsListRequest:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         pagination:
           allOf:
@@ -736,21 +579,6 @@ components:
       additionalProperties: false
     icbt.rpc.v1.NotificationsListResponse:
       type: object
-      allOf:
-        - anyOf:
-            - required:
-                - pagination
-            - not:
-                anyOf:
-                  - required:
-                      - pagination
-      anyOf:
-        - required:
-            - pagination
-        - not:
-            anyOf:
-              - required:
-                  - pagination
       properties:
         notifications:
           type: array
