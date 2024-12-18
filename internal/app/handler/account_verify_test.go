@@ -63,7 +63,7 @@ func TestHandler_SendVerificationEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -147,7 +147,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -187,7 +187,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -222,7 +222,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -257,7 +257,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)
@@ -299,7 +299,7 @@ func TestHandler_VerifyEmail(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 		rctx := chi.NewRouteContext()
 		ctx = context.WithValue(ctx, chi.RouteCtxKey, rctx)

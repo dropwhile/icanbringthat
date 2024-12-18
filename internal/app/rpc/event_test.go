@@ -68,13 +68,16 @@ func TestRpc_ListEvents(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.EventsListRequest{
-			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
-			Archived:   func(b bool) *bool { return &b }(false),
-		}
+		request := icbt.EventsListRequest_builder{
+			Pagination: icbt.PaginationRequest_builder{
+				Limit:  10,
+				Offset: 0,
+			}.Build(),
+			Archived: func(b bool) *bool { return &b }(false),
+		}.Build()
 		response, err := server.EventsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Msg.Events), 1)
+		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 
 	t.Run("list events non-paginated should succeed", func(t *testing.T) {
@@ -103,12 +106,12 @@ func TestRpc_ListEvents(t *testing.T) {
 				}}, nil,
 			)
 
-		request := &icbt.EventsListRequest{
+		request := icbt.EventsListRequest_builder{
 			Archived: func(b bool) *bool { return &b }(false),
-		}
+		}.Build()
 		response, err := server.EventsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Msg.Events), 1)
+		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 }
 
@@ -190,15 +193,15 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EventGetDetailsRequest{
+		request := icbt.EventGetDetailsRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		response, err := server.EventGetDetails(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, response.Msg.Event.Name, "some name")
-		assert.Equal(t, len(response.Msg.Items), 1)
-		assert.Equal(t, len(response.Msg.Earmarks), 1)
+		assert.Equal(t, response.Msg.GetEvent().GetName(), "some name")
+		assert.Equal(t, len(response.Msg.GetItems()), 1)
+		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
 
 	t.Run("get event details event not found should fail", func(t *testing.T) {
@@ -213,9 +216,9 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			GetEvent(ctx, eventRefID).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.EventGetDetailsRequest{
+		request := icbt.EventGetDetailsRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventGetDetails(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
@@ -228,9 +231,9 @@ func TestRpc_GetEventDetails(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventGetDetailsRequest{
+		request := icbt.EventGetDetailsRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EventGetDetails(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -278,15 +281,15 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(event, nil)
 
-		request := &icbt.EventCreateRequest{
+		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,
 			Description: event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
-		}
+		}.Build()
 		response, err := server.EventCreate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.Msg.Event.Name, event.Name)
+		assert.Equal(t, response.Msg.GetEvent().GetName(), event.Name)
 	})
 
 	t.Run("create event with empty TZ should fail", func(t *testing.T) {
@@ -303,14 +306,14 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("tz", "bad value"))
 
-		request := &icbt.EventCreateRequest{
+		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,
 			Description: event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Ts: convert.TimeToTimestamp(event.StartTime),
 				Tz: "",
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "tz bad value")
@@ -323,13 +326,13 @@ func TestRpc_CreateEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventCreateRequest{
+		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,
 			Description: event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: "UTC",
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "start_time bad empty value")
@@ -349,12 +352,12 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("name", "bad value"))
 
-		request := &icbt.EventCreateRequest{
+		request := icbt.EventCreateRequest_builder{
 			Name:        "",
 			Description: event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
-		}
+		}.Build()
 		_, err := server.EventCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "name bad value")
@@ -374,12 +377,12 @@ func TestRpc_CreateEvent(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.EventCreateRequest{
+		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,
 			Description: "",
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
-		}
+		}.Build()
 		_, err := server.EventCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "description bad value")
@@ -429,13 +432,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
 			When: convert.TimeToTimestampTZ(
 				event.StartTime.In(event.StartTimeTz.Location)),
-		}
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -456,15 +459,15 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Ts: convert.TimeToTimestamp(event.StartTime),
 				Tz: "",
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -485,14 +488,14 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Name:        &event.Name,
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -511,13 +514,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -536,13 +539,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(nil)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId: event.RefID.String(),
 			Name:  &event.Name,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -557,9 +560,9 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		mock.EXPECT().
 			UpdateEvent(ctx, user.ID, event.RefID, &service.EventUpdateValues{}).
 			Return(errs.InvalidArgument.Error("missing fields"))
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId: event.RefID.String(),
-		}
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "missing fields")
@@ -579,13 +582,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
@@ -605,13 +608,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       event.RefID.String(),
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")
@@ -624,13 +627,13 @@ func TestRpc_UpdateEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventUpdateRequest{
+		request := icbt.EventUpdateRequest_builder{
 			RefId:       "hodor",
 			Description: &event.Description,
-			When: &icbt.TimestampTZ{
+			When: icbt.TimestampTZ_builder{
 				Tz: event.StartTimeTz.String(),
-			},
-		}
+			}.Build(),
+		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -663,9 +666,9 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			DeleteEvent(ctx, user.ID, eventRefID).
 			Return(nil)
 
-		request := &icbt.EventDeleteRequest{
+		request := icbt.EventDeleteRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventDelete(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -677,9 +680,9 @@ func TestRpc_DeleteEvent(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventDeleteRequest{
+		request := icbt.EventDeleteRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EventDelete(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -697,9 +700,9 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			DeleteEvent(ctx, user.ID, eventRefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.EventDeleteRequest{
+		request := icbt.EventDeleteRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventDelete(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")

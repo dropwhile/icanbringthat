@@ -2,7 +2,9 @@ edition = "2023";
 package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/go_features.proto";
 
+option features.(pb.go).api_level = API_OPAQUE;
 option features.field_presence = IMPLICIT;
 
 message PaginationRequest {

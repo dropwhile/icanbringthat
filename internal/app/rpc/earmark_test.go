@@ -82,14 +82,14 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EarmarksListRequest{
-			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
+		request := icbt.EarmarksListRequest_builder{
+			Pagination: icbt.PaginationRequest_builder{Limit: 10, Offset: 0}.Build(),
 			Archived:   func(b bool) *bool { return &b }(false),
-		}
+		}.Build()
 		response, err := server.EarmarksList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Msg.Earmarks), 1)
+		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
 
 	t.Run("list earmarks non-paginated should succeed", func(t *testing.T) {
@@ -135,13 +135,13 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EarmarksListRequest{
+		request := icbt.EarmarksListRequest_builder{
 			Archived: func(b bool) *bool { return &b }(false),
-		}
+		}.Build()
 		response, err := server.EarmarksList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Msg.Earmarks), 1)
+		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
 }
 
@@ -214,13 +214,13 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EventListEarmarksRequest{
+		request := icbt.EventListEarmarksRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		response, err := server.EventListEarmarks(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Msg.Earmarks), 1)
+		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
 
 	t.Run("list event earmarks event not found should fail", func(t *testing.T) {
@@ -235,9 +235,9 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 			GetEvent(ctx, eventRefID).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.EventListEarmarksRequest{
+		request := icbt.EventListEarmarksRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventListEarmarks(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
@@ -250,9 +250,9 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventListEarmarksRequest{
+		request := icbt.EventListEarmarksRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EventListEarmarks(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -336,13 +336,13 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EarmarkGetDetailsRequest{
+		request := icbt.EarmarkGetDetailsRequest_builder{
 			RefId: earmarkRefID.String(),
-		}
+		}.Build()
 		response, err := server.EarmarkGetDetails(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, response.Msg.Earmark.RefId, earmarkRefID.String())
+		assert.Equal(t, response.Msg.GetEarmark().GetRefId(), earmarkRefID.String())
 	})
 
 	t.Run("get earmark details bad refid should fail", func(t *testing.T) {
@@ -352,9 +352,9 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EarmarkGetDetailsRequest{
+		request := icbt.EarmarkGetDetailsRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EarmarkGetDetails(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad earmark ref-id")
@@ -426,14 +426,14 @@ func TestRpc_AddEarmark(t *testing.T) {
 			GetUserByID(ctx, user.ID).
 			Return(user, nil)
 
-		request := &icbt.EarmarkCreateRequest{
+		request := icbt.EarmarkCreateRequest_builder{
 			EventItemRefId: eventItemRefID.String(),
 			Note:           "some note",
-		}
+		}.Build()
 		response, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, response.Msg.Earmark.RefId, earmarkRefID.String())
+		assert.Equal(t, response.Msg.GetEarmark().GetRefId(), earmarkRefID.String())
 	})
 
 	t.Run("add earmark for already earmarked by self should fail", func(t *testing.T) {
@@ -463,10 +463,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 			NewEarmark(ctx, user, eventItemID, note).
 			Return(nil, errs.AlreadyExists.Error("already earmarked"))
 
-		request := &icbt.EarmarkCreateRequest{
+		request := icbt.EarmarkCreateRequest_builder{
 			EventItemRefId: eventItemRefID.String(),
 			Note:           "some note",
-		}
+		}.Build()
 		_, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeAlreadyExists, "already earmarked")
@@ -510,10 +510,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 			NewEarmark(ctx, user, eventItemID, note).
 			Return(nil, errs.PermissionDenied.Error("Account must be verified before earmarking is allowed."))
 
-		request := &icbt.EarmarkCreateRequest{
+		request := icbt.EarmarkCreateRequest_builder{
 			EventItemRefId: eventItemRefID.String(),
 			Note:           "some note",
-		}
+		}.Build()
 		_, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied,
@@ -547,10 +547,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 			NewEarmark(ctx, user, eventItemID, note).
 			Return(nil, errs.AlreadyExists.Error("already earmarked by other user"))
 
-		request := &icbt.EarmarkCreateRequest{
+		request := icbt.EarmarkCreateRequest_builder{
 			EventItemRefId: eventItemRefID.String(),
 			Note:           "some note",
-		}
+		}.Build()
 		_, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeAlreadyExists, "already earmarked by other user")
@@ -563,10 +563,10 @@ func TestRpc_AddEarmark(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EarmarkCreateRequest{
+		request := icbt.EarmarkCreateRequest_builder{
 			EventItemRefId: "hodor",
 			Note:           "some note",
-		}
+		}.Build()
 		_, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event-item ref-id")
@@ -599,9 +599,9 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
 			Return(nil)
 
-		request := &icbt.EarmarkRemoveRequest{
+		request := icbt.EarmarkRemoveRequest_builder{
 			RefId: earmarkRefID.String(),
-		}
+		}.Build()
 		_, err := server.EarmarkRemove(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -618,9 +618,10 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.EarmarkRemoveRequest{
+		request := icbt.EarmarkRemoveRequest_builder{
 			RefId: earmarkRefID.String(),
-		}
+		}.Build()
+
 		_, err := server.EarmarkRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")
@@ -633,9 +634,9 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EarmarkRemoveRequest{
+		request := icbt.EarmarkRemoveRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EarmarkRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad earmark ref-id")
@@ -653,9 +654,9 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			DeleteEarmarkByRefID(ctx, user.ID, earmarkRefID).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.EarmarkRemoveRequest{
+		request := icbt.EarmarkRemoveRequest_builder{
 			RefId: earmarkRefID.String(),
-		}
+		}.Build()
 		_, err := server.EarmarkRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")

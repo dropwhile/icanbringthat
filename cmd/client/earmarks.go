@@ -17,21 +17,21 @@ import (
 
 const earmarkTpl = `
 {{- /* whitespace fix */ -}}
-- ref_id: {{.RefId}}
-  event_item_ref_id: {{.EventItemRefId}}
-  note: {{.Note}}
-  owner: {{.Owner}}
-  created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
+- ref_id: {{.GetRefId}}
+  event_item_ref_id: {{.GetEventItemRefId}}
+  note: {{.GetNote}}
+  owner: {{.GetOwner}}
+  created: {{.GetCreated.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 
 const earmarkDetailTpl = `
 {{- /* whitespace fix */ -}}
-- ref_id: {{.Earmark.RefId}}
-  event_item_ref_id: {{.Earmark.EventItemRefId}}
-  event_ref_id: {{.EventRefId}}
-  note: {{.Earmark.Note}}
-  owner: {{.Earmark.Owner}}
-  created: {{.Earmark.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
+- ref_id: {{.GetEarmark.GetRefId}}
+  event_item_ref_id: {{.GetEarmark.GetEventItemRefId}}
+  event_ref_id: {{.GetEventRefId}}
+  note: {{.GetEarmark.GetNote}}
+  owner: {{.GetEarmark.GetOwner}}
+  created: {{.GetEarmark.GetCreated.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 
 type EarmarksCreateCmd struct {
@@ -41,10 +41,10 @@ type EarmarksCreateCmd struct {
 
 func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EarmarkCreateRequest{
+	req := icbt.EarmarkCreateRequest_builder{
 		EventItemRefId: cmd.EventItemRefID,
 		Note:           cmd.Note,
-	}
+	}.Build()
 	resp, err := client.EarmarkCreate(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -53,7 +53,7 @@ func (cmd *EarmarksCreateCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
-	if err := t.Execute(os.Stdout, resp.Msg.Earmark); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.GetEarmark()); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -65,9 +65,9 @@ type EarmarksGetDetailsCmd struct {
 
 func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EarmarkGetDetailsRequest{
+	req := icbt.EarmarkGetDetailsRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	resp, err := client.EarmarkGetDetails(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -78,8 +78,8 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
 		map[string]interface{}{
-			"Earmark":    resp.Msg.Earmark,
-			"EventRefId": resp.Msg.EventRefId,
+			"Earmark":    resp.Msg.GetEarmark(),
+			"EventRefId": resp.Msg.GetEventRefId(),
 		}); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
@@ -92,9 +92,9 @@ type EarmarksRemoveCmd struct {
 
 func (cmd *EarmarksRemoveCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EarmarkRemoveRequest{
+	req := icbt.EarmarkRemoveRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	if _, err := client.EarmarkRemove(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -107,9 +107,9 @@ type EarmarksListCmd struct {
 
 func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EarmarksListRequest{
+	req := icbt.EarmarksListRequest_builder{
 		Archived: &cmd.Archived,
-	}
+	}.Build()
 	resp, err := client.EarmarksList(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -118,7 +118,7 @@ func (cmd *EarmarksListCmd) Run(meta *RunArgs) error {
 	t2 := util.Must(template.New("earmarkTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkTpl))
-	for _, earmark := range resp.Msg.Earmarks {
+	for _, earmark := range resp.Msg.GetEarmarks() {
 		if err := t2.Execute(os.Stdout, earmark); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}

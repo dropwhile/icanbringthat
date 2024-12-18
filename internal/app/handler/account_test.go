@@ -51,7 +51,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"email": {"user@example.com"}}
@@ -85,7 +85,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		email := "user2@example.com"
@@ -176,7 +176,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		euvs := &service.UserUpdateValues{
@@ -221,7 +221,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{"password": {"hodor"}}
@@ -258,7 +258,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		data := url.Values{
@@ -298,7 +298,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.EXPECT().
@@ -347,7 +347,7 @@ func TestHandler_Account_Update(t *testing.T) {
 		// copy user to avoid context user being modified
 		// impacting future tests
 		u := *user
-		user = &u
+		user := &u
 		ctx = auth.ContextSet(ctx, "user", user)
 
 		mock.EXPECT().

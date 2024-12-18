@@ -28,7 +28,7 @@ func (s *Server) EventListEarmarks(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
@@ -47,9 +47,9 @@ func (s *Server) EventListEarmarks(ctx context.Context,
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("db error"))
 	}
-	response := &icbt.EventListEarmarksResponse{
+	response := icbt.EventListEarmarksResponse_builder{
 		Earmarks: pbEarmarks,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -63,17 +63,17 @@ func (s *Server) EarmarksList(ctx context.Context,
 	}
 
 	showArchived := false
-	if req.Msg.Archived != nil && *req.Msg.Archived {
+	if req.Msg.HasArchived() && req.Msg.GetArchived() {
 		showArchived = true
 	}
 
 	var paginationResult *icbt.PaginationResult
 	var earmarks []*model.Earmark
-	if req.Msg.Pagination != nil {
+	if req.Msg.HasPagination() {
 		ems, pgResult, errx := s.svc.GetEarmarksPaginated(
 			ctx, user.ID,
-			int(req.Msg.Pagination.Limit),
-			int(req.Msg.Pagination.Offset),
+			int(req.Msg.GetPagination().GetLimit()),
+			int(req.Msg.GetPagination().GetOffset()),
 			showArchived)
 		if errx != nil {
 			return nil, convert.ToConnectRpcError(errx)
@@ -92,10 +92,10 @@ func (s *Server) EarmarksList(ctx context.Context,
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("db error"))
 	}
-	response := &icbt.EarmarksListResponse{
+	response := icbt.EarmarksListResponse_builder{
 		Earmarks:   pbEarmarks,
 		Pagination: paginationResult,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -108,7 +108,7 @@ func (s *Server) EarmarkCreate(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	eventItemRefID, err := service.ParseEventItemRefID(req.Msg.EventItemRefId)
+	eventItemRefID, err := service.ParseEventItemRefID(req.Msg.GetEventItemRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event-item ref-id"))
 	}
@@ -118,7 +118,7 @@ func (s *Server) EarmarkCreate(ctx context.Context,
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	earmark, errx := s.svc.NewEarmark(ctx, user, eventItem.ID, req.Msg.Note)
+	earmark, errx := s.svc.NewEarmark(ctx, user, eventItem.ID, req.Msg.GetNote())
 	if errx != nil {
 		return nil, convert.ToConnectRpcError(errx)
 	}
@@ -128,9 +128,9 @@ func (s *Server) EarmarkCreate(ctx context.Context,
 		return nil, connect.NewError(connect.CodeInternal, errors.New("db error"))
 	}
 
-	response := &icbt.EarmarkCreateResponse{
+	response := icbt.EarmarkCreateResponse_builder{
 		Earmark: pbEarmark,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -143,7 +143,7 @@ func (s *Server) EarmarkGetDetails(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEarmarkRefID(req.Msg.RefId)
+	refID, err := service.ParseEarmarkRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad earmark ref-id"))
 	}
@@ -167,10 +167,10 @@ func (s *Server) EarmarkGetDetails(ctx context.Context,
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("db error"))
 	}
-	response := &icbt.EarmarkGetDetailsResponse{
+	response := icbt.EarmarkGetDetailsResponse_builder{
 		Earmark:    pbEarmark,
 		EventRefId: event.RefID.String(),
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -183,7 +183,7 @@ func (s *Server) EarmarkRemove(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEarmarkRefID(req.Msg.RefId)
+	refID, err := service.ParseEarmarkRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad earmark ref-id"))
 	}

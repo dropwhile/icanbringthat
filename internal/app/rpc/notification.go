@@ -30,9 +30,9 @@ func (s *Server) NotificationsList(ctx context.Context,
 
 	var paginationResult *icbt.PaginationResult
 	var notifications []*model.Notification
-	if req.Msg.Pagination != nil {
-		limit := int(req.Msg.Pagination.Limit)
-		offset := int(req.Msg.Pagination.Offset)
+	if req.Msg.HasPagination() {
+		limit := int(req.Msg.GetPagination().GetLimit())
+		offset := int(req.Msg.GetPagination().GetOffset())
 		notifs, pagination, errx := s.svc.GetNotificationsPaginated(ctx, user.ID, limit, offset)
 		if errx != nil {
 			return nil, convert.ToConnectRpcError(errx)
@@ -49,10 +49,10 @@ func (s *Server) NotificationsList(ctx context.Context,
 
 	}
 
-	response := &icbt.NotificationsListResponse{
+	response := icbt.NotificationsListResponse_builder{
 		Notifications: convert.ToPbList(convert.ToPbNotification, notifications),
 		Pagination:    paginationResult,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -65,7 +65,7 @@ func (s *Server) NotificationDelete(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseNotificationRefID(req.Msg.RefId)
+	refID, err := service.ParseNotificationRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad notification ref-id"))
 	}

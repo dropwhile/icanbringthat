@@ -67,14 +67,17 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.FavoriteListEventsRequest{
-			Pagination: &icbt.PaginationRequest{Limit: 10, Offset: 0},
-			Archived:   func(b bool) *bool { return &b }(false),
-		}
+		request := icbt.FavoriteListEventsRequest_builder{
+			Pagination: icbt.PaginationRequest_builder{
+				Limit:  10,
+				Offset: 0,
+			}.Build(),
+			Archived: func(b bool) *bool { return &b }(false),
+		}.Build()
 		response, err := server.FavoriteListEvents(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Msg.Events), 1)
+		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 
 	t.Run("list favorite events non-paginated should succeed", func(t *testing.T) {
@@ -105,12 +108,12 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 				}}, nil,
 			)
 
-		request := &icbt.FavoriteListEventsRequest{
+		request := icbt.FavoriteListEventsRequest_builder{
 			Archived: func(b bool) *bool { return &b }(false),
-		}
+		}.Build()
 		response, err := server.FavoriteListEvents(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Msg.Events), 1)
+		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 }
 
@@ -148,12 +151,12 @@ func TestRpc_AddFavorite(t *testing.T) {
 				Archived:      false,
 			}, nil)
 
-		request := &icbt.FavoriteAddRequest{
+		request := icbt.FavoriteAddRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		response, err := server.FavoriteAdd(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.Msg.Favorite.EventRefId, eventRefID.String())
+		assert.Equal(t, response.Msg.GetFavorite().GetEventRefId(), eventRefID.String())
 	})
 
 	t.Run("add favorite for own event should fail", func(t *testing.T) {
@@ -168,9 +171,9 @@ func TestRpc_AddFavorite(t *testing.T) {
 			AddFavorite(ctx, user.ID, eventRefID).
 			Return(nil, errs.PermissionDenied.Error("can't favorite own event"))
 
-		request := &icbt.FavoriteAddRequest{
+		request := icbt.FavoriteAddRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteAdd(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "can't favorite own event")
@@ -188,9 +191,9 @@ func TestRpc_AddFavorite(t *testing.T) {
 			AddFavorite(ctx, user.ID, eventRefID).
 			Return(nil, errs.AlreadyExists.Error("favorite already exists"))
 
-		request := &icbt.FavoriteAddRequest{
+		request := icbt.FavoriteAddRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteAdd(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeAlreadyExists, "favorite already exists")
@@ -203,9 +206,9 @@ func TestRpc_AddFavorite(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.FavoriteAddRequest{
+		request := icbt.FavoriteAddRequest_builder{
 			EventRefId: "hodor",
-		}
+		}.Build()
 		_, err := server.FavoriteAdd(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -238,9 +241,9 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			RemoveFavorite(ctx, user.ID, eventRefID).
 			Return(nil)
 
-		request := &icbt.FavoriteRemoveRequest{
+		request := icbt.FavoriteRemoveRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -252,9 +255,9 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.FavoriteRemoveRequest{
+		request := icbt.FavoriteRemoveRequest_builder{
 			EventRefId: "hodor",
-		}
+		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -272,9 +275,9 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			RemoveFavorite(ctx, user.ID, eventRefID).
 			Return(errs.NotFound.Error("event not found"))
 
-		request := &icbt.FavoriteRemoveRequest{
+		request := icbt.FavoriteRemoveRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
@@ -292,9 +295,9 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			RemoveFavorite(ctx, user.ID, eventRefID).
 			Return(errs.NotFound.Error("favorite not found"))
 
-		request := &icbt.FavoriteRemoveRequest{
+		request := icbt.FavoriteRemoveRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "favorite not found")
@@ -312,9 +315,9 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			RemoveFavorite(ctx, user.ID, eventRefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.FavoriteRemoveRequest{
+		request := icbt.FavoriteRemoveRequest_builder{
 			EventRefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")

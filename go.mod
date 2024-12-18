@@ -11,14 +11,14 @@ require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20240316134038-7e11d57e8885
 	github.com/alexedwards/scs/pgxstore v0.0.0-20240316134038-7e11d57e8885
 	github.com/alexedwards/scs/v2 v2.8.0
-	github.com/caarlos0/env/v11 v11.3.0
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/dropwhile/refid/v2 v2.0.2
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx/v5 v5.7.1
+	github.com/jackc/pgx/v5 v5.7.2
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
@@ -92,5 +92,3 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20241219192143-6b3ec007d9bb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241219192143-6b3ec007d9bb // indirect
 )
-
-replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16

@@ -20,13 +20,13 @@ import (
 
 const eventTpl = `
 {{- /* whitespace fix */ -}}
-- ref_id: {{.RefId}}
-  name: {{.Name}}
-  description: {{.Description}}
-  archived: {{.Archived}}
-  when: {{.When.Ts.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
-  tz: {{.When.Tz}}
-  created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
+- ref_id: {{.GetRefId}}
+  name: {{.GetName}}
+  description: {{.GetDescription}}
+  archived: {{.GetArchived}}
+  when: {{.GetWhen.GetTs.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
+  tz: {{.GetWhen.GetTz}}
+  created: {{.GetCreated.AsTime.Format "2006-01-02T15:04:05Z07:00"}}
 `
 
 type EventsListCmd struct {
@@ -35,9 +35,9 @@ type EventsListCmd struct {
 
 func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventsListRequest{
+	req := icbt.EventsListRequest_builder{
 		Archived: &cmd.Archived,
-	}
+	}.Build()
 	resp, err := client.EventsList(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -46,7 +46,7 @@ func (cmd *EventsListCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
-	for _, event := range resp.Msg.Events {
+	for _, event := range resp.Msg.GetEvents() {
 		if err := t.Execute(os.Stdout, event); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}
@@ -63,14 +63,14 @@ type EventsCreateCmd struct {
 
 func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventCreateRequest{
+	req := icbt.EventCreateRequest_builder{
 		Name:        cmd.Name,
 		Description: cmd.Description,
-		When: &icbt.TimestampTZ{
+		When: icbt.TimestampTZ_builder{
 			Ts: timestamppb.New(cmd.When),
 			Tz: cmd.Tz,
-		},
-	}
+		}.Build(),
+	}.Build()
 	resp, err := client.EventCreate(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -79,7 +79,7 @@ func (cmd *EventsCreateCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
-	if err := t.Execute(os.Stdout, resp.Msg.Event); err != nil {
+	if err := t.Execute(os.Stdout, resp.Msg.GetEvent()); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 	return nil
@@ -95,24 +95,26 @@ type EventsUpdateCmd struct {
 
 func (cmd *EventsUpdateCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventUpdateRequest{
+	req := icbt.EventUpdateRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	if cmd.Name != nil {
-		req.Name = cmd.Name
+		req.SetName(*cmd.Name)
 	}
 	if cmd.Description != nil {
-		req.Description = cmd.Description
+		req.SetDescription(*cmd.Description)
 	}
 	if (cmd.When != nil && cmd.Tz == nil) ||
 		(cmd.When == nil && cmd.Tz != nil) {
 		return fmt.Errorf("either both or neither of when and tz are required")
 	}
 	if cmd.When != nil {
-		req.When = &icbt.TimestampTZ{
-			Ts: timestamppb.New(*cmd.When),
-			Tz: *cmd.Tz,
-		}
+		req.SetWhen(
+			icbt.TimestampTZ_builder{
+				Ts: timestamppb.New(*cmd.When),
+				Tz: *cmd.Tz,
+			}.Build(),
+		)
 	}
 	if cmd.Name == nil && cmd.Description == nil && cmd.When == nil {
 		return fmt.Errorf("at least one field must be included to update anything")
@@ -130,9 +132,9 @@ type EventsDeleteCmd struct {
 
 func (cmd *EventsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventDeleteRequest{
+	req := icbt.EventDeleteRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	if _, err := client.EventDelete(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -145,9 +147,9 @@ type EventsGetDetailsCmd struct {
 
 func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventGetDetailsRequest{
+	req := icbt.EventGetDetailsRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	resp, err := client.EventGetDetails(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -159,16 +161,17 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("eventTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(eventTpl))
-	if err := t.Execute(outWriter, resp.Msg.Event); err != nil {
+	if err := t.Execute(outWriter, resp.Msg.GetEvent()); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 
 	fmt.Println("items:")
-	if len(resp.Msg.Items) > 0 {
+	items := resp.Msg.GetItems()
+	if len(items) > 0 {
 		t2 := util.Must(template.New("eventItemTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(eventItemTpl))
-		for _, item := range resp.Msg.Items {
+		for _, item := range items {
 			if err := t2.Execute(outWriter, item); err != nil {
 				return fmt.Errorf("executing template: %w", err)
 			}
@@ -176,11 +179,12 @@ func (cmd *EventsGetDetailsCmd) Run(meta *RunArgs) error {
 	}
 
 	fmt.Println("earmarks:")
-	if len(resp.Msg.Earmarks) > 0 {
+	earmarks := resp.Msg.GetEarmarks()
+	if len(earmarks) > 0 {
 		t2 := util.Must(template.New("earmarkTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(earmarkTpl))
-		for _, earmark := range resp.Msg.Earmarks {
+		for _, earmark := range earmarks {
 			if err := t2.Execute(outWriter, earmark); err != nil {
 				return fmt.Errorf("executing template: %w", err)
 			}
@@ -195,9 +199,9 @@ type EventsListItemsCmd struct {
 
 func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventListItemsRequest{
+	req := icbt.EventListItemsRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	resp, err := client.EventListItems(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -206,11 +210,12 @@ func (cmd *EventsListItemsCmd) Run(meta *RunArgs) error {
 	outWriter := indent.NewWriterPipe(os.Stdout, 2, nil)
 
 	fmt.Println("items:")
-	if len(resp.Msg.Items) > 0 {
+	items := resp.Msg.GetItems()
+	if len(items) > 0 {
 		t2 := util.Must(template.New("eventItemTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(eventItemTpl))
-		for _, item := range resp.Msg.Items {
+		for _, item := range items {
 			if err := t2.Execute(outWriter, item); err != nil {
 				return fmt.Errorf("executing template: %w", err)
 			}
@@ -225,9 +230,9 @@ type EventsListEarmarksCmd struct {
 
 func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.EventListEarmarksRequest{
+	req := icbt.EventListEarmarksRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	resp, err := client.EventListEarmarks(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -236,11 +241,12 @@ func (cmd *EventsListEarmarksCmd) Run(meta *RunArgs) error {
 	outWriter := indent.NewWriterPipe(os.Stdout, 2, nil)
 
 	fmt.Println("earmarks:")
-	if len(resp.Msg.Earmarks) > 0 {
+	earmarks := resp.Msg.GetEarmarks()
+	if len(earmarks) > 0 {
 		t2 := util.Must(template.New("earmarkTpl").
 			Funcs(sprig.FuncMap()).
 			Parse(earmarkTpl))
-		for _, earmark := range resp.Msg.Earmarks {
+		for _, earmark := range earmarks {
 			if err := t2.Execute(outWriter, earmark); err != nil {
 				return fmt.Errorf("executing template: %w", err)
 			}

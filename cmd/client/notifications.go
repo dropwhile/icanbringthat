@@ -17,16 +17,16 @@ import (
 
 const notifTpl = `
 {{- /* whitespace fix */ -}}
-- ref_id: {{.RefId}}
-  message: {{.Message}}
-  created: {{.Created.AsTime.Format "2006-01-02T15:04:05Z07:00" }}
+- ref_id: {{.GetRefId}}
+  message: {{.GetMessage}}
+  created: {{.GetCreated.AsTime.Format "2006-01-02T15:04:05Z07:00" }}
 `
 
 type NotificationsListCmd struct{}
 
 func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.NotificationsListRequest{}
+	req := icbt.NotificationsListRequest_builder{}.Build()
 	resp, err := client.NotificationsList(meta.ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("client request: %w", err)
@@ -35,7 +35,7 @@ func (cmd *NotificationsListCmd) Run(meta *RunArgs) error {
 	t := util.Must(template.New("notifTpl").
 		Funcs(sprig.FuncMap()).
 		Parse(notifTpl))
-	for _, notif := range resp.Msg.Notifications {
+	for _, notif := range resp.Msg.GetNotifications() {
 		if err := t.Execute(os.Stdout, notif); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}
@@ -49,9 +49,9 @@ type NotificationsDeleteCmd struct {
 
 func (cmd *NotificationsDeleteCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.NotificationDeleteRequest{
+	req := icbt.NotificationDeleteRequest_builder{
 		RefId: cmd.RefID,
-	}
+	}.Build()
 	if _, err := client.NotificationDelete(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}
@@ -63,7 +63,7 @@ type NotificationsDeleteAllCmd struct{}
 
 func (cmd *NotificationsDeleteAllCmd) Run(meta *RunArgs) error {
 	client := meta.client
-	req := &icbt.NotificationsDeleteAllRequest{}
+	req := icbt.NotificationsDeleteAllRequest_builder{}.Build()
 	if _, err := client.NotificationsDeleteAll(meta.ctx, connect.NewRequest(req)); err != nil {
 		return fmt.Errorf("client request: %w", err)
 	}

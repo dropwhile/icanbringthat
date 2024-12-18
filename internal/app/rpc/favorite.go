@@ -30,15 +30,15 @@ func (s *Server) FavoriteListEvents(ctx context.Context,
 	}
 
 	showArchived := false
-	if req.Msg.Archived != nil && *req.Msg.Archived {
+	if req.Msg.HasArchived() && req.Msg.GetArchived() {
 		showArchived = true
 	}
 
 	var paginationResult *icbt.PaginationResult
 	var events []*model.Event
-	if req.Msg.Pagination != nil {
-		limit := int(req.Msg.Pagination.Limit)
-		offset := int(req.Msg.Pagination.Offset)
+	if req.Msg.HasPagination() {
+		limit := int(req.Msg.GetPagination().GetLimit())
+		offset := int(req.Msg.GetPagination().GetOffset())
 
 		favs, pagination, errx := s.svc.GetFavoriteEventsPaginated(
 			ctx, user.ID, limit, offset, showArchived)
@@ -57,10 +57,10 @@ func (s *Server) FavoriteListEvents(ctx context.Context,
 		events = favs
 	}
 
-	response := &icbt.FavoriteListEventsResponse{
+	response := icbt.FavoriteListEventsResponse_builder{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -73,7 +73,7 @@ func (s *Server) FavoriteRemove(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.EventRefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetEventRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
@@ -95,7 +95,7 @@ func (s *Server) FavoriteAdd(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.EventRefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetEventRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
@@ -105,11 +105,11 @@ func (s *Server) FavoriteAdd(ctx context.Context,
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.FavoriteAddResponse{
-		Favorite: &icbt.Favorite{
-			EventRefId: req.Msg.EventRefId,
+	response := icbt.FavoriteAddResponse_builder{
+		Favorite: icbt.Favorite_builder{
+			EventRefId: req.Msg.GetEventRefId(),
 			Created:    timestamppb.New(favorite.Created),
-		},
-	}
+		}.Build(),
+	}.Build()
 	return connect.NewResponse(response), nil
 }

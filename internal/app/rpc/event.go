@@ -6,7 +6,6 @@ package rpc
 import (
 	"context"
 	"errors"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/samber/mo"
@@ -30,15 +29,15 @@ func (s *Server) EventsList(ctx context.Context,
 	}
 
 	showArchived := false
-	if req.Msg.Archived != nil && *req.Msg.Archived {
+	if req.Msg.HasArchived() && req.Msg.GetArchived() {
 		showArchived = true
 	}
 
 	var paginationResult *icbt.PaginationResult
 	var events []*model.Event
-	if req.Msg.Pagination != nil {
-		limit := int(req.Msg.Pagination.Limit)
-		offset := int(req.Msg.Pagination.Offset)
+	if req.Msg.HasPagination() {
+		limit := int(req.Msg.GetPagination().GetLimit())
+		offset := int(req.Msg.GetPagination().GetOffset())
 
 		evts, pagination, errx := s.svc.GetEventsPaginated(
 			ctx, user.ID, limit, offset, showArchived,
@@ -59,10 +58,10 @@ func (s *Server) EventsList(ctx context.Context,
 		events = evts
 	}
 
-	response := &icbt.EventsListResponse{
+	response := icbt.EventsListResponse_builder{
 		Events:     convert.ToPbList(convert.ToPbEvent, events),
 		Pagination: paginationResult,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -75,14 +74,14 @@ func (s *Server) EventCreate(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	if !req.Msg.When.Ts.IsValid() {
+	if !req.Msg.GetWhen().GetTs().IsValid() {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("start_time bad empty value"))
 	}
 
-	name := req.Msg.Name
-	description := req.Msg.Description
-	when := req.Msg.When.Ts.AsTime()
-	tz := req.Msg.When.Tz
+	name := req.Msg.GetName()
+	description := req.Msg.GetDescription()
+	when := req.Msg.GetWhen().GetTs().AsTime()
+	tz := req.Msg.GetWhen().GetTz()
 
 	event, errx := s.svc.CreateEvent(
 		ctx, user, name, description, when, tz,
@@ -91,9 +90,9 @@ func (s *Server) EventCreate(ctx context.Context,
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.EventCreateResponse{
+	response := icbt.EventCreateResponse_builder{
 		Event: convert.ToPbEvent(event),
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -106,29 +105,29 @@ func (s *Server) EventUpdate(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
 
-	var startTime *time.Time
-	var tz *string
-
-	if req.Msg.When != nil {
-		if req.Msg.When.Ts.IsValid() {
-			t := req.Msg.When.Ts.AsTime()
-			startTime = &t
+	euvs := &service.EventUpdateValues{}
+	if req.Msg.HasName() {
+		euvs.Name = mo.Some(req.Msg.GetName())
+	}
+	if req.Msg.HasDescription() {
+		euvs.Description = mo.Some(req.Msg.GetDescription())
+	}
+	if req.Msg.HasWhen() {
+		if req.Msg.GetWhen().GetTs().IsValid() {
+			t := req.Msg.GetWhen().GetTs().AsTime()
+			euvs.StartTime = mo.Some(t)
 		}
-		if req.Msg.When.Tz != "" {
-			tz = &req.Msg.When.Tz
+		if req.Msg.GetWhen().GetTz() != "" {
+			tz := req.Msg.GetWhen().GetTz()
+			euvs.Tz = mo.Some(tz)
 		}
 	}
 
-	euvs := &service.EventUpdateValues{}
-	euvs.Name = mo.PointerToOption(req.Msg.Name)
-	euvs.Description = mo.PointerToOption(req.Msg.Description)
-	euvs.StartTime = mo.PointerToOption(startTime)
-	euvs.Tz = mo.PointerToOption(tz)
 	errx := s.svc.UpdateEvent(ctx, user.ID, refID, euvs)
 	if errx != nil {
 		return nil, convert.ToConnectRpcError(errx)
@@ -146,7 +145,7 @@ func (s *Server) EventGetDetails(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
@@ -172,11 +171,11 @@ func (s *Server) EventGetDetails(ctx context.Context,
 		return nil, connect.NewError(connect.CodeInternal, errors.New("db error"))
 	}
 
-	response := &icbt.EventGetDetailsResponse{
+	response := icbt.EventGetDetailsResponse_builder{
 		Event:    pbEvent,
 		Items:    pbEventItems,
 		Earmarks: pbEarmarks,
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -189,7 +188,7 @@ func (s *Server) EventDelete(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
