@@ -2,10 +2,12 @@ edition = "2023";
 package icbt.rpc.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/go_features.proto";
 import "google/protobuf/timestamp.proto";
 import "icbt/rpc/v1/constraints.proto";
 import "icbt/rpc/v1/pagination.proto";
 
+option features.(pb.go).api_level = API_OPAQUE;
 option features.field_presence = IMPLICIT;
 
 /** Common Types **/
