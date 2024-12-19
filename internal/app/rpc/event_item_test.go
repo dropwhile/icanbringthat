@@ -55,12 +55,12 @@ func TestRpc_ListEventItems(t *testing.T) {
 				}}, nil,
 			)
 
-		request := &icbt.EventListItemsRequest{
+		request := icbt.EventListItemsRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		response, err := server.EventListItems(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Msg.Items), 1)
+		assert.Equal(t, len(response.Msg.GetItems()), 1)
 	})
 
 	t.Run("list event items with bad refid should fail", func(t *testing.T) {
@@ -70,9 +70,9 @@ func TestRpc_ListEventItems(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventListItemsRequest{
+		request := icbt.EventListItemsRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EventListItems(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -90,9 +90,9 @@ func TestRpc_ListEventItems(t *testing.T) {
 			GetEventItemsByEvent(ctx, eventRefID).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.EventListItemsRequest{
+		request := icbt.EventListItemsRequest_builder{
 			RefId: eventRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventListItems(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
@@ -128,9 +128,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(nil)
 
-		request := &icbt.EventRemoveItemRequest{
+		request := icbt.EventRemoveItemRequest_builder{
 			RefId: eventItemRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})
@@ -142,9 +142,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.EventRemoveItemRequest{
+		request := icbt.EventRemoveItemRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event-item ref-id")
@@ -165,9 +165,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.EventRemoveItemRequest{
+		request := icbt.EventRemoveItemRequest_builder{
 			RefId: eventItemRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
@@ -188,9 +188,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.EventRemoveItemRequest{
+		request := icbt.EventRemoveItemRequest_builder{
 			RefId: eventItemRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
@@ -211,9 +211,9 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			).
 			Return(errs.NotFound.Error("event-item not found"))
 
-		request := &icbt.EventRemoveItemRequest{
+		request := icbt.EventRemoveItemRequest_builder{
 			RefId: eventItemRefID.String(),
-		}
+		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event-item not found")
@@ -255,13 +255,13 @@ func TestRpc_AddEventItem(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		response, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.Msg.EventItem.Description, description)
+		assert.Equal(t, response.Msg.GetEventItem().GetDescription(), description)
 	})
 
 	t.Run("add event item with empty description should fail", func(t *testing.T) {
@@ -277,10 +277,10 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "description bad value")
@@ -299,10 +299,10 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
@@ -321,10 +321,10 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
@@ -343,10 +343,10 @@ func TestRpc_AddEventItem(t *testing.T) {
 			AddEventItem(ctx, user.ID, eventRefID, description).
 			Return(nil, errs.NotFound.Error("event not found"))
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event not found")
@@ -360,10 +360,10 @@ func TestRpc_AddEventItem(t *testing.T) {
 		ctx = auth.ContextSet(ctx, "user", user)
 		description := "some description"
 
-		request := &icbt.EventAddItemRequest{
+		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  "hodor",
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventAddItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event ref-id")
@@ -409,13 +409,13 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		response, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, response.Msg.EventItem.Description, description)
+		assert.Equal(t, response.Msg.GetEventItem().GetDescription(), description)
 	})
 
 	t.Run("update event item with bad refid should fail", func(t *testing.T) {
@@ -424,10 +424,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 		ctx := context.Background()
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       "hodor",
 			Description: "some nonsense",
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad event-item ref-id")
@@ -449,10 +449,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("event is archived"))
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "event is archived")
@@ -474,10 +474,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("not event owner"))
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "not event owner")
@@ -499,10 +499,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.PermissionDenied.Error("earmarked by other user"))
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "earmarked by other user")
@@ -524,10 +524,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.InvalidArgumentError("description", "bad value"))
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "description bad value")
@@ -549,10 +549,10 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			).
 			Return(nil, errs.NotFound.Error("event-item not found"))
 
-		request := &icbt.EventUpdateItemRequest{
+		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),
 			Description: description,
-		}
+		}.Build()
 		_, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "event-item not found")

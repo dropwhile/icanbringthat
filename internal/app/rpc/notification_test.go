@@ -62,15 +62,15 @@ func TestRpc_ListNotifications(t *testing.T) {
 				}, nil,
 			)
 
-		request := &icbt.NotificationsListRequest{
-			Pagination: &icbt.PaginationRequest{
+		request := icbt.NotificationsListRequest_builder{
+			Pagination: icbt.PaginationRequest_builder{
 				Limit:  10,
 				Offset: 0,
-			},
-		}
+			}.Build(),
+		}.Build()
 		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
-		assert.Equal(t, len(response.Msg.Notifications), 1)
+		assert.Equal(t, len(response.Msg.GetNotifications()), 1)
 	})
 
 	t.Run("list notifications non-paginated should succeed", func(t *testing.T) {
@@ -88,7 +88,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 
-		assert.Equal(t, len(response.Msg.Notifications), 1)
+		assert.Equal(t, len(response.Msg.GetNotifications()), 1)
 	})
 }
 
@@ -122,9 +122,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 		server, _ := NewTestServer(t)
 		ctx = auth.ContextSet(ctx, "user", user)
 
-		request := &icbt.NotificationDeleteRequest{
+		request := icbt.NotificationDeleteRequest_builder{
 			RefId: "hodor",
-		}
+		}.Build()
 		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeInvalidArgument, "bad notification ref-id")
@@ -141,9 +141,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(errs.NotFound.Error("notification not found"))
 
-		request := &icbt.NotificationDeleteRequest{
+		request := icbt.NotificationDeleteRequest_builder{
 			RefId: notification.RefID.String(),
-		}
+		}.Build()
 		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodeNotFound, "notification not found")
@@ -160,9 +160,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(errs.PermissionDenied.Error("permission denied"))
 
-		request := &icbt.NotificationDeleteRequest{
+		request := icbt.NotificationDeleteRequest_builder{
 			RefId: notification.RefID.String(),
-		}
+		}.Build()
 		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
 		rpcErr := AsConnectError(t, err)
 		errs.AssertError(t, rpcErr, connect.CodePermissionDenied, "permission denied")
@@ -179,9 +179,9 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			DeleteNotification(ctx, user.ID, notification.RefID).
 			Return(nil)
 
-		request := &icbt.NotificationDeleteRequest{
+		request := icbt.NotificationDeleteRequest_builder{
 			RefId: notification.RefID.String(),
-		}
+		}.Build()
 		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
 		assert.NilError(t, err)
 	})

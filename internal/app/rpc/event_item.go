@@ -27,7 +27,7 @@ func (s *Server) EventListItems(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.RefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
@@ -37,9 +37,9 @@ func (s *Server) EventListItems(ctx context.Context,
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.EventListItemsResponse{
+	response := icbt.EventListItemsResponse_builder{
 		Items: convert.ToPbList(convert.ToPbEventItem, items),
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -52,7 +52,7 @@ func (s *Server) EventRemoveItem(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventItemRefID(req.Msg.RefId)
+	refID, err := service.ParseEventItemRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event-item ref-id"))
 	}
@@ -74,21 +74,21 @@ func (s *Server) EventAddItem(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventRefID(req.Msg.EventRefId)
+	refID, err := service.ParseEventRefID(req.Msg.GetEventRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event ref-id"))
 	}
 
 	eventItem, errx := s.svc.AddEventItem(
-		ctx, user.ID, refID, req.Msg.Description,
+		ctx, user.ID, refID, req.Msg.GetDescription(),
 	)
 	if errx != nil {
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.EventAddItemResponse{
+	response := icbt.EventAddItemResponse_builder{
 		EventItem: convert.ToPbEventItem(eventItem),
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
 
@@ -101,20 +101,20 @@ func (s *Server) EventUpdateItem(ctx context.Context,
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid credentials"))
 	}
 
-	refID, err := service.ParseEventItemRefID(req.Msg.RefId)
+	refID, err := service.ParseEventItemRefID(req.Msg.GetRefId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bad event-item ref-id"))
 	}
 
 	eventItem, errx := s.svc.UpdateEventItem(
-		ctx, user.ID, refID, req.Msg.Description, nil,
+		ctx, user.ID, refID, req.Msg.GetDescription(), nil,
 	)
 	if errx != nil {
 		return nil, convert.ToConnectRpcError(errx)
 	}
 
-	response := &icbt.EventUpdateItemResponse{
+	response := icbt.EventUpdateItemResponse_builder{
 		EventItem: convert.ToPbEventItem(eventItem),
-	}
+	}.Build()
 	return connect.NewResponse(response), nil
 }
