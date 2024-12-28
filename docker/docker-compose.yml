@@ -47,6 +47,7 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
+    #command: sh -c 'goose up; exec server start-webserver'
     command: /app/server webserver
 
   worker:
