@@ -10,8 +10,9 @@ import (
 )
 
 var cli struct { // betteralign:ignore
-	Version kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
-	Run     RunCmd           `cmd:"" help:"run server"`
+	Version        kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
+	StartWebserver ServerCmd        `cmd:"" help:"run web/api server"`
+	StartWorker    WorkerCmd        `cmd:"" help:"run job worker"`
 }
 
 func main() {

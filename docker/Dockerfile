@@ -51,4 +51,4 @@ ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app"
 
 USER nobody
 EXPOSE 8000
-CMD ["/app/server", "run"]
+CMD ["/app/server", "webserver"]

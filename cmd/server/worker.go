@@ -37,9 +37,9 @@ type WorkerConfig struct {
 	Jobs []string `env:"JOBS" envDefault:"all"`
 }
 
-type RunCmd struct{}
+type WorkerCmd struct{}
 
-func (c *RunCmd) Run() error {
+func (c *WorkerCmd) Run() error {
 	//--------------//
 	// parse config //
 	//--------------//

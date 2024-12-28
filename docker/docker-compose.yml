@@ -47,6 +47,7 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
+    command: /app/server webserver
 
   worker:
     image: "icanbringthat:latest"
@@ -69,5 +70,5 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
       GOOSE_MIGRATION_DIR: database/migrations
-    command: /app/worker run
+    command: /app/server worker
 

@@ -27,9 +27,9 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/util"
 )
 
-type RunCmd struct{}
+type ServerCmd struct{}
 
-func (c *RunCmd) Run() error {
+func (c *ServerCmd) Run() error {
 	//--------------//
 	// parse config //
 	//--------------//
