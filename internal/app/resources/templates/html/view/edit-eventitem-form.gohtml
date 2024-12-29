@@ -5,8 +5,7 @@
   <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
     Edit Event Item
   </h4>
-  <div
-    class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
+  <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xl">
     <form method="post" action="/events/{{.event.RefID}}/items/{{.eventItem.RefID}}">
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Short Description</span>
@@ -18,11 +17,11 @@
           autocomplete="off"
           autofocus
           required
-          onfocus="this.setSelectionRange(0,this.value.length);"></input>
+          onfocus="this.setSelectionRange(0,this.value.length);"
+        >
       </label>
       {{ .csrfField }}
-      <button
-        class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+      <button class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
         Save
       </button>
     </form>

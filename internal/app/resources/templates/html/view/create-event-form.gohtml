@@ -17,7 +17,8 @@
           name="name"
           autofocus
           required
-          data-1p-ignore>
+          data-1p-ignore
+        >
       </label>
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Description</span>
@@ -27,7 +28,8 @@
           placeholder="About My Event"
           autocomplete="off"
           name="description"
-          required></textarea>
+          required
+        ></textarea>
       </label>
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">Event Date / Time</span>
@@ -36,7 +38,8 @@
           type="datetime-local"
           name="when"
           autocomplete="off"
-          required>
+          required
+        >
       </label>
       <label class="block mb-4 text-sm">
         <span class="text-gray-700 dark:text-gray-400">TimeZone</span>
@@ -44,7 +47,8 @@
           name="timezone"
           class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
           required
-          _="on load set my.value to Intl.DateTimeFormat().resolvedOptions().timeZone">
+          _="on load set my.value to Intl.DateTimeFormat().resolvedOptions().timeZone"
+        >
           <option value="Etc/GMT+12">(GMT-12:00) International Date Line West</option>
           <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
           <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
@@ -130,8 +134,7 @@
         </select>
       </label>
       {{ .csrfField }}
-      <button
-        class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+      <button class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
         Create Event
       </button>
     </form>
