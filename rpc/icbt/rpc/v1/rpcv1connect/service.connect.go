@@ -96,31 +96,6 @@ const (
 	IcbtRpcServiceNotificationsListProcedure = "/icbt.rpc.v1.IcbtRpcService/NotificationsList"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	icbtRpcServiceServiceDescriptor                      = v1.File_icbt_rpc_v1_service_proto.Services().ByName("IcbtRpcService")
-	icbtRpcServiceEarmarkCreateMethodDescriptor          = icbtRpcServiceServiceDescriptor.Methods().ByName("EarmarkCreate")
-	icbtRpcServiceEarmarkGetDetailsMethodDescriptor      = icbtRpcServiceServiceDescriptor.Methods().ByName("EarmarkGetDetails")
-	icbtRpcServiceEarmarkRemoveMethodDescriptor          = icbtRpcServiceServiceDescriptor.Methods().ByName("EarmarkRemove")
-	icbtRpcServiceEarmarksListMethodDescriptor           = icbtRpcServiceServiceDescriptor.Methods().ByName("EarmarksList")
-	icbtRpcServiceEventCreateMethodDescriptor            = icbtRpcServiceServiceDescriptor.Methods().ByName("EventCreate")
-	icbtRpcServiceEventUpdateMethodDescriptor            = icbtRpcServiceServiceDescriptor.Methods().ByName("EventUpdate")
-	icbtRpcServiceEventDeleteMethodDescriptor            = icbtRpcServiceServiceDescriptor.Methods().ByName("EventDelete")
-	icbtRpcServiceEventsListMethodDescriptor             = icbtRpcServiceServiceDescriptor.Methods().ByName("EventsList")
-	icbtRpcServiceEventGetDetailsMethodDescriptor        = icbtRpcServiceServiceDescriptor.Methods().ByName("EventGetDetails")
-	icbtRpcServiceEventListItemsMethodDescriptor         = icbtRpcServiceServiceDescriptor.Methods().ByName("EventListItems")
-	icbtRpcServiceEventListEarmarksMethodDescriptor      = icbtRpcServiceServiceDescriptor.Methods().ByName("EventListEarmarks")
-	icbtRpcServiceEventAddItemMethodDescriptor           = icbtRpcServiceServiceDescriptor.Methods().ByName("EventAddItem")
-	icbtRpcServiceEventUpdateItemMethodDescriptor        = icbtRpcServiceServiceDescriptor.Methods().ByName("EventUpdateItem")
-	icbtRpcServiceEventRemoveItemMethodDescriptor        = icbtRpcServiceServiceDescriptor.Methods().ByName("EventRemoveItem")
-	icbtRpcServiceFavoriteAddMethodDescriptor            = icbtRpcServiceServiceDescriptor.Methods().ByName("FavoriteAdd")
-	icbtRpcServiceFavoriteRemoveMethodDescriptor         = icbtRpcServiceServiceDescriptor.Methods().ByName("FavoriteRemove")
-	icbtRpcServiceFavoriteListEventsMethodDescriptor     = icbtRpcServiceServiceDescriptor.Methods().ByName("FavoriteListEvents")
-	icbtRpcServiceNotificationDeleteMethodDescriptor     = icbtRpcServiceServiceDescriptor.Methods().ByName("NotificationDelete")
-	icbtRpcServiceNotificationsDeleteAllMethodDescriptor = icbtRpcServiceServiceDescriptor.Methods().ByName("NotificationsDeleteAll")
-	icbtRpcServiceNotificationsListMethodDescriptor      = icbtRpcServiceServiceDescriptor.Methods().ByName("NotificationsList")
-)
-
 // IcbtRpcServiceClient is a client for the icbt.rpc.v1.IcbtRpcService service.
 type IcbtRpcServiceClient interface {
 	// earmark
@@ -159,125 +134,126 @@ type IcbtRpcServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewIcbtRpcServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) IcbtRpcServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	icbtRpcServiceMethods := v1.File_icbt_rpc_v1_service_proto.Services().ByName("IcbtRpcService").Methods()
 	return &icbtRpcServiceClient{
 		earmarkCreate: connect.NewClient[v1.EarmarkCreateRequest, v1.EarmarkCreateResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEarmarkCreateProcedure,
-			connect.WithSchema(icbtRpcServiceEarmarkCreateMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkCreate")),
 			connect.WithClientOptions(opts...),
 		),
 		earmarkGetDetails: connect.NewClient[v1.EarmarkGetDetailsRequest, v1.EarmarkGetDetailsResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEarmarkGetDetailsProcedure,
-			connect.WithSchema(icbtRpcServiceEarmarkGetDetailsMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkGetDetails")),
 			connect.WithClientOptions(opts...),
 		),
 		earmarkRemove: connect.NewClient[v1.EarmarkRemoveRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceEarmarkRemoveProcedure,
-			connect.WithSchema(icbtRpcServiceEarmarkRemoveMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkRemove")),
 			connect.WithClientOptions(opts...),
 		),
 		earmarksList: connect.NewClient[v1.EarmarksListRequest, v1.EarmarksListResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEarmarksListProcedure,
-			connect.WithSchema(icbtRpcServiceEarmarksListMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarksList")),
 			connect.WithClientOptions(opts...),
 		),
 		eventCreate: connect.NewClient[v1.EventCreateRequest, v1.EventCreateResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventCreateProcedure,
-			connect.WithSchema(icbtRpcServiceEventCreateMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventCreate")),
 			connect.WithClientOptions(opts...),
 		),
 		eventUpdate: connect.NewClient[v1.EventUpdateRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceEventUpdateProcedure,
-			connect.WithSchema(icbtRpcServiceEventUpdateMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventUpdate")),
 			connect.WithClientOptions(opts...),
 		),
 		eventDelete: connect.NewClient[v1.EventDeleteRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceEventDeleteProcedure,
-			connect.WithSchema(icbtRpcServiceEventDeleteMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventDelete")),
 			connect.WithClientOptions(opts...),
 		),
 		eventsList: connect.NewClient[v1.EventsListRequest, v1.EventsListResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventsListProcedure,
-			connect.WithSchema(icbtRpcServiceEventsListMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventsList")),
 			connect.WithClientOptions(opts...),
 		),
 		eventGetDetails: connect.NewClient[v1.EventGetDetailsRequest, v1.EventGetDetailsResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventGetDetailsProcedure,
-			connect.WithSchema(icbtRpcServiceEventGetDetailsMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventGetDetails")),
 			connect.WithClientOptions(opts...),
 		),
 		eventListItems: connect.NewClient[v1.EventListItemsRequest, v1.EventListItemsResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventListItemsProcedure,
-			connect.WithSchema(icbtRpcServiceEventListItemsMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventListItems")),
 			connect.WithClientOptions(opts...),
 		),
 		eventListEarmarks: connect.NewClient[v1.EventListEarmarksRequest, v1.EventListEarmarksResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventListEarmarksProcedure,
-			connect.WithSchema(icbtRpcServiceEventListEarmarksMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventListEarmarks")),
 			connect.WithClientOptions(opts...),
 		),
 		eventAddItem: connect.NewClient[v1.EventAddItemRequest, v1.EventAddItemResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventAddItemProcedure,
-			connect.WithSchema(icbtRpcServiceEventAddItemMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventAddItem")),
 			connect.WithClientOptions(opts...),
 		),
 		eventUpdateItem: connect.NewClient[v1.EventUpdateItemRequest, v1.EventUpdateItemResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceEventUpdateItemProcedure,
-			connect.WithSchema(icbtRpcServiceEventUpdateItemMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventUpdateItem")),
 			connect.WithClientOptions(opts...),
 		),
 		eventRemoveItem: connect.NewClient[v1.EventRemoveItemRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceEventRemoveItemProcedure,
-			connect.WithSchema(icbtRpcServiceEventRemoveItemMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("EventRemoveItem")),
 			connect.WithClientOptions(opts...),
 		),
 		favoriteAdd: connect.NewClient[v1.FavoriteAddRequest, v1.FavoriteAddResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceFavoriteAddProcedure,
-			connect.WithSchema(icbtRpcServiceFavoriteAddMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteAdd")),
 			connect.WithClientOptions(opts...),
 		),
 		favoriteRemove: connect.NewClient[v1.FavoriteRemoveRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceFavoriteRemoveProcedure,
-			connect.WithSchema(icbtRpcServiceFavoriteRemoveMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteRemove")),
 			connect.WithClientOptions(opts...),
 		),
 		favoriteListEvents: connect.NewClient[v1.FavoriteListEventsRequest, v1.FavoriteListEventsResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceFavoriteListEventsProcedure,
-			connect.WithSchema(icbtRpcServiceFavoriteListEventsMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteListEvents")),
 			connect.WithClientOptions(opts...),
 		),
 		notificationDelete: connect.NewClient[v1.NotificationDeleteRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceNotificationDeleteProcedure,
-			connect.WithSchema(icbtRpcServiceNotificationDeleteMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationDelete")),
 			connect.WithClientOptions(opts...),
 		),
 		notificationsDeleteAll: connect.NewClient[v1.NotificationsDeleteAllRequest, emptypb.Empty](
 			httpClient,
 			baseURL+IcbtRpcServiceNotificationsDeleteAllProcedure,
-			connect.WithSchema(icbtRpcServiceNotificationsDeleteAllMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationsDeleteAll")),
 			connect.WithClientOptions(opts...),
 		),
 		notificationsList: connect.NewClient[v1.NotificationsListRequest, v1.NotificationsListResponse](
 			httpClient,
 			baseURL+IcbtRpcServiceNotificationsListProcedure,
-			connect.WithSchema(icbtRpcServiceNotificationsListMethodDescriptor),
+			connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationsList")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -442,124 +418,125 @@ type IcbtRpcServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewIcbtRpcServiceHandler(svc IcbtRpcServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	icbtRpcServiceMethods := v1.File_icbt_rpc_v1_service_proto.Services().ByName("IcbtRpcService").Methods()
 	icbtRpcServiceEarmarkCreateHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEarmarkCreateProcedure,
 		svc.EarmarkCreate,
-		connect.WithSchema(icbtRpcServiceEarmarkCreateMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkCreate")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEarmarkGetDetailsHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEarmarkGetDetailsProcedure,
 		svc.EarmarkGetDetails,
-		connect.WithSchema(icbtRpcServiceEarmarkGetDetailsMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkGetDetails")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEarmarkRemoveHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEarmarkRemoveProcedure,
 		svc.EarmarkRemove,
-		connect.WithSchema(icbtRpcServiceEarmarkRemoveMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarkRemove")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEarmarksListHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEarmarksListProcedure,
 		svc.EarmarksList,
-		connect.WithSchema(icbtRpcServiceEarmarksListMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EarmarksList")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventCreateHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventCreateProcedure,
 		svc.EventCreate,
-		connect.WithSchema(icbtRpcServiceEventCreateMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventCreate")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventUpdateHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventUpdateProcedure,
 		svc.EventUpdate,
-		connect.WithSchema(icbtRpcServiceEventUpdateMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventUpdate")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventDeleteHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventDeleteProcedure,
 		svc.EventDelete,
-		connect.WithSchema(icbtRpcServiceEventDeleteMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventDelete")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventsListHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventsListProcedure,
 		svc.EventsList,
-		connect.WithSchema(icbtRpcServiceEventsListMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventsList")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventGetDetailsHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventGetDetailsProcedure,
 		svc.EventGetDetails,
-		connect.WithSchema(icbtRpcServiceEventGetDetailsMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventGetDetails")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventListItemsHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventListItemsProcedure,
 		svc.EventListItems,
-		connect.WithSchema(icbtRpcServiceEventListItemsMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventListItems")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventListEarmarksHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventListEarmarksProcedure,
 		svc.EventListEarmarks,
-		connect.WithSchema(icbtRpcServiceEventListEarmarksMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventListEarmarks")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventAddItemHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventAddItemProcedure,
 		svc.EventAddItem,
-		connect.WithSchema(icbtRpcServiceEventAddItemMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventAddItem")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventUpdateItemHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventUpdateItemProcedure,
 		svc.EventUpdateItem,
-		connect.WithSchema(icbtRpcServiceEventUpdateItemMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventUpdateItem")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceEventRemoveItemHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceEventRemoveItemProcedure,
 		svc.EventRemoveItem,
-		connect.WithSchema(icbtRpcServiceEventRemoveItemMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("EventRemoveItem")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceFavoriteAddHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceFavoriteAddProcedure,
 		svc.FavoriteAdd,
-		connect.WithSchema(icbtRpcServiceFavoriteAddMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteAdd")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceFavoriteRemoveHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceFavoriteRemoveProcedure,
 		svc.FavoriteRemove,
-		connect.WithSchema(icbtRpcServiceFavoriteRemoveMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteRemove")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceFavoriteListEventsHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceFavoriteListEventsProcedure,
 		svc.FavoriteListEvents,
-		connect.WithSchema(icbtRpcServiceFavoriteListEventsMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("FavoriteListEvents")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceNotificationDeleteHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceNotificationDeleteProcedure,
 		svc.NotificationDelete,
-		connect.WithSchema(icbtRpcServiceNotificationDeleteMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationDelete")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceNotificationsDeleteAllHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceNotificationsDeleteAllProcedure,
 		svc.NotificationsDeleteAll,
-		connect.WithSchema(icbtRpcServiceNotificationsDeleteAllMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationsDeleteAll")),
 		connect.WithHandlerOptions(opts...),
 	)
 	icbtRpcServiceNotificationsListHandler := connect.NewUnaryHandler(
 		IcbtRpcServiceNotificationsListProcedure,
 		svc.NotificationsList,
-		connect.WithSchema(icbtRpcServiceNotificationsListMethodDescriptor),
+		connect.WithSchema(icbtRpcServiceMethods.ByName("NotificationsList")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/icbt.rpc.v1.IcbtRpcService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
