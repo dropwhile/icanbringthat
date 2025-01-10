@@ -3,8 +3,8 @@ module github.com/dropwhile/icanbringthat
 go 1.23.1
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
-	connectrpc.com/connect v1.17.0
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.2-20241127180247-a33202765966.1
+	connectrpc.com/connect v1.18.1
 	connectrpc.com/validate v0.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/kong v1.6.1
@@ -22,7 +22,7 @@ require (
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v4 v4.3.0
+	github.com/pashagolub/pgxmock/v4 v4.4.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.48.2
@@ -34,7 +34,7 @@ require (
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.32.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.2
 	gotest.tools/v3 v3.5.1
 )
 
