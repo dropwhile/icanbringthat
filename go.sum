@@ -50,8 +50,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
-github.com/dropwhile/refid/v2 v2.0.3 h1:I13Ro/sX812Gr7UG0sR+0ZOYQh3Hi9zc/0Pa4Vvj1UM=
-github.com/dropwhile/refid/v2 v2.0.3/go.mod h1:dL+pyrPToTttU0l9PWzJCxTJJXc2YLs0BEE9BU7cF2U=
+github.com/dropwhile/refid/v2 v2.0.4 h1:29f+dJ3nLAvAhnUoii/Np7+viOPLdw1yz/YtW4zodAI=
+github.com/dropwhile/refid/v2 v2.0.4/go.mod h1:CWF4SCUNsnclHyDIjp0vw/A1k4t6alBzJacyh/FdXEA=
 github.com/envoyproxy/protoc-gen-validate v1.1.0 h1:tntQDh69XqOCOZsDz0lVJQez/2L6Uu2PdjCQwWCJ3bM=
 github.com/envoyproxy/protoc-gen-validate v1.1.0/go.mod h1:sXRDRVmzEbkM7CVcM06s9shE/m23dg3wzjl0UWqJ2q4=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
