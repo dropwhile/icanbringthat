@@ -3,7 +3,7 @@ module github.com/dropwhile/icanbringthat
 go 1.23
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.2-20241127180247-a33202765966.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.3-20241127180247-a33202765966.1
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/validate v0.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -15,7 +15,7 @@ require (
 	github.com/dropwhile/refid/v2 v2.0.4
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/go-chi/httplog/v2 v2.1.1
-	github.com/go-playground/validator/v10 v10.23.0
+	github.com/go-playground/validator/v10 v10.24.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.7.2
@@ -34,7 +34,7 @@ require (
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.32.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
-	google.golang.org/protobuf v1.36.2
+	google.golang.org/protobuf v1.36.3
 	gotest.tools/v3 v3.5.1
 )
 
@@ -89,6 +89,6 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250106144421-5f5ef82da422 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
 )
