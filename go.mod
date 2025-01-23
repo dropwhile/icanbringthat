@@ -25,7 +25,7 @@ require (
 	github.com/pashagolub/pgxmock/v4 v4.4.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.48.2
+	github.com/quic-go/quic-go v0.49.0
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/samber/mo v1.13.0
 	github.com/yuin/goldmark v1.7.8
