@@ -13,7 +13,7 @@ export GOBIN
 check_install_tool() {
     if [ ! -e "${GOBIN}/${1}" ]; then
         GOPKGREF=$(grep "^${1}:" "${TOOLS_CONF}" | awk -F: '{print $2}' | sed -E 's/^[[:space:]]*//;s/[[:space:]]*$//;')
-        echo "Installing ${1}..."
+        echo ".. installing ${1}"
         go install "${GOPKGREF}"
     fi
 }
