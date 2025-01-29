@@ -47,8 +47,8 @@ func ParseTimeZone(tz string) (*model.TimeZone, error) {
 	return &model.TimeZone{Location: loc}, nil
 }
 
-//go:generate ifacemaker -f "*.go" -s Service -i Servicer -p service -o servicer_iface.go
-//go:generate mockgen -source servicer_iface.go -destination mockservice/servicer_mock.go -package mockservice
+//go:generate tool ifacemaker -f "*.go" -s Service -i Servicer -p service -o servicer_iface.go
+//go:generate tool mockgen -source servicer_iface.go -destination mockservice/servicer_mock.go -package mockservice
 type Service struct {
 	Db model.PgxHandle
 }

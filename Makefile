@@ -8,7 +8,9 @@ GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
 APP_VER             ?= v$(shell git describe --always --tags|sed 's/^v//')
 GITHASH             ?= $(shell git rev-parse --short HEAD)
 GOPATH              := $(shell go env GOPATH)
-GOBIN               := ${CURDIR}/.tools
+GOBIN               := ${CURDIR}/.cache/tools
+TOOLBIN             := ${CURDIR}/tools
+TOOLEXE             := ${TOOLBIN}/tool
 VERSION_VAR         := github.com/dropwhile/icanbringthat/internal/util.Version
 DB_DSN              ?=
 GOOSE_DRIVER        ?= postgres
@@ -36,22 +38,18 @@ PGPASSWORD          ?=
 REDIS_PASS          ?=
 
 # some exported vars (pre-configure go build behavior)
-export GO111MODULE=on
 export GOTOOLCHAIN=local
 #export CGO_ENABLED=0
-## enable go 1.21 loopvar "experiment"
-export GOEXPERIMENT=loopvar
 export GOOSE_DRIVER
 export GOOSE_DBSTRING
 export GOOSE_MIGRATION_DIR
 export GOBIN
-export PATH := ${GOBIN}:${PATH}
+export PATH := ${GOBIN}:${TOOLBIN}:${PATH}
 
 define HELP_OUTPUT
 Available targets:
 * help                this help (default target)
   clean               clean up
-  setup               fetch related tools/utils and prepare for build
   build               build binaries
   docker-build        build a deployable docker image
   check               run checks and validators
@@ -83,139 +81,20 @@ help:
 clean:
 	@rm -rf "${BUILDDIR}"
 
-## begin tools
-
-# bench tools
-${GOBIN}/benchstat:
-	go install golang.org/x/perf/cmd/benchstat@latest
-
-BENCH_TOOLS := ${GOBIN}/benchstat
-
-# other tools
-${GOBIN}/modd:
-	go install github.com/cortesi/modd/cmd/modd@latest
-
-OTHER_TOOLS := ${GOBIN}/modd
-
-# generate tools
-${GOBIN}/buf:
-	go install github.com/bufbuild/buf/cmd/buf@latest
-
-${GOBIN}/protoc-gen-connect-go:
-	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
-
-${GOBIN}/protoc-gen-go:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-
-${GOBIN}/protoc-gen-connect-openapi:
-	go install github.com/sudorandom/protoc-gen-connect-openapi@main
-
-#${GOBIN}/protoc-go-inject-tag:
-#	go install github.com/favadi/protoc-go-inject-tag@latest
-
-#${GOBIN}/protoc-gen-twirp:
-#	go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
-
-${GOBIN}/go-licenses:
-	go install github.com/google/go-licenses@latest
-
-${GOBIN}/convergen:
-	go install github.com/reedom/convergen@latest
-
-${GOBIN}/ifacemaker:
-	go install github.com/vburenin/ifacemaker@latest
-
-${GOBIN}/mockgen:
-	go install go.uber.org/mock/mockgen@latest
-
-${GOBIN}/stringer:
-	go install golang.org/x/tools/cmd/stringer@latest
-
-GENERATE_TOOLS := ${GOBIN}/stringer 
-GENERATE_TOOLS += ${GOBIN}/convergen ${GOBIN}/go-licenses
-GENERATE_TOOLS += ${GOBIN}/ifacemaker ${GOBIN}/mockgen
-GENERATE_TOOLS += ${GOBIN}/buf ${GOBIN}/protoc-gen-connect-go ${GOBIN}/protoc-gen-go
-GENERATE_TOOLS += ${GOBIN}/protoc-gen-connect-openapi
-
-# check tools
-${GOBIN}/betteralign:
-	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
-
-${GOBIN}/ineffassign:
-	go install github.com/gordonklaus/ineffassign@latest
-
-${GOBIN}/errcheck:
-	go install github.com/kisielk/errcheck@latest
-
-${GOBIN}/go-errorlint:
-	go install github.com/polyfloyd/go-errorlint@latest
-
-${GOBIN}/gosec:
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
-
-${GOBIN}/nilaway:
-	go install go.uber.org/nilaway/cmd/nilaway@latest
-
-${GOBIN}/deadcode:
-	go install golang.org/x/tools/cmd/deadcode@latest
-
-${GOBIN}/govulncheck:
-	go install golang.org/x/vuln/cmd/govulncheck@latest
-
-${GOBIN}/staticcheck:
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-
-${GOBIN}/nilness:
-	go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
-
-CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
-CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
-CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
-CHECK_TOOLS += ${GOBIN}/nilness
-
-# migrate tools
-${GOBIN}/goose:
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-
-MIGRATE_TOOLS += ${GOBIN}/goose
-
-## end tools
-
-.PHONY: setup-build
-setup-build: ${BUILD_TOOLS}
-
-.PHONY: setup-generate
-setup-generate: ${GENERATE_TOOLS}
-
-.PHONY: setup-migrate
-setup-migrate: ${MIGRATE_TOOLS}
-
-.PHONY: setup-check
-setup-check: ${CHECK_TOOLS}
-
-.PHONY: setup-bench
-setup-bench: ${BENCH_TOOLS}
-
-.PHONY: setup-other
-setup-other: ${OTHER_TOOLS}
-
-.PHONY: setup
-setup: setup-build setup-generate setup-check setup-bench setup-other
-
 .PHONY: generate
-generate: setup-build setup-generate
+generate:
 	@echo ">> Generating..."
 	@go generate ./...
 
 .PHONY: emit-license-deps
-emit-license-deps: setup-build setup-generate
-	@go-licenses report \
+emit-license-deps:
+	@${TOOLEXE} go-licenses report \
 		--template internal/app/resources/templates/license.tpl \
 		./... \
 		> LICENSE-backend.md
 
 .PHONY: build
-build: setup-build
+build:
 	@echo ">> Building..."
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@(for x in ${CC_BUILD_TARGETS}; do \
@@ -230,7 +109,7 @@ test:
 	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
 
 .PHONY: bench
-bench: setup-bench
+bench:
 	@echo ">> Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
@@ -245,36 +124,36 @@ clean-generated:
 	@grep -lRE '^// Code generated by (.+) DO NOT EDIT' internal rpc | xargs rm -v
 
 .PHONY: check
-check: setup-check
+check:
 	@echo ">> Running checks and validators..."
 	@echo "... staticcheck ..."
-	@${GOBIN}/staticcheck ./...
+	@${TOOLEXE} staticcheck ./...
 	@echo "... errcheck ..."
-	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
+	@${TOOLEXE} errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... go-vet ..."
 	@go vet $$(go list ./... | grep -v "github.com/dropwhile/icanbringthat/rpc")
 	@echo "... nilness ..."
-	@${GOBIN}/nilness ./...
+	@${TOOLEXE} nilness ./...
 	@echo "... ineffassign ..."
-	@${GOBIN}/ineffassign ./...
+	@${TOOLEXE} ineffassign ./...
 	@echo "... govulncheck ..."
-	@${GOBIN}/govulncheck ./...
+	@${TOOLEXE} govulncheck ./...
 	@echo "... betteralign ..."
-	@${GOBIN}/betteralign ./...
+	@${TOOLEXE} betteralign ./...
 	@echo "... gosec ..."
-	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
+	@${TOOLEXE} gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 
 .PHONY: nilcheck
-nilcheck: setup-check
+nilcheck:
 	@echo ">> Running nilcheck (will have some false positives)..."
 	@echo "... nilaway ..."
-	@${GOBIN}/nilaway -test=false ./...
+	@${TOOLEXE} nilaway -test=false ./...
 
 .PHONY: deadcode
-deadcode: setup-check
+deadcode:
 	@echo ">> Running deadcode (will have some false positives)..."
 	@echo "... deadcode ..."
-	@${GOBIN}/deadcode -test ./...
+	@${TOOLEXE} deadcode -test ./...
 
 .PHONY: update-go-deps
 update-go-deps:
@@ -283,9 +162,9 @@ update-go-deps:
 	@go mod tidy
 
 .PHONY: migrate
-migrate: setup-migrate
+migrate:
 	@echo ">> running migrations..."
-	@goose up
+	@${TOOLEXE} goose up
 
 .PHONY: cloc
 cloc:
@@ -353,6 +232,6 @@ run: build
 	@exec ./build/bin/server start-webserver
 
 .PHONY: devrun
-devrun: setup-other
+devrun:
 	@echo ">> Monitoring for change, runnging tests, and restarting..."
-	@${GOBIN}/modd -f .modd.conf
+	@${TOOLEXE} modd -f .modd.conf

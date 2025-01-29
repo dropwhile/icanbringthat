@@ -50,7 +50,7 @@ type Error interface {
 
 // ErrorCode represents a error type.
 //
-//go:generate stringer -type=ErrorCode
+//go:generate tool stringer -type=ErrorCode
 type ErrorCode byte
 
 // Valid error types. Most error types are equivalent to gRPC status codes

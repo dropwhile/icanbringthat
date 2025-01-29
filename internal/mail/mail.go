@@ -35,7 +35,7 @@ type Mailer struct {
 	defaultFrom string
 }
 
-//go:generate mockgen -source mail.go -destination mockmail/mailsender_mock.go -package mockmail
+//go:generate tool mockgen -source mail.go -destination mockmail/mailsender_mock.go -package mockmail
 type MailSender interface {
 	SendRaw(*Mail) error
 	Send(string, []string, string, string, string, MailHeader) error
