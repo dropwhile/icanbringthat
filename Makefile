@@ -1,16 +1,12 @@
 # environment
 BUILDDIR            := ${CURDIR}/build
-ARCH                := $(shell go env GOHOSTARCH)
-OS                  := $(shell go env GOHOSTOS)
-GOVER               := $(shell go version | awk '{print $$3}' | tr -d '.')
+GOBIN               := ${CURDIR}/.cache/tools
+TOOLBIN             := ${CURDIR}/tools
+TOOLEXE             := ${TOOLBIN}/tool
 
 # app specific info
 APP_VER             ?= v$(shell git describe --always --tags|sed 's/^v//')
 GITHASH             ?= $(shell git rev-parse --short HEAD)
-GOPATH              := $(shell go env GOPATH)
-GOBIN               := ${CURDIR}/.cache/tools
-TOOLBIN             := ${CURDIR}/tools
-TOOLEXE             := ${TOOLBIN}/tool
 VERSION_VAR         := github.com/dropwhile/icanbringthat/internal/util.Version
 DB_DSN              ?=
 GOOSE_DRIVER        ?= postgres
