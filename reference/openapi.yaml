@@ -144,9 +144,8 @@ components:
           type: string
           title: owner
         created:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Earmark
       additionalProperties: false
     icbt.rpc.v1.EarmarkCreateRequest:
@@ -165,9 +164,8 @@ components:
       type: object
       properties:
         earmark:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmark
+          $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
       title: EarmarkCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EarmarkGetDetailsRequest:
@@ -182,9 +180,8 @@ components:
       type: object
       properties:
         earmark:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmark
+          $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
         eventRefId:
           type: string
           title: event_ref_id
@@ -202,9 +199,8 @@ components:
       type: object
       properties:
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
@@ -219,19 +215,17 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmarks
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EarmarksListResponse
       additionalProperties: false
     icbt.rpc.v1.TimestampTZ:
       type: object
       properties:
         ts:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: ts
           description: timestamp
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
         tz:
           type: string
           examples:
@@ -254,16 +248,14 @@ components:
           type: string
           title: description
         when:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
           title: when
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
         archived:
           type: boolean
           title: archived
         created:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Event
       additionalProperties: false
     icbt.rpc.v1.EventAddItemRequest:
@@ -281,9 +273,8 @@ components:
       type: object
       properties:
         eventItem:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
           title: event_item
+          $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
       title: EventAddItemResponse
       additionalProperties: false
     icbt.rpc.v1.EventCreateRequest:
@@ -298,18 +289,16 @@ components:
           title: description
           minLength: 1
         when:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
           title: when
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
       title: EventCreateRequest
       additionalProperties: false
     icbt.rpc.v1.EventCreateResponse:
       type: object
       properties:
         event:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: event
+          $ref: '#/components/schemas/icbt.rpc.v1.Event'
       title: EventCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EventDeleteRequest:
@@ -332,9 +321,8 @@ components:
       type: object
       properties:
         event:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: event
+          $ref: '#/components/schemas/icbt.rpc.v1.Event'
         items:
           type: array
           items:
@@ -357,9 +345,8 @@ components:
           type: string
           title: description
         created:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: EventItem
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksRequest:
@@ -379,9 +366,8 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmarks
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventListEarmarksResponse
       additionalProperties: false
     icbt.rpc.v1.EventListItemsRequest:
@@ -401,9 +387,8 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
           title: items
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventListItemsResponse
       additionalProperties: false
     icbt.rpc.v1.EventRemoveItemRequest:
@@ -429,9 +414,8 @@ components:
       type: object
       properties:
         eventItem:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
           title: event_item
+          $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
       title: EventUpdateItemResponse
       additionalProperties: false
     icbt.rpc.v1.EventUpdateRequest:
@@ -447,18 +431,16 @@ components:
           type: string
           title: description
         when:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
           title: when
+          $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
       title: EventUpdateRequest
       additionalProperties: false
     icbt.rpc.v1.EventsListRequest:
       type: object
       properties:
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
@@ -473,9 +455,8 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: events
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventsListResponse
       additionalProperties: false
     icbt.rpc.v1.Favorite:
@@ -485,9 +466,8 @@ components:
           type: string
           title: event_ref_id
         created:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Favorite
       additionalProperties: false
     icbt.rpc.v1.FavoriteAddRequest:
@@ -502,18 +482,16 @@ components:
       type: object
       properties:
         favorite:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.Favorite'
           title: favorite
+          $ref: '#/components/schemas/icbt.rpc.v1.Favorite'
       title: FavoriteAddResponse
       additionalProperties: false
     icbt.rpc.v1.FavoriteListEventsRequest:
       type: object
       properties:
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
@@ -528,9 +506,8 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: events
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: FavoriteListEventsResponse
       additionalProperties: false
     icbt.rpc.v1.FavoriteRemoveRequest:
@@ -551,9 +528,8 @@ components:
           type: string
           title: message
         created:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Notification
       additionalProperties: false
     icbt.rpc.v1.NotificationDeleteRequest:
@@ -572,9 +548,8 @@ components:
       type: object
       properties:
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
       title: NotificationsListRequest
       additionalProperties: false
     icbt.rpc.v1.NotificationsListResponse:
@@ -586,9 +561,8 @@ components:
             $ref: '#/components/schemas/icbt.rpc.v1.Notification'
           title: notifications
         pagination:
-          allOf:
-            - $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
           title: pagination
+          $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: NotificationsListResponse
       additionalProperties: false
     google.protobuf.Empty:
