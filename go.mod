@@ -15,7 +15,7 @@ require (
 	github.com/dropwhile/refid/v2 v2.0.4
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/httplog/v2 v2.1.1
-	github.com/go-playground/validator/v10 v10.24.0
+	github.com/go-playground/validator/v10 v10.25.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.7.2
@@ -33,7 +33,7 @@ require (
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.33.0
-	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
+	golang.org/x/exp v0.0.0-20250215185904-eff6e970281f
 	google.golang.org/protobuf v1.36.5
 	gotest.tools/v3 v3.5.2
 )
