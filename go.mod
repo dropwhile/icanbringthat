@@ -17,6 +17,7 @@ require (
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/go-webauthn/webauthn v0.12.1
+	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
@@ -57,7 +58,6 @@ require (
 	github.com/go-webauthn/x v0.1.18 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/cel-go v0.24.1 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.3 // indirect
 	github.com/google/pprof v0.0.0-20250302191652-9094ed2288e7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
