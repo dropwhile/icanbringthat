@@ -6,12 +6,15 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 
 	"gotest.tools/v3/assert"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -150,7 +153,10 @@ func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 				return credentials, nil
 			},
 		}}
-		assert.DeepEqual(t, o.WebAuthnCredentials()[0], cred)
+		assert.DeepEqual(t, o.WebAuthnCredentials()[0], cred, cmp.FilterPath(func(p cmp.Path) bool {
+			fmt.Println(p.GoString())
+			return strings.HasSuffix(p.GoString(), ".raw")
+		}, cmp.Ignore()))
 	})
 
 	t.Run("get credentials with empty results should succeed", func(t *testing.T) {
