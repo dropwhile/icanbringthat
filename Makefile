@@ -176,7 +176,7 @@ cloc:
 
 .PHONY: dev-db-create
 dev-db-create:
-	@echo ">> starting dev postgres,redis ..."
+	@echo ">> starting dev postgres,valkey ..."
 	@docker volume rm -f icanbringthat-db-init
 	@docker volume create icanbringthat-db-init
 	@docker create -v icanbringthat-db-init:/data --name icanbringthat-db-helper busybox true
@@ -192,27 +192,27 @@ dev-db-create:
 		-d postgres \
 		postgres -c jit=off
 	@docker run \
-		--name icanbringthat-redis \
+		--name icanbringthat-valkey \
 		--restart always \
 		-p 6379:6379 \
-		-d redis:7-alpine \
-		redis-server --requirepass "${REDIS_PASS}"
+		-d valkey:8-alpine \
+		valkey-server --requirepass "${REDIS_PASS}"
 
 .PHONY: dev-db-start
 dev-db-start:
-	@echo ">> starting dev postgres,redis ..."
+	@echo ">> starting dev postgres,valkey ..."
 	@docker start icanbringthat-db-init
-	@docker start icanbringthat-redis
+	@docker start icanbringthat-valkey
 
 dev-db-stop:
-	@echo ">> stopping dev postgres,redis ..."
+	@echo ">> stopping dev postgres,valkey ..."
 	@docker stop icanbringthat-database
-	@docker stop icanbringthat-redis
+	@docker stop icanbringthat-valkey
 
 dev-db-purge:
-	@echo ">> purging dev postgres,redis ..."
+	@echo ">> purging dev postgres,valkey ..."
 	@docker rm -fv icanbringthat-database
-	@docker rm -fv icanbringthat-redis
+	@docker rm -fv icanbringthat-valkey
 	@docker volume rm -f icanbringthat-db-init
 
 .PHONY: docker-build

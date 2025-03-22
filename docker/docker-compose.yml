@@ -16,11 +16,11 @@ services:
       - ./database/init/load-extensions.sql:/docker-entrypoint-initdb.d/load-extensions.sql
     command: postgres -c jit=off
 
-  redis:
+  valkey:
     restart: always
-    image: valkey/valkey:7-alpine
+    image: valkey/valkey:8-alpine
     volumes:
-      - ./redis-data:/data
+      - ./valkey-data:/data
     command: valkey-server --save 60 1 --loglevel warning --requirepass "${REDISPASS}"
 
   app:
@@ -30,7 +30,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - redis
+      - valkey
     environment:
       #TPL_DIR: "embed"
       #STATIC_DIR: "embed"
@@ -38,7 +38,7 @@ services:
       LOG_FORMAT: "plain"
       PRODUCTION: "true"
       DB_DSN: "postgres://${PGUSER}:${PGPASSWORD}@db/${PGDATABASE}?sslmode=disable"
-      REDIS_DSN: "redis://:${REDISPASS}@redis:6379"
+      REDIS_DSN: "redis://:${REDISPASS}@valkey:6379"
       HMAC_KEY: ${HMAC_KEY}
       SMTP_HOSTNAME: "smtp.gmail.com"
       SMTP_PORT: "587"
