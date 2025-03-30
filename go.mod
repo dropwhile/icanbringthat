@@ -3,7 +3,7 @@ module github.com/dropwhile/icanbringthat
 go 1.24
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.5-20250307204501-0409229c3780.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.6-20250307204501-0409229c3780.1
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/validate v0.2.0
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -15,11 +15,11 @@ require (
 	github.com/dropwhile/refid/v2 v2.0.4
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/httplog/v2 v2.1.1
-	github.com/go-playground/validator/v10 v10.25.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/go-webauthn/webauthn v0.12.2
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/csrf v1.7.2
-	github.com/jackc/pgx/v5 v5.7.3
+	github.com/jackc/pgx/v5 v5.7.4
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
@@ -35,12 +35,12 @@ require (
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.36.0
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
 	gotest.tools/v3 v3.5.2
 )
 
 require (
-	cel.dev/expr v0.22.0 // indirect
+	cel.dev/expr v0.22.1 // indirect
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
@@ -84,11 +84,11 @@ require (
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250313205543-e70fdf4c4cb4 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250313205543-e70fdf4c4cb4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250324211829-b45e905df463 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
 )
