@@ -18,18 +18,18 @@ require (
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/go-webauthn/webauthn v0.12.3
 	github.com/google/go-cmp v0.7.0
-	github.com/gorilla/csrf v1.7.2
+	github.com/gorilla/csrf v1.7.3
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v4 v4.6.0
+	github.com/pashagolub/pgxmock/v4 v4.7.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.50.1
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/samber/mo v1.13.0
-	github.com/yuin/goldmark v1.7.8
+	github.com/yuin/goldmark v1.7.10
 	github.com/yuin/goldmark-emoji v1.0.5
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.1
@@ -90,6 +90,6 @@ require (
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250409194420-de1ac958c67a // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250409194420-de1ac958c67a // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250414145226-207652e42e2e // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250414145226-207652e42e2e // indirect
 )
