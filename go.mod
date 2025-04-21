@@ -26,11 +26,11 @@ require (
 	github.com/pashagolub/pgxmock/v4 v4.7.0
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.50.1
+	github.com/quic-go/quic-go v0.51.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/samber/mo v1.13.0
 	github.com/yuin/goldmark v1.7.10
-	github.com/yuin/goldmark-emoji v1.0.5
+	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.1
 	golang.org/x/crypto v0.37.0
@@ -90,6 +90,6 @@ require (
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250414145226-207652e42e2e // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250414145226-207652e42e2e // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250421163800-61c742ae3ef0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250421163800-61c742ae3ef0 // indirect
 )
