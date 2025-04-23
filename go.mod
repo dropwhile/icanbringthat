@@ -57,9 +57,9 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/go-webauthn/x v0.1.20 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
-	github.com/google/cel-go v0.24.1 // indirect
+	github.com/google/cel-go v0.25.0 // indirect
 	github.com/google/go-tpm v0.9.3 // indirect
-	github.com/google/pprof v0.0.0-20250418163039-24c5476c6587 // indirect
+	github.com/google/pprof v0.0.0-20250422154841-e1f9c1950416 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -90,6 +90,6 @@ require (
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250421163800-61c742ae3ef0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250421163800-61c742ae3ef0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250422160041-2d3770c4ea7f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250422160041-2d3770c4ea7f // indirect
 )
