@@ -29,7 +29,7 @@ require (
 	github.com/quic-go/quic-go v0.51.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/samber/mo v1.13.0
-	github.com/yuin/goldmark v1.7.10
+	github.com/yuin/goldmark v1.7.11
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.1
