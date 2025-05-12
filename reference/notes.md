@@ -9,9 +9,6 @@
     src: https://github.com/go-chi/chi  
     docs: https://go-chi.io/
 
-*   middleware: gorilla csrf  
-    src: https://github.com/gorilla/csrf
-
 *   sessions: scs  
     src: https://github.com/alexedwards/scs  
     docs: https://pkg.go.dev/github.com/alexedwards/scs/v2

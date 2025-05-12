@@ -7,8 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 )
@@ -25,11 +23,9 @@ func (x *Handler) LoginShowForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplVars := MapSA{
-		"title":          "Login",
-		"next":           r.FormValue("next"),
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"title":   "Login",
+		"next":    r.FormValue("next"),
+		"flashes": x.sessMgr.FlashPopAll(ctx),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

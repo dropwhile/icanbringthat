@@ -6,8 +6,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
 	"github.com/dropwhile/icanbringthat/internal/util"
@@ -80,8 +78,6 @@ func (x *Handler) DashboardShow(w http.ResponseWriter, r *http.Request) {
 		"eventItemCounts": eventItemCountsMap,
 		"notifCount":      notifCount,
 		"flashes":         x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag:  csrf.TemplateField(r),
-		"csrfToken":       csrf.Token(r),
 	}
 
 	// render user profile view

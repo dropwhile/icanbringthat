@@ -10,8 +10,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -102,17 +100,15 @@ func (x *Handler) EarmarksList(w http.ResponseWriter, r *http.Request) {
 		title += " (Archived)"
 	}
 	tplVars := MapSA{
-		"user":           user,
-		"earmarks":       earmarks,
-		"earmarkCount":   earmarkCount,
-		"events":         eventsMap,
-		"eventItems":     eventItemsMap,
-		"notifCount":     notifCount,
-		"title":          title,
-		"nav":            "earmarks",
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":         user,
+		"earmarks":     earmarks,
+		"earmarkCount": earmarkCount,
+		"events":       eventsMap,
+		"eventItems":   eventItemsMap,
+		"notifCount":   notifCount,
+		"title":        title,
+		"nav":          "earmarks",
+		"flashes":      x.sessMgr.FlashPopAll(ctx),
 		"pgInput": resources.NewPgInput(
 			maxCount, 10,
 			pageNum, "/earmarks",
@@ -178,13 +174,11 @@ func (x *Handler) CreateEarmarkShowCreateForm(w http.ResponseWriter, r *http.Req
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"event":          event,
-		"eventItem":      eventItem,
-		"title":          "Create Earmark",
-		"nav":            "create-earmark",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":      user,
+		"event":     event,
+		"eventItem": eventItem,
+		"title":     "Create Earmark",
+		"nav":       "create-earmark",
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

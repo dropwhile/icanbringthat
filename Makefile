@@ -177,31 +177,26 @@ cloc:
 .PHONY: dev-db-create
 dev-db-create:
 	@echo ">> starting dev postgres,valkey ..."
-	@docker volume rm -f icanbringthat-db-init
-	@docker volume create icanbringthat-db-init
-	@docker create -v icanbringthat-db-init:/data --name icanbringthat-db-helper busybox true
-	@for f in  ./database/init/*; do docker cp -q "$${f}" icanbringthat-db-helper:/data; done
-	@docker rm -f icanbringthat-db-helper
 	@docker run \
 		--name icanbringthat-database \
 		--restart always \
 		-e POSTGRES_PASSWORD=${PGPASSWORD} \
 		-e POSTGRES_DB=${PGDATABASE} \
 		-p 5432:5432 \
-		-v "icanbringthat-db-init:/docker-entrypoint-initdb.d/" \
+		-v "./database/init/load-extensions.sql:/docker-entrypoint-initdb.d/load-extensions.sql" \
 		-d postgres \
 		postgres -c jit=off
 	@docker run \
 		--name icanbringthat-valkey \
 		--restart always \
 		-p 6379:6379 \
-		-d valkey:8-alpine \
+		-d valkey/valkey:8-alpine \
 		valkey-server --requirepass "${REDIS_PASS}"
 
 .PHONY: dev-db-start
 dev-db-start:
 	@echo ">> starting dev postgres,valkey ..."
-	@docker start icanbringthat-db-init
+	@docker start icanbringthat-database
 	@docker start icanbringthat-valkey
 
 dev-db-stop:
@@ -213,7 +208,6 @@ dev-db-purge:
 	@echo ">> purging dev postgres,valkey ..."
 	@docker rm -fv icanbringthat-database
 	@docker rm -fv icanbringthat-valkey
-	@docker volume rm -f icanbringthat-db-init
 
 .PHONY: docker-build
 docker-build:

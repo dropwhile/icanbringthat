@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/csrf"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -32,11 +31,9 @@ func (x *Handler) AccountShowCreate(w http.ResponseWriter, r *http.Request) {
 
 	// parse user-id url param
 	tplVars := MapSA{
-		"title":          "Create Account",
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		"next":           r.FormValue("next"),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"title":   "Create Account",
+		"flashes": x.sessMgr.FlashPopAll(ctx),
+		"next":    r.FormValue("next"),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -79,14 +76,12 @@ func (x *Handler) SettingsShow(w http.ResponseWriter, r *http.Request) {
 
 	// parse user-id url param
 	tplVars := MapSA{
-		"user":           user,
-		"credentials":    credentials,
-		"apikey":         apikey,
-		"title":          "Settings",
-		"notifCount":     notifCount,
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":        user,
+		"credentials": credentials,
+		"apikey":      apikey,
+		"title":       "Settings",
+		"notifCount":  notifCount,
+		"flashes":     x.sessMgr.FlashPopAll(ctx),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

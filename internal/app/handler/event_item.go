@@ -8,8 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -55,12 +53,10 @@ func (x *Handler) EventItemShowCreateForm(w http.ResponseWriter, r *http.Request
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"event":          event,
-		"title":          "Create Event Item",
-		"nav":            "create-event-item",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":  user,
+		"event": event,
+		"title": "Create Event Item",
+		"nav":   "create-event-item",
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -129,13 +125,11 @@ func (x *Handler) EventItemShowEditForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"event":          event,
-		"eventItem":      eventItem,
-		"title":          "Edit Event Item",
-		"nav":            "edit-event-item",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":      user,
+		"event":     event,
+		"eventItem": eventItem,
+		"title":     "Edit Event Item",
+		"nav":       "edit-event-item",
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

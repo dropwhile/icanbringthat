@@ -53,7 +53,6 @@ type EnvConfig struct { // betteralign:ignore
 	WebhookCreds map[string]string `env:"WEBHOOK_CREDS,unset"`
 	// values derived from other env vars (deriveConfig)
 	Listen       string
-	CSRFKeyBytes []byte
 	HMACKeyBytes []byte
 }
 
@@ -77,7 +76,7 @@ func Parse() (*EnvConfig, error) {
 
 	config.Listen = deriveConfig.Listen
 
-	// csrf Key
+	// hmac Key
 	keyInput := deriveConfig.HMACKey
 	if keyInput == "" {
 		return nil, fmt.Errorf("hmac key not supplied")
@@ -88,15 +87,6 @@ func Parse() (*EnvConfig, error) {
 	config.HMACKeyBytes = argon2.IDKey(
 		[]byte(keyInput), // input
 		[]byte("i4L04cpiG6JebX5brY53sBBqCyX16IwbjagbMkytmQQ="), // salt
-		1,       // time
-		64*1024, // memory
-		4,       // threads
-		32,      // desired keylength
-	)
-	// continue stretching with pdkdf2 to generate a csrf key
-	config.CSRFKeyBytes = argon2.IDKey(
-		config.HMACKeyBytes, // input
-		[]byte("C/RWyRGBRXSCL5st5bFsPstuKQNDpRIix0vUlQ4QP80="), // salt
 		1,       // time
 		64*1024, // memory
 		4,       // threads

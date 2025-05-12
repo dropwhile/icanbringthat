@@ -91,7 +91,6 @@
         style="padding-right: 0.25rem; padding-left: 0.25rem;"
         aria-label="Delete Event"
         hx-confirm="Are you sure you want to delete this event?"
-        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
         hx-delete="/events/{{$.event.RefID}}"
         hx-trigger="click throttle:1s"
       >
@@ -115,7 +114,6 @@
     <div
       id="favorite"
       class="tooltip"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
     >
       {{ block "favorite" . }}
@@ -227,7 +225,6 @@
       hx-post="/events/{{.event.RefID}}/sort"
       hx-trigger="end"
       hx-include="[name='sortOrder']"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
       hx-swap="none"
       hx-disinherit="*"
@@ -247,7 +244,6 @@
           </thead>
           <tbody
             class="sortable bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
-            hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
           >
             {{ range .eventItems }}
             <tr class="text-gray-700 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -326,7 +322,6 @@
                       hx-confirm="Are you sure?"
                       hx-trigger="click throttle:1s"
                       hx-target="#unmark"
-                      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
                     >
                       <span class="tooltiptext text-center">I can't bring that anymore!</span>
                       <svg
@@ -418,7 +413,6 @@
                     style="padding-right: 0.25rem; padding-left: 0.25rem;"
                     aria-label="Earmark"
                     hx-post="/verify"
-                    hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
                     _="on htmx:confirm(issueRequest)
                         halt the event
                         call Swal.fire({

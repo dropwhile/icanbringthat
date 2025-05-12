@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.6
 
 # do the building
-FROM golang:alpine as builder
+FROM golang:alpine AS builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 ENV GOEXPERIMENT=loopvar
@@ -32,7 +32,7 @@ ENV LOG_FORMAT=plain
 # production (sets cookies to secure, etc)
 ENV PRODUCTION=false
 ENV ENABLE_RPC=false
-# csrf key
+# hmac key
 ENV HMAC_KEY=""
 # mail hostname
 ENV SMTP_HOSTNAME=""

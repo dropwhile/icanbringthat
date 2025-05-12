@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"html/template"
-	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -16,7 +15,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/csrf"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -99,18 +97,6 @@ func AssertStatusEqual(t *testing.T, rr *httptest.ResponseRecorder, status int) 
 	t.Helper()
 	assert.Equal(t, rr.Code, status,
 		"handler returned wrong status code: got %d expected %d", rr.Code, status)
-}
-
-func GetTokenViaRequest(mux *chi.Mux) (string, string) {
-	var csrfToken string
-	mux.Get("/get_token", func(_ http.ResponseWriter, r *http.Request) {
-		csrfToken = csrf.Token(r)
-	})
-
-	req, _ := http.NewRequest("GET", "http://example.com/get_token", nil)
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	return csrfToken, rr.Header().Get("Set-Cookie")
 }
 
 func FormData(values url.Values) *strings.Reader {

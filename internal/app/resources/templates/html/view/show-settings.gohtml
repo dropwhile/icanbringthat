@@ -38,7 +38,6 @@
         Note: Event notification emails will not be sent until account is verified.
       </span>
     </label>
-    {{ .csrfField }}
   </form>
   {{else}}
   <label class="block mb-4 text-sm">
@@ -109,7 +108,6 @@
       </span>
       {{end}}
     </label>
-    {{ .csrfField }}
   </form>
   <form method="post" action="/settings">
     <label class="block mb-4 text-sm">
@@ -130,7 +128,6 @@
         </button>
       </div>
     </label>
-    {{ .csrfField }}
   </form>
 </div>
 <!-- account settings -->
@@ -149,7 +146,6 @@
     {{ $enable_reminders := .user.Settings.EnableReminders }}
     <div
       class="tooltip"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
       hx-disinherit="*"
     >
@@ -236,7 +232,6 @@
         Default is 24 hours. Minimum is 2. Maximum is 168 (7 days).
       </span>
     </label>
-    {{ .csrfField }}
   </form>
 </div>
 {{end}}
@@ -253,7 +248,6 @@
     </div>
     <div
       class="tooltip"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
       hx-disinherit="*"
     >
@@ -363,7 +357,6 @@
         autocomplete="new-password"
       >
     </label>
-    {{ .csrfField }}
     <div class="block" style="text-align:left">
       <button class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
         Update
@@ -394,7 +387,6 @@
     </div>
     <div
       class="tooltip flex items-center align-middle"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
       hx-disinherit="*"
     >
@@ -517,7 +509,7 @@
                 </div>
               </div>
               {{else}}
-              <div class="tooltip" hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}' hx-boost="false">
+              <div class="tooltip" hx-boost="false">
                 <button
                   class="flex items-center justify-between py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                   style="padding-right: 0.25rem; padding-left: 0.25rem;"
@@ -555,9 +547,8 @@
   <div class="block mt-4" style="text-align:left">
     <button
       id="passkey-add"
-      data-csrf="{{ $.csrfToken }}"
       class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-      _="on click call registerPasskey(my.dataset.csrf)"
+      _="on click call registerPasskey()"
     >
       Add Passkey
     </button>
@@ -579,7 +570,6 @@
     {{ $enable_api_access := .user.ApiAccess }}
     <div
       class="tooltip"
-      hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       hx-boost="false"
       hx-disinherit="*"
     >
@@ -669,7 +659,6 @@
         Note: If the key is rotated, any existing api clients will need to be updated.
       </span>
     </label>
-    {{ .csrfField }}
   </form>
 </div>
 {{end}}
@@ -688,7 +677,6 @@
   <button
     class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
     hx-boost="true"
-    hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
     hx-delete="/settings"
     _="
       on htmx:confirm(issueRequest)

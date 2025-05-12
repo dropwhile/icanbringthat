@@ -51,7 +51,6 @@
             autocomplete="current-password"
           >
         </label>
-        {{ .csrfField }}
         {{if .next }}
         <input hidden name="next" value="{{.next}}">
         {{end}}
@@ -66,7 +65,7 @@
       </div>
       <button
         class="flex w-full px-4 py-2 text-sm items-center justify-between font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-        onclick="authPasskey('{{.csrfToken}}', false)"
+        onclick="authPasskey(false)"
       >
         <svg
           viewBox="3 1.5 19.5 19"

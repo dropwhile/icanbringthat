@@ -82,7 +82,6 @@
       </thead>
       <tbody
         class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
-        hx-headers='{"X-CSRF-Token": "{{ $.csrfToken }}"}'
       >
         {{ range .earmarks }}
         {{ $eventItem := (index $.eventItems .EventItemID )}}

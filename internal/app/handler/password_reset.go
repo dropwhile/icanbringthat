@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gorilla/csrf"
 	"github.com/jaytaylor/html2text"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -33,11 +32,9 @@ func (x *Handler) ForgotPasswordShowForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	tplVars := MapSA{
-		"title":          "Forgot Password",
-		"next":           r.FormValue("next"),
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"title":   "Forgot Password",
+		"next":    r.FormValue("next"),
+		"flashes": x.sessMgr.FlashPopAll(ctx),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -110,13 +107,11 @@ func (x *Handler) PasswordResetShowForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	tplVars := MapSA{
-		"title":          "Reset Password",
-		"next":           r.FormValue("next"),
-		"flashes":        x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
-		"refID":          refIDStr,
-		"hmac":           hmacStr,
+		"title":   "Reset Password",
+		"next":    r.FormValue("next"),
+		"flashes": x.sessMgr.FlashPopAll(ctx),
+		"refID":   refIDStr,
+		"hmac":    hmacStr,
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

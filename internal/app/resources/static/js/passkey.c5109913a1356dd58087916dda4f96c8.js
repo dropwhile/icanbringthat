@@ -1,5 +1,5 @@
 // Start registration when the user clicks a button
-async function registerPasskey(csrfToken) {
+async function registerPasskey() {
     const { value: keyname } = await Swal.fire({
         title: 'Enter a name for this key',
         input: 'text',
@@ -44,14 +44,13 @@ async function registerPasskey(csrfToken) {
     // POST the response to the endpoint that calls
     // @simplewebauthn/server -> verifyRegistrationResponse()
     const verificationResp = await fetch(
-        '/webauthn/register?' + new URLSearchParams({key_name: keyname}).toString(),
+        '/webauthn/register?' + new URLSearchParams({ key_name: keyname }).toString(),
         {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken,
-        },
-        body: JSON.stringify(attResp),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(attResp),
         }
     );
 
@@ -66,7 +65,7 @@ async function registerPasskey(csrfToken) {
     } else {
         Swal.fire({
             icon: 'error', title: 'Oops...',
-            html: 'Unexpected error response: <br>' + 
+            html: 'Unexpected error response: <br>' +
                 `<pre>${JSON.stringify(verificationJSON)}</pre>`
         });
     }
@@ -74,14 +73,14 @@ async function registerPasskey(csrfToken) {
 
 window.registerPasskey = registerPasskey
 
-async function authPasskey(csrfToken, autofill=false) {
+async function authPasskey(autofill = false) {
     const notyf = new Notyf({
         ripple: false,
         dismissible: true,
         duration: 2500,
         position: {
-          x: 'center',
-          y: 'top',
+            x: 'center',
+            y: 'top',
         }
     });
 
@@ -105,9 +104,9 @@ async function authPasskey(csrfToken, autofill=false) {
 
     let startAuthResp;
     try {
-      // Pass the options to the authenticator and wait for a response
-      startAuthResp = await SimpleWebAuthnBrowser.startAuthentication(
-        loginJSON.publicKey, autofill);
+        // Pass the options to the authenticator and wait for a response
+        startAuthResp = await SimpleWebAuthnBrowser.startAuthentication(
+            loginJSON.publicKey, autofill);
     } catch (error) {
         notyf.error('Error: ' + error);
         return;
@@ -119,7 +118,6 @@ async function authPasskey(csrfToken, autofill=false) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken,
         },
         body: JSON.stringify(startAuthResp),
     });

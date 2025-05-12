@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/csrf"
 	"github.com/samber/mo"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -102,8 +101,6 @@ func (x *Handler) EventsList(w http.ResponseWriter, r *http.Request) {
 		"title":           title,
 		"nav":             "events",
 		"flashes":         x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag:  csrf.TemplateField(r),
-		"csrfToken":       csrf.Token(r),
 		"pgInput": resources.NewPgInput(
 			maxCount, 10,
 			pageNum, "/events",
@@ -242,8 +239,6 @@ func (x *Handler) EventShow(w http.ResponseWriter, r *http.Request) {
 		"favorite":        favorited,
 		"title":           "Event Details",
 		"nav":             "show-event",
-		csrf.TemplateTag:  csrf.TemplateField(r),
-		"csrfToken":       csrf.Token(r),
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -265,11 +260,9 @@ func (x *Handler) CreateEventShowAddForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"title":          "Create Event",
-		"nav":            "create-event",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":  user,
+		"title": "Create Event",
+		"nav":   "create-event",
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")
@@ -317,12 +310,10 @@ func (x *Handler) EventShowEditForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"event":          event,
-		"title":          "Edit Event",
-		"nav":            "edit-event",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":  user,
+		"event": event,
+		"title": "Edit Event",
+		"nav":   "edit-event",
 	}
 	// render user profile view
 	w.Header().Set("content-type", "text/html")

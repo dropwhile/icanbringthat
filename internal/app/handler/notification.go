@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -52,13 +50,11 @@ func (x *Handler) NotificationsList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplVars := MapSA{
-		"user":           user,
-		"notifs":         notifs,
-		"notifCount":     notifCount,
-		"title":          "Notifications",
-		"nav":            "notifications",
-		csrf.TemplateTag: csrf.TemplateField(r),
-		"csrfToken":      csrf.Token(r),
+		"user":       user,
+		"notifs":     notifs,
+		"notifCount": notifCount,
+		"title":      "Notifications",
+		"nav":        "notifications",
 		"pgInput": resources.NewPgInput(
 			notifCount, 10, pageNum, "/notifications", nil,
 		),

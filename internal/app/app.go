@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
@@ -19,6 +18,7 @@ import (
 	"github.com/dropwhile/icanbringthat/internal/app/service"
 	"github.com/dropwhile/icanbringthat/internal/mail"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
+	"github.com/dropwhile/icanbringthat/internal/middleware/csrf"
 	"github.com/dropwhile/icanbringthat/internal/middleware/debug"
 	"github.com/dropwhile/icanbringthat/internal/middleware/header"
 	"github.com/dropwhile/icanbringthat/internal/middleware/strip"
@@ -91,15 +91,9 @@ func New(
 	// any static routes added onto the handler later
 	r.Group(func(r chi.Router) {
 		r.Use(sessMgr.LoadAndSave)
-		r.Use(csrf.Protect(
-			conf.CSRFKeyBytes,
-			// false in development only!
-			csrf.Secure(conf.Production),
-			// setup path so csrf works _between_ pages (eg. htmx calls)
-			csrf.Path("/"),
-			// Must be in CORS Allowed and Exposed Headers
-			csrf.RequestHeader("X-CSRF-Token"),
-		))
+		r.Use(csrf.Protect(&csrf.Options{
+			AllowSecFetchSiteSameSite: false,
+		}))
 		r.Use(auth.Load(service, sessMgr))
 
 		// Routing //

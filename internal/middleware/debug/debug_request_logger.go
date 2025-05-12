@@ -34,7 +34,6 @@ var logOptions = httplog.Options{
 		"upgrade-insecure-requests",
 		"user-agent",
 		"scheme",
-		"x-csrf-token",
 	},
 	QuietDownRoutes: []string{
 		"/",

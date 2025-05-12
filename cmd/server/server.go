@@ -114,7 +114,6 @@ func (c *ServerCmd) Run() error {
 	// routing/handlers
 	appConfig := &app.Config{
 		WebhookCreds:   config.WebhookCreds,
-		CSRFKeyBytes:   config.CSRFKeyBytes,
 		HMACKeyBytes:   config.HMACKeyBytes,
 		Production:     config.Production,
 		BaseURL:        config.BaseURL,

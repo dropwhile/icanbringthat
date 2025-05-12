@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/gorilla/csrf"
 	"golang.org/x/exp/slog"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -103,8 +102,6 @@ func (x *Handler) FavoritesList(w http.ResponseWriter, r *http.Request) {
 		"title":           title,
 		"nav":             "favorites",
 		"flashes":         x.sessMgr.FlashPopAll(ctx),
-		csrf.TemplateTag:  csrf.TemplateField(r),
-		"csrfToken":       csrf.Token(r),
 		"pgInput": resources.NewPgInput(
 			maxCount, 10,
 			pageNum, "/favorites",
