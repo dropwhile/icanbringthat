@@ -88,10 +88,6 @@
 * URL: https://github.com/go-webauthn/webauthn
 * License: [BSD-3-Clause](https://github.com/go-webauthn/webauthn/blob/v0.9.4/LICENSE)
 
-### github.com/gorilla/csrf
-* URL: https://github.com/gorilla/csrf
-* License: [BSD-3-Clause](https://github.com/gorilla/csrf/blob/v1.7.2/LICENSE)
-
 ### github.com/jackc/pgx/v5
 * URL: https://github.com/jackc/pgx
 * License: [MIT](https://github.com/jackc/pgx/blob/v5.5.1/LICENSE)
