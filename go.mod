@@ -7,7 +7,7 @@ require (
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/validate v0.3.0
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/alecthomas/kong v1.10.0
+	github.com/alecthomas/kong v1.11.0
 	github.com/alexedwards/scs/goredisstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/pgxstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/v2 v2.8.0
