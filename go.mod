@@ -27,7 +27,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.52.0
 	github.com/redis/go-redis/v9 v9.8.0
-	github.com/samber/mo v1.13.0
+	github.com/samber/mo v1.14.0
 	github.com/yuin/goldmark v1.7.12
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
