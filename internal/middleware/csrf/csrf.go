@@ -12,7 +12,7 @@ import (
 	"net/url"
 )
 
-type Options struct {
+type options struct {
 	// AllowSecFetchSiteSameSite specifies whether to allow requests with the
 	// Sec-Fetch-Site header set to "same-site" indicating that they are
 	// cross-origin but that their origin shares the same site (gTLD+1) with
@@ -20,13 +20,24 @@ type Options struct {
 	AllowSecFetchSiteSameSite bool
 }
 
+type optionFunc func(*options)
+
+func AllowSecFetchSiteSameSite() optionFunc {
+	return func(o *options) {
+		o.AllowSecFetchSiteSameSite = true
+	}
+}
+
 // Protect routes against CSRF attacks by requiring non-(GET|HEAD|OPTIONS)
 // requests to specify the Sec-Fetch-Site header with the value "same-origin",
 // or if Sec-Fetch-Site is missing, with an Origin header matching the hostname
 // in the Host header.
-func Protect(
-	opts *Options,
-) func(next http.Handler) http.Handler {
+func Protect(optfuncs ...optionFunc) func(next http.Handler) http.Handler {
+	opts := &options{}
+	for _, optfunc := range optfuncs {
+		optfunc(opts)
+	}
+
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// Allow GET, HEAD, and OPTIONS requests without Sec-Fetch-Site

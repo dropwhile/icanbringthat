@@ -91,9 +91,7 @@ func New(
 	// any static routes added onto the handler later
 	r.Group(func(r chi.Router) {
 		r.Use(sessMgr.LoadAndSave)
-		r.Use(csrf.Protect(&csrf.Options{
-			AllowSecFetchSiteSameSite: false,
-		}))
+		r.Use(csrf.Protect())
 		r.Use(auth.Load(service, sessMgr))
 
 		// Routing //
