@@ -118,12 +118,12 @@ func (s *Service) UpdateEvent(
 			With("field", badField).
 			With("error", err).
 			Info("bad field value")
-		return errs.InvalidArgumentError(badField, "bad value")
+		return errs.ArgumentError(badField, "bad value")
 	}
 
 	if val, ok := euvs.StartTime.Get(); ok {
 		if val.IsZero() {
-			return errs.InvalidArgumentError("start_time", "bad value")
+			return errs.ArgumentError("start_time", "bad value")
 		}
 		/*
 			if val.Before(time.Now().UTC().Add(-30 * time.Minute)) {
@@ -137,7 +137,7 @@ func (s *Service) UpdateEvent(
 	if val, ok := euvs.Tz.Get(); ok && val != "" {
 		loc, err = ParseTimeZone(val)
 		if err != nil {
-			return errs.InvalidArgumentError("tz", "unrecognized timezone")
+			return errs.ArgumentError("tz", "unrecognized timezone")
 		}
 		maybeLoc = mo.Some(loc)
 	}
@@ -227,7 +227,7 @@ func (s *Service) CreateEvent(
 			With("field", "name").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("name", "bad value")
+		return nil, errs.ArgumentError("name", "bad value")
 	}
 
 	err = validate.Validate.VarCtx(ctx, description, "required,notblank")
@@ -236,16 +236,16 @@ func (s *Service) CreateEvent(
 			With("field", "description").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("description", "bad value")
+		return nil, errs.ArgumentError("description", "bad value")
 	}
 
 	// check for zero time
 	if when.IsZero() {
-		return nil, errs.InvalidArgumentError("start_time", "bad value")
+		return nil, errs.ArgumentError("start_time", "bad value")
 	}
 	// check for unix epoch
 	if when.UTC().Before(time.Unix(1, 0).UTC()) {
-		return nil, errs.InvalidArgumentError("start_time", "bad value")
+		return nil, errs.ArgumentError("start_time", "bad value")
 	}
 
 	err = validate.Validate.VarCtx(ctx, tz, "required,timezone")
@@ -254,12 +254,12 @@ func (s *Service) CreateEvent(
 			With("field", "tz").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("tz", "bad value")
+		return nil, errs.ArgumentError("tz", "bad value")
 	}
 
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
-		return nil, errs.InvalidArgumentError("tz", "unrecognized timezone")
+		return nil, errs.ArgumentError("tz", "unrecognized timezone")
 	}
 
 	event, err := model.NewEvent(ctx, s.Db, user.ID,

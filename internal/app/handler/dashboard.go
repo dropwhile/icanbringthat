@@ -23,31 +23,31 @@ func (x *Handler) DashboardShow(w http.ResponseWriter, r *http.Request) {
 
 	notifCount, errx := x.svc.GetNotificationsCount(ctx, user.ID)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 
 	eventCount, errx := x.svc.GetEventsCount(ctx, user.ID)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 
 	earmarkCount, errx := x.svc.GetEarmarksCount(ctx, user.ID)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 
 	favoriteCount, errx := x.svc.GetFavoriteEventsCount(ctx, user.ID)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 
 	events, _, errx := x.svc.GetEventsComingSoonPaginated(ctx, user.ID, 10, 0)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 
@@ -56,7 +56,7 @@ func (x *Handler) DashboardShow(w http.ResponseWriter, r *http.Request) {
 	})
 	eventItemCounts, errx := x.svc.GetEventItemsCount(ctx, eventIDs)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 

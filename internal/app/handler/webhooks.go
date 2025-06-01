@@ -85,7 +85,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 				"postmark", pm)
 			w.WriteHeader(http.StatusOK)
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}

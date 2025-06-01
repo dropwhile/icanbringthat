@@ -162,7 +162,7 @@ func (s *Service) AddEventItem(
 			With("field", "description").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("description", "bad value")
+		return nil, errs.ArgumentError("description", "bad value")
 	}
 
 	event, err := model.GetEventByRefID(ctx, s.Db, refID)
@@ -200,7 +200,7 @@ func (s *Service) UpdateEventItem(
 			With("field", "description").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("description", "bad value")
+		return nil, errs.ArgumentError("description", "bad value")
 	}
 
 	eventItem, err := model.GetEventItemByRefID(ctx, s.Db, refID)

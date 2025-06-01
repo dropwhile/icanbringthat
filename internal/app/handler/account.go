@@ -225,7 +225,7 @@ func (x *Handler) SettingsUpdate(w http.ResponseWriter, r *http.Request) {
 				case "Passwd":
 					warnings = append(warnings, "'Password' was a bad value")
 				default:
-					warnings = append(warnings, errx.Msg())
+					warnings = append(warnings, errx.Info())
 				}
 			default:
 				slog.ErrorContext(ctx, "error updating user",

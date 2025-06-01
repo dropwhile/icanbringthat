@@ -304,7 +304,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, event.Name, event.Description, event.StartTime,
 				"",
 			).
-			Return(nil, errs.InvalidArgumentError("tz", "bad value"))
+			Return(nil, errs.ArgumentError("tz", "bad value"))
 
 		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,
@@ -350,7 +350,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, "", event.Description, event.StartTime,
 				event.StartTimeTz.Location.String(),
 			).
-			Return(nil, errs.InvalidArgumentError("name", "bad value"))
+			Return(nil, errs.ArgumentError("name", "bad value"))
 
 		request := icbt.EventCreateRequest_builder{
 			Name:        "",
@@ -375,7 +375,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				ctx, user, event.Name, "", event.StartTime,
 				event.StartTimeTz.Location.String(),
 			).
-			Return(nil, errs.InvalidArgumentError("description", "bad value"))
+			Return(nil, errs.ArgumentError("description", "bad value"))
 
 		request := icbt.EventCreateRequest_builder{
 			Name:        event.Name,

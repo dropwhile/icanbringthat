@@ -34,7 +34,7 @@ func (x *Handler) VerifySendEmail(w http.ResponseWriter, r *http.Request) {
 	// generate a verifier
 	uv, errx := x.svc.NewUserVerify(ctx, user.ID)
 	if errx != nil {
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 	uvRefIDStr := uv.RefID.String()
@@ -147,7 +147,7 @@ func (x *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	errx = x.svc.SetUserVerified(ctx, user, verifier)
 	if errx != nil {
 		slog.DebugContext(ctx, "error saving verification", logger.Err(errx))
-		x.InternalServerError(w, errx.Msg())
+		x.InternalServerError(w, errx.Info())
 		return
 	}
 

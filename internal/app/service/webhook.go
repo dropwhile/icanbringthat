@@ -24,7 +24,7 @@ func (s *Service) DisableRemindersWithNotification(
 			With("field", "email").
 			With("error", err).
 			Info("bad field value")
-		return errs.InvalidArgumentError("email", "bad value")
+		return errs.ArgumentError("email", "bad value")
 	}
 
 	err = validate.Validate.VarCtx(ctx, suppressionReason, "required,notblank")
@@ -33,7 +33,7 @@ func (s *Service) DisableRemindersWithNotification(
 			With("field", "suppressionReason").
 			With("error", err).
 			Info("bad field value")
-		return errs.InvalidArgumentError("suppressionReason", "bad value")
+		return errs.ArgumentError("suppressionReason", "bad value")
 	}
 
 	user, errx := s.GetUserByEmail(ctx, email)

@@ -275,7 +275,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 
 		mock.EXPECT().
 			AddEventItem(ctx, user.ID, eventRefID, description).
-			Return(nil, errs.InvalidArgumentError("description", "bad value"))
+			Return(nil, errs.ArgumentError("description", "bad value"))
 
 		request := icbt.EventAddItemRequest_builder{
 			EventRefId:  eventRefID.String(),
@@ -522,7 +522,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 				ctx, user.ID, eventItemRefID, description,
 				gomock.AssignableToTypeOf(eventItemFailIfCheck),
 			).
-			Return(nil, errs.InvalidArgumentError("description", "bad value"))
+			Return(nil, errs.ArgumentError("description", "bad value"))
 
 		request := icbt.EventUpdateItemRequest_builder{
 			RefId:       eventItemRefID.String(),

@@ -299,7 +299,7 @@ func (x *Handler) EventShowEditForm(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}
@@ -372,9 +372,9 @@ func (x *Handler) EventCreate(w http.ResponseWriter, r *http.Request) {
 		case errs.InvalidArgument:
 			x.BadFormDataError(w, err, errx.Meta("argument"))
 		case errs.PermissionDenied:
-			x.ForbiddenError(w, errx.Msg())
+			x.ForbiddenError(w, errx.Info())
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}
@@ -452,7 +452,7 @@ func (x *Handler) EventUpdate(w http.ResponseWriter, r *http.Request) {
 		case errs.InvalidArgument:
 			x.BadFormDataError(w, errx, errx.Meta("argument"))
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}
@@ -542,7 +542,7 @@ func (x *Handler) EventDelete(w http.ResponseWriter, r *http.Request) {
 		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}

@@ -98,10 +98,10 @@ func (s *Service) NewUserCredential(
 	ctx context.Context, userID int, keyName string, credential []byte,
 ) (*model.UserCredential, errs.Error) {
 	if keyName == "" {
-		return nil, errs.InvalidArgumentError("keyName", "bad value")
+		return nil, errs.ArgumentError("keyName", "bad value")
 	}
 	if len(credential) == 0 {
-		return nil, errs.InvalidArgumentError("credential", "bad value")
+		return nil, errs.ArgumentError("credential", "bad value")
 	}
 	userCred, err := model.NewUserCredential(
 		ctx, s.Db, userID, keyName, credential,

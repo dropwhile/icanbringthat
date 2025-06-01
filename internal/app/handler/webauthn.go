@@ -302,7 +302,7 @@ func (x *Handler) WebAuthnDeleteKey(w http.ResponseWriter, r *http.Request) {
 				DebugContext(ctx, "pre-conditional failed")
 			x.BadRequestError(w, "pre-condition failed")
 		default:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		}
 		return
 	}

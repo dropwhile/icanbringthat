@@ -7,7 +7,9 @@ import (
 	"testing"
 )
 
-func AssertError[T ~byte | ~string | ~uint32](t *testing.T, err error, code T, msg string, meta ...map[string]string) {
+func AssertError[T ~byte | ~string | ~uint32](
+	t *testing.T, err error, code T, msg string, meta ...map[string]string,
+) {
 	t.Helper()
 
 	codeErr, ok := err.(interface{ Code() T })
@@ -20,6 +22,10 @@ func AssertError[T ~byte | ~string | ~uint32](t *testing.T, err error, code T, m
 	}
 
 	switch terr := err.(type) {
+	case interface{ Info() string }:
+		if terr.Info() != msg {
+			t.Errorf("wrong msg. have=%q, want=%q", terr.Info(), msg)
+		}
 	case interface{ Msg() string }:
 		if terr.Msg() != msg {
 			t.Errorf("wrong msg. have=%q, want=%q", terr.Msg(), msg)

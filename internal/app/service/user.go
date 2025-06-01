@@ -92,7 +92,7 @@ func (s *Service) NewUser(
 			With("field", "name").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("name", "bad value")
+		return nil, errs.ArgumentError("name", "bad value")
 	}
 	err = validate.Validate.VarCtx(ctx, email, "required,notblank,email")
 	if err != nil {
@@ -100,7 +100,7 @@ func (s *Service) NewUser(
 			With("field", "email").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("email", "bad value")
+		return nil, errs.ArgumentError("email", "bad value")
 	}
 
 	user, err := model.NewUser(ctx, s.Db, email, name, rawPass)
@@ -141,19 +141,19 @@ func (s *Service) UpdateUser(
 			With("field", badField).
 			With("error", err).
 			Info("bad field value")
-		return errs.InvalidArgumentError(badField, "bad value")
+		return errs.ArgumentError(badField, "bad value")
 	}
 
 	pwHash := mo.None[[]byte]()
 	if pwup, ok := euvs.PwUpdate.Get(); ok && pwup != nil {
 		if err := validate.Validate.VarCtx(ctx, pwup.OldPass, "notblank,gt=0"); err != nil {
-			return errs.InvalidArgumentError("OldPass", "bad value")
+			return errs.ArgumentError("OldPass", "bad value")
 		}
 		if err := validate.Validate.VarCtx(ctx, pwup.NewPass, "notblank,gt=0"); err != nil {
-			return errs.InvalidArgumentError("Passwd", "bad value")
+			return errs.ArgumentError("Passwd", "bad value")
 		}
 		if ok, err := model.CheckPass(ctx, user.PWHash, pwup.OldPass); !ok || err != nil {
-			return errs.InvalidArgumentError("OldPass", "bad value")
+			return errs.ArgumentError("OldPass", "bad value")
 		}
 		hpw, err := model.HashPass(ctx, pwup.NewPass)
 		if err != nil {

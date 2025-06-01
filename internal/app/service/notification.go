@@ -135,7 +135,7 @@ func (s *Service) newNotification(
 			With("field", "message").
 			With("error", err).
 			Info("bad field value")
-		return nil, errs.InvalidArgumentError("message", "bad value")
+		return nil, errs.ArgumentError("message", "bad value")
 	}
 
 	notification, err := model.NewNotification(ctx, db, userID, message)

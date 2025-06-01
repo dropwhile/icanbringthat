@@ -94,7 +94,7 @@ func (x *Handler) NotificationDelete(w http.ResponseWriter, r *http.Request) {
 		slog.InfoContext(ctx, "error deleting notification", "error", errx)
 		switch errx.Code() {
 		case errs.Internal:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		case errs.NotFound:
 			x.NotFoundError(w)
 		case errs.PermissionDenied:
@@ -129,7 +129,7 @@ func (x *Handler) NotificationsDeleteAll(w http.ResponseWriter, r *http.Request)
 		slog.InfoContext(ctx, "error deleting all notifications", "error", errx)
 		switch errx.Code() {
 		case errs.Internal:
-			x.InternalServerError(w, errx.Msg())
+			x.InternalServerError(w, errx.Info())
 		case errs.Unauthenticated:
 			x.BadSessionDataError(w)
 		default:

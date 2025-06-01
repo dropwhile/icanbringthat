@@ -307,7 +307,7 @@ func TestHandler_Account_Update(t *testing.T) {
 				gomock.AssignableToTypeOf(
 					&service.UserUpdateValues{},
 				)).
-			Return(errs.InvalidArgumentError("OldPass", "bad value"))
+			Return(errs.ArgumentError("OldPass", "bad value"))
 
 		data := url.Values{
 			"password":         {"hodor"},

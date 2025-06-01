@@ -264,7 +264,7 @@ func (x *Handler) EarmarkCreate(w http.ResponseWriter, r *http.Request) {
 	if errx != nil {
 		switch errx.Code() {
 		case errs.PermissionDenied:
-			x.ForbiddenError(w, errx.Msg())
+			x.ForbiddenError(w, errx.Info())
 		case errs.AlreadyExists:
 			x.ForbiddenError(w, "already earmarked - access denied")
 		default:
