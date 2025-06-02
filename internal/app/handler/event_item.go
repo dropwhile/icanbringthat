@@ -37,7 +37,7 @@ func (x *Handler) EventItemShowCreateForm(w http.ResponseWriter, r *http.Request
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -99,7 +99,7 @@ func (x *Handler) EventItemShowEditForm(w http.ResponseWriter, r *http.Request) 
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -119,7 +119,7 @@ func (x *Handler) EventItemShowEditForm(w http.ResponseWriter, r *http.Request) 
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -179,7 +179,7 @@ func (x *Handler) EventItemCreate(w http.ResponseWriter, r *http.Request) {
 		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -219,7 +219,7 @@ func (x *Handler) EventItemUpdate(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -258,7 +258,7 @@ func (x *Handler) EventItemUpdate(w http.ResponseWriter, r *http.Request) {
 		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -304,7 +304,7 @@ func (x *Handler) EventItemDelete(w http.ResponseWriter, r *http.Request) {
 		case errs.NotFound:
 			x.NotFoundError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}
@@ -332,7 +332,7 @@ func (x *Handler) EventItemDelete(w http.ResponseWriter, r *http.Request) {
 		case errs.PermissionDenied:
 			x.AccessDeniedError(w)
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 		return
 	}

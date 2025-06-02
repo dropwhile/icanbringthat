@@ -60,7 +60,7 @@ func ToConnectRpcError(src errs.Error) *connect.Error {
 	if err := src.Unwrap(); err != nil {
 		rawErr = err
 	} else {
-		rawErr = errors.New(src.Info())
+		rawErr = errors.New(src.Msg())
 	}
 	code := src.Code()
 	if code == errs.NoError {

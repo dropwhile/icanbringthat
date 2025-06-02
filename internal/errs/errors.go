@@ -23,10 +23,10 @@ import (
 // Error represents an error in a service call.
 type Error interface {
 	// Code is of the valid error codes.
-	Code() ErrorCode
+	Code() Code
 
-	// Info returns a human-readable, unstructured messages describing the error.
-	Info() string
+	// Msg returns a human-readable, unstructured messages describing the error.
+	Msg() string
 
 	// Meta returns the stored value for the given key. If the key has no set
 	// value, Meta returns an empty string. There is no way to distinguish between
@@ -36,7 +36,7 @@ type Error interface {
 	// MetaMap returns the complete key-value metadata map stored on the error.
 	MetaMap() map[string]string
 
-	// Error returns a string of the form "error <Code>: <Msg>"
+	// Error returns a string of the form "error <Code>: <Text>"
 	Error() string
 
 	// Unwrap returns the underlying error
@@ -45,8 +45,8 @@ type Error interface {
 	// Is reports whether any error in err's tree matches target.
 	Is(error) bool
 
-	// WithInfo returns the Error with the given message set.
-	WithInfo(info string) Error
+	// WithMsg returns the Error with the given message set.
+	WithMsg(info string) Error
 
 	// WithMeta returns the Error with the key-value pair provided
 	// as metadata. If the key is already set, it is overwritten.
@@ -59,48 +59,49 @@ type Error interface {
 
 // newError builds a errs.Error. The code must be one of the valid predefined constants.
 // To add metadata, use .WithMeta(key, value) method after building the error.
-func newError(code ErrorCode, msg string) Error {
+func newError(code Code, text string) Error {
 	return &codeErr{
 		code: code,
-		err:  errors.New(msg),
+		err:  errors.New(text),
 	}
 }
 
-// newErrorf builds a errs.Error with a formatted msg.
+// newErrorf builds a errs.Error with a formatted text.
 // The format may include "%w" to wrap other errors. Examples:
 //
 //	errs.newErrorf(errs.Internal, "oops: %w", originalErr)
 //	errs.newErrorf(errs.NotFound, "resource not found with id: %q", resourceID)
 //
 // To add metadata, use .WithMeta(key, value) method after building the error.
-func newErrorf(code ErrorCode, msgFmt string, a ...any) Error {
+func newErrorf(code Code, format string, a ...any) Error {
 	return &codeErr{
 		code: code,
-		err:  fmt.Errorf(msgFmt, a...),
+		err:  fmt.Errorf(format, a...),
 	}
 }
 
 type codeErr struct {
-	code ErrorCode         // error code
+	code Code              // error code
 	err  error             // underlying error
-	info string            // friendly messages
+	msg  string            // friendly messages
 	meta map[string]string // metadata
 }
 
 // Code returns the svcErr ErrorCode.
-func (e *codeErr) Code() ErrorCode {
+func (e *codeErr) Code() Code {
 	if e == nil {
 		return NoError
 	}
 	return e.code
 }
 
-// Info returns a human-readable, unstructured messages describing the error.
-// If not human-readable message is present, return the underlying error message.
-func (e *codeErr) Info() string {
-	info := GetInfo(e)
-	if info != "" {
-		return info
+// Msg returns a human-readable, unstructured message describing the error from
+// the error stack. If no human-readable message is present in the error stack,
+// return the underlying top level error.Error() value.
+func (e *codeErr) Msg() string {
+	msg := GetMsg(e)
+	if msg != "" {
+		return msg
 	}
 	if e.err != nil {
 		return e.err.Error()
@@ -130,7 +131,7 @@ func (e *codeErr) MetaMap() map[string]string {
 	return e.meta
 }
 
-// Error returns a string of the form "error <Code>: <Msg>"
+// Error returns a string of the form "error <Code>: <Text>"
 func (e *codeErr) Error() string {
 	if e == nil {
 		return ""
@@ -138,15 +139,15 @@ func (e *codeErr) Error() string {
 
 	code := e.code.String()
 
-	emsg := ""
+	etxt := ""
 	if e.err != nil {
-		emsg = e.err.Error()
+		etxt = e.err.Error()
 	}
 
-	if emsg == "" {
+	if etxt == "" {
 		return code
 	}
-	return code + ": " + emsg
+	return code + ": " + etxt
 }
 
 // Unwrap returns the underlying error
@@ -159,14 +160,14 @@ func (e *codeErr) Unwrap() error {
 
 // Is reports whether any error in err's tree matches target.
 func (e *codeErr) Is(err error) bool {
-	if u, ok := err.(interface{ Code() ErrorCode }); ok {
+	if u, ok := err.(interface{ Code() Code }); ok {
 		return u.Code() == e.Code()
 	}
 	return false
 }
 
-// WithInfo returns the Error with the given message set.
-func (e *codeErr) WithInfo(info string) Error {
+// WithMsg returns the Error with the given message set.
+func (e *codeErr) WithMsg(info string) Error {
 	return WithInfo(info)(e)
 }
 

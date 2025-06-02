@@ -145,7 +145,7 @@ func (x *Handler) FavoriteAdd(w http.ResponseWriter, r *http.Request) {
 		case errs.AlreadyExists:
 			x.BadRequestError(w, "already favorited")
 		case errs.Internal:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		case errs.NotFound:
 			x.NotFoundError(w)
 		case errs.PermissionDenied:
@@ -195,7 +195,7 @@ func (x *Handler) FavoriteDelete(w http.ResponseWriter, r *http.Request) {
 		slog.InfoContext(ctx, "error deleting favorite", logger.Err(errx))
 		switch errx.Code() {
 		case errs.Internal:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		case errs.NotFound:
 			x.NotFoundError(w)
 		case errs.PermissionDenied:

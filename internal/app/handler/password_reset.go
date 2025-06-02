@@ -148,7 +148,7 @@ func (x *Handler) ResetPasswordSendEmail(w http.ResponseWriter, r *http.Request)
 			slog.InfoContext(ctx, "no user found", "error", errx)
 			doFake = true
 		default:
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 		}
 	}
 
@@ -169,7 +169,7 @@ func (x *Handler) ResetPasswordSendEmail(w http.ResponseWriter, r *http.Request)
 		// generate a upw
 		upw, errx := x.svc.NewUserPWReset(ctx, user.ID)
 		if errx != nil {
-			x.InternalServerError(w, errx.Info())
+			x.InternalServerError(w, errx.Msg())
 			return
 		}
 		upwRefIDStr := upw.RefID.String()
