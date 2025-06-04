@@ -81,10 +81,10 @@ func newErrorf(code Code, format string, a ...any) Error {
 }
 
 type codeErr struct {
-	code Code              // error code
 	err  error             // underlying error
-	msg  string            // friendly messages
 	meta map[string]string // metadata
+	msg  string            // friendly messages
+	code Code              // error code
 }
 
 // Code returns the svcErr ErrorCode.
