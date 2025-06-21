@@ -13,7 +13,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.8.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/dropwhile/refid/v2 v2.0.4
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/go-webauthn/webauthn v0.13.0
@@ -22,7 +22,7 @@ require (
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v4 v4.7.0
+	github.com/pashagolub/pgxmock/v4 v4.8.0
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.52.0
@@ -33,7 +33,7 @@ require (
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.2
 	golang.org/x/crypto v0.39.0
-	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476
+	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
 	google.golang.org/protobuf v1.36.6
 	gotest.tools/v3 v3.5.2
 )
@@ -79,7 +79,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	github.com/stoewer/go-strcase v1.3.0 // indirect
+	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/assert v1.3.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
