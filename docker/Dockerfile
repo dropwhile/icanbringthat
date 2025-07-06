@@ -1,23 +1,36 @@
 # syntax=docker/dockerfile:1.6
 
 # do the building
-FROM golang:alpine AS builder
-RUN apk add --no-cache ca-certificates tzdata make git
+# optimize for caching, and not necessarily for layers,
+# since the runnable image will be the thin/flatter one anyway.
+#FROM golang:alpine AS builder
+FROM alpine:latest AS builder
+RUN apk add --no-cache ca-certificates tzdata make git mise
 WORKDIR /workdir
-ENV GOEXPERIMENT=loopvar
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest; rm -rf /go/pkg/ /root/.cache/
+ENV MISE_DATA_DIR="/mise"
+ENV MISE_CONFIG_DIR="/mise"
+ENV MISE_CACHE_DIR="/mise/cache"
+ENV PATH="/mise/shims:$PATH"
+COPY .mise.toml .mise.lock ./
+# install go
+RUN mise trust && \
+    mise install go
+# install goose
+RUN mise install $(grep -o 'go:github.com/pressly/goose/[^"]*' .mise.toml) && \
+    install -D "$(mise which goose)" build/bin/goose
+# install go mod deps
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
 ARG GITHASH
 ARG APP_VER
-RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
+# build
+RUN env APP_VER="${APP_VER}" GITHASH="${GITHASH}" mise build
 
 # make runnable image
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
-COPY --from=builder --link /go/bin/goose /app/goose
 COPY --from=builder --link /workdir/build/bin/* /app/
 COPY --from=builder --link /workdir/database/migrations /app/database/migrations
 
