@@ -10,7 +10,7 @@ require (
 	github.com/alecthomas/kong v1.12.0
 	github.com/alexedwards/scs/goredisstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/pgxstore v0.0.0-20250417082927-ab20b3feb5e9
-	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/dropwhile/refid/v2 v2.0.4
 	github.com/go-chi/chi/v5 v5.2.2

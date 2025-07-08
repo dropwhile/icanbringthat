@@ -26,8 +26,8 @@ github.com/alexedwards/scs/goredisstore v0.0.0-20250417082927-ab20b3feb5e9 h1:K9
 github.com/alexedwards/scs/goredisstore v0.0.0-20250417082927-ab20b3feb5e9/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
 github.com/alexedwards/scs/pgxstore v0.0.0-20250417082927-ab20b3feb5e9 h1:waHKgIePzsCMcYqKbTP31GuxOl+nSmLgmq1H4uC5xJc=
 github.com/alexedwards/scs/pgxstore v0.0.0-20250417082927-ab20b3feb5e9/go.mod h1:hwveArYcjyOK66EViVgVU5Iqj7zyEsWjKXMQhDJrTLI=
-github.com/alexedwards/scs/v2 v2.8.0 h1:h31yUYoycPuL0zt14c0gd+oqxfRwIj6SOjHdKRZxhEw=
-github.com/alexedwards/scs/v2 v2.8.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
+github.com/alexedwards/scs/v2 v2.9.0 h1:xa05mVpwTBm1iLeTMNFfAWpKUm4fXAW7CeAViqBVS90=
+github.com/alexedwards/scs/v2 v2.9.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
