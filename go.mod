@@ -26,7 +26,7 @@ require (
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.54.0
-	github.com/redis/go-redis/v9 v9.11.0
+	github.com/redis/go-redis/v9 v9.12.0
 	github.com/samber/mo v1.14.0
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
@@ -54,7 +54,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-webauthn/x v0.1.23 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.3 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
 	github.com/google/go-tpm v0.9.5 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -85,8 +85,8 @@ require (
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250728155136-f173205681a0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250728155136-f173205681a0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
 )
 
 replace github.com/olekukonko/tablewriter => github.com/olekukonko/tablewriter v0.0.5
