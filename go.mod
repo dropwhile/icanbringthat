@@ -3,7 +3,7 @@ module github.com/dropwhile/icanbringthat
 go 1.24
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.6-20250717185734-6c6e0d3c608e.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.7-20250717185734-6c6e0d3c608e.1
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/validate v0.3.0
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -27,13 +27,13 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.54.0
 	github.com/redis/go-redis/v9 v9.12.0
-	github.com/samber/mo v1.14.1
+	github.com/samber/mo v1.15.0
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.5.2
 	golang.org/x/crypto v0.41.0
-	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792
+	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a
 	google.golang.org/protobuf v1.36.7
 	gotest.tools/v3 v3.5.2
 )
@@ -53,7 +53,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-webauthn/x v0.1.23 // indirect
+	github.com/go-webauthn/x v0.1.24 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
 	github.com/google/go-tpm v0.9.5 // indirect
