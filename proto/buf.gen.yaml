@@ -17,9 +17,8 @@ plugins:
   - local: protoc-gen-connect-go
     out: ../rpc/
     opt: paths=source_relative
-  #- local: protoc-gen-connect-openapi
-  - remote: buf.build/community/sudorandom-connect-openapi
+  - remote: buf.build/community/sudorandom-connect-openapi:v0.19.1
+    #- local: protoc-gen-connect-openapi
     out: ../reference/
     opt:
       - path=openapi.yaml
-      - base=auth-base.yaml

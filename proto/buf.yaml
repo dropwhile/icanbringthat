@@ -14,5 +14,6 @@ breaking:
     - FILE
 deps:
   - buf.build/bufbuild/protovalidate
+  - buf.build/gnostic/gnostic
   #- buf.build/protocolbuffers/wellknowntypes
   #- buf.build/protocolbuffers/gofeatures

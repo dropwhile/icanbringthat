@@ -1,0 +1,36 @@
+edition = "2023";
+package icbt.rpc.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+option (gnostic.openapi.v3.document) = {
+  info: {
+    title: "ICanBringThat"
+    version: "v1.0.0"
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              description: "Api Token"
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "ApiToken"
+            }
+          }
+        }
+      ]
+    }
+  }
+  security: {
+    additional_properties: [
+      {
+        name: "BearerAuth"
+        value: {}
+      }
+    ]
+  }
+};
