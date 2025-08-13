@@ -4,6 +4,8 @@ managed:
   disable:
     - file_option: go_package_prefix
       module: buf.build/bufbuild/protovalidate
+    - file_option: go_package_prefix
+      module: buf.build/gnostic/gnostic
     - file_option: go_package
       module: buf.build/envoyproxy/protoc-gen-validate
   override:

@@ -7,7 +7,7 @@
 package rpcv1
 
 import (
-	_ "github.com/dropwhile/icanbringthat/rpc/gnostic/openapi/v3"
+	_ "github.com/google/gnostic/openapiv3"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
