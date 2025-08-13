@@ -1,4 +1,5 @@
 edition = "2023";
+
 package icbt.rpc.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
