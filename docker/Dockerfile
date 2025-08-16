@@ -4,7 +4,6 @@
 FROM golang:alpine AS builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
-ENV GOEXPERIMENT=loopvar
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest; rm -rf /go/pkg/ /root/.cache/
 COPY go.mod go.sum ./
 RUN go mod download
