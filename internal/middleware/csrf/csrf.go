@@ -63,7 +63,7 @@ func Protect(optfuncs ...optionFunc) func(next http.Handler) http.Handler {
 				return
 			default:
 				// if Origin is present and is the same as Host, allow
-				if origin := r.Header.Get("origin"); origin != "" {
+				if origin := r.Header.Get("Origin"); origin != "" {
 					if u, err := url.Parse(origin); err == nil {
 						if u.Host == r.Host {
 							next.ServeHTTP(w, r)
