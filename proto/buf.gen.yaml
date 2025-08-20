@@ -24,3 +24,6 @@ plugins:
     out: ../reference/
     opt:
       - path=openapi.yaml
+      - trim-unused-types
+      - with-proto-annotations
+      - with-proto-names

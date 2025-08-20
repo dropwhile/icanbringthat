@@ -711,32 +711,16 @@ paths:
                 $ref: '#/components/schemas/icbt.rpc.v1.NotificationsListResponse'
 components:
   schemas:
-    icbt.rpc.v1.PaginationRequest:
+    google.protobuf.Empty:
       type: object
-      properties:
-        limit:
-          exclusiveMinimum: 0
-          type: integer
-          title: limit
-        offset:
-          type: integer
-          title: offset
-      title: PaginationRequest
-      additionalProperties: false
-    icbt.rpc.v1.PaginationResult:
-      type: object
-      properties:
-        limit:
-          type: integer
-          title: limit
-        offset:
-          type: integer
-          title: offset
-        count:
-          type: integer
-          title: count
-      title: PaginationResult
-      additionalProperties: false
+      description: |-
+        A generic empty message that you can re-use to avoid defining duplicated
+         empty messages in your APIs. A typical example is to use it as the request
+         or the response type of an API method. For instance:
+
+             service Foo {
+               rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
+             }
     google.protobuf.Timestamp:
       type: string
       examples:
@@ -836,33 +820,39 @@ components:
     icbt.rpc.v1.Earmark:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
-        eventItemRefId:
+          description: (proto string)
+        event_item_ref_id:
           type: string
           title: event_item_ref_id
+          description: (proto string)
         note:
           type: string
           title: note
+          description: (proto string)
         owner:
           type: string
           title: owner
+          description: (proto string)
         created:
           title: created
+          description: (proto google.protobuf.Timestamp)
           $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Earmark
       additionalProperties: false
     icbt.rpc.v1.EarmarkCreateRequest:
       type: object
       properties:
-        eventItemRefId:
+        event_item_ref_id:
           type: string
           title: event_item_ref_id
+          description: (proto string)
         note:
           type: string
           title: note
-          description: required, but can be empty
+          description: required, but can be empty (proto string)
       title: EarmarkCreateRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarkCreateResponse:
@@ -870,15 +860,17 @@ components:
       properties:
         earmark:
           title: earmark
+          description: (proto icbt.rpc.v1.Earmark)
           $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
       title: EarmarkCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EarmarkGetDetailsRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EarmarkGetDetailsRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarkGetDetailsResponse:
@@ -886,18 +878,21 @@ components:
       properties:
         earmark:
           title: earmark
+          description: (proto icbt.rpc.v1.Earmark)
           $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
-        eventRefId:
+        event_ref_id:
           type: string
           title: event_ref_id
+          description: (proto string)
       title: EarmarkGetDetailsResponse
       additionalProperties: false
     icbt.rpc.v1.EarmarkRemoveRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EarmarkRemoveRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarksListRequest:
@@ -905,10 +900,12 @@ components:
       properties:
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationRequest)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
+          description: (proto bool)
       title: EarmarksListRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarksListResponse:
@@ -919,66 +916,61 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmarks
+          description: (proto icbt.rpc.v1.Earmark)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EarmarksListResponse
-      additionalProperties: false
-    icbt.rpc.v1.TimestampTZ:
-      type: object
-      properties:
-        ts:
-          title: ts
-          description: timestamp
-          $ref: '#/components/schemas/google.protobuf.Timestamp'
-        tz:
-          type: string
-          examples:
-            - UTC
-          title: tz
-          minLength: 3
-          description: timezone
-      title: TimestampTZ
       additionalProperties: false
     icbt.rpc.v1.Event:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
         name:
           type: string
           title: name
+          description: (proto string)
         description:
           type: string
           title: description
+          description: (proto string)
         when:
           title: when
+          description: (proto icbt.rpc.v1.TimestampTZ)
           $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
         archived:
           type: boolean
           title: archived
+          description: (proto bool)
         created:
           title: created
+          description: (proto google.protobuf.Timestamp)
           $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Event
       additionalProperties: false
     icbt.rpc.v1.EventAddItemRequest:
       type: object
       properties:
-        eventRefId:
+        event_ref_id:
           type: string
           title: event_ref_id
+          description: (proto string)
         description:
           type: string
           title: description
+          description: (proto string)
       title: EventAddItemRequest
       additionalProperties: false
     icbt.rpc.v1.EventAddItemResponse:
       type: object
       properties:
-        eventItem:
+        event_item:
           title: event_item
+          description: (proto icbt.rpc.v1.EventItem)
           $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
       title: EventAddItemResponse
       additionalProperties: false
@@ -989,12 +981,15 @@ components:
           type: string
           title: name
           minLength: 1
+          description: (proto string)
         description:
           type: string
           title: description
           minLength: 1
+          description: (proto string)
         when:
           title: when
+          description: (proto icbt.rpc.v1.TimestampTZ)
           $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
       title: EventCreateRequest
       additionalProperties: false
@@ -1003,23 +998,26 @@ components:
       properties:
         event:
           title: event
+          description: (proto icbt.rpc.v1.Event)
           $ref: '#/components/schemas/icbt.rpc.v1.Event'
       title: EventCreateResponse
       additionalProperties: false
     icbt.rpc.v1.EventDeleteRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EventDeleteRequest
       additionalProperties: false
     icbt.rpc.v1.EventGetDetailsRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EventGetDetailsRequest
       additionalProperties: false
     icbt.rpc.v1.EventGetDetailsResponse:
@@ -1027,39 +1025,46 @@ components:
       properties:
         event:
           title: event
+          description: (proto icbt.rpc.v1.Event)
           $ref: '#/components/schemas/icbt.rpc.v1.Event'
         items:
           type: array
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
           title: items
+          description: (proto icbt.rpc.v1.EventItem)
         earmarks:
           type: array
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmarks
+          description: (proto icbt.rpc.v1.Earmark)
       title: EventGetDetailsResponse
       additionalProperties: false
     icbt.rpc.v1.EventItem:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
         description:
           type: string
           title: description
+          description: (proto string)
         created:
           title: created
+          description: (proto google.protobuf.Timestamp)
           $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: EventItem
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EventListEarmarksRequest
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksResponse:
@@ -1070,17 +1075,20 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Earmark'
           title: earmarks
+          description: (proto icbt.rpc.v1.Earmark)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventListEarmarksResponse
       additionalProperties: false
     icbt.rpc.v1.EventListItemsRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EventListItemsRequest
       additionalProperties: false
     icbt.rpc.v1.EventListItemsResponse:
@@ -1091,52 +1099,62 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
           title: items
+          description: (proto icbt.rpc.v1.EventItem)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventListItemsResponse
       additionalProperties: false
     icbt.rpc.v1.EventRemoveItemRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: EventRemoveItemRequest
       additionalProperties: false
     icbt.rpc.v1.EventUpdateItemRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
         description:
           type: string
           title: description
+          description: (proto string)
       title: EventUpdateItemRequest
       additionalProperties: false
     icbt.rpc.v1.EventUpdateItemResponse:
       type: object
       properties:
-        eventItem:
+        event_item:
           title: event_item
+          description: (proto icbt.rpc.v1.EventItem)
           $ref: '#/components/schemas/icbt.rpc.v1.EventItem'
       title: EventUpdateItemResponse
       additionalProperties: false
     icbt.rpc.v1.EventUpdateRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
         name:
           type: string
           title: name
+          description: (proto string)
         description:
           type: string
           title: description
+          description: (proto string)
         when:
           title: when
+          description: (proto icbt.rpc.v1.TimestampTZ)
           $ref: '#/components/schemas/icbt.rpc.v1.TimestampTZ'
       title: EventUpdateRequest
       additionalProperties: false
@@ -1145,10 +1163,12 @@ components:
       properties:
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationRequest)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
+          description: (proto bool)
       title: EventsListRequest
       additionalProperties: false
     icbt.rpc.v1.EventsListResponse:
@@ -1159,28 +1179,33 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: events
+          description: (proto icbt.rpc.v1.Event)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: EventsListResponse
       additionalProperties: false
     icbt.rpc.v1.Favorite:
       type: object
       properties:
-        eventRefId:
+        event_ref_id:
           type: string
           title: event_ref_id
+          description: (proto string)
         created:
           title: created
+          description: (proto google.protobuf.Timestamp)
           $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Favorite
       additionalProperties: false
     icbt.rpc.v1.FavoriteAddRequest:
       type: object
       properties:
-        eventRefId:
+        event_ref_id:
           type: string
           title: event_ref_id
+          description: (proto string)
       title: FavoriteAddRequest
       additionalProperties: false
     icbt.rpc.v1.FavoriteAddResponse:
@@ -1188,6 +1213,7 @@ components:
       properties:
         favorite:
           title: favorite
+          description: (proto icbt.rpc.v1.Favorite)
           $ref: '#/components/schemas/icbt.rpc.v1.Favorite'
       title: FavoriteAddResponse
       additionalProperties: false
@@ -1196,10 +1222,12 @@ components:
       properties:
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationRequest)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
         archived:
           type: boolean
           title: archived
+          description: (proto bool)
       title: FavoriteListEventsRequest
       additionalProperties: false
     icbt.rpc.v1.FavoriteListEventsResponse:
@@ -1210,39 +1238,46 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Event'
           title: events
+          description: (proto icbt.rpc.v1.Event)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: FavoriteListEventsResponse
       additionalProperties: false
     icbt.rpc.v1.FavoriteRemoveRequest:
       type: object
       properties:
-        eventRefId:
+        event_ref_id:
           type: string
           title: event_ref_id
+          description: (proto string)
       title: FavoriteRemoveRequest
       additionalProperties: false
     icbt.rpc.v1.Notification:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
         message:
           type: string
           title: message
+          description: (proto string)
         created:
           title: created
+          description: (proto google.protobuf.Timestamp)
           $ref: '#/components/schemas/google.protobuf.Timestamp'
       title: Notification
       additionalProperties: false
     icbt.rpc.v1.NotificationDeleteRequest:
       type: object
       properties:
-        refId:
+        ref_id:
           type: string
           title: ref_id
+          description: (proto string)
       title: NotificationDeleteRequest
       additionalProperties: false
     icbt.rpc.v1.NotificationsDeleteAllRequest:
@@ -1254,6 +1289,7 @@ components:
       properties:
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationRequest)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationRequest'
       title: NotificationsListRequest
       additionalProperties: false
@@ -1265,21 +1301,60 @@ components:
           items:
             $ref: '#/components/schemas/icbt.rpc.v1.Notification'
           title: notifications
+          description: (proto icbt.rpc.v1.Notification)
         pagination:
           title: pagination
+          description: (proto icbt.rpc.v1.PaginationResult)
           $ref: '#/components/schemas/icbt.rpc.v1.PaginationResult'
       title: NotificationsListResponse
       additionalProperties: false
-    google.protobuf.Empty:
+    icbt.rpc.v1.PaginationRequest:
       type: object
-      description: |-
-        A generic empty message that you can re-use to avoid defining duplicated
-         empty messages in your APIs. A typical example is to use it as the request
-         or the response type of an API method. For instance:
-
-             service Foo {
-               rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-             }
+      properties:
+        limit:
+          exclusiveMinimum: 0
+          type: integer
+          title: limit
+          description: (proto uint32)
+        offset:
+          type: integer
+          title: offset
+          description: (proto uint32)
+      title: PaginationRequest
+      additionalProperties: false
+    icbt.rpc.v1.PaginationResult:
+      type: object
+      properties:
+        limit:
+          type: integer
+          title: limit
+          description: (proto uint32)
+        offset:
+          type: integer
+          title: offset
+          description: (proto uint32)
+        count:
+          type: integer
+          title: count
+          description: (proto uint32)
+      title: PaginationResult
+      additionalProperties: false
+    icbt.rpc.v1.TimestampTZ:
+      type: object
+      properties:
+        ts:
+          title: ts
+          description: timestamp (proto google.protobuf.Timestamp)
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        tz:
+          type: string
+          examples:
+            - UTC
+          title: tz
+          minLength: 3
+          description: timezone (proto string)
+      title: TimestampTZ
+      additionalProperties: false
     connect-protocol-version:
       type: number
       title: Connect-Protocol-Version
