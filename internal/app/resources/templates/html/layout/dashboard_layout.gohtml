@@ -1,72 +1,73 @@
 {{define "dashboard_layout" -}}
 <!DOCTYPE html>
 <html :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{.title | title}} - ICanBringThat</title>
-  {{template "scripts_css_partial" .}}
-</head>
-
-<body hx-boost="true">
-  <div
-    class="flex h-screen bg-gray-50 dark:bg-gray-900"
-    :class="{ 'overflow-hidden': isSideMenuOpen }">
-    <!-- Desktop sidebar -->
-    <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
-      {{ template "sidebar_nav_partial" .}}
-    </aside>
-    <!-- Mobile sidebar -->
-    <!-- Backdrop -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title | title}} - ICanBringThat</title>
+    {{template "scripts_css_partial" .}}
+  </head>
+  <body hx-boost="true">
     <div
-      x-cloak
-      x-show="isSideMenuOpen"
-      x-transition:enter="transition ease-in-out duration-150"
-      x-transition:enter-start="opacity-0"
-      x-transition:enter-end="opacity-100"
-      x-transition:leave="transition ease-in-out duration-150"
-      x-transition:leave-start="opacity-100"
-      x-transition:leave-end="opacity-0"
-      class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"></div>
-    <aside
-      class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden"
-      x-cloak
-      x-show="isSideMenuOpen"
-      x-trap="isSideMenuOpen"
-      x-transition:enter="transition ease-in-out duration-150"
-      x-transition:enter-start="opacity-0 transform -translate-x-20"
-      x-transition:enter-end="opacity-100"
-      x-transition:leave="transition ease-in-out duration-150"
-      x-transition:leave-start="opacity-100"
-      x-transition:leave-end="opacity-0 transform -translate-x-20"
-      @click.away="closeSideMenu"
-      @keydown.escape="closeSideMenu">
-      {{ template "sidebar_nav_partial" .}}
-    </aside>
-    <div class="flex flex-col flex-1 w-full">
-      {{ template "header_partial" . }}
-      <main class="h-full overflow-y-auto">
-        <div class="container px-6 mx-auto grid">
-          <h2
-            class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200 border-b"
-            style="padding-bottom: 0.625rem;">
-            {{.title | title }}
-          </h2>
-          {{block "main" . -}}
-          <!-- content -->
-          {{- end}}
-        </div>
-      </main>
+      class="flex h-screen bg-gray-50 dark:bg-gray-900"
+      :class="{ 'overflow-hidden': isSideMenuOpen }"
+    >
+      <!-- Desktop sidebar -->
+      <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
+        {{ template "sidebar_nav_partial" .}}
+      </aside>
+      <!-- Mobile sidebar -->
+      <!-- Backdrop -->
+      <div
+        x-cloak
+        x-show="isSideMenuOpen"
+        x-transition:enter="transition ease-in-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in-out duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"
+      ></div>
+      <aside
+        class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden"
+        x-cloak
+        x-show="isSideMenuOpen"
+        x-trap="isSideMenuOpen"
+        x-transition:enter="transition ease-in-out duration-150"
+        x-transition:enter-start="opacity-0 transform -translate-x-20"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in-out duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0 transform -translate-x-20"
+        @click.away="closeSideMenu"
+        @keydown.escape="closeSideMenu"
+      >
+        {{ template "sidebar_nav_partial" .}}
+      </aside>
+      <div class="flex flex-col flex-1 w-full">
+        {{ template "header_partial" . }}
+        <main class="h-full overflow-y-auto">
+          <div class="container px-6 mx-auto grid">
+            <h2
+              class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200 border-b"
+              style="padding-bottom: 0.625rem;"
+            >
+              {{.title | title }}
+            </h2>
+            {{block "main" . -}}
+            <!-- content -->
+            {{- end}}
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
-  <div id="flashes_modal">
-    {{with .flashes}}
+    <div id="flashes_modal">
+      {{with .flashes}}
     {{template "flashes_modal" .}}
     {{end}}
-  </div>
-  {{template "full_modal" .}}
-</body>
-
+    </div>
+    {{template "full_modal" .}}
+  </body>
 </html>
 {{- end }}
