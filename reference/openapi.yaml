@@ -7,7 +7,7 @@ paths:
     post:
       tags:
         - icbt.rpc.v1.IcbtRpcService
-      summary: EarmarkCreate
+      summary: earmark
       description: earmark
       operationId: icbt.rpc.v1.IcbtRpcService.EarmarkCreate
       parameters:
@@ -148,7 +148,7 @@ paths:
     post:
       tags:
         - icbt.rpc.v1.IcbtRpcService
-      summary: EventCreate
+      summary: events
       description: events
       operationId: icbt.rpc.v1.IcbtRpcService.EventCreate
       parameters:
@@ -395,7 +395,7 @@ paths:
     post:
       tags:
         - icbt.rpc.v1.IcbtRpcService
-      summary: EventAddItem
+      summary: event-items
       description: event-items
       operationId: icbt.rpc.v1.IcbtRpcService.EventAddItem
       parameters:
@@ -501,7 +501,7 @@ paths:
     post:
       tags:
         - icbt.rpc.v1.IcbtRpcService
-      summary: FavoriteAdd
+      summary: favorites
       description: favorites
       operationId: icbt.rpc.v1.IcbtRpcService.FavoriteAdd
       parameters:
@@ -607,7 +607,7 @@ paths:
     post:
       tags:
         - icbt.rpc.v1.IcbtRpcService
-      summary: NotificationDelete
+      summary: notifications
       description: notifications
       operationId: icbt.rpc.v1.IcbtRpcService.NotificationDelete
       parameters:
@@ -724,8 +724,8 @@ components:
     google.protobuf.Timestamp:
       type: string
       examples:
-        - 1s
-        - 1.000340012s
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
       format: date-time
       description: |-
         A Timestamp represents a point in time independent of any time zone or local
@@ -848,7 +848,9 @@ components:
         event_item_ref_id:
           type: string
           title: event_item_ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
         note:
           type: string
           title: note
@@ -870,7 +872,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EarmarkGetDetailsRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarkGetDetailsResponse:
@@ -892,7 +896,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EarmarkRemoveRequest
       additionalProperties: false
     icbt.rpc.v1.EarmarksListRequest:
@@ -958,7 +964,9 @@ components:
         event_ref_id:
           type: string
           title: event_ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
         description:
           type: string
           title: description
@@ -981,12 +989,16 @@ components:
           type: string
           title: name
           minLength: 1
-          description: (proto string)
+          description: |
+            (proto string)
+            string.min_len = 1
         description:
           type: string
           title: description
           minLength: 1
-          description: (proto string)
+          description: |
+            (proto string)
+            string.min_len = 1
         when:
           title: when
           description: (proto icbt.rpc.v1.TimestampTZ)
@@ -1008,7 +1020,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EventDeleteRequest
       additionalProperties: false
     icbt.rpc.v1.EventGetDetailsRequest:
@@ -1017,7 +1031,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EventGetDetailsRequest
       additionalProperties: false
     icbt.rpc.v1.EventGetDetailsResponse:
@@ -1064,7 +1080,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EventListEarmarksRequest
       additionalProperties: false
     icbt.rpc.v1.EventListEarmarksResponse:
@@ -1088,7 +1106,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EventListItemsRequest
       additionalProperties: false
     icbt.rpc.v1.EventListItemsResponse:
@@ -1112,7 +1132,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: EventRemoveItemRequest
       additionalProperties: false
     icbt.rpc.v1.EventUpdateItemRequest:
@@ -1121,7 +1143,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
         description:
           type: string
           title: description
@@ -1143,7 +1167,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
         name:
           type: string
           title: name
@@ -1205,7 +1231,9 @@ components:
         event_ref_id:
           type: string
           title: event_ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: FavoriteAddRequest
       additionalProperties: false
     icbt.rpc.v1.FavoriteAddResponse:
@@ -1251,7 +1279,9 @@ components:
         event_ref_id:
           type: string
           title: event_ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: FavoriteRemoveRequest
       additionalProperties: false
     icbt.rpc.v1.Notification:
@@ -1277,7 +1307,9 @@ components:
         ref_id:
           type: string
           title: ref_id
-          description: (proto string)
+          description: |
+            (proto string)
+            string.refid = true // must be in refid format
       title: NotificationDeleteRequest
       additionalProperties: false
     icbt.rpc.v1.NotificationsDeleteAllRequest:
@@ -1315,7 +1347,13 @@ components:
           exclusiveMinimum: 0
           type: integer
           title: limit
-          description: (proto uint32)
+          description: |
+            (proto uint32)
+            uint32.gt = 0
+            uint32.gt_lt = 0
+            uint32.gt_lt_exclusive = 0
+            uint32.gt_lte = 0
+            uint32.gt_lte_exclusive = 0
         offset:
           type: integer
           title: offset
@@ -1352,7 +1390,10 @@ components:
             - UTC
           title: tz
           minLength: 3
-          description: timezone (proto string)
+          description: |
+            timezone (proto string)
+            string.example = ["UTC"]
+            string.min_len = 3
       title: TimestampTZ
       additionalProperties: false
     connect-protocol-version:
@@ -1394,28 +1435,42 @@ components:
         message:
           type: string
           description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
-        detail:
-          $ref: '#/components/schemas/google.protobuf.Any'
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
       title: Connect Error
       additionalProperties: true
       description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
-    google.protobuf.Any:
+    connect.error_details.Any:
       type: object
       properties:
         type:
           type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`. This is used to determine the schema of the data in the `value` field and is the discriminator for the `debug` field.'
         value:
           type: string
           format: binary
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
         debug:
-          type: object
-          additionalProperties: true
+          oneOf:
+            - type: object
+              title: Any
+              additionalProperties: true
+              description: Detailed error information.
+          discriminator:
+            propertyName: type
+          title: Debug
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
       additionalProperties: true
-      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
   securitySchemes:
     BearerAuth:
       type: http
+      description: Api Token
       scheme: bearer
+      bearerFormat: ApiToken
 security:
   - BearerAuth: []
 tags:
