@@ -34,6 +34,15 @@ fi
 if [ "${TOOL_NAME}" = "" ]; then
     grep -v '^\s*#' "${TOOLS_CONF}" | grep -v '^\s*$'| awk -F: '{print $1}'
     #exec go tool
+elif [ "${TOOL_NAME}" = "install-all" ]; then
+    grep -v '^\s*#' "${TOOLS_CONF}" | grep -v '^\s*$'| awk -F: '{print $1}' | while read x; do
+        check_install_tool "${x}"
+        # buf has some tool deps
+        if [ "${x}" = "buf" ]; then
+            install_buf_tool_deps
+        fi
+    done
+    #exec go tool
 else
     check_install_tool "${TOOL_NAME}"
     # buf has some tool deps
