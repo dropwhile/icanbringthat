@@ -37,6 +37,8 @@ REDIS_PASS          ?=
 # some exported vars (pre-configure go build behavior)
 export GOTOOLCHAIN=local
 #export CGO_ENABLED=0
+## enable go 1.25 GC "experiment"
+export GOEXPERIMENT=greenteagc
 export GOOSE_DRIVER
 export GOOSE_DBSTRING
 export GOOSE_MIGRATION_DIR
