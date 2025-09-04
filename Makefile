@@ -108,7 +108,7 @@ build:
 .PHONY: test
 test:
 	@echo ">> Running tests..."
-	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
+	@${TOOLEXE} gotestsum -- -count=1 -vet=off ${GOTEST_FLAGS} ./...
 
 .PHONY: bench
 bench:
