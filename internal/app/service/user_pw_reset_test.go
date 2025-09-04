@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/samber/mo"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -48,10 +48,10 @@ func TestService_GetUserPWResetByRefID(t *testing.T) {
 			)
 
 		result, err := svc.GetUserPWResetByRefID(ctx, refID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, refID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -70,7 +70,7 @@ func TestService_GetUserPWResetByRefID(t *testing.T) {
 		_, err := svc.GetUserPWResetByRefID(ctx, refID)
 		errs.AssertError(t, err, errs.NotFound, "pwreset not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -111,10 +111,10 @@ func TestService_NewUserPWReset(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.NewUserPWReset(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, refID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -176,9 +176,9 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.UpdateUserPWReset(ctx, user, upw)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -227,7 +227,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		err := svc.UpdateUserPWReset(ctx, user, upw)
 		errs.AssertError(t, err, errs.Internal, "db error: honk honk")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -247,7 +247,7 @@ func TestService_UpdateUserPWReset(t *testing.T) {
 		err := svc.UpdateUserPWReset(ctx, user, upw)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

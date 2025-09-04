@@ -6,6 +6,7 @@ package handler
 import (
 	"context"
 	"flag"
+	"fmt"
 	"html/template"
 	"net/http/httptest"
 	"net/url"
@@ -14,9 +15,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/assert"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
 	"github.com/dropwhile/icanbringthat/internal/app/service/mockservice"
@@ -96,7 +97,11 @@ func StatusEqual(rr *httptest.ResponseRecorder, status int) bool {
 func AssertStatusEqual(t *testing.T, rr *httptest.ResponseRecorder, status int) {
 	t.Helper()
 	assert.Equal(t, rr.Code, status,
-		"handler returned wrong status code: got %d expected %d", rr.Code, status)
+		fmt.Sprintf(
+			"handler returned wrong status code: got %d expected %d",
+			rr.Code, status,
+		),
+	)
 }
 
 func FormData(values url.Values) *strings.Reader {

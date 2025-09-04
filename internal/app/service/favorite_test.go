@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -37,11 +37,11 @@ func TestService_GetFavoriteEventsCount(t *testing.T) {
 			)
 
 		result, err := svc.GetFavoriteEventsCount(ctx, userID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.Current, currentCount)
 		assert.Equal(t, result.Archived, archivedCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -107,13 +107,13 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 			)
 
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), currentCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -155,13 +155,13 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 			)
 
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), archivedCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, archivedCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -185,13 +185,13 @@ func TestService_GetFavoriteEventsPaginated(t *testing.T) {
 			)
 
 		events, pagination, err := svc.GetFavoriteEventsPaginated(ctx, user.ID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), currentCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -246,10 +246,10 @@ func TestService_GetFavoriteEvents(t *testing.T) {
 			)
 
 		events, err := svc.GetFavoriteEvents(ctx, user.ID, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -280,10 +280,10 @@ func TestService_GetFavoriteEvents(t *testing.T) {
 			)
 
 		events, err := svc.GetFavoriteEvents(ctx, user.ID, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -309,10 +309,10 @@ func TestService_GetFavoriteEvents(t *testing.T) {
 			)
 
 		events, err := svc.GetFavoriteEvents(ctx, user.ID, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(events), count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -357,10 +357,10 @@ func TestService_GetFavoriteByUserEvent(t *testing.T) {
 			)
 
 		favorite, err := svc.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, favorite.EventID, event.ID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -380,7 +380,7 @@ func TestService_GetFavoriteByUserEvent(t *testing.T) {
 		_, err := svc.GetFavoriteByUserEvent(ctx, user.ID, event.ID)
 		errs.AssertError(t, err, errs.NotFound, "favorite not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -451,10 +451,10 @@ func TestService_AddFavorite(t *testing.T) {
 		mock.ExpectRollback()
 
 		event, err := svc.AddFavorite(ctx, user.ID, event.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, event.RefID, event.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -472,7 +472,7 @@ func TestService_AddFavorite(t *testing.T) {
 		_, err := svc.AddFavorite(ctx, user.ID, event.RefID)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -499,7 +499,7 @@ func TestService_AddFavorite(t *testing.T) {
 		_, err := svc.AddFavorite(ctx, user.ID, event.RefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "can't favorite own event")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -535,7 +535,7 @@ func TestService_AddFavorite(t *testing.T) {
 		_, err := svc.AddFavorite(ctx, user.ID, event.RefID)
 		errs.AssertError(t, err, errs.AlreadyExists, "favorite already exists")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -605,9 +605,9 @@ func TestService_RemoveFavorite(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.RemoveFavorite(ctx, user.ID, event.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -625,7 +625,7 @@ func TestService_RemoveFavorite(t *testing.T) {
 		err := svc.RemoveFavorite(ctx, user.ID, event.RefID)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -658,7 +658,7 @@ func TestService_RemoveFavorite(t *testing.T) {
 		err := svc.RemoveFavorite(ctx, user.ID, event.RefID)
 		errs.AssertError(t, err, errs.NotFound, "favorite not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

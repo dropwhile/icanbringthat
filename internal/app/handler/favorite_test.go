@@ -11,8 +11,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/go-chi/chi/v5"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -67,7 +67,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusOK)
@@ -91,7 +91,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
@@ -120,7 +120,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)
@@ -145,7 +145,7 @@ func TestHandler_Favorite_Delete(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusNotFound)

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -69,7 +69,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 			}.Build(),
 		}.Build()
 		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(response.Msg.GetNotifications()), 1)
 	})
 
@@ -86,7 +86,7 @@ func TestRpc_ListNotifications(t *testing.T) {
 
 		request := &icbt.NotificationsListRequest{}
 		response, err := server.NotificationsList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, len(response.Msg.GetNotifications()), 1)
 	})
@@ -183,7 +183,7 @@ func TestRpc_DeleteNotification(t *testing.T) {
 			RefId: notification.RefID.String(),
 		}.Build()
 		_, err := server.NotificationDelete(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 }
 
@@ -214,6 +214,6 @@ func TestRpc_DeleteAllNotifications(t *testing.T) {
 
 		request := &icbt.NotificationsDeleteAllRequest{}
 		_, err := server.NotificationsDeleteAll(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 }

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func TestFlashPopAll(t *testing.T) {
@@ -40,7 +40,7 @@ func TestFlashPopAll(t *testing.T) {
 	t.Cleanup(ts.Close)
 
 	jar, err := cookiejar.New(nil)
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	c := http.Client{Timeout: time.Duration(1) * time.Second, Jar: jar}
 
@@ -50,7 +50,7 @@ func TestFlashPopAll(t *testing.T) {
 		io.Copy(io.Discard, res.Body)
 		res.Body.Close()
 	}
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	// Make a request to the server
 	res, err = c.Get(ts.URL + "?read=true")
@@ -59,7 +59,7 @@ func TestFlashPopAll(t *testing.T) {
 		b, _ = io.ReadAll(res.Body)
 		res.Body.Close()
 	}
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	assert.Equal(t, string(b), "map[test:[hello goodbye]]")
 }
@@ -93,7 +93,7 @@ func TestFlashPopOne(t *testing.T) {
 	t.Cleanup(ts.Close)
 
 	jar, err := cookiejar.New(nil)
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	c := http.Client{Timeout: time.Duration(1) * time.Second, Jar: jar}
 
@@ -103,7 +103,7 @@ func TestFlashPopOne(t *testing.T) {
 		io.Copy(io.Discard, res.Body)
 		res.Body.Close()
 	}
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	// Make a request to the server
 	res, err = c.Get(ts.URL + "?read=1")
@@ -112,7 +112,7 @@ func TestFlashPopOne(t *testing.T) {
 		b, _ = io.ReadAll(res.Body)
 		res.Body.Close()
 	}
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 	assert.Equal(t, string(b), "[hello]")
 
 	// Make a request to the server
@@ -121,6 +121,6 @@ func TestFlashPopOne(t *testing.T) {
 		b, _ = io.ReadAll(res.Body)
 		res.Body.Close()
 	}
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 	assert.Equal(t, string(b), "map[test2:[goodbye]]")
 }

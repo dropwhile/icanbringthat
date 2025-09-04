@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -75,7 +75,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 			Archived: func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.FavoriteListEvents(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
@@ -112,7 +112,7 @@ func TestRpc_ListFavoriteEvents(t *testing.T) {
 			Archived: func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.FavoriteListEvents(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 }
@@ -155,7 +155,7 @@ func TestRpc_AddFavorite(t *testing.T) {
 			EventRefId: eventRefID.String(),
 		}.Build()
 		response, err := server.FavoriteAdd(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, response.Msg.GetFavorite().GetEventRefId(), eventRefID.String())
 	})
 
@@ -245,7 +245,7 @@ func TestRpc_RemoveFavorite(t *testing.T) {
 			EventRefId: eventRefID.String(),
 		}.Build()
 		_, err := server.FavoriteRemove(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("remove favorite with bad refid should fail", func(t *testing.T) {

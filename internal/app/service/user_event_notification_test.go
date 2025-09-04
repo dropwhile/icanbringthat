@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
@@ -158,9 +158,9 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		err := svc.NotifyUsersPendingEvents(
 			ctx, mailer, templates, "http://example.org",
 		)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -205,9 +205,9 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		err := svc.NotifyUsersPendingEvents(
 			ctx, mailer, templates, "http://example.org",
 		)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -249,9 +249,9 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		err := svc.NotifyUsersPendingEvents(
 			ctx, mailer, templates, "http://example.org",
 		)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -277,9 +277,9 @@ func TestService_NotifyUsersPendingEvents(t *testing.T) {
 		err := svc.NotifyUsersPendingEvents(
 			ctx, mailer, templates, "http://example.org",
 		)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

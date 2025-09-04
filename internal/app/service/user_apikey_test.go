@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -46,11 +46,11 @@ func TestService_GetApiKeyByUser(t *testing.T) {
 			)
 
 		result, err := svc.GetApiKeyByUser(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.UserID, user.ID)
 		assert.Equal(t, result.Token, token)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -67,7 +67,7 @@ func TestService_GetApiKeyByUser(t *testing.T) {
 		_, err := svc.GetApiKeyByUser(ctx, user.ID)
 		errs.AssertError(t, err, errs.NotFound, "user-api-key not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -107,10 +107,10 @@ func TestService_GetUserByApiKey(t *testing.T) {
 			)
 
 		result, err := svc.GetUserByApiKey(ctx, token)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, user.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -129,7 +129,7 @@ func TestService_GetUserByApiKey(t *testing.T) {
 		_, err := svc.GetUserByApiKey(ctx, token)
 		errs.AssertError(t, err, errs.NotFound, "user not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -170,11 +170,11 @@ func TestService_NewApiKey(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.NewApiKey(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.Token, token)
 		assert.Equal(t, result.UserID, user.ID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -218,11 +218,11 @@ func TestService_NewApiKeyIfNotExists(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.NewApiKeyIfNotExists(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.Token, token)
 		assert.Equal(t, result.UserID, user.ID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -242,11 +242,11 @@ func TestService_NewApiKeyIfNotExists(t *testing.T) {
 			)
 
 		result, err := svc.NewApiKeyIfNotExists(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.Token, token)
 		assert.Equal(t, result.UserID, user.ID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

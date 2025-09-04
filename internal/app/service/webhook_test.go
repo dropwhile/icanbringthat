@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -95,9 +95,9 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DisableRemindersWithNotification(ctx, email, reason)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -117,7 +117,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 		err := svc.DisableRemindersWithNotification(ctx, email, reason)
 		errs.AssertError(t, err, errs.NotFound, "user not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -152,7 +152,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 		err := svc.DisableRemindersWithNotification(ctx, email, reason)
 		errs.AssertError(t, err, errs.FailedPrecondition, "reminders already disabled")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -168,7 +168,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 		err := svc.DisableRemindersWithNotification(ctx, email, reason)
 		errs.AssertError(t, err, errs.InvalidArgument, "email bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -184,7 +184,7 @@ func TestService_DisableRemindersWithNotification(t *testing.T) {
 		err := svc.DisableRemindersWithNotification(ctx, email, reason)
 		errs.AssertError(t, err, errs.InvalidArgument, "suppressionReason bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -36,10 +36,10 @@ func TestService_GetNotificationsCount(t *testing.T) {
 			)
 
 		result, err := svc.GetNotificationsCount(ctx, userID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result, count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -96,13 +96,13 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 			)
 
 		notifications, pagination, err := svc.GetNotificationsPaginated(ctx, userID, limit, offset)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(notifications), count)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -124,13 +124,13 @@ func TestService_GetNotificationsPaginated(t *testing.T) {
 			)
 
 		notifications, pagination, err := svc.GetNotificationsPaginated(ctx, userID, limit, offset)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(notifications), 0)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -176,10 +176,10 @@ func TestService_GetNotifications(t *testing.T) {
 			)
 
 		notifications, err := svc.GetNotifications(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(notifications), count)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -196,10 +196,10 @@ func TestService_GetNotifications(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 
 		notifications, err := svc.GetNotifications(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(notifications), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -253,9 +253,9 @@ func TestService_DeleteNotification(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DeleteNotification(ctx, user.ID, notification.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -282,7 +282,7 @@ func TestService_DeleteNotification(t *testing.T) {
 		err := svc.DeleteNotification(ctx, user.ID+1, notification.RefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -300,7 +300,7 @@ func TestService_DeleteNotification(t *testing.T) {
 		err := svc.DeleteNotification(ctx, user.ID, notification.RefID)
 		errs.AssertError(t, err, errs.NotFound, "notification not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -335,9 +335,9 @@ func TestService_DeleteAllNotifications(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DeleteAllNotifications(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -394,10 +394,10 @@ func TestService_NewNotification(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.NewNotification(ctx, user.ID, notification.Message)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, notification.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -411,7 +411,7 @@ func TestService_NewNotification(t *testing.T) {
 		_, err := svc.NewNotification(ctx, user.ID, "")
 		errs.AssertError(t, err, errs.InvalidArgument, "message bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

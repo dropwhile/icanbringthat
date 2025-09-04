@@ -11,9 +11,9 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/samber/mo"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -63,10 +63,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t, messages,
+		assert.Equal(t, messages,
 			map[string][]string{
 				"error": {"Same Email specified was already present"},
 			},
@@ -107,10 +107,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"success": {"Email update successfull"},
@@ -151,10 +151,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"error": {"Same Name specified was already present"},
@@ -196,10 +196,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"success": {"Name update successfull"},
@@ -233,10 +233,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"error": {"New Password and Confirm Password do not match"},
@@ -273,10 +273,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"error": {"New Password and Confirm Password do not match"},
@@ -322,10 +322,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"error": {"Old Password invalid"},
@@ -368,10 +368,10 @@ func TestHandler_Account_Update(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t,
+		assert.Equal(t,
 			messages,
 			map[string][]string{
 				"success": {"Password update successfull"},
@@ -433,7 +433,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages), 0)
@@ -472,7 +472,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages), 0)
@@ -517,7 +517,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
@@ -562,7 +562,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
@@ -619,7 +619,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
@@ -676,7 +676,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
@@ -718,7 +718,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 1)
@@ -768,7 +768,7 @@ func TestHandler_Account_Update_Auth(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
 		assert.Equal(t, len(messages["error"]), 0)
@@ -810,7 +810,7 @@ func TestHandler_Account_Delete(t *testing.T) {
 
 	response := rr.Result()
 	_, err := io.ReadAll(response.Body)
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 
 	// Check the status code is what we expect.
 	AssertStatusEqual(t, rr, http.StatusOK)
@@ -870,10 +870,10 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		messages := handler.sessMgr.FlashPopAll(ctx)
-		assert.DeepEqual(t, messages,
+		assert.Equal(t, messages,
 			map[string][]string{
 				"success": {"Account created. You are now logged in."},
 			},
@@ -905,7 +905,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
@@ -932,7 +932,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
@@ -963,7 +963,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusBadRequest)
@@ -991,7 +991,7 @@ func TestHandler_Account_Create(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusForbidden)

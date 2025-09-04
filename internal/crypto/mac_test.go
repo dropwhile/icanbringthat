@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func TestMAC_Validate(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMAC_Validate(t *testing.T) {
 			h := NewMAC([]byte(tt.key))
 			message := []byte(tt.args.message)
 			messageMAC, err := hex.DecodeString(tt.args.messageMAC)
-			assert.NilError(t, err)
+			assert.Nil(t, err)
 			if got := h.Validate(message, messageMAC); got != tt.want {
 				t.Errorf("MAC.Validate() = %v, want %v", got, tt.want)
 			}
@@ -64,7 +64,7 @@ func TestMAC_Generate(t *testing.T) {
 			h := NewMAC([]byte(tt.key))
 			message := []byte(tt.message)
 			messageMAC, err := hex.DecodeString(tt.want)
-			assert.NilError(t, err)
+			assert.Nil(t, err)
 			if got := h.Generate(message); !reflect.DeepEqual(got, messageMAC) {
 				t.Errorf("MAC.Validate() = %v, want %v", got, tt.want)
 			}

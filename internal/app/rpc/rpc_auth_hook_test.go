@@ -6,12 +6,13 @@ package rpc
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func dummyHandler(w http.ResponseWriter, r *http.Request) {}
@@ -31,12 +32,15 @@ func TestRpc_RequireApiKey(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		assert.Equal(t, rr.Code, http.StatusUnauthorized,
-			"handler returned wrong status code: got %d expected %d",
-			rr.Code, http.StatusUnauthorized)
+			fmt.Sprintf(
+				"handler returned wrong status code: got %d expected %d",
+				rr.Code, http.StatusUnauthorized,
+			),
+		)
 	})
 	/*
 		t.Run("auth hook with api-key not finding user should fail", func(t *testing.T) {
@@ -120,7 +124,7 @@ func TestRpc_RequireApiKey(t *testing.T) {
 				)
 
 			ctx, err := AuthHook(mock)(ctx)
-			assert.NilError(t, err)
+			assert.Nil(t, err)
 			_, ok := auth.ContextGet[*model.User](ctx, "user")
 			assert.Check(t, ok, "user is a *mode.user")
 		})

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -87,7 +87,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			Archived:   func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.EarmarksList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
@@ -139,7 +139,7 @@ func TestRpc_ListEarmarks(t *testing.T) {
 			Archived: func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.EarmarksList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
@@ -218,7 +218,7 @@ func TestRpc_ListEventEarmarks(t *testing.T) {
 			RefId: eventRefID.String(),
 		}.Build()
 		response, err := server.EventListEarmarks(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, len(response.Msg.GetEarmarks()), 1)
 	})
@@ -340,7 +340,7 @@ func TestRpc_GetEarmarkDetails(t *testing.T) {
 			RefId: earmarkRefID.String(),
 		}.Build()
 		response, err := server.EarmarkGetDetails(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, response.Msg.GetEarmark().GetRefId(), earmarkRefID.String())
 	})
@@ -431,7 +431,7 @@ func TestRpc_AddEarmark(t *testing.T) {
 			Note:           "some note",
 		}.Build()
 		response, err := server.EarmarkCreate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, response.Msg.GetEarmark().GetRefId(), earmarkRefID.String())
 	})
@@ -603,7 +603,7 @@ func TestRpc_RemoveEarmark(t *testing.T) {
 			RefId: earmarkRefID.String(),
 		}.Build()
 		_, err := server.EarmarkRemove(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("remove earmark for another user should fail", func(t *testing.T) {

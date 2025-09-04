@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/crypto"
@@ -58,7 +58,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		slog.DebugContext(ctx, "response",
 			slog.String("body", string(out)))
 
@@ -89,7 +89,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		slog.DebugContext(ctx, "response",
 			slog.String("body", string(out)))
 
@@ -117,7 +117,7 @@ func TestHandler_Login_InvalidCredentials(t *testing.T) {
 
 		response := rr.Result()
 		out, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		slog.DebugContext(ctx, "response",
 			slog.String("body", string(out)))
 
@@ -161,7 +161,7 @@ func TestHandler_Login_ValidCredentials(t *testing.T) {
 
 	response := rr.Result()
 	out, err := io.ReadAll(response.Body)
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 	slog.DebugContext(ctx, "response",
 		slog.String("body", string(out)))
 

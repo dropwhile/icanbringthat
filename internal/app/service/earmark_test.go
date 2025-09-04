@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -44,10 +44,10 @@ func TestService_GetEarmarksByEventID(t *testing.T) {
 			)
 
 		results, err := svc.GetEarmarksByEventID(ctx, eventID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(results), 2)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -64,10 +64,10 @@ func TestService_GetEarmarksByEventID(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 
 		results, err := svc.GetEarmarksByEventID(ctx, eventID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(results), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -97,10 +97,10 @@ func TestService_GetEarmarkByEventItemID(t *testing.T) {
 			)
 
 		result, err := svc.GetEarmarkByEventItemID(ctx, eventItemID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.ID, earmarkID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -119,7 +119,7 @@ func TestService_GetEarmarkByEventItemID(t *testing.T) {
 		_, err := svc.GetEarmarkByEventItemID(ctx, eventItemID)
 		errs.AssertError(t, err, errs.NotFound, "earmark not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -145,11 +145,11 @@ func TestService_GetEarmarksCount(t *testing.T) {
 			)
 
 		result, err := svc.GetEarmarksCount(ctx, userID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.Current, currentCount)
 		assert.Equal(t, result.Archived, archivedCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -198,13 +198,13 @@ func TestService_GetEarmarksPaginated(t *testing.T) {
 			)
 
 		earmarks, pagination, err := svc.GetEarmarksPaginated(ctx, userID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(earmarks), currentCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -253,13 +253,13 @@ func TestService_GetEarmarksPaginated(t *testing.T) {
 			)
 
 		earmarks, pagination, err := svc.GetEarmarksPaginated(ctx, userID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(earmarks), archivedCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, archivedCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -284,13 +284,13 @@ func TestService_GetEarmarksPaginated(t *testing.T) {
 			)
 
 		earmarks, pagination, err := svc.GetEarmarksPaginated(ctx, userID, limit, offset, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(earmarks), currentCount)
 		assert.Equal(t, pagination.Limit, limit)
 		assert.Equal(t, pagination.Offset, offset)
 		assert.Equal(t, pagination.Count, currentCount)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -327,10 +327,10 @@ func TestService_GetEarmarks(t *testing.T) {
 			)
 
 		earmarks, err := svc.GetEarmarks(ctx, userID, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(earmarks), 2)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -351,10 +351,10 @@ func TestService_GetEarmarks(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 
 		earmarks, err := svc.GetEarmarks(ctx, userID, archived)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(earmarks), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -446,9 +446,9 @@ func TestService_NewEarmark(t *testing.T) {
 		mock.ExpectRollback()
 
 		_, err := svc.NewEarmark(ctx, user, earmark.EventItemID, "some note")
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -469,7 +469,7 @@ func TestService_NewEarmark(t *testing.T) {
 		_, err := svc.NewEarmark(ctx, user, eventItem.ID, "some note")
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -511,7 +511,7 @@ func TestService_NewEarmark(t *testing.T) {
 		_, err := svc.NewEarmark(ctx, user, eventItem.ID, "some note")
 		errs.AssertError(t, err, errs.PermissionDenied, "Account must be verified before earmarking is allowed.")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -540,10 +540,10 @@ func TestService_GetEarmark(t *testing.T) {
 			)
 
 		earmark, err := svc.GetEarmark(ctx, earmarkRefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, earmark.ID, 1)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -562,7 +562,7 @@ func TestService_GetEarmark(t *testing.T) {
 		_, err := svc.GetEarmark(ctx, earmarkRefID)
 		errs.AssertError(t, err, errs.NotFound, "earmark not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -638,9 +638,9 @@ func TestService_DeleteEarmark(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DeleteEarmark(ctx, user.ID, earmark)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -654,7 +654,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 		err := svc.DeleteEarmark(ctx, user.ID+1, earmark)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -672,7 +672,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 		err := svc.DeleteEarmark(ctx, user.ID, earmark)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -699,7 +699,7 @@ func TestService_DeleteEarmark(t *testing.T) {
 		err := svc.DeleteEarmark(ctx, user.ID, earmark)
 		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -787,9 +787,9 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -815,7 +815,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 		err := svc.DeleteEarmarkByRefID(ctx, user.ID+1, earmark.RefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -845,7 +845,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -884,7 +884,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -902,7 +902,7 @@ func TestService_DeleteEarmarkByRefID(t *testing.T) {
 		err := svc.DeleteEarmarkByRefID(ctx, user.ID, earmark.RefID)
 		errs.AssertError(t, err, errs.NotFound, "earmark not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

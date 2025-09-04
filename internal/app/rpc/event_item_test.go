@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/dropwhile/assert"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -59,7 +59,7 @@ func TestRpc_ListEventItems(t *testing.T) {
 			RefId: eventRefID.String(),
 		}.Build()
 		response, err := server.EventListItems(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(response.Msg.GetItems()), 1)
 	})
 
@@ -132,7 +132,7 @@ func TestRpc_RemoveEventItem(t *testing.T) {
 			RefId: eventItemRefID.String(),
 		}.Build()
 		_, err := server.EventRemoveItem(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("remove event item with bad refid should fail", func(t *testing.T) {
@@ -260,7 +260,7 @@ func TestRpc_AddEventItem(t *testing.T) {
 			Description: description,
 		}.Build()
 		response, err := server.EventAddItem(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, response.Msg.GetEventItem().GetDescription(), description)
 	})
 
@@ -414,7 +414,7 @@ func TestRpc_UpdateEventItem(t *testing.T) {
 			Description: description,
 		}.Build()
 		response, err := server.EventUpdateItem(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, response.Msg.GetEventItem().GetDescription(), description)
 	})
 

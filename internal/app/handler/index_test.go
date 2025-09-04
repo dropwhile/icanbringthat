@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/middleware/auth"
@@ -33,7 +33,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
@@ -65,7 +65,7 @@ func TestHandler_ShowIndex_LoggedOut(t *testing.T) {
 
 		response := rr.Result()
 		_, err := io.ReadAll(response.Body)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)

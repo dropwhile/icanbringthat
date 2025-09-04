@@ -5,6 +5,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,10 +13,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/assert"
 	"github.com/go-chi/chi/v5"
 	"github.com/samber/mo"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -86,10 +87,12 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})
@@ -245,10 +248,12 @@ func TestHandler_Event_Create(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})
@@ -403,10 +408,12 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})
@@ -580,10 +587,12 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})
@@ -621,10 +630,12 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})
@@ -666,10 +677,12 @@ func TestHandler_Event_Update(t *testing.T) {
 
 		// Check the status code is what we expect.
 		AssertStatusEqual(t, rr, http.StatusSeeOther)
-		assert.Assert(t,
+		assert.True(t,
 			strings.HasPrefix(rr.Header().Get("location"), "/events/"),
-			"handler returned wrong redirect: expected prefix %s didnt match %s",
-			"/events/", rr.Header().Get("location"),
+			fmt.Sprintf(
+				"handler returned wrong redirect: expected prefix %s didnt match %s",
+				"/events/", rr.Header().Get("location"),
+			),
 		)
 		// we make sure that all expectations were met
 	})

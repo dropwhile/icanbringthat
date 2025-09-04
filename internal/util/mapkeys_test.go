@@ -7,7 +7,7 @@ import (
 	"sort"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func TestKeys(t *testing.T) {
@@ -18,7 +18,7 @@ func TestKeys(t *testing.T) {
 
 	strKeys := Keys(x)
 	sort.Strings(strKeys)
-	assert.DeepEqual(t, []string{"one", "two"}, strKeys)
+	assert.Equal(t, []string{"one", "two"}, strKeys)
 
 	y := map[int]int{
 		1: 21,
@@ -27,5 +27,5 @@ func TestKeys(t *testing.T) {
 
 	intKeys := Keys(y)
 	sort.Ints(intKeys)
-	assert.DeepEqual(t, []int{1, 2}, intKeys)
+	assert.Equal(t, []int{1, 2}, intKeys)
 }

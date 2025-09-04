@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	pg_query "github.com/pganalyze/pg_query_go/v6"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/logger"
 	"github.com/dropwhile/icanbringthat/internal/mail/mockmail"
@@ -63,7 +63,7 @@ func SetupDBMock(t *testing.T, ctx context.Context) pgxmock.PgxConnIface {
 		pgxmock.QueryMatcherOption(queryMatcher),
 	)
 	t.Cleanup(func() { _ = mock.Close(ctx) })
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 	return mock
 }
 

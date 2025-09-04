@@ -4,10 +4,10 @@
 package resources
 
 import (
+	"fmt"
 	"testing"
 
-	"gotest.tools/v3/assert"
-	"gotest.tools/v3/assert/cmp"
+	"github.com/dropwhile/assert"
 )
 
 func TestPagination(t *testing.T) {
@@ -125,18 +125,29 @@ func TestPagination(t *testing.T) {
 			output = append(output, pg.String())
 			if i+1 == v.eIsCurrent {
 				assert.Equal(t, pg.IsCurrent, true,
-					"page %d unexpectedly not IsCurrent for current=%d", i+1, v.currentPage,
+					fmt.Sprintf(
+						"page %d unexpectedly not IsCurrent for current=%d",
+						i+1,
+						v.currentPage,
+					),
 				)
 			} else {
 				assert.Equal(
 					t, pg.IsCurrent, false,
-					"page %d unexpectedly IsCurrent for current=%d", i+1, v.currentPage)
+					fmt.Sprintf(
+						"page %d unexpectedly IsCurrent for current=%d",
+						i+1,
+						v.currentPage,
+					),
+				)
 			}
 		}
-		assert.Assert(
-			t, cmp.DeepEqual(v.output, output),
-			"unexpectedly mismatch for namePages=%d, pageSize=%d, currentPage=%d",
-			v.numPages, v.pageSize, v.currentPage,
+		assert.Equal(t,
+			v.output, output,
+			fmt.Sprintf(
+				"unexpectedly mismatch for namePages=%d, pageSize=%d, currentPage=%d",
+				v.numPages, v.pageSize, v.currentPage,
+			),
 		)
 	}
 }

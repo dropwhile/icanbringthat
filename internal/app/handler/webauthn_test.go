@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/go-chi/chi/v5"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -32,13 +32,11 @@ func Test_getAuthnInstance(t *testing.T) {
 		baseURL := "https://some.example.com"
 
 		webAuthn, err := getAuthnInstance(req, baseURL)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, webAuthn.Config.RPDisplayName, "ICanBringThat")
 		assert.Equal(t, webAuthn.Config.RPID, "some.example.com")
-		assert.DeepEqual(t,
-			webAuthn.Config.RPOrigins, []string{baseURL},
-		)
+		assert.Equal(t, webAuthn.Config.RPOrigins, []string{baseURL})
 	})
 }
 

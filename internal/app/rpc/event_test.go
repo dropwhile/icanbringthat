@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/dropwhile/assert"
 	"github.com/samber/mo"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/convert"
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -76,7 +76,7 @@ func TestRpc_ListEvents(t *testing.T) {
 			Archived: func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.EventsList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 
@@ -110,7 +110,7 @@ func TestRpc_ListEvents(t *testing.T) {
 			Archived: func(b bool) *bool { return &b }(false),
 		}.Build()
 		response, err := server.EventsList(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(response.Msg.GetEvents()), 1)
 	})
 }
@@ -197,7 +197,7 @@ func TestRpc_GetEventDetails(t *testing.T) {
 			RefId: eventRefID.String(),
 		}.Build()
 		response, err := server.EventGetDetails(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		assert.Equal(t, response.Msg.GetEvent().GetName(), "some name")
 		assert.Equal(t, len(response.Msg.GetItems()), 1)
@@ -288,7 +288,7 @@ func TestRpc_CreateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}.Build()
 		response, err := server.EventCreate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, response.Msg.GetEvent().GetName(), event.Name)
 	})
 
@@ -440,7 +440,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 				event.StartTime.In(event.StartTimeTz.Location)),
 		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("update event with empty TZ should succeed", func(t *testing.T) {
@@ -469,7 +469,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}.Build(),
 		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("update event with empty Ts should succeed", func(t *testing.T) {
@@ -497,7 +497,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}.Build(),
 		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("update event with empty name should succeed", func(t *testing.T) {
@@ -522,7 +522,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}.Build(),
 		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("update event with empty description should succeed", func(t *testing.T) {
@@ -547,7 +547,7 @@ func TestRpc_UpdateEvent(t *testing.T) {
 			}.Build(),
 		}.Build()
 		_, err := server.EventUpdate(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("update event with no data should fail", func(t *testing.T) {
@@ -670,7 +670,7 @@ func TestRpc_DeleteEvent(t *testing.T) {
 			RefId: eventRefID.String(),
 		}.Build()
 		_, err := server.EventDelete(ctx, connect.NewRequest(request))
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 
 	t.Run("delete event with bad refid should fail", func(t *testing.T) {

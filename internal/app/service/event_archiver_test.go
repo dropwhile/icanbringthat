@@ -7,8 +7,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 )
 
 func TestService_ArchiveOldEvents(t *testing.T) {
@@ -24,8 +24,8 @@ func TestService_ArchiveOldEvents(t *testing.T) {
 	mock.ExpectRollback()
 
 	err := svc.ArchiveOldEvents(ctx)
-	assert.NilError(t, err)
+	assert.Nil(t, err)
 	// we make sure that all expectations were met
-	assert.Assert(t, mock.ExpectationsWereMet(),
+	assert.Nil(t, mock.ExpectationsWereMet(),
 		"there were unfulfilled expectations")
 }

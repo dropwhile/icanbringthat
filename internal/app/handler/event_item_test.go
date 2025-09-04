@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"

@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -50,10 +50,10 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 			)
 
 		result, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, credRefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -72,7 +72,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 		_, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
 		errs.AssertError(t, err, errs.NotFound, "credential not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -98,7 +98,7 @@ func TestService_GetUserCredentialByRefID(t *testing.T) {
 		_, err := svc.GetUserCredentialByRefID(ctx, user.ID, credRefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -141,11 +141,11 @@ func TestService_GetUserCredentialsByUser(t *testing.T) {
 			)
 
 		result, err := svc.GetUserCredentialsByUser(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 2)
 		assert.Equal(t, result[0].RefID, credRefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -160,10 +160,10 @@ func TestService_GetUserCredentialsByUser(t *testing.T) {
 			WillReturnError(pgx.ErrNoRows)
 
 		result, err := svc.GetUserCredentialsByUser(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -196,10 +196,10 @@ func TestService_GetUserCredentialCountByUser(t *testing.T) {
 			)
 
 		result, err := svc.GetUserCredentialCountByUser(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result, 2)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -217,10 +217,10 @@ func TestService_GetUserCredentialCountByUser(t *testing.T) {
 			)
 
 		result, err := svc.GetUserCredentialCountByUser(ctx, user.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result, 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -279,9 +279,9 @@ func TestService_DeleteUserCredential(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -306,7 +306,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
 		errs.AssertError(t, err, errs.PermissionDenied, "permission denied")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -352,7 +352,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 			"refusing to remove last passkey when password auth disabled",
 		)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -382,7 +382,7 @@ func TestService_DeleteUserCredential(t *testing.T) {
 		err := svc.DeleteUserCredential(ctx, user, credential.RefID)
 		errs.AssertError(t, err, errs.NotFound, "credential not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -431,10 +431,10 @@ func TestService_NewUserCredential(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.NewUserCredential(ctx, user.ID, keyName, credential)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, credRefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -450,7 +450,7 @@ func TestService_NewUserCredential(t *testing.T) {
 		_, err := svc.NewUserCredential(ctx, user.ID, keyName, credential)
 		errs.AssertError(t, err, errs.InvalidArgument, "keyName bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -466,7 +466,7 @@ func TestService_NewUserCredential(t *testing.T) {
 		_, err := svc.NewUserCredential(ctx, user.ID, keyName, credential)
 		errs.AssertError(t, err, errs.InvalidArgument, "credential bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -36,12 +36,12 @@ func TestService_GetEventItemsCount(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsCount(ctx, eventIDs)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 2)
 		assert.Equal(t, result[0].EventID, eventIDs[0])
 		assert.Equal(t, result[0].Count, 2)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -60,10 +60,10 @@ func TestService_GetEventItemsCount(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsCount(ctx, eventIDs)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -74,10 +74,10 @@ func TestService_GetEventItemsCount(t *testing.T) {
 		svc := New(Options{Db: mock})
 
 		result, err := svc.GetEventItemsCount(ctx, []int{})
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -142,10 +142,10 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByEvent(ctx, event.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 1)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -177,10 +177,10 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByEvent(ctx, event.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -198,7 +198,7 @@ func TestService_GetEventItemsByEvent(t *testing.T) {
 		_, err := svc.GetEventItemsByEvent(ctx, event.RefID)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -251,10 +251,10 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByEventID(ctx, event.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 1)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -274,10 +274,10 @@ func TestService_GetEventItemsByEventID(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByEventID(ctx, event.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -332,10 +332,10 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByIDs(ctx, eventItemIDs)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 2)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -357,10 +357,10 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemsByIDs(ctx, eventItemIDs)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -372,10 +372,10 @@ func TestService_GetEventItemsByIDs(t *testing.T) {
 		svc := New(Options{Db: mock})
 
 		result, err := svc.GetEventItemsByIDs(ctx, []int{})
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, len(result), 0)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -416,10 +416,10 @@ func TestService_GetEventItem(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItem(ctx, eventItem.RefID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, eventItem.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -437,7 +437,7 @@ func TestService_GetEventItem(t *testing.T) {
 		_, err := svc.GetEventItem(ctx, eventItem.RefID)
 		errs.AssertError(t, err, errs.NotFound, "event-item not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -478,10 +478,10 @@ func TestService_GetEventItemByID(t *testing.T) {
 			)
 
 		result, err := svc.GetEventItemByID(ctx, eventItem.ID)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, eventItem.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -499,7 +499,7 @@ func TestService_GetEventItemByID(t *testing.T) {
 		_, err := svc.GetEventItemByID(ctx, eventItem.ID)
 		errs.AssertError(t, err, errs.NotFound, "event-item not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -577,9 +577,9 @@ func TestService_RemoveEventItem(t *testing.T) {
 		mock.ExpectRollback()
 
 		err := svc.RemoveEventItem(ctx, user.ID, eventItem.RefID, nil)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -617,7 +617,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 		err := svc.RemoveEventItem(ctx, user.ID, eventItem.RefID, nil)
 		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -655,7 +655,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 		err := svc.RemoveEventItem(ctx, user.ID, eventItem.RefID, nil)
 		errs.AssertError(t, err, errs.PermissionDenied, "not event owner")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -684,7 +684,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 		err := svc.RemoveEventItem(ctx, user.ID, eventItem.RefID, nil)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -712,7 +712,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.FailedPrecondition, "extra checks failed")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -730,7 +730,7 @@ func TestService_RemoveEventItem(t *testing.T) {
 		err := svc.RemoveEventItem(ctx, user.ID, eventItem.RefID, nil)
 		errs.AssertError(t, err, errs.NotFound, "event-item not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -811,10 +811,10 @@ func TestService_AddEventItem(t *testing.T) {
 		result, err := svc.AddEventItem(
 			ctx, user.ID, event.RefID, eventItem.Description,
 		)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, eventItem.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -843,7 +843,7 @@ func TestService_AddEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -872,7 +872,7 @@ func TestService_AddEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.PermissionDenied, "not event owner")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -892,7 +892,7 @@ func TestService_AddEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -908,7 +908,7 @@ func TestService_AddEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.InvalidArgument, "description bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }
@@ -1003,10 +1003,10 @@ func TestService_UpdateEventItem(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, eventItem.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1064,10 +1064,10 @@ func TestService_UpdateEventItem(t *testing.T) {
 		mock.ExpectRollback()
 
 		result, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 		assert.Equal(t, result.RefID, eventItem.RefID)
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1118,7 +1118,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
 		errs.AssertError(t, err, errs.PermissionDenied, "earmarked by other user")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1158,7 +1158,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
 		errs.AssertError(t, err, errs.PermissionDenied, "event is archived")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1198,7 +1198,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
 		errs.AssertError(t, err, errs.PermissionDenied, "not event owner")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1229,7 +1229,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
 		errs.AssertError(t, err, errs.NotFound, "event not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1260,7 +1260,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		)
 		errs.AssertError(t, err, errs.FailedPrecondition, "extra checks failed")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1280,7 +1280,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, description, nil)
 		errs.AssertError(t, err, errs.NotFound, "event-item not found")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 
@@ -1294,7 +1294,7 @@ func TestService_UpdateEventItem(t *testing.T) {
 		_, err := svc.UpdateEventItem(ctx, user.ID, eventItem.RefID, "", nil)
 		errs.AssertError(t, err, errs.InvalidArgument, "description bad value")
 		// we make sure that all expectations were met
-		assert.Assert(t, mock.ExpectationsWereMet(),
+		assert.Nil(t, mock.ExpectationsWereMet(),
 			"there were unfulfilled expectations")
 	})
 }

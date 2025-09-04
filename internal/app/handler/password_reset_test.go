@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dropwhile/assert"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
@@ -428,12 +428,12 @@ func TestHandler_SendResetPasswordEmail(t *testing.T) {
 				headers mail.MailHeader,
 			) {
 				after, found := strings.CutPrefix(msgPlain, "Password reset: http://example.com/forgot-password/")
-				assert.Assert(t, found)
+				assert.True(t, found)
 				refParts := strings.Split(after, "-")
 				rID := util.Must(service.ParseUserPWResetRefID(refParts[0]))
 				hmacBytes, err := encoder.Base32DecodeString(refParts[1])
-				assert.NilError(t, err)
-				assert.Assert(t, handler.cMAC.Validate([]byte(rID.String()), hmacBytes))
+				assert.Nil(t, err)
+				assert.True(t, handler.cMAC.Validate([]byte(rID.String()), hmacBytes))
 			},
 		)
 

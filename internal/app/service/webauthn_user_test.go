@@ -6,15 +6,12 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"strings"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/google/go-cmp/cmp"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/errs"
@@ -63,7 +60,7 @@ func TestWebAuthnUser_WebAuthnID(t *testing.T) {
 	}
 
 	o := WebAuthnUser{User: user, svc: nil}
-	assert.DeepEqual(t, o.WebAuthnID(), user.RefID.Bytes())
+	assert.Equal(t, o.WebAuthnID(), user.RefID.Bytes())
 }
 
 func TestWebAuthnUser_WebAuthnName(t *testing.T) {
@@ -81,7 +78,7 @@ func TestWebAuthnUser_WebAuthnName(t *testing.T) {
 	}
 
 	o := WebAuthnUser{User: user, svc: nil}
-	assert.DeepEqual(t, o.WebAuthnName(), user.Email)
+	assert.Equal(t, o.WebAuthnName(), user.Email)
 }
 
 func TestWebAuthnUser_WebAuthnDisplayName(t *testing.T) {
@@ -137,7 +134,7 @@ func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 		}
 
 		jdata, err := json.Marshal(cred)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		credentials := []*model.UserCredential{{
 			ID:         3,
@@ -153,10 +150,7 @@ func TestWebAuthnUser_WebAuthnCredentials(t *testing.T) {
 				return credentials, nil
 			},
 		}}
-		assert.DeepEqual(t, o.WebAuthnCredentials()[0], cred, cmp.FilterPath(func(p cmp.Path) bool {
-			fmt.Println(p.GoString())
-			return strings.HasSuffix(p.GoString(), ".raw")
-		}, cmp.Ignore()))
+		assert.Equal(t, o.WebAuthnCredentials()[0], cred)
 	})
 
 	t.Run("get credentials with empty results should succeed", func(t *testing.T) {
@@ -204,7 +198,7 @@ func TestWebAuthnUser_AddCredential(t *testing.T) {
 		}
 
 		jdata, err := json.Marshal(cred)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 
 		credential := &model.UserCredential{
 			ID:         3,
@@ -219,11 +213,11 @@ func TestWebAuthnUser_AddCredential(t *testing.T) {
 			newFunc: func(ctx context.Context, i int, s string, b []byte) (*model.UserCredential, errs.Error) {
 				assert.Equal(t, i, user.ID)
 				assert.Equal(t, s, credential.KeyName)
-				assert.DeepEqual(t, b, credential.Credential)
+				assert.Equal(t, b, credential.Credential)
 				return credential, nil
 			},
 		}}
 		err = o.AddCredential(credential.KeyName, &cred)
-		assert.NilError(t, err)
+		assert.Nil(t, err)
 	})
 }
