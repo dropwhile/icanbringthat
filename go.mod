@@ -12,8 +12,8 @@ require (
 	github.com/alexedwards/scs/pgxstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/caarlos0/env/v11 v11.3.1
-	github.com/dropwhile/assert v1.1.0
-	github.com/dropwhile/refid/v2 v2.0.5
+	github.com/dropwhile/assert v1.2.0
+	github.com/dropwhile/refid/v2 v2.0.6
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-playground/validator/v10 v10.27.0
