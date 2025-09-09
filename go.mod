@@ -19,7 +19,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/go-webauthn/webauthn v0.13.4
 	github.com/google/gnostic v0.7.1
-	github.com/jackc/pgx/v5 v5.7.5
+	github.com/jackc/pgx/v5 v5.7.6
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
@@ -33,7 +33,7 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.6.0
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.42.0
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b
 	google.golang.org/protobuf v1.36.8
 )
@@ -76,20 +76,20 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/spf13/cast v1.9.2 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/assert v1.3.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250826171959-ef028d996bc1 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250826171959-ef028d996bc1 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250908214217-97024824d090 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect
 )
 
 replace github.com/olekukonko/tablewriter => github.com/olekukonko/tablewriter v0.0.5
