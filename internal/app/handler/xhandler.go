@@ -115,7 +115,7 @@ func (x *Handler) TemplateExecuteSub(w io.Writer, name, subname string, vars Map
 	return nil
 }
 
-func (x *Handler) Json(w http.ResponseWriter, code int, payload interface{}) {
+func (x *Handler) Json(w http.ResponseWriter, code int, payload any) {
 	response, err := json.Marshal(payload)
 	if err != nil {
 		logger.LogSkip(slog.Default(), 1, slog.LevelInfo,

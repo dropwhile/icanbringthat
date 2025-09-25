@@ -34,7 +34,7 @@ func (p UserSettings) Value() (driver.Value, error) {
 	return json.Marshal(p)
 }
 
-func (p *UserSettings) Scan(src interface{}) error {
+func (p *UserSettings) Scan(src any) error {
 	var s []byte
 	switch src := src.(type) {
 	case UserSettings:
@@ -79,7 +79,7 @@ func NewUserSettingsMatcher(expected UserSettings) UserSettingsMatcher {
 	return UserSettingsMatcher{expected}
 }
 
-func (m UserSettingsMatcher) Match(v interface{}) bool {
+func (m UserSettingsMatcher) Match(v any) bool {
 	var settings UserSettings
 	var err error
 	switch x := v.(type) {

@@ -42,7 +42,7 @@ func (p *Paginator) AddPage(start, end int) *Paginator {
 }
 
 func (p *Paginator) AddPages(size, step int) *Paginator {
-	for i := 0; i < size; i++ {
+	for i := range size {
 		if i%step == 0 {
 			p.AddPage(i+1, i+step)
 		}
@@ -54,7 +54,7 @@ func (p *Paginator) Paginate(current int) []*Page {
 	out := make([]*Page, 0)
 	max := len(p.Pages)
 	prevWasDot := false
-	for i := 0; i < max; i++ {
+	for i := range max {
 		pg := &Page{display: "..."}
 		if i == current-1 {
 			pg.IsCurrent = true

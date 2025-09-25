@@ -21,12 +21,12 @@ func Base32DecodeString(src string) ([]byte, error) {
 	return WordSafeEncoding.DecodeString(src)
 }
 
-func StructToMap(s interface{}) map[string]interface{} {
+func StructToMap(s any) map[string]any {
 	v := reflect.ValueOf(s)
 	if v.Kind() == reflect.Ptr {
 		v = reflect.Indirect(reflect.ValueOf(s))
 	}
-	values := make(map[string]interface{}, v.NumField())
+	values := make(map[string]any, v.NumField())
 
 	for i := 0; i < v.NumField(); i++ {
 		if v.Field(i).CanInterface() {

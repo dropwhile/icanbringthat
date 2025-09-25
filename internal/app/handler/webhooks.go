@@ -25,7 +25,7 @@ func (x *Handler) PostmarkCallback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	isJson := false
-	for _, v := range strings.Split(r.Header.Get("Content-type"), ",") {
+	for v := range strings.SplitSeq(r.Header.Get("Content-type"), ",") {
 		t, _, err := mime.ParseMediaType(v)
 		if err != nil {
 			break

@@ -77,7 +77,7 @@ func (cmd *EarmarksGetDetailsCmd) Run(meta *RunArgs) error {
 		Funcs(sprig.FuncMap()).
 		Parse(earmarkDetailTpl))
 	if err := t2.Execute(os.Stdout,
-		map[string]interface{}{
+		map[string]any{
 			"Earmark":    resp.Msg.GetEarmark(),
 			"EventRefId": resp.Msg.GetEventRefId(),
 		}); err != nil {

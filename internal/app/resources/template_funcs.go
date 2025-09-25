@@ -70,10 +70,7 @@ var templateFuncMap = template.FuncMap{
 			current = maxPage
 		}
 
-		start := (step * (current - 1)) + 1
-		if start < 0 {
-			start = 0
-		}
+		start := max((step*(current-1))+1, 0)
 
 		stop := start + step - 1
 		if size == 0 {

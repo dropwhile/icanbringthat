@@ -37,7 +37,7 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 
 	traceLoggerFunc := func(
 		ctx context.Context, level tracelog.LogLevel,
-		msg string, data map[string]interface{},
+		msg string, data map[string]any,
 	) {
 		if ctx == nil {
 			ctx = context.Background()

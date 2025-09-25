@@ -45,7 +45,7 @@ func init() {
 	})
 }
 
-func OptionValuer(field reflect.Value) interface{} {
+func OptionValuer(field reflect.Value) any {
 	if valuer, ok := field.Interface().(mo.Option[[]int]); ok {
 		return valuer.OrEmpty()
 	}

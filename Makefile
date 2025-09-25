@@ -147,6 +147,12 @@ check:
 	@echo "... gosec ..."
 	@${TOOLEXE} gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 
+.PHONY: modernize
+modernize:
+	@echo "Running modernize..."
+	@echo "... modernize ..."
+	@${TOOLEXE} modernize -category=-rangeint -test ./...
+
 .PHONY: nilcheck
 nilcheck:
 	@echo ">> Running nilcheck (will have some false positives)..."

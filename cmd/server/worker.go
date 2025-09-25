@@ -148,9 +148,7 @@ func (c *WorkerCmd) Run() error {
 		Info("starting up...")
 
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case sig := <-signals:
@@ -176,7 +174,7 @@ func (c *WorkerCmd) Run() error {
 				timer.Reset(timerInterval)
 			}
 		}
-	}()
+	})
 
 	// block
 	wg.Wait()

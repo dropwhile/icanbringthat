@@ -34,7 +34,7 @@ type SessionManager interface {
 	// Put adds a key and corresponding value to the session data. Any existing
 	// value for the key will be replaced. The session data status will be set to
 	// Modified.
-	Put(ctx context.Context, key string, val interface{})
+	Put(ctx context.Context, key string, val any)
 	// Get returns the value for a given key from the session data. The return
 	// value has the type interface{} so will usually need to be type asserted
 	// before you can use it. For example:
@@ -46,12 +46,12 @@ type SessionManager interface {
 	//
 	// Also see the GetString(), GetInt(), GetBytes() and other helper methods which
 	// wrap the type conversion for common types.
-	Get(ctx context.Context, key string) interface{}
+	Get(ctx context.Context, key string) any
 	// Pop acts like a one-time Get. It returns the value for a given key from the
 	// session data and deletes the key and value from the session data. The
 	// session data status will be set to Modified. The return value has the type
 	// interface{} so will usually need to be type asserted before you can use it.
-	Pop(ctx context.Context, key string) interface{}
+	Pop(ctx context.Context, key string) any
 	// Remove deletes the given key and corresponding value from the session data.
 	// The session data status will be set to Modified. If the key is not present
 	// this operation is a no-op.

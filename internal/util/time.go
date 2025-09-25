@@ -18,16 +18,16 @@ func MustParseTime(layout, value string) time.Time {
 }
 
 type Matcher interface {
-	Match(interface{}) bool
+	Match(any) bool
 }
 
-type MatcherFunc func(v interface{}) bool
+type MatcherFunc func(v any) bool
 
 type optionMatch[T any] struct {
 	nextMatcher Matcher
 }
 
-func (om optionMatch[T]) Match(v interface{}) bool {
+func (om optionMatch[T]) Match(v any) bool {
 	if val, ok := v.(mo.Option[T]); ok {
 		if uv, ok := val.Get(); ok {
 			return om.nextMatcher.Match(uv)
@@ -46,7 +46,7 @@ type CloseTimeMatcher struct {
 }
 
 // Match satisfies sqlmock.Argument interface
-func (a CloseTimeMatcher) Match(v interface{}) bool {
+func (a CloseTimeMatcher) Match(v any) bool {
 	// if option, unwrap that first
 	if x, ok := v.(mo.Option[time.Time]); ok {
 		if val, ok := x.Get(); ok {

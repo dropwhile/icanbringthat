@@ -25,7 +25,7 @@ func (tz TimeZone) Equal(other TimeZone) bool {
 // Scan implements the sql.Scanner interface.
 // A 16-byte slice will be handled by UnmarshalBinary, while
 // a longer byte slice or a string will be handled by UnmarshalText.
-func (tz *TimeZone) Scan(src interface{}) error {
+func (tz *TimeZone) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		// uu, err := FromString(src)
