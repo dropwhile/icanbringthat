@@ -92,9 +92,9 @@
 * URL: https://github.com/jackc/pgx
 * License: [MIT](https://github.com/jackc/pgx/blob/v5.5.1/LICENSE)
 
-### github.com/jaytaylor/html2text
-* URL: https://github.com/jaytaylor/html2text
-* Licesne [MIT](https://github.com/jaytaylor/html2text/blob/master/LICENSE)
+### github.com/k3a/html2text
+* URL: https://github.com/k3a/html2text
+* Licesne [MIT](https://github.com/k3a/html2text/blob/master/LICENSE)
 
 ### github.com/microcosm-cc/bluemonday
 * URL: https://github.com/microcosm-cc/bluemonday

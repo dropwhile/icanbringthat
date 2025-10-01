@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jaytaylor/html2text"
+	"github.com/k3a/html2text"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/service"
@@ -65,10 +65,7 @@ func (x *Handler) VerifySendEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	messageHtml := buf.String()
 
-	messagePlain, err := html2text.FromString(messageHtml)
-	if err != nil {
-		x.TemplateError(w)
-	}
+	messagePlain := html2text.HTML2Text(messageHtml)
 
 	slog.DebugContext(ctx, "email content",
 		slog.String("plain", messagePlain),

@@ -8,8 +8,8 @@ require (
 	connectrpc.com/validate v0.6.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/kong v1.12.1
-	github.com/alexedwards/scs/goredisstore v0.0.0-20250927115722-fb8d6f122cfb
-	github.com/alexedwards/scs/pgxstore v0.0.0-20250927115722-fb8d6f122cfb
+	github.com/alexedwards/scs/goredisstore v0.0.0-20251001152029-20477ae1fec6
+	github.com/alexedwards/scs/pgxstore v0.0.0-20251001152029-20477ae1fec6
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/dropwhile/assert v1.3.0
@@ -20,7 +20,7 @@ require (
 	github.com/go-webauthn/webauthn v0.14.0
 	github.com/google/gnostic v0.7.1
 	github.com/jackc/pgx/v5 v5.7.6
-	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056
+	github.com/k3a/html2text v1.2.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
 	github.com/pashagolub/pgxmock/v4 v4.8.0
@@ -71,11 +71,9 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/assert v1.3.0 // indirect
@@ -89,5 +87,3 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
 )
-
-replace github.com/olekukonko/tablewriter => github.com/olekukonko/tablewriter v0.0.5

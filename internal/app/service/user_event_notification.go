@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/jaytaylor/html2text"
+	"github.com/k3a/html2text"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
 	"github.com/dropwhile/icanbringthat/internal/app/resources"
@@ -117,10 +117,7 @@ func (s *Service) NotifyUsersPendingEvents(ctx context.Context,
 		}
 
 		messageHtml := bufHtml.String()
-		messagePlain, err := html2text.FromString(messageHtml)
-		if err != nil {
-			return fmt.Errorf("html->txt conversion error: %w", err)
-		}
+		messagePlain := html2text.HTML2Text(messageHtml)
 
 		slog.DebugContext(ctx, "email content",
 			slog.String("plain", messagePlain),

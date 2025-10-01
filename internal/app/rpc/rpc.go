@@ -5,7 +5,6 @@ package rpc
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 
@@ -69,14 +68,9 @@ func New(opts Options) (*Server, error) {
 }
 
 func (s *Server) GenHandler() http.Handler {
-	rpcValidateInterceptor, err := connectValidate.NewInterceptor()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	interceptors := connect.WithInterceptors(
 		// NewAuthInterceptor(s.svc),
-		rpcValidateInterceptor,
+		connectValidate.NewInterceptor(),
 	)
 	api := http.NewServeMux()
 	api.Handle(rpcv1connect.NewIcbtRpcServiceHandler(s, interceptors))
