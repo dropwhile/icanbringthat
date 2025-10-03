@@ -3,13 +3,13 @@ module github.com/dropwhile/icanbringthat
 go 1.25.0
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.9-20250912141014-52f32327d4b0.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
 	connectrpc.com/connect v1.19.0
 	connectrpc.com/validate v0.6.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/kong v1.12.1
-	github.com/alexedwards/scs/goredisstore v0.0.0-20251001152029-20477ae1fec6
-	github.com/alexedwards/scs/pgxstore v0.0.0-20251001152029-20477ae1fec6
+	github.com/alexedwards/scs/goredisstore v0.0.0-20251002162104-209de6e426de
+	github.com/alexedwards/scs/pgxstore v0.0.0-20251002162104-209de6e426de
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/dropwhile/assert v1.3.0
@@ -34,8 +34,8 @@ require (
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.42.0
-	golang.org/x/exp v0.0.0-20250911091902-df9299821621
-	google.golang.org/protobuf v1.36.9
+	golang.org/x/exp v0.0.0-20251002181428-27f1f14c8bb9
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
@@ -57,7 +57,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/cel-go v0.26.1 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
@@ -84,6 +83,6 @@ require (
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251002232023-7c0ddcbb5797 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251002232023-7c0ddcbb5797 // indirect
 )
