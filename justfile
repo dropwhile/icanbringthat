@@ -1,8 +1,11 @@
 # this setting will allow passing arguments through to tasks, see the docs here
-# https://just.systems/man/en/chapter_24.html#positional-arguments
+# https://just.systems/man/en/settings.html#positional-arguments
 set positional-arguments
+# Disable echoing recipe lines before executing
 set quiet
+# Enable unstable features
 set unstable
+# Ignore recipe lines beginning with "#"
 set ignore-comments
 
 # import the user's justfile if it exists

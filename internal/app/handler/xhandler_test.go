@@ -90,10 +90,6 @@ func SetupHandler(
 	return mock, mux, h
 }
 
-func StatusEqual(rr *httptest.ResponseRecorder, status int) bool {
-	return rr.Code == status
-}
-
 func AssertStatusEqual(t *testing.T, rr *httptest.ResponseRecorder, status int) {
 	t.Helper()
 	assert.Equal(t, rr.Code, status,
