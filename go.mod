@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
-	connectrpc.com/connect v1.19.0
+	connectrpc.com/connect v1.19.1
 	connectrpc.com/validate v0.6.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/kong v1.12.1
@@ -23,7 +23,7 @@ require (
 	github.com/k3a/html2text v1.2.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v4 v4.8.0
+	github.com/pashagolub/pgxmock/v4 v4.9.0
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.55.0
@@ -78,11 +78,11 @@ require (
 	github.com/zeebo/assert v1.3.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.28.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/net v0.45.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251002232023-7c0ddcbb5797 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251002232023-7c0ddcbb5797 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251007200510-49b9836ed3ff // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251007200510-49b9836ed3ff // indirect
 )
