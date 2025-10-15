@@ -108,7 +108,8 @@ func main() {
 	interceptors := connect.WithInterceptors(NewAddHeadersInterceptor(header))
 
 	client := rpcv1connect.NewIcbtRpcServiceClient(
-		hc, cli.BaseURL+cli.ApiPrefix, interceptors,
+		hc, cli.BaseURL+cli.ApiPrefix,
+		interceptors, connect.WithSendGzip(),
 	)
 	err := ctx.Run(&RunArgs{
 		cli:    &cli,
