@@ -76,7 +76,10 @@ func (s *Server) GenHandler() http.Handler {
 			// NewAuthInterceptor(s.svc),
 			connectValidate.NewInterceptor(),
 		),
-		compress.WithNew(compress.MinLZ, compress.LevelBalanced),
+		connect.WithOptions(
+			compress.WithNew(compress.MinLZ, compress.LevelBalanced),
+			compress.WithNew(compress.Gzip, compress.LevelBalanced),
+		),
 	))
 	return api
 }

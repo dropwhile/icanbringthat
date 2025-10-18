@@ -110,8 +110,11 @@ func main() {
 	client := rpcv1connect.NewIcbtRpcServiceClient(
 		hc, cli.BaseURL+cli.ApiPrefix,
 		connect.WithInterceptors(NewAddHeadersInterceptor(header)),
-		compress.WithNew(compress.MinLZ, compress.LevelBalanced),
-		connect.WithSendCompression(compress.MinLZ),
+		connect.WithOptions(
+			compress.WithNew(compress.MinLZ, compress.LevelBalanced),
+			compress.WithNew(compress.Gzip, compress.LevelBalanced),
+		),
+		// connect.WithSendCompression(compress.MinLZ),
 	)
 	err := ctx.Run(&RunArgs{
 		cli:    &cli,
