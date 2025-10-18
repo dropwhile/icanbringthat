@@ -11,6 +11,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/alecthomas/kong"
+	compress "github.com/klauspost/connect-compress/v2"
 	"github.com/quic-go/quic-go/http3"
 
 	"github.com/dropwhile/icanbringthat/internal/logger"
@@ -105,10 +106,15 @@ func main() {
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %s", cli.AuthToken))
 	header.Set("User-Agent", fmt.Sprintf("api-client %s", vinfo.Version))
-	interceptors := connect.WithInterceptors(NewAddHeadersInterceptor(header))
 
 	client := rpcv1connect.NewIcbtRpcServiceClient(
-		hc, cli.BaseURL+cli.ApiPrefix, interceptors,
+		hc, cli.BaseURL+cli.ApiPrefix,
+		connect.WithInterceptors(NewAddHeadersInterceptor(header)),
+		connect.WithOptions(
+			compress.WithNew(compress.MinLZ, compress.LevelBalanced),
+			compress.WithNew(compress.Gzip, compress.LevelBalanced),
+		),
+		connect.WithSendCompression(compress.Gzip),
 	)
 	err := ctx.Run(&RunArgs{
 		cli:    &cli,

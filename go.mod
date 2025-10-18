@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
-	connectrpc.com/connect v1.19.0
+	connectrpc.com/connect v1.19.1
 	connectrpc.com/validate v0.6.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/kong v1.12.1
@@ -21,9 +21,10 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/k3a/html2text v1.2.1
+	github.com/klauspost/connect-compress/v2 v2.0.1-0.20251017100258-4a71bc00d2de
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/muesli/reflow v0.3.0
-	github.com/pashagolub/pgxmock/v4 v4.8.0
+	github.com/pashagolub/pgxmock/v4 v4.9.0
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.55.0
@@ -33,8 +34,8 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/mock v0.6.0
-	golang.org/x/crypto v0.42.0
-	golang.org/x/exp v0.0.0-20251002181428-27f1f14c8bb9
+	golang.org/x/crypto v0.43.0
+	golang.org/x/exp v0.0.0-20251017212417-90e834f514db
 	google.golang.org/protobuf v1.36.10
 )
 
@@ -64,9 +65,11 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
+	github.com/minio/minlz v1.0.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -77,12 +80,12 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/assert v1.3.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.28.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251002232023-7c0ddcbb5797 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251002232023-7c0ddcbb5797 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251014184007-4626949a642f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251014184007-4626949a642f // indirect
 )

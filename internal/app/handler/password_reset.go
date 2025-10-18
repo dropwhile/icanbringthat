@@ -149,6 +149,7 @@ func (x *Handler) ResetPasswordSendEmail(w http.ResponseWriter, r *http.Request)
 			doFake = true
 		default:
 			x.InternalServerError(w, errx.Msg())
+			return
 		}
 	}
 
@@ -163,9 +164,7 @@ func (x *Handler) ResetPasswordSendEmail(w http.ResponseWriter, r *http.Request)
 			"pretending to sent password reset email",
 			slog.String("email", email),
 		)
-	}
-
-	if !doFake {
+	} else {
 		// generate a upw
 		upw, errx := x.svc.NewUserPWReset(ctx, user.ID)
 		if errx != nil {

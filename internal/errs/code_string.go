@@ -32,8 +32,9 @@ const _Code_name = "NoErrorCanceledUnknownInvalidArgumentDeadlineExceededNotFoun
 var _Code_index = [...]uint8{0, 7, 15, 22, 37, 53, 61, 74, 90, 107, 125, 132, 142, 155, 163, 174, 182, 197}
 
 func (i Code) String() string {
-	if i >= Code(len(_Code_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Code_index)-1 {
 		return "Code(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Code_name[_Code_index[i]:_Code_index[i+1]]
+	return _Code_name[_Code_index[idx]:_Code_index[idx+1]]
 }

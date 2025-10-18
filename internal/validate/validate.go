@@ -5,6 +5,7 @@ package validate
 
 import (
 	"database/sql/driver"
+	"errors"
 	"log/slog"
 	"reflect"
 	"strings"
@@ -64,7 +65,8 @@ func OptionValuer(field reflect.Value) any {
 }
 
 func GetErrorField(err error) string {
-	if vlderr, ok := err.(validator.ValidationErrors); ok {
+	var vlderr validator.ValidationErrors
+	if errors.As(err, &vlderr) {
 		return vlderr[0].Field()
 	}
 	return ""

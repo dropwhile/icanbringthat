@@ -10,6 +10,7 @@ import (
 
 	"connectrpc.com/connect"
 	connectValidate "connectrpc.com/validate"
+	compress "github.com/klauspost/connect-compress/v2"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/dropwhile/icanbringthat/internal/app/model"
@@ -68,11 +69,17 @@ func New(opts Options) (*Server, error) {
 }
 
 func (s *Server) GenHandler() http.Handler {
-	interceptors := connect.WithInterceptors(
-		// NewAuthInterceptor(s.svc),
-		connectValidate.NewInterceptor(),
-	)
 	api := http.NewServeMux()
-	api.Handle(rpcv1connect.NewIcbtRpcServiceHandler(s, interceptors))
+	api.Handle(rpcv1connect.NewIcbtRpcServiceHandler(
+		s,
+		connect.WithInterceptors(
+			// NewAuthInterceptor(s.svc),
+			connectValidate.NewInterceptor(),
+		),
+		connect.WithOptions(
+			compress.WithNew(compress.MinLZ, compress.LevelBalanced),
+			compress.WithNew(compress.Gzip, compress.LevelBalanced),
+		),
+	))
 	return api
 }
