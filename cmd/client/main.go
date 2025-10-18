@@ -114,7 +114,7 @@ func main() {
 			compress.WithNew(compress.MinLZ, compress.LevelBalanced),
 			compress.WithNew(compress.Gzip, compress.LevelBalanced),
 		),
-		// connect.WithSendCompression(compress.MinLZ),
+		connect.WithSendCompression(compress.Gzip),
 	)
 	err := ctx.Run(&RunArgs{
 		cli:    &cli,
