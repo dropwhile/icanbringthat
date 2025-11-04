@@ -82,11 +82,11 @@ func SetupDBPool(dbDSN string, tracing bool) (*pgxpool.Pool, error) {
 			}
 			fallbackLookback := 3
 			if pcs[0] == 0 && sz >= fallbackLookback {
-				pcs[0] = pcz[len(pcz)-(len(pcz)-sz)-fallbackLookback]
+				pcs[0] = pcz[len(pcz)-(len(pcz)-sz)-fallbackLookback] // #nosec G602
 			}
 		}
 
-		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
+		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0]) // #nosec G602
 		r.AddAttrs(groupAttr)
 		_ = slog.Default().Handler().Handle(ctx, r)
 	}
