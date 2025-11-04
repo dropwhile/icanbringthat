@@ -10,7 +10,7 @@ BUILD_LDFLAGS  := env("BUILD_LDFLAGS", '-s -w')
 [group('build')]
 build: (_banner ">> building binaries")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"
@@ -39,7 +39,7 @@ build-images *FLAGS: (_banner ">> building container images")
     if [ "${DOCKER_PREBUILD}" != "" ]; then
         eval ${DOCKER_PREBUILD}
     fi
-    set -euo pipefail
+    set -eu
     docker build {{FLAGS}} \
         --build-arg GITHASH=${GITHASH} \
         --build-arg APP_VER=${APP_VER} \
@@ -48,7 +48,6 @@ build-images *FLAGS: (_banner ">> building container images")
         -t icanbringthat:latest \
         -f docker/Dockerfile \
         .
-    set +o pipefail
     if [ "${DOCKER_POSTBUILD}" != "" ]; then
         eval ${DOCKER_POSTBUILD}
     fi

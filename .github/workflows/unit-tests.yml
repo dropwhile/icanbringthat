@@ -16,21 +16,22 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
+      - name: Restore cached tools and go
+        id: cache-tools-and-go-restore
+        uses: actions/cache/restore@v4
         with:
-          go-version: "1.25.x"
-          check-latest: true
-        id: go
-
-      - run: mkdir -p .cache/tools
-      - name: Cache Tools
-        uses: actions/cache@v4
-        with:
-          path: .cache/tools
-          key: ${{ runner.os }}-${{ runner.arch }}-tools-${{ hashFiles('tools/tools.conf') }}
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-tools-
+            ${{ runner.os }}-${{ runner.arch }}-cache-
+
+      - uses: jdx/mise-action@v3
+        with:
+          experimental: true
 
       - name: Build
         env:
@@ -40,7 +41,7 @@ jobs:
           LOG_LEVEL: debug
           LOG_FORMAT: plain
           PRODUCTION: false
-        run: make build
+        run: just build
 
       - name: Check
         env:
@@ -50,8 +51,7 @@ jobs:
           LOG_LEVEL: debug
           LOG_FORMAT: plain
           PRODUCTION: false
-        run: |
-          make check
+        run: just check
 
       - name: Tests
         env:
@@ -61,4 +61,4 @@ jobs:
           LOG_LEVEL: debug
           LOG_FORMAT: plain
           PRODUCTION: false
-        run: make test
+        run: just test
