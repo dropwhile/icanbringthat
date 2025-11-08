@@ -27,7 +27,7 @@ require (
 	github.com/pashagolub/pgxmock/v4 v4.9.0
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.55.0
+	github.com/quic-go/quic-go v0.56.0
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/samber/mo v1.16.0
 	github.com/yuin/goldmark v1.7.13
@@ -83,8 +83,8 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251103181224-f26f9409b101 // indirect
