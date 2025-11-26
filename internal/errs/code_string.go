@@ -33,7 +33,7 @@ var _Code_index = [...]uint8{0, 7, 15, 22, 37, 53, 61, 74, 90, 107, 125, 132, 14
 
 func (i Code) String() string {
 	idx := int(i) - 0
-	if idx >= len(_Code_index)-1 {
+	if i < 0 || idx >= len(_Code_index)-1 {
 		return "Code(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _Code_name[_Code_index[idx]:_Code_index[idx+1]]
