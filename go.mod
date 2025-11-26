@@ -27,8 +27,8 @@ require (
 	github.com/pashagolub/pgxmock/v4 v4.9.0
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.57.0
-	github.com/redis/go-redis/v9 v9.17.0
+	github.com/quic-go/quic-go v0.57.1
+	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/mo v1.16.0
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
