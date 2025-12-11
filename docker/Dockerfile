@@ -2,7 +2,7 @@
 
 # do the building
 FROM golang:alpine AS builder
-RUN apk add --no-cache ca-certificates tzdata make git
+RUN apk add --no-cache ca-certificates tzdata make git just
 WORKDIR /workdir
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest; rm -rf /go/pkg/ /root/.cache/
 COPY go.mod go.sum ./
@@ -10,7 +10,7 @@ RUN go mod download
 COPY . ./
 ARG GITHASH
 ARG APP_VER
-RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
+RUN env APP_VER="${APP_VER}" GITHASH="${GITHASH}" just build; rm -rf /root/.cache/
 
 # make runnable image
 FROM alpine:latest
