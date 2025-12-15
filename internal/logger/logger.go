@@ -105,6 +105,8 @@ func Fatal(msg string, args ...any) {
 	os.Exit(1)
 }
 
+// LogSkip logs with source context, and provides the skip parameter
+// to define how many calls in the stack to skip for the call site.
 func LogSkip(logger *slog.Logger, skip int, level slog.Level,
 	ctx context.Context, msg string, args ...any,
 ) {
@@ -135,6 +137,8 @@ func LogSkip(logger *slog.Logger, skip int, level slog.Level,
 	_ = handler.Handle(ctx, r)
 }
 
+// LogSkip logs (with Attrs) with source context, and provides the skip
+// parameter to define how many calls in the stack to skip for the call site.
 func LogAttrsSkip(logger *slog.Logger, skip int, level slog.Level,
 	ctx context.Context, msg string, attrs ...slog.Attr,
 ) {

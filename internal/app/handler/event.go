@@ -164,8 +164,8 @@ func (x *Handler) EventShow(w http.ResponseWriter, r *http.Request) {
 		// (note: this example isn't especially slow)
 		slog.DebugContext(ctx, "item sorting",
 			slog.Any("sortOrder",
-				logger.DeferOperation(event.ItemSortOrder, func(i []int) string {
-					return fmt.Sprintf("%v", i)
+				logger.DeferOperation(func() string {
+					return fmt.Sprintf("%v", event.ItemSortOrder)
 				})),
 		)
 		sortSet := util.ToSetIndexed(event.ItemSortOrder)
