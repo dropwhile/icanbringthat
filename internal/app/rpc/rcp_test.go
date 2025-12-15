@@ -6,7 +6,6 @@ package rpc
 import (
 	"errors"
 	"flag"
-	"os"
 	"testing"
 	"time"
 
@@ -36,5 +35,5 @@ func TestMain(m *testing.M) {
 	// call flag.Parse() here if TestMain uses flags
 	flag.Parse()
 	logger.SetupLogging(logger.NewTestLogger, nil)
-	os.Exit(m.Run())
+	m.Run()
 }

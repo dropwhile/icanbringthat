@@ -6,7 +6,6 @@ package session
 import (
 	"bytes"
 	"flag"
-	"os"
 	"testing"
 
 	"github.com/dropwhile/icanbringthat/internal/logger"
@@ -22,5 +21,5 @@ func TestMain(m *testing.M) {
 			Sink: logBuffer,
 		},
 	)
-	os.Exit(m.Run())
+	m.Run()
 }

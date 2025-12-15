@@ -10,7 +10,6 @@ import (
 	"log/slog"
 	"os"
 	"runtime"
-	"strings"
 	"time"
 )
 
@@ -57,29 +56,10 @@ func NewJsonLogger(opts Options) *slog.Logger {
 }
 
 func NewTestLogger(opts Options) *slog.Logger {
-	if opts.Sink == nil {
-		opts.Sink = os.Stderr
-	}
 	// always omit time for test logs,
 	// to enable log matching if desired.
 	opts.OmitTime = true
-	logHandler := slog.NewTextHandler(
-		opts.Sink,
-		&slog.HandlerOptions{
-			Level:       logLevel,
-			AddSource:   !opts.OmitSource,
-			ReplaceAttr: replaceAttr(opts),
-		},
-	)
-
-	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
-	case "debug":
-		logLevel.Set(slog.LevelDebug)
-	default:
-		logLevel.Set(slog.LevelInfo)
-	}
-
-	return NewContextHandler(logHandler, opts)
+	return NewConsoleLogger(opts)
 }
 
 func SetupLogging(mkLogger func(Options) *slog.Logger, opts *Options) {
@@ -149,9 +129,8 @@ func LogAttrsSkip(logger *slog.Logger, skip int, level slog.Level,
 		return
 	}
 
-	handler := logger.Handler()
 	addSrc := true
-	if ctxhandler, ok := handler.(*ContextHandler); ok {
+	if ctxhandler, ok := logger.Handler().(*ContextHandler); ok {
 		if ctxhandler.opts.OmitSource {
 			addSrc = false
 		}
